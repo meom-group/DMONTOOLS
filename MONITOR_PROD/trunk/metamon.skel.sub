@@ -1,0 +1,93 @@
+#!/bin/ksh
+### PBS is valid on JADE
+#PBS -N zmetamon
+#PBS -l select=<NB_NODES>:ncpus=<MPIPROC>:mpiprocs=<MPIPROC>
+#PBS -l walltime=01:00:00
+#PBS -l cluster=hpt
+##PBS -l place=scatter:excl
+#PBS -M <MAIL>
+#PBS -mb -me
+##PBS -v R_MONITOR=<R_MONITOR>,NB_NODES=<NB_NODES>
+#PBS -v NB_NODES=<NB_NODES>
+
+### LoadLeveler on ULAM and VARGAS
+## title of the run
+# @ job_name = zmetamon
+## Output listing location
+# @ output = $(job_name).$(jobid)
+# @ error  = $(output)
+# @ job_type = <JOBTYPE>
+### DO NEVER ERASE THE FOLLOWING LINE
+#ifloadlev# @ total_tasks = <NB_NPROC>
+# @ wall_clock_limit = 3600
+# @ data_limit = 3.2gb
+# @ queue
+
+## If R_MONITOR is a TMPDIR created by the job manager :
+## the scripts copied by RUN_metamon.ksh are lost in the haze of a forgotten no man's land
+## so we copy another time. If they are already there, it could do no harm
+
+RNDTMPDIR=<RNDTMPDIR>
+
+if [ $RNDTMPDIR == 1 ] ; then
+
+cp ./config_def.ksh         $TMPDIR
+cp ./function_def.ksh       $TMPDIR
+
+cd $TMPDIR
+
+. ./config_def.ksh
+. ./function_def.ksh
+
+cp $PRODTOOLS/create_sections_list.ksh    $TMPDIR
+cp $PRODTOOLS/drakkar_sections_table.txt  $TMPDIR
+cp $PRODTOOLS/drakkar_trpsig_table.txt    $TMPDIR
+cp $PRODTOOLS/monitor_prod.ksh            $TMPDIR
+
+if [ $useMPI == 1 ] ; then cp $MPITOOLS/mpi_metamon $TMPDIR ; fi
+
+else
+
+cd <R_MONITOR>
+
+. ./config_def.ksh
+. ./function_def.ksh
+
+fi
+
+
+# set the list of years you want to monitor 'at once'  
+yinit=<year1>              # initial year 
+yend=<year2>
+
+YEARS=$( seq $yinit $yend )
+
+
+if [ $useMPI = 1 ] ; then
+### Yeah baby it is parallel !!!
+
+if [ $MACHINE = 'jade' ] ; then
+#/usr/pbs/bin/mpiexec -n $NB_NPROC $WORKDIR/bin/mpi_metamon $YEARS  # old: mpi_metamon is now copied into working dir
+/usr/pbs/bin/mpiexec -n <NB_NPROC> ./mpi_metamon $YEARS
+else
+# ulam
+./mpi_metamon $YEARS
+fi
+
+else
+### damn it is only sequential...
+### this allows to ensure compatibility for most of the tags
+  if [ ${#yinit} -gt 4 ] ; then
+     # interannual plot
+     ./monitor_prod.ksh $yinit
+  elif [ ${#yinit} -gt 4 ] ; then
+     # standard modern year
+     ./monitor_prod.ksh $yinit
+  else
+     # climato runs
+     yinit=$( printf "%04d" $yinit ) 
+     ./monitor_prod.ksh $yinit
+  fi
+
+
+fi

@@ -1,0 +1,68 @@
+#!/bin/ksh
+
+## utility to compress the CONFCASE-DIAGS directory
+## 
+
+##########################################################################################
+
+## Check if SDIR is defined
+
+if [ -z $SDIR ] ; then
+   echo '*** SDIR must be defined, please check that your .profile ( or .cshrc ...) '
+   echo '    has DRAKKAR environement variables correctly defined '
+   exit 0
+fi
+
+## Check for args
+
+if  (( $# < 4 )) || (( $# > 5 )) ; then
+    echo '*** USAGE: compress_diags.ksh CONFIG CASE FIRSTYEAR LASTYEAR (optional : REMOTE_MACHINE)'
+    echo '*** EXAMPLE : compress_diags.ksh NATL025 GRD81 1980 1990 gaya'
+    exit 0
+fi
+
+##########################################################################################
+
+CONFIG=$1 ; CASE=$2 ; FRSTYEAR=$3 ; LASTYEAR=$4 ; REMOTE=NO
+if [ $# == 5 ] ; then
+   REMOTE=YES ; rmachine=$5
+fi
+CONFCASE=${CONFIG}-${CASE}
+DIAGS=${SDIR}/${CONFIG}/${CONFCASE}-DIAGS
+
+## create list of years
+LYEAR='' ; n=$FRSTYEAR
+
+while (( $n <= $LASTYEAR )) ; do
+  nnnn=$( printf "%04d" $n ) 
+  LYEAR="$LYEAR $nnnn "
+  n=$(( $n + 1 ))
+done
+
+##########################################################################################
+
+case $REMOTE in
+YES) echo 'Working on remote machine' ; 
+     ssh $rmachine " if [ ! -d $DIAGS ] ; then echo "Your diags directory $DIAGS does not exists" ; exit 1 ; fi " ;
+
+     for year in $LYEAR ; do
+        ssh $rmachine " if [ -d $DIAGS ] ; then 
+        cd $DIAGS ; tar -cvf ${CONFCASE}_DIAGS_y${year}.tar ${CONFCASE}_y${year}* ; fi "
+        ssh $rmachine " if [ -d $DIAGS/NC ] ; then 
+        cd $DIAGS/NC ; tar -cvf ${CONFCASE}_DIAGS_NC_y${year}.tar ${CONFCASE}_y${year}* ; fi "
+        ssh $rmachine " if [ -d $DIAGS/TXT ] ; then 
+        cd $DIAGS/TXT ; tar -cvf ${CONFCASE}_DIAGS_TXT_y${year}.tar ${CONFCASE}_y${year}* ; fi "
+     done ;; 
+
+
+NO)  echo 'Working on local machine' ; 
+     if [ ! -d $DIAGS ] ; then echo "Your diags directory $DIAGS does not exists" ; exit 1 ; fi ;
+
+     for year in $LYEAR ; do
+        if [ -d $DIAGS ] ; then cd $DIAGS ; tar -cvf ${CONFCASE}_DIAGS_y${year}.tar ${CONFCASE}_y${year}* ; fi
+        if [ -d $DIAGS/NC  ] ; then cd $DIAGS/NC  ; tar -cvf ${CONFCASE}_DIAGS_NC_y${year}.tar ${CONFCASE}_y${year}* ; fi
+        if [ -d $DIAGS/TXT ] ; then cd $DIAGS/TXT ; tar -cvf ${CONFCASE}_DIAGS_TXT_y${year}.tar ${CONFCASE}_y${year}* ; fi
+     done ;; 
+
+esac
+

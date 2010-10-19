@@ -1,0 +1,96 @@
+#!/bin/ksh
+### PBS is valid on JADE
+#PBS -N zplotmonitor
+#PBS -l select=<NB_NODES>:ncpus=<MPIPROC>:mpiprocs=<MPIPROC>
+#PBS -l walltime=02:00:00
+#PBS -l cluster=hpt
+#PBS -M <MAIL>
+#PBS -mb -me
+#PBS -v NB_NODES=<NB_NODES>
+
+### LoadLeveler on ULAM and VARGAS
+## title of the run
+# @ job_name = zplotmonitor
+## Output listing location
+# @ output = $(job_name).$(jobid)
+# @ error  = $(output)
+# @ job_type = <JOBTYPE>
+#ifloadlev# @ total_tasks = <NB_NPROC>
+# @ wall_clock_limit = 72000
+# @ data_limit = 3.2gb
+# @ queue
+
+
+#set -x
+RNDTMPDIR=<RNDTMPDIR>
+
+if [ $RNDTMPDIR == 1 ] ; then
+
+cp ./config_def.ksh         $TMPDIR
+cp ./function_def.ksh       $TMPDIR
+
+cd $TMPDIR
+
+. ./config_def.ksh
+. ./function_def.ksh
+
+cp -rf $PLOTTOOLS/PALDIR              $TMPDIR
+cp     $PLOTTOOLS/plot_monitor.ksh    $TMPDIR
+
+if [ $useMPI == 1 ] ; then cp $MPITOOLS/mpi_plot_monitor $TMPDIR ; fi
+
+else
+
+cd <P_MONITOR>
+
+. ./config_def.ksh
+. ./function_def.ksh
+
+fi
+
+# set the list of years you want to monitor 'at once'  
+yinit=<year1>
+yend=<year2>
+single=$( echo $yinit | awk '{ print index($1,"-") }' )
+
+
+if [ $single = 0 ] ; then
+  YEARS=$( seq $yinit $yend )
+else
+  YEARS=$yinit
+fi
+
+  
+if [ $useMPI = 1 ] ; then
+# MPI execution
+
+  if [ $MACHINE = 'jade' ] ; then
+    # mpi_plot_monitor $YEARS 
+    #  Then each proc is expecting a command such as plot_monitor.ksh  $year
+    if [ single = 0 ] ; then
+    /usr/pbs/bin/mpiexec -n <NB_NPROC> ./mpi_plot_monitor $YEARS
+    else
+     ./plot_monitor.ksh $YEARS
+    fi
+
+   else
+   #ulam
+    ./mpi_plot_monitor $YEARS
+   fi
+
+else
+
+### this allows to ensure compatibility for most of the tags
+  if [ ${#yinit} -gt 4 ] ; then
+     # interannual plot
+     ./plot_monitor.ksh $yinit
+  elif [ ${#yinit} -gt 4 ] ; then
+     # standard modern year
+     ./plot_monitor.ksh $yinit
+  else
+     # climato runs
+     yinit=$( printf "%04d" $yinit ) 
+     ./plot_monitor.ksh $yinit
+  fi
+
+fi

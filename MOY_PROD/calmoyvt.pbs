@@ -1,0 +1,31 @@
+#!/bin/ksh
+#PBS -N zmvt_<year>
+#PBS -l select=2:ncpus=8:mpiprocs=6
+#PBS -l walltime=0:30:00
+#PBS -l cluster=hpt
+##PBS -mb -me
+#PBS -v NB_NODES=2,NB_NPROC=12
+
+set -x
+CONFIG=<CONFIG>
+CASE=<CASE>
+
+CONFCASE=${CONFIG}-${CASE}
+CTL_DIR=${HOME}/RUN_${CONFIG}/${CONFCASE}/CTL/CDF
+
+. $HOME/.profile
+cd $CTL_DIR
+. ./config_moy.ksh
+
+liste=''
+for m in $(seq 1 12 ) ; do
+   mm=$(printf "%02d" $m )
+   liste="$liste zz_calmoyvt_${mm}_<year>.ksh"
+done
+
+#
+module load netcdf
+
+/usr/pbs/bin/mpiexec -n $NB_NPROC $WORKDIR/bin/mpi_shell $liste
+
+

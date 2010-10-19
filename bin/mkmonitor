@@ -1,0 +1,97 @@
+#!/bin/ksh
+#
+#  mkmonitor script :
+#  This script is used to create the CTL/CDF directory for the monitoring of a DRAKKAR run
+#
+#  For CONFIG xxx and CASE yyy
+#  It creates (if necessary) directories in 
+#  ${PDIR} : Production directory where monitor scripts will be. 
+#            PDIR has to be defined in environment. 
+#            RUN_xxx
+#            RUN_xxx/xxx-yyy
+#            RUN_xxx/xxx-yyy/CTL
+#            RUN_xxx/xxx-yyy/CTL/CDF
+#
+
+### The path to this script must be in your directory
+usage() {   echo 'usage : mkmonitor CONFIG CASE'
+            echo '  or  : mkmonitor -a'
+            echo '        with -a CONFIG and CASE are taken from the actual directory'
+            echo '        in this latter case, the command must be issued from CTL dir'
+  exit 1   ; }
+
+     
+### browse command line and look for the used syntax. Issue message error and usage  if necessary
+if [ $#  = 2 ] ; then
+  CONFIG=$1
+  CASE=$2
+elif [ $# = 1 ] ; then
+   if [ $1 = '-a' ] ; then
+     tmp=$(pwd) 
+     if [ $(basename $tmp) != 'CTL' ] ; then
+      echo ' you must be in a CTL dir when using the -a option'
+      usage
+     else
+      CONFCASE=$( basename  $(dirname $tmp) )
+      CONFIG=${CONFCASE%-*}
+      CASE=${CONFCASE#*-}
+    fi
+   else
+    echo "$1 is not a valid option"
+    usage
+   fi
+else
+  usage
+fi
+
+echo
+echo Create several directory to install the ${CONFIG}-${CASE} monitoring
+echo
+
+# Check for the environment variables  PDIR 
+if [ ! $PDIR ] ; then 
+   echo Environment variable : PDIR not set ... do it before running this script.
+   exit 1
+fi
+
+# Create directories on $PDIR (production)
+###############################
+
+chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; else echo $1 exists ; fi ; }
+
+cd $PDIR
+echo CREATING on $PDIR '(PDIR)'
+echo '================================='
+
+chkdir RUN_${CONFIG}
+chkdir RUN_${CONFIG}/${CONFIG}-${CASE}
+chkdir RUN_${CONFIG}/${CONFIG}-${CASE}/CTL
+chkdir RUN_${CONFIG}/${CONFIG}-${CASE}/CTL/CDF
+
+# Copy files for monitoring
+###############################
+
+P_CDF_DIR=$PDIR/RUN_${CONFIG}/${CONFIG}-${CASE}/CTL/CDF
+
+# find the DMONTOOLS directory 
+SRCDIR=$( which mkmonitor | sed -e "s/mkmonitor//" )
+
+cp $SRCDIR/function_def.ksh       $P_CDF_DIR/.
+cp $SRCDIR/RUN_metamon.ksh        $P_CDF_DIR/.
+cp $SRCDIR/RUN_plot_monitor.ksh   $P_CDF_DIR/.
+
+HOSTNAME=`hostname`
+
+# save existing config_def.ksh for reference
+if [ -f $P_CDF_DIR/config_def.ksh ] ; then 
+  mv $P_CDF_DIR/config_def.ksh $P_CDF_DIR/config_def.ksh.$$ 
+  echo Existing config_def.ksh renamed $P_CDF_DIR/config_def.ksh.$$
+fi
+
+cat $SRCDIR/config_def.ksh | sed -e "s/<CONFIG>/${CONFIG}/" -e "s/<CASE>/${CASE}/" \
+    -e "s/<MACHINE>/$HOSTNAME/" > $P_CDF_DIR/config_def.ksh
+
+cat $SRCDIR/run_monitor_py_standalone.ksh | sed -e "s/<CONFIG>/${CONFIG}/" -e "s/<CASE>/${CASE}/" \
+    > $P_CDF_DIR/run_monitor_py_standalone.ksh
+
+echo "install for ${CONFIG}-${CASE} done "

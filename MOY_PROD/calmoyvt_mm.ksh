@@ -1,0 +1,27 @@
+#!/bin/ksh
+
+year=<year>          # year to use
+mm=<mm>              # month
+m=<m>                # month
+
+# get variables
+. ./config_moy.ksh
+# functions to  used here
+. ./function_moy.ksh
+
+# main program
+
+chkdir $VTTMPDIR
+chkdir $VTTMPDIR/$year
+
+monthlyvt $mm
+
+# Only for load leveler : add the following years
+##LL##  mbeg=$(( $mm + 1 ))  
+##LL##  mend=$(( $mm + $STEP -1 ))  
+##LL##  lmonth=$( seq $mbeg $mend )  
+##LL##  for zmonth in $lmonth ; do
+##LL##     zmonth=$( printf "%02d" $zmonth )
+##LL##     monthlyvt $zmonth
+##LL##  done  
+

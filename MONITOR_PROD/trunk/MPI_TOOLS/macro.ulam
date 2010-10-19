@@ -1,0 +1,5 @@
+# macro for ulam (IDRIS)
+
+FC=mpfort
+FFLAGS=-O3 -ip -ftz  -fno-alias  -fpe3  
+INSTALL=$(WORKDIR)/bin
