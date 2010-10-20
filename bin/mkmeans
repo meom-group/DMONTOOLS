@@ -81,6 +81,8 @@ cp $SRCDIR/RUN_calmoy.ksh           $P_CDF_DIR/.
 cp $SRCDIR/RUN_calmoy_LoadLev.ksh   $P_CDF_DIR/.
 cp $SRCDIR/RUN_calmoy_PBS.ksh       $P_CDF_DIR/.
 
+chmod +x $P_CDF_DIR/RUN_calmoy*.ksh
+
 HOSTNAME=`hostname`
 
 # save existing config_moy.ksh for reference
