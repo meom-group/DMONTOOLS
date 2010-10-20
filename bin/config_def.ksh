@@ -229,8 +229,8 @@ case $MACHINE in
     CDFTOOLS=$WORKDIR/CDFTOOLS_forge/
     ### 2.2 : CHART/COUPE executables
     CHARTTOOLS=$HOME/bin/
-    CHART=$CHARTTOLLS/chart # name of CHART executable
-    COUPE=$CHARTTOLLS/coupe # name of COUPE executable
+    CHART=$CHARTTOOLS/chart # name of CHART executable
+    COUPE=$CHARTTOOLS/coupe # name of COUPE executable
     ### 2.3 : Directory of the DMONTOOLS scripts
     PRODTOOLS=$HOME/DMONTOOLS/MONITOR_PROD                    # MONITOR PROD
     PLOTTOOLS=$HOME/DMONTOOLS/PLOT_2D                         # PLOT 2D
