@@ -159,7 +159,6 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     nbzone = north + south
     nbplotline = 3
     fig_size = [float(nbplotline) * 6., float(nbzone) * 5.]
-    print fig_size
     if figure is None: # by default create a new figure
           figure = plt.figure(figsize=fig_size)
 

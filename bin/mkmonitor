@@ -94,4 +94,6 @@ cat $SRCDIR/config_def.ksh | sed -e "s/<CONFIG>/${CONFIG}/" -e "s/<CASE>/${CASE}
 cat $SRCDIR/run_monitor_py_standalone.ksh | sed -e "s/<CONFIG>/${CONFIG}/" -e "s/<CASE>/${CASE}/" \
     > $P_CDF_DIR/run_monitor_py_standalone.ksh
 
+chmod +x $P_CDF_DIR/run_monitor_py_standalone.ksh
+
 echo "install for ${CONFIG}-${CASE} done "

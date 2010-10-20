@@ -2,12 +2,24 @@
 #QSUB -eo
 #QSUB -lT 3600 -lM 1gb  -l mpp_p=4
 
-#PBS -N mktime_serie
+#PBS -N make_movies
 #PBS -l select=1:ncpus=8:mpiprocs=8
 #PBS -l walltime=20:00:00
 #PBS -l place=scatter:excl
 ##PBS -M molines@hmg.inpg.fr
 #PBS -mb -me
+
+### LoadLeveler on ULAM and VARGAS
+## title of the run
+# @ job_name = make_movies
+## Output listing location
+# @ output = $(job_name).$(jobid)
+# @ error  = $(output)
+# @ job_type = serial
+# @ wall_clock_limit = 72000
+# @ as_limit = 2.0gb
+# @ data_limit = 3.2gb
+# @ queue
 
 #set -x
 

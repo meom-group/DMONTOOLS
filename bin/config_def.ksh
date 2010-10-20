@@ -196,12 +196,12 @@ case $MACHINE in
     CHART=chart # name of CHART executable
     COUPE=coupe # name of COUPE executable
     ### 2.3 : Directory of the DMONTOOLS scripts
-    PRODTOOLS=$HOME/DMONTOOLS/MONITOR_PROD/trunk # MONITOR PROD
-    PLOTTOOLS=$HOME/DMONTOOLS/PLOT_2D/trunk      # PLOT 2D
-    TIMESERIES=$HOME/DMONTOOLS/TIME_SERIES/python/pydmontools/trunk # TIME SERIES
+    PRODTOOLS=$HOME/DMONTOOLS/MONITOR_PROD       # MONITOR PROD
+    PLOTTOOLS=$HOME/DMONTOOLS/PLOT_2D            # PLOT 2D
+    TIMESERIES=$HOME/DMONTOOLS/TIME_SERIES/python/pydmontools     # TIME SERIES
     DATAOBSDIR=$TIMESERIES/data/NC
     ### 2.4 : Directory of the MPI_TOOLS executables
-    MPITOOLS=$HOME/DMONTOOLS/MONITOR_PROD/trunk/MPI_TOOLS
+    MPITOOLS=$HOME/DMONTOOLS/MPI_TOOLS
     ### 3. Working and storage directories
     ### 3.1 : Root of working directory for the monitor_prod 
     R_MONITOR=$WORKDIR/MONITOR_${CONFCASE}/
@@ -229,15 +229,15 @@ case $MACHINE in
     CDFTOOLS=$WORKDIR/CDFTOOLS_forge/
     ### 2.2 : CHART/COUPE executables
     CHARTTOOLS=$HOME/bin/
-    CHART=chart # name of CHART executable
-    COUPE=coupe # name of COUPE executable
+    CHART=$CHARTTOLLS/chart # name of CHART executable
+    COUPE=$CHARTTOLLS/coupe # name of COUPE executable
     ### 2.3 : Directory of the DMONTOOLS scripts
-    PRODTOOLS=$HOME/DMONTOOLS/MONITOR_PROD/trunk # MONITOR PROD
-    PLOTTOOLS=$HOME/DMONTOOLS/PLOT_2D/trunk      # PLOT 2D
-    TIMESERIES=$HOME/DMONTOOLS/TIME_SERIES/python/pydmontools/trunk # TIME SERIES
+    PRODTOOLS=$HOME/DMONTOOLS/MONITOR_PROD                    # MONITOR PROD
+    PLOTTOOLS=$HOME/DMONTOOLS/PLOT_2D                         # PLOT 2D
+    TIMESERIES=$HOME/DMONTOOLS/TIME_SERIES/python/pydmontools # TIME SERIES
     DATAOBSDIR=$TIMESERIES/data/NC
     ### 2.4 : Directory of the MPI_TOOLS executables
-    MPITOOLS=$HOME/DMONTOOLS/MONITOR_PROD/trunk/MPI_TOOLS
+    MPITOOLS=$HOME/DMONTOOLS/MPI_TOOLS
     ### 3. Working and storage directories
     ### 3.1 : Root of working directory for the monitor_prod 
     R_MONITOR=$WORKDIR/MONITOR_${CONFCASE}/
@@ -268,12 +268,12 @@ case $MACHINE in
     CHART=chart # name of CHART executable
     COUPE=coupe # name of COUPE executable
     ### 2.3 : Directory of the DMONTOOLS scripts
-    PRODTOOLS=$HOME/DMONTOOLS/MONITOR_PROD/trunk # MONITOR PROD
-    PLOTTOOLS=$HOME/DMONTOOLS/PLOT_2D/trunk      # PLOT 2D
-    TIMESERIES=$HOME/DMONTOOLS/TIME_SERIES/python/pydmontools/trunk # TIME SERIES
+    PRODTOOLS=$HOME/DMONTOOLS/MONITOR_PROD       # MONITOR PROD
+    PLOTTOOLS=$HOME/DMONTOOLS/PLOT_2D            # PLOT 2D
+    TIMESERIES=$HOME/DMONTOOLS/TIME_SERIES/python/pydmontools  # TIME SERIES
     DATAOBSDIR=$TIMESERIES/data/NC
     ### 2.4 : Directory of the MPI_TOOLS executables
-    MPITOOLS=$HOME/DMONTOOLS/MONITOR_PROD/trunk/MPI_TOOLS
+    MPITOOLS=$HOME/DMONTOOLS/MPI_TOOLS
     ### 3. Working and storage directories
     ### 3.1 : Root of working directory for the monitor_prod 
     R_MONITOR=$WORKDIR/MONITOR_${CONFCASE}/

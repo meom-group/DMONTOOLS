@@ -492,8 +492,8 @@ fi
 
 cd $MONITOR
 
-#for file in `ls | grep .nc ` ; do
-#   copy_nc_to_web $file
-#done
+for file in `ls | grep .nc ` ; do
+   copy_nc_to_web $file
+done
 
 

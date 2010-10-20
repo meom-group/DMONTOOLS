@@ -3,6 +3,17 @@
 #QSUB -lT 3600 -lM 1gb  -l mpp_p=4
 export OMP_NUM_THREADS=1
 
+### LoadLeveler on ULAM and VARGAS
+## title of the run
+# @ job_name = make_movies
+## Output listing location
+# @ output = $(job_name).$(jobid)
+# @ error  = $(output)
+# @ job_type = serial
+# @ wall_clock_limit = 72000
+# @ as_limit = 2.0gb
+# @ data_limit = 3.2gb
+# @ queue
 
 #set -x
 

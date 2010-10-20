@@ -170,7 +170,7 @@ def _readnc(filenc=None,fileobs1=None,fileobs2=None,fileobs3=None,fileobs4=None,
             vars()['lati_model'+str(j)]=`int(lat)`+'S'
         outdict['m_Latitude'+str(j)] = vars()['lati_model'+str(j)]
     #
-        print outdict['m_Longitude'+str(j)]
+        #print outdict['m_Longitude'+str(j)]
     return outdict   #return the dictionnary of values
 
 #=======================================================================
@@ -207,10 +207,10 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
                       + str(int(vars()['o_serie_Profondeur'+str(j)]))+'m', fontsize=10)
             plt.legend()
         if j!=1:
-            print j
-            print vars()['m_Longitude'+str(j)]
-            print vars()['m_Latitude'+str(j)]
-            print vars()['o_serie_Profondeur'+str(j)]
+            #print j
+            #print vars()['m_Longitude'+str(j)]
+            #print vars()['m_Latitude'+str(j)]
+            #print vars()['o_serie_Profondeur'+str(j)]
             plt.title(vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)]+' '+
                       str(int(vars()['o_serie_Profondeur'+str(j)]))+'m',fontsize=10)
         if j==3:
