@@ -81,7 +81,7 @@
 \section{Introduction}
 
 The Drakkar MONitoring TOOLS (hereafter DMONTOOLS) is a package to perform the monitoring of DRAKKAR simulations. It includes 
-3 subpackages :
+4 subpackages :
 
 
 
@@ -93,7 +93,7 @@ The Drakkar MONitoring TOOLS (hereafter DMONTOOLS) is a package to perform the m
   start chain=going below,]
 
     \node [punktchain](modelout){Model Outputs};
-	\node [punktchain, below of=modelout, node distance = 0.8cm, fill=green!40 ](cdftools){CDFTOOLS};
+	\node [punktchain, below of=modelout, node distance = 0.8cm, fill=green!40 ](cdftools){MOY PROD};
 	\node [punktchain, below of=cdftools, node distance = 0.8cm](means){Annual/Monthly means + VT};
 	\node [punktchain, below of=means, node distance = 0.8cm, fill=red!40 ](dmontools){MONITOR PROD};
 	\node [punktchain, left of=dmontools, node distance = 5cm, fill=blue!40 ](timeseries){TIME SERIES};
@@ -115,6 +115,7 @@ The Drakkar MONitoring TOOLS (hereafter DMONTOOLS) is a package to perform the m
 \end{center}
 
 \begin{enumerate}
+\item MOY\_PROD : Computes annual means and VT files
 \item MONITOR\_PROD : Computes diagnostics on model outputs (usually annual or monthly means) and produces small netcdf
 files which contains time-series of diagnosed quantities.
 \item TIME\_SERIES : Creates the time-series diagrams  from the files created by MONITOR\_PROD.
@@ -145,7 +146,6 @@ In this section, we show how to install the DMONTOOLS package on ulam, choosing 
 directory. Adjust to your own machine and taste.
 
 
-
 \begin{enumerate}
 
 \item \textbf{Make sure you have your Drakkar Config Manager variables set :}
@@ -156,7 +156,7 @@ SDIR to data directory)
 \item \textbf{Checkout the package :}
 
 \begin{verbatim}
-svn co https://servforge.legi.grenoble-inp.fr/svn/DMONTOOLS DMONTOOLS
+svn co https://servforge.legi.grenoble-inp.fr/svn/DMONTOOLS/tags/1.0 DMONTOOLS
 \end{verbatim}
 
 \item \textbf{Add DMONTOOLS/bin to your path :}
@@ -179,7 +179,7 @@ gmake
 cd $HOME
 mkdir lib/python/pydmontools
 mkdir bin/pydmontools
-cd $WORKDIR/DMONTOOLS/TIME_SERIES/pydmontools/
+cd $WORKDIR/DMONTOOLS/TIME_SERIES/python/pydmontools/
 python setup.py install --install-lib=$HOME/lib/python/pydmontools  
 --install-scripts=$HOME/bin/pydmontools
 \end{verbatim}
@@ -188,7 +188,7 @@ python setup.py install --install-lib=$HOME/lib/python/pydmontools
 
 \begin{verbatim}
 export PATH=$HOME/bin/pydmontools:$PATH
-export PYTHONPATH="PYTHONPATH:$HOME/lib/python/pydmontools"
+export PYTHONPATH="$PYTHONPATH:$HOME/lib/python/pydmontools"
 \end{verbatim}
 
 \end{enumerate}
@@ -197,6 +197,41 @@ export PYTHONPATH="PYTHONPATH:$HOME/lib/python/pydmontools"
 \newpage
 
 \section{Usage}
+
+\subsection{Computing the Means and VT}
+
+The MOY\_PROD subpackage allows to compute the means and VT in parallel jobs. It computes one year
+at the time but split the computation onto 12 processors for means (one proc per month) and 12 more
+processors for VT.
+\\[0.2cm]
+\par
+
+
+\begin{enumerate}
+\item  \textbf{mkmeans \textit{CONFIG CASE} :}
+
+This command creates a RUN\_CONFIG/CONFIG\_CASE/CTL/CDF directory and copies the necessary
+scripts for the means and VT computation.
+
+\item \textbf{go to CDF directory and edit config\_moy.ksh :}
+
+The config\_moy.ksh is your configuration file for your CONFIG CASE. Some informations are
+filled automatically whereas some needs to be edited by hand. Pay attention to the
+TYP\_LIST which must contains the file types you want to proceed.
+
+\item \textbf{./RUN\_calmoy.ksh \textit{year}}
+
+According to the batch manager defined in config\_moy.ksh, this script executes
+RUN\_calmoy\_LoadLev.ksh or RUN\_calmoy\_PBS.ksh with the given year.
+
+\end{enumerate}
+
+\subsection{Doing the Monitoring}
+
+The subpackages MONITOR\_PROD and PLOT\_2D also allow to do the monitoring in parallel jobs.
+This time, each processor is dedicated to one particuliar year.
+\\[0.2cm]
+\par
 
 \begin{enumerate}
 \item \textbf{mkmonitor \textit{CONFIG CASE} :}
@@ -217,10 +252,10 @@ This script will submit the MONITOR\_PROD part of the DMONTOOLS. It takes two ye
 of the set of years you want to compute in the job. In a serial job, only the first arguement is used (give anything as year2).
 This produces a set of small netcdf and text files stored in CONFCASE-DIAGS on the storage machine.
 
-\item \textbf{./make\_ncdf\_timeseries.ksh \textit{CONFIG CASE YEAR1} :}
+\item \textbf{./make\_ncdf\_timeseries.ksh \textit{CONFIG CASE YEAR0} :}
 
 This produces concatenated netcdf from those computed by MONITOR\_PROD and stores them in CONFCASE-MONITOR. 
-YEAR1 must be the starting year of the run, not the first year of the monitoring.
+YEAR0 must be the starting year of the run, not the first year of the monitoring.
 Those netcdf files are ready to be processed by the TIME\_SERIES subpackage.
 
 \item \textbf{./run\_monitor\_py :}
@@ -235,7 +270,7 @@ It produces cgm files in the PLOTS directory.
 \item \textbf{./make\_movies.ksh :}
 
 This script produces animated gif from the cgm files in the PLOTS directory. There is also a version for tracers
-(\textit{make\_movies\_trc.ksh}).
+(\textit{make\_movies\_trc.ksh}). Those jobs can be submitted to the batch manager.
 
 \end{enumerate}
 
