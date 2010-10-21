@@ -871,7 +871,7 @@ cd $YEAR
      done
      	
   uclev=$( find_model_level depth 80 ${CONFCASE}_y${YEAR}_VELOCITY_0n110w.nc )
-  ncks -F -v u_110w -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n110w.nc \
+  ncks -F -O -v u_110w -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n110w.nc \
                      -o ${CONFCASE}_y${YEAR}_VELOCITY_0n110w_UC.nc
   newval=$( interpolation_vertical depth 80 u_110w ${CONFCASE}_y${YEAR}_VELOCITY_0n110w.nc )
   echo Value interpolated to $newval
@@ -879,7 +879,7 @@ cd $YEAR
   ncrename -O -v u_110w,u_110w_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n110w_UC.nc 
 
   uclev=$( find_model_level depth 120 ${CONFCASE}_y${YEAR}_VELOCITY_0n140w.nc )
-  ncks -F -v u_140w -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n140w.nc \
+  ncks -F -O -v u_140w -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n140w.nc \
                      -o ${CONFCASE}_y${YEAR}_VELOCITY_0n140w_UC.nc
   newval=$( interpolation_vertical depth 120 u_140w ${CONFCASE}_y${YEAR}_VELOCITY_0n140w.nc )
   echo Value interpolated to $newval
@@ -887,7 +887,7 @@ cd $YEAR
   ncrename -O -v u_140w,u_140w_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n140w_UC.nc 
 	
   uclev=$( find_model_level depth 150 ${CONFCASE}_y${YEAR}_VELOCITY_0n170w.nc ) 
-  ncks -F -v u_170w -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n170w.nc \
+  ncks -F -O -v u_170w -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n170w.nc \
                      -o ${CONFCASE}_y${YEAR}_VELOCITY_0n170w_UC.nc
   newval=$( interpolation_vertical depth 150 u_170w ${CONFCASE}_y${YEAR}_VELOCITY_0n170w.nc )
   echo Value interpolated to $newval
@@ -895,7 +895,7 @@ cd $YEAR
   ncrename -O -v u_170w,u_170w_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n170w_UC.nc 
 
   uclev=$( find_model_level depth 200 ${CONFCASE}_y${YEAR}_VELOCITY_0n156e.nc )
-  ncks -F -v u_156e -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n156e.nc \
+  ncks -F -O -v u_156e -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n156e.nc \
                      -o ${CONFCASE}_y${YEAR}_VELOCITY_0n156e_UC.nc
   newval=$( interpolation_vertical depth 200 u_156e ${CONFCASE}_y${YEAR}_VELOCITY_0n156e.nc )
   echo Value interpolated to $newval
@@ -903,7 +903,7 @@ cd $YEAR
   ncrename -O -v u_156e,u_156e_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n156e_UC.nc 
 
   uclev=$( find_model_level depth 200 ${CONFCASE}_y${YEAR}_VELOCITY_0n165e.nc )
-  ncks -F -v u_165e -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n165e.nc \
+  ncks -F -O -v u_165e -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n165e.nc \
                      -o ${CONFCASE}_y${YEAR}_VELOCITY_0n165e_UC.nc
   newval=$( interpolation_vertical depth 200 u_165e ${CONFCASE}_y${YEAR}_VELOCITY_0n165e.nc )
   echo Value interpolated to $newval
