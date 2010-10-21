@@ -113,7 +113,7 @@ case $MACHINE in
 
 
     ### META functions :
-    monthly() { m=$1  
+    monthly() { mm=$1  
        cd $TMPDIR/$MOYTMPDIR/$year
        chkdir $TMPDIR/$MOYTMPDIR/$year/$mm
        cd $TMPDIR/$MOYTMPDIR/$year/$mm
@@ -128,7 +128,7 @@ case $MACHINE in
          esac
        done ;}
 
-    monthlyvt() { m=$1  
+    monthlyvt() { mm=$1  
        cd $TMPDIR/$VTTMPDIR/$year
        chkdir $TMPDIR/$VTTMPDIR/$year/$mm
        cd $TMPDIR/$VTTMPDIR/$year/$mm
