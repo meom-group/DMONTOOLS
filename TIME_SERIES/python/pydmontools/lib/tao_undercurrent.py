@@ -152,7 +152,7 @@ def _readnc(filenc=None,fileobs1=None,fileobs2=None,fileobs3=None,fileobs4=None,
             outdict['m_Vitesse'+str(j)] = temp
         else:
             outdict['m_Vitesse'+str(j)] = temp[-1,:]
-        outdict['m_Valeur_sous_courant'+str(j)] = rs.readfilenc0d(filenc,'u_'+coordonnees[j-1]+'_UC')
+        outdict['m_Valeur_sous_courant'+str(j)] = rs.readfilenc(filenc,'u_'+coordonnees[j-1]+'_UC')
         #longitude
         #lon=rs.readfilenc(filenc,'nav_lon')
         #vars()['long_model'+str(j)]=''
@@ -170,7 +170,6 @@ def _readnc(filenc=None,fileobs1=None,fileobs2=None,fileobs3=None,fileobs4=None,
             vars()['lati_model'+str(j)]=`int(lat)`+'S'
         outdict['m_Latitude'+str(j)] = vars()['lati_model'+str(j)]
     #
-        #print outdict['m_Longitude'+str(j)]
     return outdict   #return the dictionnary of values
 
 #=======================================================================
@@ -200,17 +199,13 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         #
         timeplt = npy.array((m_Temps_serie),'f')
         uplt    = npy.array((100*vars()['m_Valeur_sous_courant'+str(j)]),'f')
-        plt.plot([timeplt],[uplt],'b-',linewidth=1,label='Model')
+        plt.plot(timeplt,uplt,'b-',linewidth=1,label='Model')
         if j==1:
             plt.title(argdict['config'] + '-' + argdict['case'] +  '\nSous courant - Moyennes Annuelles\n\n' 
                       + vars()['m_Longitude'+str(j)] + vars()['m_Latitude'+str(j)]+' '
                       + str(int(vars()['o_serie_Profondeur'+str(j)]))+'m', fontsize=10)
             plt.legend()
         if j!=1:
-            #print j
-            #print vars()['m_Longitude'+str(j)]
-            #print vars()['m_Latitude'+str(j)]
-            #print vars()['o_serie_Profondeur'+str(j)]
             plt.title(vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)]+' '+
                       str(int(vars()['o_serie_Profondeur'+str(j)]))+'m',fontsize=10)
         if j==3:
