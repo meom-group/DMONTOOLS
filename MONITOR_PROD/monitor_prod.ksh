@@ -875,7 +875,7 @@ cd $YEAR
                      -o ${CONFCASE}_y${YEAR}_VELOCITY_0n110w_UC.nc
   newval=$( interpolation_vertical depth 80 u_110w ${CONFCASE}_y${YEAR}_VELOCITY_0n110w.nc )
   echo Value interpolated to $newval
-  ncap -F -O -s "u_110w = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n110w_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n110w_UC.nc
+  ncap -F -O -s "u_110w[time_counter] = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n110w_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n110w_UC.nc
   ncrename -O -v u_110w,u_110w_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n110w_UC.nc 
 
   uclev=$( find_model_level depth 120 ${CONFCASE}_y${YEAR}_VELOCITY_0n140w.nc )
@@ -883,7 +883,7 @@ cd $YEAR
                      -o ${CONFCASE}_y${YEAR}_VELOCITY_0n140w_UC.nc
   newval=$( interpolation_vertical depth 120 u_140w ${CONFCASE}_y${YEAR}_VELOCITY_0n140w.nc )
   echo Value interpolated to $newval
-  ncap -F -O -s "u_140w = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n140w_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n140w_UC.nc
+  ncap -F -O -s "u_140w[time_counter] = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n140w_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n140w_UC.nc
   ncrename -O -v u_140w,u_140w_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n140w_UC.nc 
 	
   uclev=$( find_model_level depth 150 ${CONFCASE}_y${YEAR}_VELOCITY_0n170w.nc ) 
@@ -891,7 +891,7 @@ cd $YEAR
                      -o ${CONFCASE}_y${YEAR}_VELOCITY_0n170w_UC.nc
   newval=$( interpolation_vertical depth 150 u_170w ${CONFCASE}_y${YEAR}_VELOCITY_0n170w.nc )
   echo Value interpolated to $newval
-  ncap -F -O -s "u_170w = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n170w_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n170w_UC.nc
+  ncap -F -O -s "u_170w[time_counter] = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n170w_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n170w_UC.nc
   ncrename -O -v u_170w,u_170w_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n170w_UC.nc 
 
   uclev=$( find_model_level depth 200 ${CONFCASE}_y${YEAR}_VELOCITY_0n156e.nc )
@@ -899,7 +899,7 @@ cd $YEAR
                      -o ${CONFCASE}_y${YEAR}_VELOCITY_0n156e_UC.nc
   newval=$( interpolation_vertical depth 200 u_156e ${CONFCASE}_y${YEAR}_VELOCITY_0n156e.nc )
   echo Value interpolated to $newval
-  ncap -F -O -s "u_156e = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n156e_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n156e_UC.nc
+  ncap -F -O -s "u_156e[time_counter] = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n156e_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n156e_UC.nc
   ncrename -O -v u_156e,u_156e_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n156e_UC.nc 
 
   uclev=$( find_model_level depth 200 ${CONFCASE}_y${YEAR}_VELOCITY_0n165e.nc )
@@ -907,7 +907,7 @@ cd $YEAR
                      -o ${CONFCASE}_y${YEAR}_VELOCITY_0n165e_UC.nc
   newval=$( interpolation_vertical depth 200 u_165e ${CONFCASE}_y${YEAR}_VELOCITY_0n165e.nc )
   echo Value interpolated to $newval
-  ncap -F -O -s "u_165e = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n165e_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n165e_UC.nc
+  ncap -F -O -s "u_165e[time_counter] = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n165e_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n165e_UC.nc
   ncrename -O -v u_165e,u_165e_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n165e_UC.nc 
 
 
