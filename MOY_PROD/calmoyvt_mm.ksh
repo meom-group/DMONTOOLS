@@ -2,7 +2,6 @@
 
 year=<year>          # year to use
 mm=<mm>              # month
-m=<m>                # month
 
 # get variables
 . ./config_moy.ksh
