@@ -22,7 +22,6 @@ for m in $(seq 1 $STEP 12 ) ; do
 
    mm=$(printf "%02d" $m )
    cat $MPDIR/calmoy_mm.ksh | sed -e "s/<year>/$year/g" -e "s/<mm>/$mm/g" \
-                                  -e "s/<m>/$m/g"                         \
                                   -e "s/##LL##//g" > zz_calmoy_${mm}_$year.ksh
    chmod 755 zz_calmoy_${mm}_$year.ksh
    liste="$liste ./zz_calmoy_${mm}_$year.ksh"
