@@ -17,8 +17,8 @@ chkdir $VTTMPDIR/$year
 monthlyvt $mm
 
 # Only for load leveler : add the following years
-##LL##  mbeg=$(( $mm + 1 ))  
-##LL##  mend=$(( $mm + $STEP -1 ))  
+##LL##  mbeg=$(( $m + 1 ))  
+##LL##  mend=$(( $m + $STEP -1 ))  
 ##LL##  lmonth=$( seq $mbeg $mend )  
 ##LL##  for zmonth in $lmonth ; do
 ##LL##     zmonth=$( printf "%02d" $zmonth )

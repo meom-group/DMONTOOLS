@@ -21,8 +21,8 @@ chkdir $WPDIR
 cp -f config_moy.ksh $WPDIR
 cp -f function_moy.ksh $WPDIR
 
-cp -f mvcalmoy.ksh $WPDIR
-cp -f calannual.ksh $WPDIR
+cp -f $MPDIR/mvcalmoy.ksh $WPDIR
+cp -f $MPDIR/calannual.ksh $WPDIR
 
 # get year to work with
 year=$1
