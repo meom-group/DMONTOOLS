@@ -31,7 +31,7 @@ year=$1
 
 for m in $(seq 1 12 ) ; do
   mm=$(printf "%02d" $m )
-  cat $MPDIR/calmoy_mm.ksh | sed -e "s/<year>/$year/g" -e "s/<mm>/$mm/g" > $WPDIR/zz_calmoy_${mm}_$year.ksh
+  cat $MPDIR/calmoy_mm.ksh | sed -e "s/<year>/$year/g" -e "s/<mm>/$mm/g" -e "s/<m>/$m/g" > $WPDIR/zz_calmoy_${mm}_$year.ksh
   chmod 755 $WPDIR/zz_calmoy_${mm}_$year.ksh
 done
 
