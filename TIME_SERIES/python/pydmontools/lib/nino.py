@@ -185,10 +185,12 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     plt.ylabel('Nino3.4', fontsize='small')
     
     plt.subplot(5,1,5)
+    SOI[719]=0.
     plt.plot(year_soi, SOI, 'b')
     plt.axis([min(year_model), max(max(year_soi),max(year_model)), min(SOI), max(SOI)])
     plt.grid(True)
     plt.ylabel('SO Index', fontsize='small')
+
     #
     return figure
 
