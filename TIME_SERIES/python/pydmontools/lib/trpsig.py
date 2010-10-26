@@ -167,12 +167,17 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
            plt.axis([min(year), max(year), 29.2, 25.3])
            plt.ylabel('Sigma classes',fontsize='large')
            plt.title(titleplot + ' (Sv)',fontsize='large')
-        plt.subplot(nsection,2,2*k+2)
+        if not(compare) :
+           plt.subplot(nsection,2,2*k+2)
+        else :
+           plt.subplot(nsection,2,2*k+1)
+        titleplot=titleplot.replace('transport in sigma classes',' ')
+        plt.title(titleplot , fontsize='large')
         plt.plot(year, transport_total, color)
         plt.grid(True)
         plt.axis([min(year), max(year),
         min(transport_total),max(transport_total)])
-        plt.ylabel('Transport of dense waters (> 27.8)',fontsize='large')
+        plt.ylabel('Dense waters trp.(> 27.8) (Sv) ', fontsize='large')
 
     return figure
 
