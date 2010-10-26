@@ -142,12 +142,13 @@ def _readmtl(filemtl=None,fileobs=None,argdict=myargs):
 
 def plot(argdict=myargs, figure=None,color='r',yearmodel=None,trpmodel=None,yearobs=None,trpobs=None,compare=False):
     #
-    figure = plt.figure()
-    plt.plot(yearmodel,trpmodel,'r.-',yearobs,trpobs,'b.-')
+    if figure is None :
+        figure = plt.figure()
+    plt.plot(yearmodel,trpmodel,color + '.-',yearobs,trpobs,'b.-')
     plt.axis([min(yearmodel),max(max(yearmodel),max(yearobs)),min(min(trpmodel),min(trpobs)), 
               max(max(trpmodel),max(trpobs))])
     plt.grid(True)
-    plt.title('Mass Transport',fontsize='small')
+    plt.title('Mass Transport - Obs (b)',fontsize='small')
     plt.ylabel('Transport cross cable section',fontsize='small')
     #
     return figure
