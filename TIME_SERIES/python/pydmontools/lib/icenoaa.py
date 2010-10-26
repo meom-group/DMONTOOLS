@@ -194,6 +194,7 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     datalist_obs    = ['NORTH_ICE_EXTENT','NORTH_ICE_AREA', 'SOUTH_ICE_EXTENT','SOUTH_ICE_AREA']
     #
     plt.subplot(4,1,1)
+    plt.title(' Ice index for Northern and Southern hemisphere - Observations from NOAA/NSIDC (b) ' )
     plt.plot(year_model, NExnsidc, color, year_obs_north, NORTH_ICE_EXTENT, 'b--')
     plt.axis([min(year_model), max(year_model), 
              min(min(NExnsidc),min(NORTH_ICE_EXTENT)), max(max(NExnsidc),max(NORTH_ICE_EXTENT))])
