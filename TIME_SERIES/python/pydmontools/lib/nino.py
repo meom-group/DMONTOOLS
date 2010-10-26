@@ -157,28 +157,28 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         exec(key+'=kwargs[key]')
     #
     plt.subplot(5,1,1)
-    plt.plot(year_model, NINO12_model, 'k', year_obs, NINO12_obs, 'g')
+    plt.plot(year_model, NINO12_model, color, year_obs, NINO12_obs, 'b')
     plt.axis([min(year_model),                        max(max(year_model),  max(year_obs)), 
               min(min(NINO12_model),min(NINO12_obs)), max(max(NINO12_model),max(NINO12_obs))])
     plt.grid(True)
     plt.ylabel('Nino1+2', fontsize='small')
     
     plt.subplot(5,1,2)
-    plt.plot(year_model, NINO3_model, 'k', year_obs, NINO3_obs, 'g')
+    plt.plot(year_model, NINO3_model, color, year_obs, NINO3_obs, 'b')
     plt.axis([min(year_model),                      max(max(year_model), max(year_obs)), 
               min(min(NINO3_model),min(NINO3_obs)), max(max(NINO3_model),max(NINO3_obs))])
     plt.grid(True)
     plt.ylabel('Nino3', fontsize='small')
     
     plt.subplot(5,1,3)
-    plt.plot(year_model, NINO4_model, 'k', year_obs, NINO4_obs, 'g')
+    plt.plot(year_model, NINO4_model, color, year_obs, NINO4_obs, 'b')
     plt.axis([min(year_model),                      max(max(year_model), max(year_obs)), 
               min(min(NINO4_model),min(NINO4_obs)), max(max(NINO4_model),max(NINO4_obs))])
     plt.grid(True)
     plt.ylabel('Nino4', fontsize='small')
     
     plt.subplot(5,1,4)
-    plt.plot(year_model, NINO34_model, 'k', year_obs, NINO34_obs, 'g')
+    plt.plot(year_model, NINO34_model, color, year_obs, NINO34_obs, 'b')
     plt.axis([min(year_model),                        max(max(year_model),  max(year_obs)), 
               min(min(NINO34_model),min(NINO34_obs)), max(max(NINO34_model),max(NINO34_obs))])
     plt.grid(True)
