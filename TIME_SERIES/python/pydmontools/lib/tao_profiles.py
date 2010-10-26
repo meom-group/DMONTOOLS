@@ -193,19 +193,22 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     for j in range(1,6):
         plt.subplot(1,5,j)
         #
-        plt.plot(100*vars()['m_Vitesse'+str(j)],-m_Profondeur,'b-',linewidth=1,label='Model')
-        plt.plot(vars()['o_Vitesse'+str(j)],-vars()['o_Profondeur'+str(j)],'rx',label='Data from buoy')
-        if j==3:
-            plt.legend(loc=8) # set to bottom center
+        plt.plot(100*vars()['m_Vitesse'+str(j)],-m_Profondeur,color+'-',linewidth=1,label='Model')
+        plt.plot(vars()['o_Vitesse'+str(j)],-vars()['o_Profondeur'+str(j)],'bx',label='Data from buoy')
+#        if j==3:
+#            plt.legend(loc=8) # set to bottom center
         if j==1:
-            plt.ylabel('Profondeur (m)')
+            plt.ylabel('Depth (m)')
         if j!=3:
             plt.title(' ' + '\n' + vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)])
         if j==3:
-            plt.title(argdict['config'] + '-' + argdict['case'] +';'+'\n\nProfil moyen des courants zonaux\n ' \
-            + vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)])
+            if compare :
+	            plt.title('Mean profile of zonal currents\n ' + vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)])
+            else :
+	            plt.title(argdict['config'] + '-' + argdict['case'] +';'+'\n\nMean profile of zonal currents\n ' \
+                    + vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)])
 
-            plt.xlabel('Vitesse (cm/s)')
+            plt.xlabel('Velocity (cm/s)')
         plt.setp(plt.gca().get_xticklabels(),rotation=60,fontsize=8)
         plt.axis([-40,120,-320,0])
         plt.grid(linestyle='-',linewidth=0.1)

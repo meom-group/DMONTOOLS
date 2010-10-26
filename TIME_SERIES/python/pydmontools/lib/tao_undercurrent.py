@@ -178,8 +178,8 @@ def _readnc(filenc=None,fileobs1=None,fileobs2=None,fileobs3=None,fileobs4=None,
 
 def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs): 
     plt.rcParams['legend.numpoints']=4
-    #plt.rcParams['legend.axespad']=0.02
-    plt.rcParams['legend.borderaxespad']=0.02
+    plt.rcParams['legend.axespad']=0.02
+    #plt.rcParams['legend.borderaxespad']=0.02
     plt.rcParams['figure.subplot.hspace']=0.7
     plt.rcParams['figure.subplot.right']=0.90
     plt.rcParams['figure.subplot.left']=0.15
@@ -194,22 +194,27 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     #
     for j in range(1,6):
         plt.subplot(5,1,j)
-        plt.plot(vars()['o_serie_Annees'+str(j)],vars()['o_serie_Variation_moyenne_annuelle'+str(j)],'rx',
+        plt.plot(vars()['o_serie_Annees'+str(j)],vars()['o_serie_Variation_moyenne_annuelle'+str(j)],'bx',
                  linewidth=0.5,label='Obs')
         #
         timeplt = npy.array((m_Temps_serie),'f')
         uplt    = npy.array((100*vars()['m_Valeur_sous_courant'+str(j)]),'f')
-        plt.plot(timeplt,uplt,'b-',linewidth=1,label='Model')
+        plt.plot(timeplt,uplt,color+'-',linewidth=1,label='Model')
         if j==1:
-            plt.title(argdict['config'] + '-' + argdict['case'] +  '\nSous courant - Moyennes Annuelles\n\n' 
+            if compare :
+	            plt.title('\nEUC - Annual Mean\n\n' 
                       + vars()['m_Longitude'+str(j)] + vars()['m_Latitude'+str(j)]+' '
                       + str(int(vars()['o_serie_Profondeur'+str(j)]))+'m', fontsize=10)
-            plt.legend()
+            else :
+	            plt.title(argdict['config'] + '-' + argdict['case'] +  '\nEUC - Annual Mean\n\n' 
+                      + vars()['m_Longitude'+str(j)] + vars()['m_Latitude'+str(j)]+' '
+                      + str(int(vars()['o_serie_Profondeur'+str(j)]))+'m', fontsize=10)
+#            plt.legend()
         if j!=1:
             plt.title(vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)]+' '+
                       str(int(vars()['o_serie_Profondeur'+str(j)]))+'m',fontsize=10)
         if j==3:
-            plt.ylabel('Vitesse (cm/s)',fontsize=10)
+            plt.ylabel('Velocity (cm/s)',fontsize=10)
         #
         plt.setp(plt.gca().get_yticklabels(),fontsize=8)
         plt.setp(plt.gca().get_xticklabels(),fontsize=8)
