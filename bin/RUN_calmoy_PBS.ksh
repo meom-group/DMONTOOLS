@@ -46,7 +46,7 @@ jobidmoy=$(qsub zcalmoy.pbs)
 
 for m in $(seq 1 12 ) ; do
   mm=$(printf "%02d" $m )
-  cat $MPDIR/calmoyvt_mm.ksh | sed -e "s/<year>/$year/g" -e "s/<mm>/$mm/g" > $WPDIR/zz_calmoyvt_${mm}_$year.ksh
+  cat $MPDIR/calmoyvt_mm.ksh | sed -e "s/<year>/$year/g" -e "s/<mm>/$mm/g" -e "s/<m>/$m/g" > $WPDIR/zz_calmoyvt_${mm}_$year.ksh
   chmod 755 $WPDIR/zz_calmoyvt_${mm}_$year.ksh
 done
 
