@@ -178,7 +178,11 @@ def plot(argdict=myargs,figure=None,color='r',tmean=None,smean=None,sshmean=None
             plt.plot(year, vars()[list3Dmean[k]], color + '.-')
             plt.grid(True)
             plt.axis([min(year), max(year),min(vars()[list3Dmean[k]]),max(vars()[list3Dmean[k]])])
-            plt.title(titles3Dmean[k])
+            # add the config-name in the title of the midle panel
+            if not(compare) and k == 1 :
+                plt.title(argdict['config'] + '-' + argdict['case']+'\n'+titles3Dmean[k])
+            else :
+                plt.title(titles3Dmean[k])
 
     ### 2) 2D PLOTS
     ncontour=75

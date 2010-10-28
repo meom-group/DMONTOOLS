@@ -2,7 +2,7 @@
 #=======================================================================
 #                        General Documentation
 
-"""icetrd : monitoring of ice volume, area and extent compared with NOAA data for drakkar runs
+"""icetrd_min : monitoring of ice volume, area and extent compared with NOAA data for drakkar runs
 """
 #-----------------------------------------------------------------------
 #                       Additional Documentation
@@ -31,7 +31,7 @@ osp = os.sep
 
 #- parameters
 
-plot_name = 'icetrd'
+plot_name = 'icetrd_min'
 
 #=======================================================================
 #--- Reading the data 
@@ -170,22 +170,24 @@ def _readmtl(filemtl=None, fileobs=None, argdict=myargs):
 #=======================================================================
 # same than icemonth but for a particular month + data
 
-def plot(argdict=myargs, figure=None, color='r', compare=False, month=None,**kwargs):
+#def plot(argdict=myargs, figure=None, color='r', compare=False, month=None,**kwargs):
+def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     #
+    month=9   # hard coded : easiest way for compare (jmm)
     for key in kwargs:
         exec(key+'=kwargs[key]')
     #
     if argdict['config'].find('ORCA') != -1 :
         north = 1 ; south = 1
-        print "icetrd.py : use default values (for global)"
+        print "icetrd_min.py : use default values (for global)"
     elif argdict['config'].find('PERIANT') != -1 :
         north = 0 ; south = 1
-        print "icetrd.py : use custom values for PERIANT configs"
+        print "icetrd_min.py : use custom values for PERIANT configs"
     elif argdict['config'].find('NATL') != -1 :
         north = 1 ; south = 0
-        print "icetrd.py : use custom values for NATL configs"
+        print "icetrd_min.py : use custom values for NATL configs"
     else :
-        print "icetrd.py : Your config is not supported..."
+        print "icetrd_min.py : Your config is not supported..."
         print "The monitoring will try to use default values from Global Configuration"
     #
     nbzone = north + south
@@ -195,8 +197,7 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, month=None,**kwa
           figure = plt.figure(figsize=fig_size)
 
     listmonth=['January','Febuary','March','April','May','June','July','August',
-               'September','October','November','December']  # this is bad
-    listmonth = listmonth + listmonth
+               'September','October','November','December']
     #
     # looking for month index :
     # this computation looks complicated but it allows to work with a time_counter
@@ -242,42 +243,48 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, month=None,**kwa
         plt.plot(year_model, NVolume, color)
         plt.axis([min(year_model), max(year_model), 0, 60])
         plt.grid(True)
-        plt.title('Volume Arctic ' + listmonth[month-1],fontsize='large')
+        plt.title('Volume Arctic ' + listmonth[(month-1)%12],fontsize='large')
 
         plt.subplot(nbzone,nbplotline,2)
-        plt.plot(year_model, NArea, color, year_obs_north, NORTH_ICE_AREA, 'b')
+        plt.plot(year_model, NArea, color, year_obs_north, NORTH_ICE_AREA, 'b.-')
         plt.grid(True)
         plt.axis([min(year_model), max(year_model),
                   min(min(NArea),min(NORTH_ICE_AREA)), max(max(NArea),max(NORTH_ICE_AREA))])
-        plt.title('Area Arctic ' + listmonth[month-1],fontsize='large')
+        if not(compare) : 
+            plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Area Arctic ' + listmonth[(month-1)%12]+' - Obs. (b)',fontsize='large')
+        else :
+            plt.title('Area Arctic ' + listmonth[(month-1)%12]+' - Obs. (b)',fontsize='large')
 
         plt.subplot(nbzone,nbplotline,3)
-        plt.plot(year_model, NExnsidc, color, year_obs_north, NORTH_ICE_EXTENT, 'b')
+        plt.plot(year_model, NExnsidc, color, year_obs_north, NORTH_ICE_EXTENT, 'b.-')
         plt.grid(True)
         plt.axis([min(year_model), max(year_model),
                   min(min(NExnsidc),min(NORTH_ICE_EXTENT)), max(max(NExnsidc),max(NORTH_ICE_EXTENT))])
-        plt.title('Extent Arctic ' + listmonth[month-1],fontsize='large')
+        plt.title('Extent Arctic ' + listmonth[(month-1)%12]+' - Obs. (b)',fontsize='large')
     #
     if south == 1 :
         plt.subplot(nbzone,nbplotline,north*nbplotline + 1)
         plt.plot(year_model_6m, SVolume, color)
         plt.grid(True)
         plt.axis([min(year_model_6m), max(year_model_6m), 0, 20])
-        plt.title('Volume Antarctic ' + listmonth[month+6-1],fontsize='large')
+        plt.title('Volume Antarctic ' + listmonth[(month+6-1)%12],fontsize='large')
 
         plt.subplot(nbzone,nbplotline,north*nbplotline + 2)
-        plt.plot(year_model_6m, SArea, color,year_obs_south, SOUTH_ICE_AREA, 'b')
+        plt.plot(year_model_6m, SArea, color,year_obs_south, SOUTH_ICE_AREA, 'b.-')
         plt.grid(True)
         plt.axis([min(year_model_6m), max(year_model_6m),
                   min(min(SArea),min(SOUTH_ICE_AREA)), max(max(SArea),max(SOUTH_ICE_AREA))])
-        plt.title('Area Antarctic ' + listmonth[month+6-1],fontsize='large')
+        if not(compare) : 
+            plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Area Antarctic ' + listmonth[(month+6-1)%12]+' - Obs. (b)',fontsize='large')
+        else :
+            plt.title('Area Antarctic ' + listmonth[(month+6-1)%12]+' - Obs. (b)',fontsize='large')
 
         plt.subplot(nbzone,nbplotline,north*nbplotline + 3)
-        plt.plot(year_model_6m, SExnsidc, color, year_obs_south, SOUTH_ICE_EXTENT, 'b')
+        plt.plot(year_model_6m, SExnsidc, color, year_obs_south, SOUTH_ICE_EXTENT, 'b.-')
         plt.grid(True)
         plt.axis([min(year_model_6m), max(year_model_6m),
                   min(min(SExnsidc),min(SOUTH_ICE_EXTENT)), max(max(SExnsidc),max(SOUTH_ICE_EXTENT))])
-        plt.title('Extent Antarctic ' + listmonth[month+6-1],fontsize='large')
+        plt.title('Extent Antarctic ' + listmonth[(month+6-1)%12]+' - Obs. (b)',fontsize='large')
 
 
     return figure
@@ -306,8 +313,9 @@ def main():
    infiles = args # default value is an empty list
    # read, plot and save   
    values = read(argdict=argdict,fromfile=infiles)
-   # september
-   fig = plot(argdict=argdict,month=9,**values)
+   # September
+#   fig = plot(argdict=argdict,month=9,**values)
+   fig = plot(argdict=argdict,**values)
    if len(args)==0:
       save(argdict=argdict,figure=fig,suffix='icetrd_min')
    else:

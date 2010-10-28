@@ -164,8 +164,12 @@ def plot(argdict=myargs, figure=None,color='r',massplt=None,heatplt=None,saltplt
           plt.plot(year, heatplt[k-1,:], color + '.-')
           plt.axis([min(year),max(year),min(heatplt[k-1,:]),max(heatplt[k-1,:])])
           plt.grid(True)
-          if k==1 :
+
+          if not(compare) and k==1 :
+                plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Heat Transport',fontsize='large')
+          else :
                 plt.title('Heat Transport',fontsize='large')
+
           plt.subplot(nsection,3,3*(k-1)+3)
           plt.plot(year, saltplt[k-1,:], color + '.-')
           plt.axis([min(year),max(year),min(saltplt[k-1,:]),max(saltplt[k-1,:])])

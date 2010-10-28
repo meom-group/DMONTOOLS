@@ -148,7 +148,10 @@ def plot(argdict=myargs, figure=None,color='r',yearmodel=None,trpmodel=None,year
     plt.axis([min(yearmodel),max(max(yearmodel),max(yearobs)),min(min(trpmodel),min(trpobs)), 
               max(max(trpmodel),max(trpobs))])
     plt.grid(True)
-    plt.title('Mass Transport - Obs (b)',fontsize='small')
+    if not(compare) :
+         plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Mass Transport - Obs (b)',fontsize='small')
+    else:
+         plt.title('Mass Transport - Obs (b)',fontsize='small')
     plt.ylabel('Transport cross cable section',fontsize='small')
     #
     return figure

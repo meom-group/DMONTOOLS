@@ -170,7 +170,10 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
         plt.grid(True)
         plt.axis([min(year), max(year), min(lat), max(lat)])
         if k==1 :
-            plt.title(variable[1],fontsize='large')
+            if not(compare) :
+                plt.title(argdict['config'] + '-' + argdict['case']+'\n'+variable[1],fontsize='large')
+            else:
+                plt.title(variable[1],fontsize='large')
         plt.subplot(nbzone,nbvar+1,3*(k-1)+3)
         plt.contourf(year, lat, npy.transpose(vars()[list_field[2*k-2]] - vars()[list_field[2*k-1]]))
         plt.colorbar(format='%.3f')

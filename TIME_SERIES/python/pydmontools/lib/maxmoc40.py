@@ -153,7 +153,11 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
 	plt.axis([min(year_model), max(year_model), 
 	min(vars()[data_list[k]]), max(vars()[data_list[k]])])
 	plt.grid(True)
-	plt.title(titleplot[k],fontsize='small')
+
+        if not(compare) and k<=1 :
+	    plt.title(argdict['config'] + '-' + argdict['case']+'\n'+titleplot[k],fontsize='small')
+        else :
+	    plt.title(titleplot[k],fontsize='small')
 	if divmod(k,nbfig)[1] == 1 :
 		plt.ylabel(listylabel[divmod(k,nbfig)[0]],fontsize='small')
     #

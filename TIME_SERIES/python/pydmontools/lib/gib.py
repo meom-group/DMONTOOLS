@@ -144,7 +144,7 @@ def _readmtl(filesmtl=None):
 #--- Plotting the data 
 #=======================================================================
 
-def plot(figure=None,color='r',levels=None,year=None,tmodel=None,smodel=None,tlev=None,slev=None,compare=False):
+def plot(argdict=myargs,figure=None,color='r',levels=None,year=None,tmodel=None,smodel=None,tlev=None,slev=None,compare=False):
     
     tmodel = rs.remove_spval(tmodel, 999. , 0.)
     smodel = rs.remove_spval(smodel, 999. , 0.)
@@ -155,51 +155,59 @@ def plot(figure=None,color='r',levels=None,year=None,tmodel=None,smodel=None,tle
     
     if figure is None: # by default create a new figure
           figure = plt.figure()
-    # 
+    #
+    
     plt.subplot(3,2,1)
-    plt.plot(tlev, levels, 'b', tmodel[-1,:], levels, 'r')
+    plt.plot(tlev, levels, 'b', tmodel[-1,:], levels, color)
     plt.grid(True)
     plt.axis([min(min(tmodel[-1,:]),min(tlev)), max(max(tmodel[-1,:]),max(tlev)),maxdepth,min(levels)])
     plt.ylabel('Depth')
-    plt.title('Last Tgib profile 14W-10W, 36N-40N (blue is Levitus)')
-    
-    plt.subplot(3,2,2)
-    plt.contourf(year, levels, npy.transpose(tmodel-tlev2D),ncontour)
-    plt.colorbar()
-    plt.grid(True)
-    plt.axis([min(year), max(year),maxdepth,min(levels)])
-    plt.ylabel('Temperature anomaly')
+    if not(compare) :
+        plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Last Tgib profile 14W-10W, 36N-40N (blue is Levitus)')
+    else:
+        plt.title('Last Tgib profile 14W-10W, 36N-40N (blue is Levitus)')
     
     plt.subplot(3,2,3)
-    plt.plot(slev, levels, 'b', smodel[-1,:], levels, 'r')
+    plt.plot(slev, levels, 'b', smodel[-1,:], levels, color)
     plt.grid(True)
     plt.axis([smin, max(max(smodel[-1,:]),max(slev)),maxdepth,min(levels)])
     plt.ylabel('Depth')
     plt.title('Last Sgib profile 14W-10W, 36N-40N (blue is Levitus)')
     
-    plt.subplot(3,2,4)
-    plt.contourf(year, levels, npy.transpose(smodel-slev2D),ncontour)
-    plt.colorbar()
-    plt.grid(True)
-    plt.axis([min(year), max(year),maxdepth,min(levels)])
-    plt.ylabel('Salinity anomaly')
-    
     levelanom = rs.find_closest_level(levels, depthanom)
     lvlm1 = levelanom
     
     plt.subplot(3,2,5)
-    plt.plot(year, (tmodel[:,lvlm1]-tlev[lvlm1]), 'r.-')
+    plt.plot(year, (tmodel[:,lvlm1]-tlev[lvlm1]), color+'.-')
     plt.grid(True)
     plt.axis([min(year), max(year), min(tmodel[:,lvlm1]-tlev[lvlm1]), max(tmodel[:,lvlm1]-tlev[lvlm1])])
     plt.ylabel('T anom (1000m)')
-    plt.title('Temperature Anomaly Level ' + str(levelanom))
+    plt.title('Temperature Anomaly around '+str(depthanom)+' m')
     
     plt.subplot(3,2,6)
-    plt.plot(year, (smodel[:,lvlm1]-slev[lvlm1]), 'r.-')
+    plt.plot(year, (smodel[:,lvlm1]-slev[lvlm1]), color+'.-')
     plt.grid(True)
     plt.axis([min(year), max(year), min(smodel[:,lvlm1]-slev[lvlm1]), max(smodel[:,lvlm1]-slev[lvlm1])])
     plt.ylabel('S anom (1000m)')
-    plt.title('Salinity Anomaly Level ' + str(levelanom))
+    plt.title('Salinity Anomaly around ' +str(depthanom)+' m')
+
+    if not(compare) :
+        # 2D hovmuller
+        plt.subplot(3,2,2)
+        plt.contourf(year, levels, npy.transpose(tmodel-tlev2D),ncontour)
+        plt.colorbar()
+        plt.grid(True)
+        plt.axis([min(year), max(year),maxdepth,min(levels)])
+        plt.title(argdict['config'] + '-' + argdict['case'])
+        plt.ylabel('Temperature anomaly')
+
+        # 2D hovmuller
+        plt.subplot(3,2,4)
+        plt.contourf(year, levels, npy.transpose(smodel-slev2D),ncontour)
+        plt.colorbar()
+        plt.grid(True)
+        plt.axis([min(year), max(year),maxdepth,min(levels)])
+        plt.ylabel('Salinity anomaly')
     
     return figure
 

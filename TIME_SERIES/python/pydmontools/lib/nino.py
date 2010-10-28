@@ -157,7 +157,10 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         exec(key+'=kwargs[key]')
     #
     plt.subplot(5,1,1)
-    plt.title('SST in the tropical Pacific - Observation (b)') 
+    if not(compare) :
+           plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'SST in the tropical Pacific - Observation (b)') 
+    else:
+           plt.title('SST in the tropical Pacific - Observation (b)') 
     plt.plot(year_model, NINO12_model, color, year_obs, NINO12_obs, 'b')
     plt.axis([min(year_model),                        max(max(year_model),  max(year_obs)), 
               min(min(NINO12_model),min(NINO12_obs)), max(max(NINO12_model),max(NINO12_obs))])

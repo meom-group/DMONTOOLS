@@ -175,7 +175,10 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         plt.plot(year_model, NArea, color)
         plt.grid(True)
         plt.axis([min(year_model), max(year_model), 0, 15000])
-        plt.title('Ice Area (10**9 m**2)',fontsize='large')
+        if not(compare) :
+            plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Ice Area (10**9 m**2)',fontsize='large')
+        else:
+            plt.title('Ice Area (10**9 m**2)',fontsize='large')
         
         plt.subplot(nbzone,nbplotline,3)
         plt.plot(year_model, NExnsidc, color)
@@ -195,7 +198,10 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         plt.plot(year_model, SArea, color)
         plt.grid(True)
         plt.axis([min(year_model), max(year_model), 0, 20000])
-        plt.title('Ice Area (10**9 m**2)',fontsize='large')
+        if not(compare) :
+            plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Ice Area (10**9 m**2)',fontsize='large')
+        else:
+            plt.title('Ice Area (10**9 m**2)',fontsize='large')
 
         plt.subplot(nbzone,nbplotline,north*nbplotline + 3)
         plt.plot(year_model, SExnsidc, color)
