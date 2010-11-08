@@ -1,7 +1,7 @@
 #!/bin/ksh
 #PBS -N zmoy_<year>
 #PBS -l select=2:ncpus=8:mpiprocs=6
-#PBS -l walltime=0:30:00
+#PBS -l walltime=1:30:00
 #PBS -l cluster=hpt
 ##PBS -mb -me
 #PBS -v NB_NODES=2,NB_NPROC=12

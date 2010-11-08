@@ -1,7 +1,7 @@
 #!/bin/ksh
 #PBS -N zyrly_<year>
 #PBS -l select=1:ncpus=8:mpiprocs=8
-#PBS -l walltime=0:30:00
+#PBS -l walltime=1:30:00
 #PBS -l cluster=hpt
 #PBS -W depend=afterok:<JOBIDMOY>:<JOBIDVT>
 ##PBS -mb -me
