@@ -288,17 +288,18 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
 # 3. Difference between model and Levitus at different levels ( In GLOBAL)
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                        if [ $glodifmap == 1 ] ; then
-  # mkdiff : Usage mkdir file1 file2 cdfvar level outfile
+  # mkdiff : Usage mkdiff file1 file2 cdfvar level outfile
   mkdiff() { \rm -f $5
             ncks  -F -O -v $3,nav_lon,nav_lat -d deptht,$4,$4 $2  zz2.nc
             ncks  -F -O -v $3,nav_lon,nav_lat -d deptht,$4,$4 $1  zz1.nc
             ncbo --op_typ=- -v $3 zz1.nc zz2.nc $5 ;}
 
-  # mkdiffrey : Usage mkdir file1 file2 cdfvar outfile
+  # mkdiffrey : Usage mkdiffrey file1 file2 cdfvar outfile
   mkdiffrey() { \rm -f $4
             ncks  -F -O -v $3,nav_lon,nav_lat  $2  zz2.nc
             ncks  -F -O -v $3,nav_lon,nav_lat -d deptht,1,1 $1  zz1.nc
             ncbo --op_typ=- -v $3 zz1.nc zz2.nc $4 ;}
+
   # ndep : return the level corresponding to dep (m)
   ndep() { ncks -H -F -C -v deptht $t | \
            sed -e 's/(/ /' -e 's/)/ /' -e 's/=/ /' | \
@@ -324,12 +325,12 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
   listplt=' '
 
   # plot the differences for the following levels
-  MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED" ; CNTICE=""
-#  MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED4" ; CNTICE=""
+#  MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED" ; CNTICE=""
+   MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED4" ; CNTICE=""
 
   # Anomaly with SST Reynolds, same year
     if (( $YEAR > 1981 ))  ; then
-     clrvar=votemper ; FORMAT="-format PALETTE F4.1"
+     clrvar=votemper ; FORMAT="-format PALETTE F5.2"
      CLRDATA=" -clrdata dt.nc"; min=-3.5 ; max=3.5  ; pas=2 ;
 #    CLRLIM="-clrmin $min -clrmax $max -clrmet 1"
      CLRLIM="-clrlim lili.lim"
@@ -375,6 +376,7 @@ eof
     # Differences between model and TSCLIM at various depths
     #  level are specified according to vertical discretization
     #  need adaptation for L75 ..; (use of ndep ? ) but need level for mkdiff
+   MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED" ; CNTICE=""
 #  for level in 1 12 19  ; do
   for dep in 0 134 452  ; do  # about level 1 12 19 of L46
     level=$( ndep $dep )
@@ -386,7 +388,7 @@ eof
          difTgl) rapatrie $t    $MEANY $t
                  rapatrie $tlev $IDIR $tlev
                  mkdiff $t $tlev votemper $level dt.nc
-                 clrvar=votemper ; FORMAT="-format PALETTE F4.1"
+                 clrvar=votemper ; FORMAT="-format PALETTE F5.2"
                  CLRDATA=" -clrdata dt.nc"; min=-3.5 ; max=3.5  ; pas=2 ;;
          difSgl) rapatrie $t    $MEANY $t
                  rapatrie $slev $IDIR $slev
