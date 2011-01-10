@@ -14,11 +14,10 @@ copy_to_web() {
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/TIME_SERIES ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/TIME_SERIES ; fi "
           scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/TIME_SERIES/$1 ;}
 
-######################################################################################
-# for testing only
-
 # CHKDIR  : check the existence of a directory. Create it if not present
 chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi  ; }
+
+######################################################################################
 
 CONFIG=<CONFIG>
 CASE=<CASE>
