@@ -5,6 +5,7 @@
 
 # We source the config_def and export them so that python can read them :
 . ./config_def.ksh
+. ./function_def.ksh
 
 export MONPY_CONFIG=$CONFIG
 export MONPY_CASE=$CASE
@@ -35,5 +36,11 @@ if [ $ts_transports1 == 1 ] ; then transports1.py  ; fi
 if [ $ts_trpsig == 1 ]      ; then trpsig.py       ; fi
 if [ $ts_tsmean == 1 ]      ; then tsmean.py       ; fi
 if [ $ts_tsmean_lev == 1 ]  ; then tsmean_lev.py   ; fi
+
+### copy to website
+cd $PLOTDIR/$CONFIG/PLOTS/${CONFIG}-${CASE}/TIME_SERIES
+for file in $( ls | grep .png ) ; do
+    copy_to_web $file
+done
 
 # The end...

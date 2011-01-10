@@ -198,3 +198,13 @@ esac
                              echo $interp ; }
 
 ######################################################################################
+# copy_to_web : copy the time series figures to the DRAKKAR website
+# usage : copy_to_web file
+copy_to_web() {
+          ssh meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
+          ssh meolipc.hmg.inpg.fr -l drakkar \
+         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE ; fi "
+          ssh meolipc.hmg.inpg.fr -l drakkar \
+         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/TIME_SERIES ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/TIME_SERIES ; fi "
+          scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/TIME_SERIES/$1 ;}
+

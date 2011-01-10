@@ -3,6 +3,16 @@
 ## Important :
 ## To do this step, you must have completed monitor_prod and make_ncdf_timeseries
 
+######################################################################################
+# copy_to_web : copy the time series figures to the DRAKKAR website
+# usage : copy_to_web file
+copy_to_web() {
+          ssh meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
+          ssh meolipc.hmg.inpg.fr -l drakkar \
+         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE ; fi "
+          ssh meolipc.hmg.inpg.fr -l drakkar \
+         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/TIME_SERIES ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/TIME_SERIES ; fi "
+          scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/TIME_SERIES/$1 ;}
 
 ######################################################################################
 # for testing only
@@ -15,6 +25,8 @@ CASE=<CASE>
 MONITOR=
 PLOTDIR=
 DATAOBS=
+
+WEBCOPY=true # or false
 
 ts_cable=0
 ts_gib=0
@@ -59,4 +71,13 @@ if [ $ts_trpsig == 1 ]      ; then trpsig.py       ; fi
 if [ $ts_tsmean == 1 ]      ; then tsmean.py       ; fi
 if [ $ts_tsmean_lev == 1 ]  ; then tsmean_lev.py   ; fi
 
+### copy to website
+if [ $WEBCOPY == 'true' ] ; then
+
+   cd $PLOTDIR/$CONFIG/PLOTS/${CONFIG}-${CASE}/TIME_SERIES
+   for file in $( ls | grep .png ) ; do
+       copy_to_web $file
+   done
+
+fi
 ### The end
