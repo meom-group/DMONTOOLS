@@ -329,11 +329,11 @@ cd $YEAR
    echo '###' $YEAR 02 > $fice
    cdficediags ${CONFCASE}_y${YEAR}m02_icemod.nc  >> $fice ; mv icediags.nc $fice_nc
    echo '###' $YEAR 03 >> $fice
-   cdficediags ${CONFCASE}_y${YEAR}m03_icemod.nc  >> $fice ; nrcat -A $fice_nc icediags.nc -o $fice_nc
+   cdficediags ${CONFCASE}_y${YEAR}m03_icemod.nc  >> $fice ; ncrcat -A $fice_nc icediags.nc -o $fice_nc
    echo '###' $YEAR 08 >> $fice
-   cdficediags ${CONFCASE}_y${YEAR}m08_icemod.nc  >> $fice ; nrcat -A $fice_nc icediags.nc -o $fice_nc
+   cdficediags ${CONFCASE}_y${YEAR}m08_icemod.nc  >> $fice ; ncrcat -A $fice_nc icediags.nc -o $fice_nc
    echo '###' $YEAR 09 >> $fice
-   cdficediags ${CONFCASE}_y${YEAR}m09_icemod.nc  >> $fice ; nrcat -A $fice_nc icediags.nc -o $fice_nc
+   cdficediags ${CONFCASE}_y${YEAR}m09_icemod.nc  >> $fice ; ncrcat -A $fice_nc icediags.nc -o $fice_nc
  
    expatrie $fice    $DIAGS/TXT $fice 
    expatrie $fice_nc $DIAGS/NC  $fice_nc
@@ -592,9 +592,9 @@ cd $YEAR
 
    #AUS
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 0 2000   | grep Maximum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Aus_maxmoc.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_maxmoc.nc
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 2000 5500  | grep Minimum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Aus_minmoc.nc 
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_minmoc.nc 
    
    expatrie $fmaxmoc $DIAGS/TXT $fmaxmoc ;;
 

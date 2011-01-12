@@ -9,10 +9,10 @@
 copy_to_web() {
           ssh meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
           ssh meolipc.hmg.inpg.fr -l drakkar \
-         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE ; fi "
+         " if [ ! -d DRAKKAR/$CONFIG/${CONFIG}-${CASE} ] ; then mkdir DRAKKAR/$CONFIG/${CONFIG}-${CASE} ; fi "
           ssh meolipc.hmg.inpg.fr -l drakkar \
-         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/TIME_SERIES ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/TIME_SERIES ; fi "
-          scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/TIME_SERIES/$1 ;}
+         " if [ ! -d DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES ] ; then mkdir DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES ; fi "
+          scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES/$1 ;}
 
 # CHKDIR  : check the existence of a directory. Create it if not present
 chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi  ; }
