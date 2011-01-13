@@ -20,13 +20,12 @@
 #- Module General Import and Declarations
 import os, user, sys
 import pydmontools as pydmt
-import numpy as npy
 import matplotlib.pylab as plt
 
 
 #------------------------- Parameters ---------------------------------
 #  Setting general plot parameters
-listcolors = ['r','k','g','c','m','y']
+listcolors = ['r','k','b','g','c','m','y']
 
 
 #------------------------ Configuration ----------------------------------
@@ -263,8 +262,6 @@ class plot_and_send_all_pages:
 		  #os.remove(filename)
                comment(' \n')
             except:
-               import traceback
-               print "Unexpected error:", traceback.print_tb(sys.exc_info()[2])
                comment('...problem with plot ' + plotname)
                
     def send2remote(self,file):
@@ -282,63 +279,7 @@ class plot_and_send_all_pages:
         os.system('mv ' + file + ' ' + self.local_directory)
         comment(' ...done')
 
-def _get_xlims(figure):
-    subplots = figure.get_axes()
-    return map(lambda x:x.get_xlim().copy(),subplots)
 
-def _get_ylims(figure):
-    subplots = figure.get_axes()
-    return map(lambda x:x.get_ylim().copy(),subplots)
-
-def _set_xlims(figure,xlims):
-    subplots = figure.get_axes()
-    for subplot,xlim in zip(subplots,xlims):
-        plt.setp(subplot,'xlim',xlim)
-    return
-        
-def _set_ylims(figure,ylims):
-    subplots = figure.get_axes()
-    for subplot,ylim in zip(subplots,ylims):
-        plt.setp(subplot,'ylim',ylim)
-    return
-
-def _get_outter_limits(lims1,lims2):
-    if lims2 is None:
-       lims = lims1
-    else:
-       lims = []
-       for lim1,lim2 in zip(lims1,lims2):
-           lims.append((min(lim1[0],lim2[0]),max(lim1[1],lim2[1])))
-    return lims
-
-
-class _store_xylims:
-     """Store information about the axis of a figure subplots
-     and define methods for comparing axis and applying new limits.
-     """
-     def __init__(self,figure=None):
-         if figure is not None:
-            self.xlims = _get_xlims(figure)
-            self.ylims = _get_ylims(figure)
-         else:
-            self.xlims = None
-            self.ylims = None
-         return
-
-     def _compute_new_xylims(self,figure):
-         self.xlims = _get_outter_limits(_get_xlims(figure),self.xlims)
-         self.ylims = _get_outter_limits(_get_ylims(figure),self.ylims)
-         return
-
-     def _apply_xylims(self,figure):
-         _set_xlims(figure,self.xlims)
-         _set_ylims(figure,self.ylims)
-         return
-
-     def set_new_limits(self,figure):
-         self._compute_new_xylims(figure)
-         self._apply_xylims(figure)
-         return   
 
 class plot_one_page:
       """Produce a monitoring plot for multiple (config, case) from a pydmt plotting script.
@@ -349,12 +290,14 @@ class plot_one_page:
           self.plotname = plotname
           exec('from pydmontools import ' + plotname + ' as plotmodule')
           self.plotmodule = plotmodule
+	  try: self.fig_size = plotmodule.fig_size
+	  except: self.fig_size = None
           self.configs = configs
           self.cases = cases
           self.len = configs.__len__()
           self.configs_cases = [configs[k] + '-' + cases[k] for k in range(self.len) ]
           self.argdict = {'dataobsdir':rc.dataobsdir} # will be appended later
-          self.compare = (self.len>1) # test whether there will be multiple layers in the plot
+          self.compare = (self.len>1) # test whether there will be pultiple layers in the plot
 
       def _update_argdict(self,config=None,case=None):
           self.argdict['config'] = config
@@ -365,21 +308,16 @@ class plot_one_page:
           """Add a plot layer corresponding to config-case to the specified figure.
           """
           self._update_argdict(config=config,case=case)
-          values = self.plotmodule.read(argdict=self.argdict) # read the data
-          xylims_handler = _store_xylims(figure=figure)
-          figure = self.plotmodule.plot(argdict=self.argdict,figure=figure,compare=self.compare,color=color,**values) # plot the data
-          xylims_handler.set_new_limits(figure)
-          return figure
+          values = self.plotmodule.read(argdict=self.argdict) # read the data 
+          self.plotmodule.plot(argdict=self.argdict,figure=figure,compare=self.compare,color=color,**values) # plot the data
           
       def plot_all_runs(self):
           """Overlay all the plots.
           """
-          for icl,config,case in zip(range(self.len),self.configs,self.cases):
-              if icl==0:
-                 self.figure = self.plot_one_run(config=config,case=case,color=listcolors[icl])
-              else:
-                 self.plot_one_run(figure=self.figure,config=config,case=case,color=listcolors[icl])
+          self.figure = plt.figure(figsize=self.fig_size)
           self.figure.text(0.5,0.01,self.title(),horizontalalignment='center')
+          for icl,config,case in zip(range(self.len),self.configs,self.cases):
+              self.plot_one_run(figure=self.figure,config=config,case=case,color=listcolors[icl])
 
       def title(self):
           """Return the plot legend
@@ -439,6 +377,8 @@ def myparser():
     from optparse import OptionParser
     usage = "usage: %prog [options] config-case_1 ... config-case_n"
     parser = OptionParser(usage=usage)
+    parser.add_option("-b", "--debug", dest="debug",\
+		    help="run in debug mode with pdb on: True/False", default=False)
     parser.add_option("-p", "--plotnames", dest="plotnames",\
 		    help="plot1,...,plotn", default=None)
     parser.add_option("-d", "--datadir", dest="datadir",\
@@ -478,6 +418,9 @@ def main():
     rc._update_from_dic(ParserOptions2rcdic(options))  
     comment('\nResource configuration\n----------------------')
     comment(rc.__repr__())
+    # debugging mode 
+    if rc.debug:
+        import pdb; pdb.set_trace()
     # produce timeseries plots
     comment('\nProceed\n-------')
     monitor = plot_and_send_all_pages(configs=configs,cases=cases)
