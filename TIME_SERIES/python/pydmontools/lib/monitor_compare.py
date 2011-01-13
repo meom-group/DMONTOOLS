@@ -377,7 +377,7 @@ def myparser():
     from optparse import OptionParser
     usage = "usage: %prog [options] config-case_1 ... config-case_n"
     parser = OptionParser(usage=usage)
-    parser.add_option("-b", "--debug", dest="debug",\
+    parser.add_option("-g", "--debug", dest="debug",\
 		    help="run in debug mode with pdb on: True/False", default=False)
     parser.add_option("-p", "--plotnames", dest="plotnames",\
 		    help="plot1,...,plotn", default=None)
