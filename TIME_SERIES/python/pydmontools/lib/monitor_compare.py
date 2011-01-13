@@ -263,7 +263,9 @@ class plot_and_send_all_pages:
                comment(' \n')
             except:
                comment('...problem with plot ' + plotname)
-               
+	       if rc.debug:
+		   mkplt.proceed()
+
     def send2remote(self,file):
         """Send file 
         """
