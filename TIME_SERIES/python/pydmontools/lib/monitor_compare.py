@@ -264,6 +264,7 @@ class plot_and_send_all_pages:
             except:
                comment('...problem with plot ' + plotname)
 	       if rc.debug:
+		   import traceback
 		   traceback.print_exc(file=sys.stdout)
 
 
@@ -423,7 +424,8 @@ def main():
     comment(rc.__repr__())
     # debugging mode 
     if rc.debug:
-	import traceback
+	pass
+	#import traceback
         #import pdb; pdb.set_trace()
     # produce timeseries plots
     comment('\nProceed\n-------')
