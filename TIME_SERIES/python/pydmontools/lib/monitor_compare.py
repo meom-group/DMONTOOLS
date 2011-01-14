@@ -264,7 +264,8 @@ class plot_and_send_all_pages:
             except:
                comment('...problem with plot ' + plotname)
 	       if rc.debug:
-		   mkplt.proceed()
+		   traceback.print_exc(file=sys.stdout)
+
 
     def send2remote(self,file):
         """Send file 
@@ -422,7 +423,8 @@ def main():
     comment(rc.__repr__())
     # debugging mode 
     if rc.debug:
-        import pdb; pdb.set_trace()
+	import traceback
+        #import pdb; pdb.set_trace()
     # produce timeseries plots
     comment('\nProceed\n-------')
     monitor = plot_and_send_all_pages(configs=configs,cases=cases)
