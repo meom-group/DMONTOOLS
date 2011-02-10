@@ -13,7 +13,7 @@
 # @ total_tasks = <NPROC>
 ## This is for ulam
 # @ as_limit = 2.0gb
-# @ wall_clock_limit = 0:10:00
+# @ wall_clock_limit = 2:00:00
 ## On vargas for large configs try
 ## @ data_limit = 1.0gb
 ## @ stack_limit = 2.2gb
@@ -26,7 +26,7 @@
 # @ total_tasks = <NPROC> 
 ## This is for ulam
 # @ as_limit = 2.0gb
-# @ wall_clock_limit = 0:10:00
+# @ wall_clock_limit = 2:00:00
 ## On vargas for large configs try
 ## @ data_limit = 1.0gb
 ## @ stack_limit = 2.2gb
