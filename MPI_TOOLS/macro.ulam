@@ -1,5 +1,10 @@
 # macro for ulam (IDRIS)
 
-FC=mpfort
-FFLAGS=-O3 -ip -ftz  -fno-alias  -fpe3  
+# this should be the normal way
+#FC=mpfort
+#FFLAGS=-O3 -ip -ftz  -fno-alias 
+
+# as idris compiler wrapper is bugged :
+FC=/usr/opt/intel/fc/11.0.074/bin/intel64/ifort
+FFLAGS=-O3 -ip -ftz  -fno-alias  -fpe3 -fpe3 -m64 -I/opt/ibmhpc/ppe.poe/include/thread64 -I/opt/ibmhpc/lapi/include64 -L/opt/ibmhpc/ppe.poe/lib/libmpi64 -lmpi_ibm -L/opt/ibmhpc/ppe.poe/lib/libmpi64 -lpoe -L/usr/lib64 -llapi -I/usr/local/pub/NetCDF/3.6.3/include -L/usr/local/pub/NetCDF/3.6.3/lib -lnetcdf_c++ -lnetcdf
 INSTALL=$(WORKDIR)/bin

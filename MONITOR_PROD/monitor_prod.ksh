@@ -286,7 +286,7 @@ cd $YEAR
    expatrie  $ftmean_nc   $DIAGS/NC $ftmean_nc
    expatrie  $fsmean_nc   $DIAGS/NC $fsmean_nc
 
-   if [ $(chkfile $DIAGS/TXT/LEVITUS_y0000_TMEAN.txt ) == absent ] ; then
+   if [ $(chkfile $DIAGS/NC/LEVITUS_y0000_TMEAN.nc ) == absent ] ; then
     # first time : Create header with Levitus equivalent
     # requires  LEVITUS 'same' diags (from the ANNUAL mean )
     #  !!! NEW !!!
