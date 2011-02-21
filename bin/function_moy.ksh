@@ -52,11 +52,11 @@ case $MACHINE in
           ln -sf $mm/${CONFCASE}_y${year}m${mm}_${typ}2.nc .
         done
         $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y${year}m??_${typ}.nc
-        mv cdfmoy.nc ${CONFCASE}_y${year}_${typ}.nc
+        mv cdfmoy_weighted.nc ${CONFCASE}_y${year}_${typ}.nc
         case $typ in 
          gridT | gridU | gridV | gridW  ) 
            $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y${year}m??_${typ}2.nc
-           mv cdfmoy.nc ${CONFCASE}_y${year}_${typ}2.nc ;;
+           mv cdfmoy_weighted.nc ${CONFCASE}_y${year}_${typ}2.nc ;;
         esac
         \rm -f ${CONFCASE}_y${year}m??_${typ}.nc
         \rm -f ${CONFCASE}_y${year}m??_${typ}2.nc
@@ -69,7 +69,7 @@ case $MACHINE in
           ln -sf $mm/${CONFCASE}_y${year}m${mm}_${typ}.nc .
         done
         $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y${year}m??_${typ}.nc
-        mv cdfmoy.nc ${CONFCASE}_y${year}_${typ}.nc
+        mv cdfmoy_weighted.nc ${CONFCASE}_y${year}_${typ}.nc
         \rm -f ${CONFCASE}_y${year}m??_${typ}.nc ; }
 
     echo "functions for $MACHINE successfully loaded" ;;
