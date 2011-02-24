@@ -68,7 +68,7 @@ if [ $useMPI = 1 ] ; then
     # mpi_plot_monitor $YEARS 
     #  Then each proc is expecting a command such as plot_monitor.ksh  $year
     if [ $single = 0 ] ; then
-    /usr/pbs/bin/mpiexec -n <NB_NPROC> ./mpi_plot_monitor $YEARS
+    mpiexec_mpt -n <NB_NPROC> ./mpi_plot_monitor $YEARS
     else
      ./plot_monitor.ksh $YEARS
     fi
