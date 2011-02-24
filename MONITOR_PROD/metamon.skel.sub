@@ -67,8 +67,7 @@ if [ $useMPI = 1 ] ; then
 ### Yeah baby it is parallel !!!
 
 if [ $MACHINE = 'jade' ] ; then
-#/usr/pbs/bin/mpiexec -n $NB_NPROC $WORKDIR/bin/mpi_metamon $YEARS  # old: mpi_metamon is now copied into working dir
-/usr/pbs/bin/mpiexec -n <NB_NPROC> ./mpi_metamon $YEARS
+mpiexec_mpt -n <NB_NPROC> ./mpi_metamon $YEARS
 else
 # ulam
 ./mpi_metamon $YEARS

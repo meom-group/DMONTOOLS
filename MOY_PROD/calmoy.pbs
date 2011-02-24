@@ -26,6 +26,6 @@ done
 #
 module load netcdf
 
-/usr/pbs/bin/mpiexec -n $NB_NPROC $WORKDIR/bin/mpi_shell $liste
+mpiexec_mpt -n $NB_NPROC $WORKDIR/bin/mpi_shell $liste
 
 
