@@ -8,6 +8,7 @@
 #
 #
 01_Denmark_strait           denma                   Denmark_Strait_transport_in_sigma_classes
+01_Denmark_strait           ORCA12.L46              3043 3162 2496 2496
 01_Denmark_strait           ORCA025                 1013 1056  832  832 
 01_Denmark_strait           ORCA025.L75             1013 1056  832  832 
 01_Denmark_strait           ORCA2                    123  131  123  123
@@ -16,6 +17,7 @@
 01_Denmark_strait           NATL12                   769  898 1253 1253 
 #
 02_Faoes_Bank_Channel      faroe                   Faroes_Bank_Channel_transport_in_sigma_classes 
+02_Faoes_Bank_Channel      ORCA12.L46              3318 3318 2398 2420 
 02_Faoes_Bank_Channel      ORCA025                 1106 1106  800  808 
 02_Faoes_Bank_Channel      ORCA025.L75             1106 1106  800  808 
 02_Faoes_Bank_Channel      ORCA2                    137  137  117  121
@@ -24,6 +26,7 @@
 02_Faoes_Bank_Channel      NATL12                  1048 1048 1157 1181 
 #
 03_Gibraltar                gibra                   Gibraltar_Strait_transport_in_sigma_classes
+03_Gibraltar                ORCA12.L46              3378 3378 1956 1961 
 03_Gibraltar                ORCA025                 1126 1126  651  655
 03_Gibraltar                ORCA025.L75             1126 1126  651  655
 03_Gibraltar                ORCA2                    140  140   99  103
@@ -32,65 +35,77 @@
 03_Gibraltar                NATL12                  1108 1108  710  722
 #
 04_Gibbs_FZ                 gibbs                   Gibbs_Fracture_Zone_transport_in_sigma_classes
+04_Gibbs_FZ                 ORCA12.L46              3075 3075 2215 2235
 04_Gibbs_FZ                 ORCA025                 1025 1025  739  745
 04_Gibbs_FZ                 ORCA025.L75             1025 1025  739  745
 04_Gibbs_FZ                 NATL025                  269  269  325  331
 04_Gibbs_FZ                 NATL12                   805  805  974  992 
 #
 05_Romanche_FZ              roman                   Romanche_Fracture_Zone_transport_in_sigma_classes
+05_Romanche_FZ              ORCA12.L46              3252 3252 1495 1503
 05_Romanche_FZ              ORCA025                 1084 1084  496  501
 05_Romanche_FZ              ORCA025.L75             1084 1084  496  501
 05_Romanche_FZ              NATL12                   982  982  245  260
 #
 06_Vema_Channel             vema                    Vema_Channel_transport_in_sigma_classes
+06_Vema_Channel             ORCA12.L46              2970 2997 1116 1116
 06_Vema_Channel             ORCA025                  990  999  372  372
 06_Vema_Channel             ORCA025.L75              990  999  372  372
 #
 07_Bab_el_Mandeb            babel                   Bab_El_Mandeb_transport_in_sigma_classes
+07_Bab_el_Mandeb            ORCA12.L46              3952 3966 1659 1659
 07_Bab_el_Mandeb            ORCA025                 1321 1325  553  553
 07_Bab_el_Mandeb            ORCA025.L75             1321 1325  553  553
 #
 08_Lombok                   lombo                   Lombok_Strait_transport_in_sigma_classes
+08_Lombok                   ORCA12.L46               512  520 1392 1392
 08_Lombok                   ORCA025                  173  175  464  464
 08_Lombok                   ORCA025.L75              173  175  464  464
 #
 09_Mona                     mona                    Mona_Passage_transport_in_sigma_classes
+09_Mona                     ORCA12.L46              2624 2642 1721 1721 
 09_Mona                     ORCA025                  876  881  574  574
 09_Mona                     ORCA025.L75              876  881  574  574
 09_Mona                     NATL025                  120  125  160  160
 09_Mona                     NATL12                   358  373  479  479
 #
 10_Windward_passage         windw                   Windward_Passage_transport_in_sigma_classes
+10_Windward_passage         ORCA12.L46              2555 2571 1739 1739
 10_Windward_passage         ORCA025                  853  857  580  580
 10_Windward_passage         ORCA025.L75              853  857  580  580
 10_Windward_passage         NATL025                   97  101  166  166
 10_Windward_passage         NATL12                   289  301  497  497
 #
 11_Drake                    drake                   Drake_Passage_transport_in_sigma_classes
+11_Drake                    ORCA12.L46               2634 2634 27 1197
 11_Drake                    PERIANT8                 1754 1754 16 796
 11_Drake                    PERIANT05                 439  439  5 200
 11_Drake                    PERIANT025                878  878  9 399
 11_Drake                    BIOPERIANT05              439  439  5 200
 #
 12_South_Africa             soafr                   South_Africa_transport_in_sigma_classes
+12_South_Africa             ORCA12.L46               3810 3810 27 1197
 12_South_Africa             PERIANT8                 2538 2538 16 796
 12_South_Africa             PERIANT05                 635  635  5 200
 12_South_Africa             PERIANT025               1270 1270  9 399
 12_South_Africa             BIOPERIANT05              635  635  5 200
 #
 13_kerguelen                kergu                   Kerguelen_transport_in_sigma_classes
+13_kerguelen                ORCA12.L46               4276 4276  373  811
 13_kerguelen                PERIANT8                 2858 2858 16 796
 13_kerguelen                PERIANT05                 715  715  5 200
 13_kerguelen                PERIANT025               1430 1430  9 399
 13_kerguelen                BIOPERIANT05              715  715  5 200
 #
 14_South_Australia          soaus                   South-Australia_transport_in_sigma_classes
+14_South_Australia          ORCA12.L46               804 804 27 1197
 14_South_Australia          PERIANT8                 534 534 16 796
 14_South_Australia          PERIANT05                134 134  5 200
 14_South_Australia          PERIANT025               268 268  9 399
 14_South_Australia          BIOPERIANT05             134 134  5 200
 #
 15_Campbell                 campb                   Campbell_transport_in_sigma_classes
+15_Campbell                 ORCA12.L46               1170 1170  237  875
 15_Campbell                 PERIANT05                195 195  5 200
 15_Campbell                 PERIANT025               390 390  9 399
 15_Campbell                 BIOPERIANT05             195 195  5 200

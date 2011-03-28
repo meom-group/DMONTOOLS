@@ -9,12 +9,14 @@
 #
 #
 01_BERING                   berin                   Bering_Strait                  -1
+01_BERING                   ORCA12.L46              1356 1380 2502 2502
 01_BERING                   ORCA025                  452  461  834  834
 01_BERING                   ORCA025.L75              452  461  834  834
 01_BERING                   ORCA2                     54   59  124  124
 01_BERING                   ORCA246                   54   59  124  124
 #
 02_FRAM                     fram                    Fram_Strait                     1
+02_FRAM                     ORCA12.L46              3202 3317 2823 2823
 02_FRAM                     ORCA025                 1067 1107  941  941
 02_FRAM                     ORCA025.L75             1067 1107  941  941
 02_FRAM                     ORCA2                    132  140  137  137    
@@ -23,6 +25,7 @@
 02_FRAM                     NATL12                   931 1051 1580 1580
 #
 03_BAFFIN                   baffi                   Baffin_Strait                   1
+03_BAFFIN                   ORCA12.L46              2779 2939 2760 2760
 03_BAFFIN                   ORCA025                  927  981  920  920
 03_BAFFIN                   ORCA025.L75              927  981  920  920
 03_BAFFIN                   ORCA2                    113  122  136  136 
@@ -31,6 +34,7 @@
 03_BAFFIN                   NATL12                   511  673 1517 1517
 #
 04_DENMARK_STRAIT           denma                   Denmark_Strait                  1
+04_DENMARK_STRAIT           ORCA12.L46              3079 3157 2532 2490
 04_DENMARK_STRAIT           ORCA025                 1025 1055  845  830
 04_DENMARK_STRAIT           ORCA025.L75             1025 1055  845  830
 04_DENMARK_STRAIT           ORCA2                    126  131  126  123
@@ -39,6 +43,7 @@
 04_DENMARK_STRAIT           NATL12                   805  895 1292 1247
 #
 05_ICELAND_SCOTLAND         icsco                   Iceland-Scotland_Section        1
+05_ICELAND_SCOTLAND         ORCA12.L46              3249 3361 2472 2354
 05_ICELAND_SCOTLAND         ORCA025                 1084 1120  824  785
 05_ICELAND_SCOTLAND         ORCA025.L75             1084 1120  824  785
 05_ICELAND_SCOTLAND         ORCA2                    134  139  123  117
@@ -47,6 +52,7 @@
 05_ICELAND_SCOTLAND         NATL12                   982 1090 1229 1112
 #
 06_CUBA_FLORIDA             cubaf                   Cuba-Florida_Section            1
+06_CUBA_FLORIDA             ORCA12.L46              2480 2480 1776 1810
 06_CUBA_FLORIDA             ORCA025                  828  828  593  603
 06_CUBA_FLORIDA             ORCA025.L75              828  828  593  603
 06_CUBA_FLORIDA             ORCA2                    101  101   93   96
@@ -55,6 +61,7 @@
 06_CUBA_FLORIDA             NATL12                   214  214  533  566
 #
 07_FLORIDA_BAHAMAS          floba                   Florida-Bahamas_Section        -1
+07_FLORIDA_BAHAMAS          ORCA12.L46              2484 2501 1826 1826
 07_FLORIDA_BAHAMAS          ORCA025                  829  836  610  610
 07_FLORIDA_BAHAMAS          ORCA025.L75              829  836  610  610
 07_FLORIDA_BAHAMAS          ORCA2                    101  103   97   97
@@ -63,6 +70,7 @@
 07_FLORIDA_BAHAMAS          NATL12                   217  238  585  585
 #
 08_DRAKE                    drake                   Drake_Passage                   1
+08_DRAKE                    ORCA12.L46              2640 2670  705  426    
 08_DRAKE                    ORCA025                  880  890  235  142
 08_DRAKE                    ORCA025.L75              880  890  235  142
 08_DRAKE                    ORCA2                    108  109   33   20
@@ -73,6 +81,7 @@
 08_DRAKE                    BIOPERIANT05             439  439    5  200
 #
 09_AUS_AA                   ausaa                   Australia-Antarctic_Section     1
+09_AUS_AA                   ORCA12.L46               910  910 1007  352
 09_AUS_AA                   ORCA025                  300  300  340  120
 09_AUS_AA                   ORCA025.L75              300  300  340  120
 09_AUS_AA                   ORCA2                     34   34   46   16
@@ -83,48 +92,56 @@
 09_AUS_AA                   BIOPERIANT05             134  134    5  200
 #
 10_ITF                      itflo                   Indonesian_Troughflow          -1
+10_ITF                      ORCA12.L46               510  510 1393 1228
 10_ITF                      ORCA025                  170  170  465  410
 10_ITF                      ORCA025.L75              170  170  465  410
 10_ITF                      ORCA2                     22   22   63   54
 10_ITF                      ORCA246                   22   22   63   54
 #
 11_MOZAMBIQUE_CHANNEL       mozam                   Mozambique_Channel              1
+11_MOZAMBIQUE_CHANNEL       ORCA12.L46              3923 3980 1296 1296  
 11_MOZAMBIQUE_CHANNEL       ORCA025                 1309 1328  432  432
 11_MOZAMBIQUE_CHANNEL       ORCA025.L75             1309 1328  432  432
 11_MOZAMBIQUE_CHANNEL       ORCA2                    161  166   58   58
 11_MOZAMBIQUE_CHANNEL       ORCA246                  161  166   58   58
 #
 12_SOUTH_AFR                soafr                   South-Africa                    1
+12_SOUTH_AFR                ORCA12.L46              3685 3685  300 1052
 12_SOUTH_AFR                PERIANT8                2538 2538   16  796
 12_SOUTH_AFR                PERIANT05                635  635    5  200
 12_SOUTH_AFR                PERIANT025              1270 1270    9  399
 12_SOUTH_AFR                BIOPERIANT05             635  635    5  200
 #
 13_KERGUELEN                kergu                   Kerguelen                       1
+13_KERGUELEN                ORCA12.L46              4276 4276  373  811
 13_KERGUELEN                PERIANT8                2858 2858   16  796
 13_KERGUELEN                PERIANT05                715  715    5  200
 13_KERGUELEN                PERIANT025              1430 1430    9  399
 13_KERGUELEN                BIOPERIANT05             715  715    5  200
 #
 14_CAMPBELL                 campb                   Campbell                        1
+14_CAMPBELL                 ORCA12.L46              1170 1170  237  875
 14_CAMPBELL                 PERIANT8                 778  778   16  796
 14_CAMPBELL                 PERIANT05                195  195    5  200
 14_CAMPBELL                 PERIANT025               390  390    9  399
 14_CAMPBELL                 BIOPERIANT05             195  195    5  200
 #
 15_AFR_AUSTR                afaus                   Africa-Australia                1
+15_AFR_AUSTR                ORCA12.L46              3804  528 1194 1194
 15_AFR_AUSTR                PERIANT8                2534  350  796  796
 15_AFR_AUSTR                PERIANT05                634   88  200  200
 15_AFR_AUSTR                PERIANT025              1268  176  398  398
 15_AFR_AUSTR                BIOPERIANT05             634   88  200  200
 #
 16_AUSTR_AM                 ausam                   Australia-America              -1
+16_AUSTR_AM                 ORCA12.L46               947 2601 1194 1194
 16_AUSTR_AM                 PERIANT8                 626 1738  796  796
 16_AUSTR_AM                 PERIANT05                157  435  200  200
 16_AUSTR_AM                 PERIANT025               314  870  398  398
 16_AUSTR_AM                 BIOPERIANT05             157  435  200  200
 #
 17_AM_AFR                   ameaf                   America-Africa                 -1
+17_AM_AFR                   ORCA12.L46              2880 3622 1194 1194
 17_AM_AFR                   PERIANT8                1878 2450  796  796
 17_AM_AFR                   PERIANT05                470  613  200  200
 17_AM_AFR                   PERIANT025               940 1226  398  398
