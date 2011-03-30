@@ -127,6 +127,14 @@ elif [ $CONFIG = 'ORCA025' -o  $CONFIG = 'ORCA025.L75' ] ; then
   NINO3='550 790 479 519 '
   NINO4='350 550 479 519 '
   NINO34='470 670 479 519 '
+elif [ $CONFIG = 'ORCA12' -o  $CONFIG = 'ORCA12.L46' ] ; then
+  # define the I-J window for GIB diags
+  GIBWIN='3282 3327 1959 2022 '
+  # define the I-J windows for EL NINO diags
+  NINO12='2370 2490 1377 1497'
+  NINO3='1650 2370 1437 1557 '
+  NINO4='1050 1650 1437 1557 '
+  NINO34='1410 2010 1437 1557 '
 elif [ $CONFIG = 'ORCA2' -o $CONFIG = 'ORCA246' ] ; then
   # define the I-J window for GIB diags
   GIBWIN='135 137 101 104'
@@ -180,6 +188,7 @@ case $MACHINE in
     PLOTDIR=$SDIR      
 
     ### 4 : hardware/batch
+    WALLTIME=03:00:00
     MPIPROC=8
     login_node=service2
     SUB=qsub ;;
@@ -218,6 +227,7 @@ case $MACHINE in
     PLOTDIR=$SDIR      
 
     ### 4 : hardware/batch
+    WALL_CLOCK_LIMIT=3600
     MPIPROC=2
     SUB=llsubmit ;;
 
@@ -254,6 +264,7 @@ case $MACHINE in
     PLOTDIR=$SDIR      
 
     ### 4 : hardware/batch
+    WALL_CLOCK_LIMIT=3600
     MPIPROC=4
     SUB=llsubmit ;;
 
@@ -290,6 +301,7 @@ case $MACHINE in
     PLOTDIR=$SDIR      
 
     ### 4 : hardware/batch
+    WALL_CLOCK_LIMIT=3600
     MPIPROC=1
     SUB='' ;;
 

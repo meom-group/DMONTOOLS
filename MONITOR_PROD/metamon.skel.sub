@@ -2,7 +2,7 @@
 ### PBS is valid on JADE
 #PBS -N zmetamon
 #PBS -l select=<NB_NODES>:ncpus=<MPIPROC>:mpiprocs=<MPIPROC>
-#PBS -l walltime=01:00:00
+#PBS -l walltime=<WALLTIME>
 #PBS -l cluster=hpt
 ##PBS -l place=scatter:excl
 #PBS -M <MAIL>
@@ -19,7 +19,7 @@
 # @ job_type = <JOBTYPE>
 ### DO NEVER ERASE THE FOLLOWING LINE
 #ifloadlev# @ total_tasks = <NB_NPROC>
-# @ wall_clock_limit = 3600
+# @ wall_clock_limit = <WALL_CLOCK_LIMIT>
 # @ data_limit = 3.2gb
 # @ queue
 
