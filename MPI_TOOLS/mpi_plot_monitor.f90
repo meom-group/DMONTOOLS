@@ -45,7 +45,7 @@ PROGRAM mpi_plot_monitor
 
   !! * Dispatch the work ..
   IF ( nproc >= narg ) THEN
-    WRITE(cdum,'("./plot_monitor.ksh ",i4.4," > log_plot_monitor_",i4.4)')  iyears(iproc+1), iyears(iproc+1)
+    WRITE(cdum,'("./plot_monitor.ksh ",i4.4," > log_plot_monitor_",i4.4," 2>&1 ")')  iyears(iproc+1), iyears(iproc+1)
     PRINT *, TRIM(cdum)
     CALL system( cdum )
   ENDIF
