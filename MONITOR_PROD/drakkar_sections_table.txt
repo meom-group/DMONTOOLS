@@ -148,7 +148,7 @@
 17_AM_AFR                   BIOPERIANT05             470  613  200  200
 #
 18_SOSAL                    sosal                   South_Solomon                1
-18_SOSAL                    SOSMOD                    43  90  58  59
+18_SOSAL                    SOSMOD                    43  90  58  58
 #
 19_SOSAL2                   sosal2                  South_Solomon_2                1
 19_SOSAL2                   SOSMOD                    42  82  60  62
@@ -166,7 +166,7 @@
 23_SOVIT                    SOSMOD                    28  49  75  75
 #
 24_NBCU                     nbcu                    New_Britain_Coastal_Undecurrent        1
-24_NBCU                     SOSMOD                    48 48 80 75
+24_NBCU                     SOSMOD                    49 49 80 75
 #
 25_SICU                     sicu                    Sicu                1
 25_SICU                     SOSMOD                    64  81  75  75
@@ -175,14 +175,14 @@
 26_NICU                     SOSMOD                    50  81  82  82
 #
 27_SOSALG0                  sosalg0                 South_Solomon_Global_0                1
-27_SOSALG0                  SOSMOD                    12  92  55  55
+27_SOSALG0                  SOSMOD                    12  89  55  57
 #
-27_NOSAL                    nosal                   Nosal                1
-27_NOSAL                    SOSMOD                    30  64  75  75
+28_NOSAL                    nosal                   Nosal                1
+28_NOSAL                    SOSMOD                    30  64  75  75
 #
-28_SOSALG1                  sosalg1                 South_Solomon_Global_1                1
-28_SOSALG1                  SOSMOD                    22  110  40  40
+29_SOSALG1                  sosalg1                 South_Solomon_Global_1                1
+29_SOSALG1                  SOSMOD                    22  109  40  40
 #
-29_SOSALG2                  sosalg2                 South_Solomon_Global_2                1
-29_SOSALG2                  SOSMOD                    11  106  58  58
+30_SOSALG2                  sosalg2                 South_Solomon_Global_2                1
+30_SOSALG2                  SOSMOD                    11  105  58  58
 

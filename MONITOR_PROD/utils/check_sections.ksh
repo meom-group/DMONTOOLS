@@ -15,7 +15,7 @@
 
 # adapt the following line according to your settings
 ##################################################################################
-config=ORCA12.L46
+config=SOSMOD
 sig=no           # yes or no
 halo=5
 chart=/home/users/molines/DEV/CHART_7.0/chart
@@ -25,6 +25,7 @@ chart=/home/users/molines/DEV/CHART_7.0/chart
 case $config in 
   ( 'ORCA12.L46' ) bathy=bathy_meter.nc ;;
   ( 'ORCA025.L75' ) bathy=ORCA025_bathy_etopo1_gebco1_smoothed_coast_corrected_mar10.nc ;;
+  ( 'SOSMOD' ) bathy=bathy_updated_etopo2v1_ok.nc ;;
   ( * ) echo config $config not supported yet ;;
 esac
 
