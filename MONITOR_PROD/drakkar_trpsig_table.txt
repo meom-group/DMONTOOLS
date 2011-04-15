@@ -110,3 +110,41 @@
 15_Campbell                 PERIANT025               390 390  9 399
 15_Campbell                 BIOPERIANT05             195 195  5 200
 #
+18_SOSAL                    sosal                   South_Solomon        
+18_SOSAL                    SOSMOD                    43  90  58  58
+#
+19_SOSAL2                   sosal2                  South_Solomon_2     
+19_SOSAL2                   SOSMOD                    42  82  60  62
+#
+20_VITIAZ                   vitiaz                  Vitiaz_Strait      
+20_VITIAZ                   SOSMOD                   31  40  75  77
+#
+21_SALSTR                   salstr                  Solomon_Strait    
+21_SALSTR                   SOSMOD                    50  64  82 75
+#
+22_SOVIT2                   sovit2                  South_Vitiaz_2   
+22_SOVIT2                   SOSMOD                    28  48  74  74
+#
+23_SOVIT                    sovit                   South_Vitiaz    
+23_SOVIT                    SOSMOD                    28  49  75  75
+#
+24_NBCU                     nbcu                    New_Britain_Coastal_Undecurrent 
+24_NBCU                     SOSMOD                    49 49 80 75
+#
+25_SICU                     sicu                    Sicu             
+25_SICU                     SOSMOD                    64  81  75  75
+#
+26_NICU                     nicu                    New_Ireland_Coastal_Undercurrent
+26_NICU                     SOSMOD                    50  81  82  82
+#
+27_SOSALG0                  sosalg0                 South_Solomon_Global_0         
+27_SOSALG0                  SOSMOD                    12  89  55  57
+#
+28_NOSAL                    nosal                   Nosal             
+28_NOSAL                    SOSMOD                    30  64  75  75
+#
+29_SOSALG1                  sosalg1                 South_Solomon_Global_1 
+29_SOSALG1                  SOSMOD                    22  109  40  40
+#
+30_SOSALG2                  sosalg2                 South_Solomon_Global_2 
+30_SOSALG2                  SOSMOD                    11  105  58  58
