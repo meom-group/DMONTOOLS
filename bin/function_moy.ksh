@@ -72,6 +72,53 @@ case $MACHINE in
         mv cdfmoy_weighted.nc ${CONFCASE}_y${year}_${typ}.nc
         \rm -f ${CONFCASE}_y${year}m??_${typ}.nc ; }
 
+    interannual() { chkdir $MOYTMPDIR
+        chkdir $MOYTMPDIR/$1-$2
+        cd $MOYTMPDIR/$1-$2
+
+        chkdir $MEANDIR/$1-$2
+
+        for typ in $TYP_LIST ; do
+          # monthly climatology
+          for m in $( seq 1 12) ; do
+             mm=$( printf "%02d" $m )
+             for year in $( seq $1 $2 ) ; do
+                ln -sf $MEANDIR/$year/${CONFCASE}_y${year}m${mm}_${typ}.nc .
+             done
+             $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????m${mm}_${typ}.nc
+             mv cdfmoy_weighted.nc $MEANDIR/$1/${CONFCASE}_y$1-${2}m${mm}_${typ}.nc
+             rm ${CONFCASE}_y????m${mm}_${typ}.nc
+
+             case $typ in
+             gridT | gridU | gridV | gridW  )
+                for year in $( seq $1 $2 ) ; do
+                   ln -sf $MEANDIR/$year/${CONFCASE}_y${year}m${mm}_${typ}2.nc .
+                done
+                $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????m${mm}_${typ}2.nc
+                mv cdfmoy_weighted.nc $MEANDIR/$1/${CONFCASE}_y$1-${2}m${mm}_${typ}2.nc
+                rm ${CONFCASE}_y????m${mm}_${typ}2.nc ;;
+             esac
+          done
+           # inter annual climatology
+           for year in $( seq $year1 $year2 ) ; do
+              ln -sf $MEANDIR/$year/${CONFCASE}_y${year}_${typ}.nc .
+           done
+   
+           $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????_${typ}.nc
+           mv cdfmoy_weighted.nc $MEANDIR/$1/${CONFCASE}_y$1-${2}_${typ}.nc
+   
+           case $typ in
+           gridT | gridU | gridV | gridW  )
+               for year in $( seq $1 $2 ) ; do
+                  ln -sf $MEANDIR/$year/${CONFCASE}_y${year}_${typ}2.nc .
+               done
+               $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????_${typ}2.nc
+               mv cdfmoy_weighted.nc $MEANDIR/$1/${CONFCASE}_y$1-${2}_${typ}2.nc
+               rm ${CONFCASE}_y????_${typ}2.nc ;;
+           esac
+        done
+                    ; }
+
     echo "functions for $MACHINE successfully loaded" ;;
 
     'ulam' | 'vargas' )
