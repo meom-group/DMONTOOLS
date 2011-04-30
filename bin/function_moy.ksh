@@ -72,7 +72,7 @@ case $MACHINE in
         mv cdfmoy_weighted.nc ${CONFCASE}_y${year}_${typ}.nc
         \rm -f ${CONFCASE}_y${year}m??_${typ}.nc ; }
 
-    interannual() { chkdir $MOYTMPDIR
+    interannual() {  set -x ; chkdir $MOYTMPDIR
         chkdir $MOYTMPDIR/$1-$2
         cd $MOYTMPDIR/$1-$2
 
@@ -80,13 +80,13 @@ case $MACHINE in
 
         for typ in $TYP_LIST ; do
           # monthly climatology
-          for m in $( seq 1 12) ; do
+          for m in $( seq 1 12 ) ; do
              mm=$( printf "%02d" $m )
              for year in $( seq $1 $2 ) ; do
                 ln -sf $MEANDIR/$year/${CONFCASE}_y${year}m${mm}_${typ}.nc .
              done
              $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????m${mm}_${typ}.nc
-             mv cdfmoy_weighted.nc $MEANDIR/$1/${CONFCASE}_y$1-${2}m${mm}_${typ}.nc
+             mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}m${mm}_${typ}.nc
              rm ${CONFCASE}_y????m${mm}_${typ}.nc
 
              case $typ in
@@ -95,17 +95,20 @@ case $MACHINE in
                    ln -sf $MEANDIR/$year/${CONFCASE}_y${year}m${mm}_${typ}2.nc .
                 done
                 $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????m${mm}_${typ}2.nc
-                mv cdfmoy_weighted.nc $MEANDIR/$1/${CONFCASE}_y$1-${2}m${mm}_${typ}2.nc
+                mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}m${mm}_${typ}2.nc
                 rm ${CONFCASE}_y????m${mm}_${typ}2.nc ;;
              esac
           done
-           # inter annual climatology
-           for year in $( seq $year1 $year2 ) ; do
+        done
+
+        # inter annual climatology
+        for typ in $TYP_LIST MOC EKE PSI ; do
+           for year in $( seq $1 $2 ) ; do
               ln -sf $MEANDIR/$year/${CONFCASE}_y${year}_${typ}.nc .
            done
    
            $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????_${typ}.nc
-           mv cdfmoy_weighted.nc $MEANDIR/$1/${CONFCASE}_y$1-${2}_${typ}.nc
+           mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}_${typ}.nc
    
            case $typ in
            gridT | gridU | gridV | gridW  )
@@ -113,9 +116,23 @@ case $MACHINE in
                   ln -sf $MEANDIR/$year/${CONFCASE}_y${year}_${typ}2.nc .
                done
                $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????_${typ}2.nc
-               mv cdfmoy_weighted.nc $MEANDIR/$1/${CONFCASE}_y$1-${2}_${typ}2.nc
+               mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}_${typ}2.nc
                rm ${CONFCASE}_y????_${typ}2.nc ;;
            esac
+        done
+        # extra variables only existing for m03 and m09
+        for typ in MXL LSPV ; do
+          # monthly climatology
+          for m in 3  9 ; do
+             mm=$( printf "%02d" $m )
+             for year in $( seq $1 $2 ) ; do
+                ln -sf $MEANDIR/$year/${CONFCASE}_y${year}m${mm}_${typ}.nc .
+             done
+             $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????m${mm}_${typ}.nc
+             mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}m${mm}_${typ}.nc
+             rm ${CONFCASE}_y????m${mm}_${typ}.nc
+
+          done
         done
                     ; }
 
