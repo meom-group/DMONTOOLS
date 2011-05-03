@@ -80,8 +80,10 @@ cp $SRCDIR/function_moy.ksh         $P_CDF_DIR/.
 cp $SRCDIR/RUN_calmoy.ksh           $P_CDF_DIR/.
 cp $SRCDIR/RUN_calmoy_LoadLev.ksh   $P_CDF_DIR/.
 cp $SRCDIR/RUN_calmoy_PBS.ksh       $P_CDF_DIR/.
+cp $SRCDIR/RUN_calinter_PBS.ksh       $P_CDF_DIR/.
 
 chmod +x $P_CDF_DIR/RUN_calmoy*.ksh
+chmod +x $P_CDF_DIR/RUN_calinter*.ksh
 
 HOSTNAME=`hostname`
 
