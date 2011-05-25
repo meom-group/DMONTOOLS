@@ -25,6 +25,13 @@ MESH_MASK_ID=$CONFCASE   # root part of the mesh-mask files (likely  to be edite
 #TSCLIM=Gouretski         # if TSCLIM is not defined here it takes Levitus_p2.1 as default
 
 ######################################################################
+### modules
+
+if [ $MACHINE = 'ulam' ] ; then
+   module load nco
+fi
+
+######################################################################
 ### -1- MONITOR PROD Menu :
 ### (set to 1 if you want it, to anything else if you do not !)
 ######################################################################

@@ -5,7 +5,7 @@ export OMP_NUM_THREADS=1
 
 ### LoadLeveler on ULAM and VARGAS
 ## title of the run
-# @ job_name = make_movies
+# @ job_name = zz-make_movies
 ## Output listing location
 # @ output = $(job_name).$(jobid)
 # @ error  = $(output)

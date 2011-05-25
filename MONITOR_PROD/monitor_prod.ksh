@@ -358,6 +358,15 @@ cd $YEAR
    # Ascii/nc output file:
    fice=${CONFCASE}_y${YEAR}_icemonth.txt
    fice_nc=${CONFCASE}_y${YEAR}_icemonth.nc
+
+   # special function for concatenation of Netcdf output
+   cdfmean_concat_ice() { case $mm in
+      01)  mv icediags.nc $1 ;;
+      *)   ncatted -O -a missing_value,,d,, $1  
+           ncatted -O -a missing_value,,d,, icediags.nc  
+           ncrcat $1 icediags.nc -o tmp.nc ; mv tmp.nc $1 ;;
+      esac        ; }
+
  
    m=1
    while (( $m <= 12 )) ; do
@@ -369,11 +378,12 @@ cd $YEAR
     esac
 
     cdficediags ${CONFCASE}_y${YEAR}m${mm}_icemod.nc  >> $fice 
+    cdfmean_concat_ice $fice_nc
 
-    case $mm in
-    01) mv icediags.nc $fice_nc ;;
-    *)  ncrcat -A $fice_nc icediags.nc -o $fice_nc ;;
-    esac
+    #case $mm in
+    #01) mv icediags.nc $fice_nc ;;
+    #*)  ncrcat $fice_nc icediags.nc -o tmp.nc ; mv tmp.nc $fice_nc ;;
+    #esac
 
     m=$(( m + 1 ))
    done
@@ -411,7 +421,7 @@ cd $YEAR
    expatrie $ftgib_nc $DIAGS/NC  $ftgib_nc
    expatrie $fsgib_nc $DIAGS/NC  $fsgib_nc
 
-   if [ $(chkfile $DIAGS/TXT/LEVITUS_y0000_TGIB.txt ) == absent ] ; then
+   if [ $(chkfile $DIAGS/NC/LEVITUS_y0000_TGIB.nc ) == absent ] ; then
     # first time : Create header with Levitus equivalent
     # requires  LEVITUS 'same' diags (from the ANNUAL mean )
     levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
@@ -452,7 +462,9 @@ cd $YEAR
    # special function for concatenation of Netcdf output
    cdfmean_concat() { case $mm in
       01)  mv cdfmean.nc $1 ;;
-      *)   ncrcat -A $1 cdfmean.nc -o $1 ;;
+      *)   ncatted -O -a missing_value,,d,, $1  
+           ncatted -O -a missing_value,,d,, cdfmean.nc  
+           ncrcat $1 cdfmean.nc -o tmp.nc ; mv tmp.nc $1 ;;
       esac        ; }
  
    # get monthly mean gridT files and compute mean SST on each NINO box

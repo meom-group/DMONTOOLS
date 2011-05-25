@@ -68,6 +68,11 @@ echo '>>> initialisation successful'
 #####################################################################################
 ### Here I define some shell functions                                            ###
 #####################################################################################
+# nc_rm_missval : remove the missing value attribute for nc variables
+#
+# usage : nc_rm_missval file
+nc_rm_missval() { for f in $* ; do ncatted -O -a missing_value,,d,, $f ; done ; }
+
 # nc_correct_time_counter : correct the time counter to have it in years 
 #
 # usage : nc_correct_time_counter FIRSTYEAR_of_the_run file
@@ -157,7 +162,8 @@ for var in Atl_maxmoc40N Atl_maxmoc Atl_maxmoc30S Atl_minmoc Aus_maxmoc Aus_maxm
            Inp_minmoc2 Inp_minmoc30S Inp_minmoc ; do 
 
     if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc   # concatenation
+       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
+       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc   # concatenation
        nc_correct_time_counter $FRSTYEAR ${CONFCASE}_${var}.nc                      # time counter in years
        ncrename -v maxmoc,maxmoc_${var}           ${CONFCASE}_${var}.nc             # rename fields
        ncrename -v minmoc,minmoc_${var}           ${CONFCASE}_${var}.nc
@@ -201,7 +207,8 @@ domerge=0
 for var in NINO12 NINO34 NINO3 NINO4 ; do
 
     if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
+       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
+       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
        nc_correct_time_counter $FRSTYEAR ${CONFCASE}_${var}.nc
        ncrename -v mean_votemper,votemper_$var ${CONFCASE}_${var}.nc
        domerge=1
@@ -240,7 +247,8 @@ domerge=0
 for var in SMEAN SSHMEAN TMEAN ; do
 
     if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
+       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
+       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
        domerge=1
     else
        echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
@@ -284,7 +292,8 @@ domerge=0
 for var in SGIB TGIB ; do
 
     if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
+       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
+       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
        domerge=1
     else
        echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
@@ -326,7 +335,8 @@ domerge=0
 for var in mhst hflx ; do
 
     if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
+       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
+       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
        domerge=1
     else
        echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
@@ -359,7 +369,8 @@ domerge=0
 for var in `list_transports` ; do
 
     if [ -f $DIAGS/${CONFCASE}_y????_${var}_transports.nc ] ; then
-       cd $DIAGS ; ncrcat -O ${CONFCASE}_y????_${var}_transports.nc -o ${CONFCASE}_${var}_transports.nc
+       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}_transports.nc
+       ncrcat -O ${CONFCASE}_y????_${var}_transports.nc -o ${CONFCASE}_${var}_transports.nc
        rename_trp $var ${CONFCASE}_${var}_transports.nc
        # this is ugly but bulletproof 
        fileout=${CONFCASE}_TRANSPORTS.nc
@@ -393,7 +404,8 @@ domerge=0
 for var in icemonth ; do
 
     if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
+       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
+       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
        domerge=1
     else
        echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
@@ -424,7 +436,8 @@ mylist_trpsig=''
 for var in `list_trpsig` ; do
 
     if [ -f $DIAGS/${CONFCASE}_y????_${var}_trpsig.nc ] ; then
-       cd $DIAGS ; ncrcat -O ${CONFCASE}_y????_${var}_trpsig.nc -o ${CONFCASE}_${var}_trpsig.nc
+       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}_trpsig.nc
+       ncrcat -O ${CONFCASE}_y????_${var}_trpsig.nc -o ${CONFCASE}_${var}_trpsig.nc
        rename_trpsig $var ${CONFCASE}_${var}_trpsig.nc
        # this is ugly but bulletproof 
        fileout=${CONFCASE}_TRPSIG.nc
@@ -461,7 +474,8 @@ list_vars="VELOCITY_0n110w    VELOCITY_0n140w    VELOCITY_0n156e    VELOCITY_0n1
 for var in $list_vars ; do
 
     if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
+       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
+       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
        # this is ugly but bulletproof 
        fileout=${CONFCASE}_TAO.nc
        \cp ${CONFCASE}_${var}.nc $fileout
