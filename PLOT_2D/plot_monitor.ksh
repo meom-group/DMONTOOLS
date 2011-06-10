@@ -292,13 +292,20 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
   mkdiff() { \rm -f $5
             ncks  -F -O -v $3,nav_lon,nav_lat -d deptht,$4,$4 $2  zz2.nc
             ncks  -F -O -v $3,nav_lon,nav_lat -d deptht,$4,$4 $1  zz1.nc
-            ncbo --op_typ=- -v $3 zz1.nc zz2.nc $5 ;}
+            ncatted -O -a missing_value,,d,, zz2.nc
+            ncatted -O -a missing_value,,d,, zz1.nc
+            ncbo --op_typ=- -v $3 zz1.nc zz2.nc $5
+            ncks  -F -A -v nav_lon,nav_lat,deptht,time_counter -d deptht,$4,$4 $1 $5 ;}
+
 
   # mkdiffrey : Usage mkdiffrey file1 file2 cdfvar outfile
   mkdiffrey() { \rm -f $4
             ncks  -F -O -v $3,nav_lon,nav_lat  $2  zz2.nc
             ncks  -F -O -v $3,nav_lon,nav_lat -d deptht,1,1 $1  zz1.nc
-            ncbo --op_typ=- -v $3 zz1.nc zz2.nc $4 ;}
+            ncatted -O -a missing_value,,d,, zz2.nc
+            ncatted -O -a missing_value,,d,, zz1.nc
+            ncbo --op_typ=- -v $3 zz1.nc zz2.nc $4 
+            ncks  -F -A -v nav_lon,nav_lat,deptht,time_counter -d deptht,1,1 $1 $4 ;}
 
   # ndep : return the level corresponding to dep (m)
   ndep() { ncks -H -F -C -v deptht $t | \
@@ -378,6 +385,7 @@ eof
     #  need adaptation for L75 ..; (use of ndep ? ) but need level for mkdiff
    MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED" ; CNTICE=""
 #  for level in 1 12 19  ; do
+  rapatrie $t    $MEANY $t 
   for dep in 0 134 452  ; do  # about level 1 12 19 of L46
     level=$( ndep $dep )
     for var in difTgl difSgl ; do

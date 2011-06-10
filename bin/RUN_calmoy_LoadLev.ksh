@@ -18,11 +18,8 @@ cat $MPDIR/calmoy.skel.ll      | sed -e "s/<YYYY>/$year/g" > calmoy.ll.$$
 
 cat $MPDIR/calmoyvt.skel.ll    | sed -e "s/<YYYY>/$year/g" > calmoyvt.ll.$$
 
-cat $MPDIR/calannual.skel.ll   | sed -e "s/<YYYY>/$year/g" > calannual.ll.$$
-
 cat $MPDIR/meta_calmoy.skel.ll | sed -e "s/<CDFMOY>/calmoy.ll.$$/"    \
                                      -e "s/<CDFVT>/calmoyvt.ll.$$/"   \
-                                     -e "s/<ANNUAL>/calannual.ll.$$/" \
                                      -e "s/<NPROC>/$NPROC/"           \
                                  > meta_calmoy.ll.$year
 

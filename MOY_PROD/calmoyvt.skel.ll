@@ -33,4 +33,5 @@ done
 sleep 3
 ./mpi_shell $liste
 
-
+### one processor does the annual mean
+annualvt
