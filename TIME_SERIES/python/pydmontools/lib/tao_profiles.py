@@ -149,7 +149,8 @@ def _readnc(filenc=None,fileobs1=None,fileobs2=None,fileobs3=None,fileobs4=None,
         if len(temp.shape) == 1:
             outdict['m_Vitesse'+str(j)] = temp
         else:
-            outdict['m_Vitesse'+str(j)] = temp[-1,:]
+            #outdict['m_Vitesse'+str(j)] = temp[-1,:]
+            outdict['m_Vitesse'+str(j)] = temp.mean(0)
         outdict['m_Valeur_sous_courant'+str(j)] = rs.readfilenc0d(filenc,'u_'+coordonnees[j-1]+'_UC')
         #longitude
         #lon=rs.readfilenc(filenc,'nav_lon')
@@ -203,10 +204,12 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
             plt.title(' ' + '\n' + vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)])
         if j==3:
             if compare :
-	            plt.title('Mean profile of zonal currents\n ' + vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)])
+	            plt.title('Mean profile of zonal currents\n ' + vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)] )
             else :
-	            plt.title(argdict['config'] + '-' + argdict['case'] +';'+'\n\nMean profile of zonal currents\n ' \
-                    + vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)])
+	            plt.title(argdict['config'] + '-' + argdict['case'] +';'+'\n\nMean profile of zonal currents' + \
+                    ' (model from year ' + str(int(m_Temps_serie[0])) + ' to ' + str(int(m_Temps_serie[-1])) + ') \n\n ' \
+                    + vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)] \
+                    )
 
             plt.xlabel('Velocity (cm/s)')
         plt.setp(plt.gca().get_xticklabels(),rotation=60,fontsize=8)
