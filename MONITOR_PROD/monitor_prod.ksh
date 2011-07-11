@@ -67,7 +67,7 @@ cd $YEAR
 
 # check if required cdftools are available, exit if missing
   err=0
-  for cdfprog in cdfeke cdfmean cdfrmsssh cdfstdevw cdficediags cdftransportiz\
+  for cdfprog in cdfeke cdfmean cdfrmsssh cdfstdevw cdficediags cdftransport\
                   cdfmhst cdfhflx cdfmoc cdfmaxmoc  cdfpsi  cdfsigtrp cdfmxl \
                   cdfzonalmean cdfzonalsum cdfzonalout cdfvita cdffindij cdfprofile ; do
      if [ ! -x $CDFTOOLS/$cdfprog ] ; then
@@ -241,7 +241,7 @@ cd $YEAR
 
      rapatrie $f $MEANY $f
      # compute LSPV
-     cdflspv  $f
+     cdfpvor  $f -lspv
      # dispose on gaya, MEAN/YEAR directory
      expatrie lspv.nc $MEANY $g
    done
@@ -528,7 +528,7 @@ cd $YEAR
    # clean eventually old x_transport.nc files in this current directory
    \rm -f *transports.nc
 
-   cdftransportiz ${CONFCASE}_y${YEAR}_VT.nc \
+   cdftransport   ${CONFCASE}_y${YEAR}_VT.nc \
                   ${CONFCASE}_y${YEAR}_gridU.nc \
                   ${CONFCASE}_y${YEAR}_gridV.nc  < section.dat >> $fsection
  
@@ -865,8 +865,8 @@ cd $YEAR
 
      for LON in 156 165 -110 -140 -170 ; do
 
-        I=$( cdffindij $LON $LON $LAT $LAT mesh_hgr.nc T | tail -2 | head -1  | awk '{print $1 }' )
-        J=$( cdffindij $LON $LON $LAT $LAT mesh_hgr.nc T | tail -2 | head -1  | awk '{print $3 }' )
+        I=$( cdffindij $LON $LON $LAT $LAT -c mesh_hgr.nc -p T | tail -2 | head -1  | awk '{print $1 }' )
+        J=$( cdffindij $LON $LON $LAT $LAT -c mesh_hgr.nc -p T | tail -2 | head -1  | awk '{print $3 }' )
         LONG=${LON}e
         LATI=${LAT}n
         if (( $LON < 0 )) ; then LONG=${LON}w ; fi
@@ -946,7 +946,7 @@ if [ $BIO_PROFILE == 1 ] ; then
    rapatrie ${CONFCASE}_y${YEAR}_ptrcT.nc $MEANY ${CONFCASE}_y${YEAR}_ptrcT.nc
 
    # Parameters for integration
-   latmin=$( cdffindij -180 180 -75 -45 mesh_hgr.nc T | tail -2 | head -1 | awk '{ print $4 }' )
+   latmin=$( cdffindij -180 180 -75 -45 -c mesh_hgr.nc -p T | tail -2 | head -1 | awk '{ print $4 }' )
    
    # compute vertical profiles
    jc=0
