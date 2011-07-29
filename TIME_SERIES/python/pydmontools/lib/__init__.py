@@ -105,7 +105,7 @@ def standard_pydmt_script_parser():
 
 # Check the availability of a netcdf interface
 #
-_possible_netcdf_interfaces = ['scipy.io.netcdf','Scientific.IO.NetCDF','pynetcdf','pupynere']
+_possible_netcdf_interfaces = ['netCDF4','scipy.io.netcdf','Scientific.IO.NetCDF','pynetcdf','pupynere']
 
 found_an_interface = False
 while not(found_an_interface):
@@ -122,6 +122,8 @@ while not(found_an_interface):
 if CDF.__name__=='scipy.io.netcdf' or CDF.__name__=='pupynere':
    CDF.NetCDFFile = CDF.netcdf_file
 
+if CDF.__name__=='netCDF4':
+   exec('from netCDF4 import Dataset as NetCDFFile')
 
 # ===== end file =====
 
