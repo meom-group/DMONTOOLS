@@ -87,16 +87,18 @@
 10_Windward_passage         NATL12                   289  301  497  497
 #
 11_Drake                    drake                   Drake_Passage_transport_in_sigma_classes
-11_Drake                    ORCA12.L46               2634 2634 27 1197
-11_Drake                    ORCA12.L75               2634 2634 27 1197
-11_Drake                    PERIANT8                 1754 1754 16 796
-11_Drake                    PERIANT05                 439  439  5 200
-11_Drake                    PERIANT025                878  878  9 399
-11_Drake                    BIOPERIANT05              439  439  5 200
+11_Drake                    ORCA12.L46               2634 2634   27 1197
+11_Drake                    ORCA12.L75               2634 2634   27 1197
+11_Drake                    ORCA025.L75               878  878    9  399
+11_Drake                    PERIANT8                 1754 1754   16  796
+11_Drake                    PERIANT05                 439  439    5  200
+11_Drake                    PERIANT025                878  878    9  399
+11_Drake                    BIOPERIANT05              439  439    5  200
 #
 12_South_Africa             soafr                   South_Africa_transport_in_sigma_classes
 12_South_Africa             ORCA12.L46               3810 3810 27 1197
 12_South_Africa             ORCA12.L75               3810 3810 27 1197
+12_South_Africa             ORCA025.L75              1270 1270    9  399
 12_South_Africa             PERIANT8                 2538 2538 16 796
 12_South_Africa             PERIANT05                 635  635  5 200
 12_South_Africa             PERIANT025               1270 1270  9 399
@@ -105,6 +107,7 @@
 13_kerguelen                kergu                   Kerguelen_transport_in_sigma_classes
 13_kerguelen                ORCA12.L46               4276 4276  373  811
 13_kerguelen                ORCA12.L75               4276 4276  373  811
+13_kerguelen                ORCA025.L75              1425 1425  124  270
 13_kerguelen                PERIANT8                 2858 2858 16 796
 13_kerguelen                PERIANT05                 715  715  5 200
 13_kerguelen                PERIANT025               1430 1430  9 399
@@ -113,6 +116,7 @@
 14_South_Australia          soaus                   South-Australia_transport_in_sigma_classes
 14_South_Australia          ORCA12.L46               804 804 27 1197
 14_South_Australia          ORCA12.L75               804 804 27 1197
+14_South_Australia          ORCA025.L75              268  268    9  399
 14_South_Australia          PERIANT8                 534 534 16 796
 14_South_Australia          PERIANT05                134 134  5 200
 14_South_Australia          PERIANT025               268 268  9 399
@@ -121,6 +125,7 @@
 15_Campbell                 campb                   Campbell_transport_in_sigma_classes
 15_Campbell                 ORCA12.L46               1170 1170  237  875
 15_Campbell                 ORCA12.L75               1170 1170  237  875
+15_Campbell                 ORCA025.L75               390  390   79  291
 15_Campbell                 PERIANT05                195 195  5 200
 15_Campbell                 PERIANT025               390 390  9 399
 15_Campbell                 BIOPERIANT05             195 195  5 200
