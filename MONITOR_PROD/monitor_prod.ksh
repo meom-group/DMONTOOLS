@@ -610,7 +610,7 @@ cd $YEAR
    
    expatrie $fmaxmoc $DIAGS/TXT $fmaxmoc ;;
 
-        ORCA12 | ORCA12.L46 | ORCA025 | ORCA025.L75 | ORCA05 | ORCA2 | ORCA246 )
+        ORCA12 | ORCA12.L46 | ORCA12.L75 | ORCA025 | ORCA025.L75 | ORCA05 | ORCA2 | ORCA246 )
    # GLO
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo 20 60 500 2000 | grep Maximum >> $fmaxmoc
      expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_maxmoc.nc
