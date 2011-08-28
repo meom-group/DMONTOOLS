@@ -164,7 +164,7 @@
 17_AM_AFR                   ameaf                   America-Africa                 -1
 17_AM_AFR                   ORCA12.L46              2880 3622 1194 1194
 17_AM_AFR                   ORCA12.L75              2880 3622 1194 1194
-17_AM_AFR                   ORCA025.L75              960 1207  398  398
+17_AM_AFR                   ORCA025.L75              960 1208  398  398
 17_AM_AFR                   PERIANT8                1878 2450  796  796
 17_AM_AFR                   PERIANT05                470  613  200  200
 17_AM_AFR                   PERIANT025               940 1226  398  398
