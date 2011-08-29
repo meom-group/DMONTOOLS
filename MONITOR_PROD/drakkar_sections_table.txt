@@ -119,6 +119,7 @@
 12_SOUTH_AFR                soafr                   South-Africa                    1
 12_SOUTH_AFR                ORCA12.L46              3685 3685  300 1052
 12_SOUTH_AFR                ORCA12.L75              3685 3685  300 1052
+12_SOUTH_AFR                ORCA025                 1228 1228  100 0350
 12_SOUTH_AFR                ORCA025.L75             1228 1228  100 0350
 12_SOUTH_AFR                PERIANT8                2538 2538   16  796
 12_SOUTH_AFR                PERIANT05                635  635    5  200
@@ -128,6 +129,7 @@
 13_KERGUELEN                kergu                   Kerguelen                       1
 13_KERGUELEN                ORCA12.L46              4276 4276  373  811
 13_KERGUELEN                ORCA12.L75              4276 4276  373  811
+13_KERGUELEN                ORCA025                 1425 1425  124  270
 13_KERGUELEN                ORCA025.L75             1425 1425  124  270
 13_KERGUELEN                PERIANT8                2858 2858   16  796
 13_KERGUELEN                PERIANT05                715  715    5  200
@@ -137,6 +139,7 @@
 14_CAMPBELL                 campb                   Campbell                        1
 14_CAMPBELL                 ORCA12.L46              1170 1170  237  875
 14_CAMPBELL                 ORCA12.L75              1170 1170  237  875
+14_CAMPBELL                 ORCA025                  390  390   79  291
 14_CAMPBELL                 ORCA025.L75              390  390   79  291
 14_CAMPBELL                 PERIANT8                 778  778   16  796
 14_CAMPBELL                 PERIANT05                195  195    5  200
@@ -146,6 +149,7 @@
 15_AFR_AUSTR                afaus                   Africa-Australia                1
 15_AFR_AUSTR                ORCA12.L46              3804  528 1194 1194
 15_AFR_AUSTR                ORCA12.L75              3804  528 1194 1194
+15_AFR_AUSTR                ORCA025                 1268  176  398  398
 15_AFR_AUSTR                ORCA025.L75             1268  176  398  398
 15_AFR_AUSTR                PERIANT8                2534  350  796  796
 15_AFR_AUSTR                PERIANT05                634   88  200  200
@@ -155,6 +159,7 @@
 16_AUSTR_AM                 ausam                   Australia-America              -1
 16_AUSTR_AM                 ORCA12.L46               947 2601 1194 1194
 16_AUSTR_AM                 ORCA12.L75               947 2601 1194 1194
+16_AUSTR_AM                 ORCA025                  315  867  398  398
 16_AUSTR_AM                 ORCA025.L75              315  867  398  398
 16_AUSTR_AM                 PERIANT8                 626 1738  796  796
 16_AUSTR_AM                 PERIANT05                157  435  200  200
@@ -164,6 +169,7 @@
 17_AM_AFR                   ameaf                   America-Africa                 -1
 17_AM_AFR                   ORCA12.L46              2880 3622 1194 1194
 17_AM_AFR                   ORCA12.L75              2880 3622 1194 1194
+17_AM_AFR                   ORCA025                  960 1208  398  398
 17_AM_AFR                   ORCA025.L75              960 1208  398  398
 17_AM_AFR                   PERIANT8                1878 2450  796  796
 17_AM_AFR                   PERIANT05                470  613  200  200
