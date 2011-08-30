@@ -22,7 +22,7 @@ MESH_MASK_ID=$CONFCASE   # root part of the mesh-mask files (likely  to be edite
                          #  Standard name is thus : ${MESH_MASK_ID}_byte_mask.nc
                          #                          ${MESH_MASK_ID}_mesh_hgr.nc
                          #                          ${MESH_MASK_ID}_mesh_zgr.nc
-#TSCLIM=Gouretski         # if TSCLIM is not defined here it takes Levitus_p2.1 as default
+#TSCLIM=Gouretski        # if TSCLIM is not defined here it takes Levitus_p2.1 as default
 
 ######################################################################
 ### modules
@@ -164,7 +164,7 @@ fi
 case $MACHINE in
     'jade') 
     ### 1. User informations
-    USER=molines ;   REMOTE_USER=molines ; SDIR=$WORKDIR
+    USER=`whoami` ;   REMOTE_USER=`whoami` ; SDIR=$WORKDIR
     ### 2. Path to several tools
     ### 2.1 : CDFTOOLS executables
     CDFTOOLS=$WORKDIR/bin/
@@ -275,6 +275,44 @@ case $MACHINE in
     MPIPROC=4
     SUB=llsubmit ;;
 
+    'meolkerg') 
+    ### 1. User informations
+    USER=`whoami` ;   REMOTE_USER=`whoami` ; SDIR=$WORKDIR/SDIR
+    ### 2. Path to several tools
+    ### 2.1 : CDFTOOLS executables
+    CDFTOOLS=$HOME/CDFTOOLS_3.0/bin/
+    ### 2.2 : CHART/COUPE executables
+    CHARTTOOLS=$HOME/CHART_7.0/
+    CHART=chart25 # name of CHART executable
+    COUPE=coupe25 # name of COUPE executable
+    ### 2.3 : Directory of the DMONTOOLS scripts
+    PRODTOOLS=$HOME/DMONTOOLS/MONITOR_PROD    # MONITOR PROD
+    PLOTTOOLS=$HOME/DMONTOOLS/PLOT_2D         # PLOT 2D
+    TIMESERIES=$HOME/DMONTOOLS/TIME_SERIES    # TIME SERIES
+    DATAOBSDIR=$TIMESERIES/data/NC
+    ### 2.4 : Directory of the MPI_TOOLS executables
+    MPITOOLS=$WORKDIR/bin/
+    ### 3. Working and storage directories
+    ### 3.1 : Root of working directory for the monitor_prod 
+    R_MONITOR=$WORKDIR/MONITOR_${CONFCASE}/
+    ### whether we use a random TMPDIR (for R_MONITOR and P_MONITOR) or not (1/0)
+    RNDTMPDIR=0
+    ### 3.2 : Storage directory for diags (output of monitor_prod)
+    DIAGS=$SDIR/${CONFIG}/${CONFCASE}-DIAGS/NC
+    ### 3.3 : Storage directory for monitor (output of make_ncdf_timeseries)
+    MONITOR=$SDIR/${CONFIG}/${CONFCASE}-MONITOR
+    ### 3.4 : Root of working directory for plot_monitor 
+    P_MONITOR=$WORKDIR/TMPDIR_PLT_${CONFCASE}
+    ### 3.5 : Root of storage for timeseries plots 
+    ### (full path is $PLOTDIR/$CONFIG/PLOTS/$CONFCASE/TIME_SERIES)
+    PLOTDIR=$SDIR      
+
+    ### 4 : hardware/batch
+    WALLTIME=03:00:00
+    MPIPROC=8
+    login_node=service2
+    SUB=''  ;;
+
     'desktop' )
     ### 1. User informations
     USER=`whoami` ;   REMOTE_USER=`whoami` ; SDIR=${SDIR}
@@ -313,7 +351,7 @@ case $MACHINE in
     SUB='' ;;
 
     *) 
-    echo available machines are jade vargas ulam desktop  ; exit 1 ;;
+    echo available machines are jade vargas ulam meolkerg desktop  ; exit 1 ;;
 esac
 
 #

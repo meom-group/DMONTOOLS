@@ -233,6 +233,7 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
 
  # SSH GLobal  mean value set to 0
  clrvar=sossheig
+ if [ $( chkvar $clrvar $t) == 0  ] ; then
  var=SSHGLp ;  STRING=" -string $xstring $ystring 1.0 0 ${CONFCASE}_${var}_${DATE}_DEPTH=@CLR_DEPTH@" ;
  MEAN="-mean 0" ; DEP="" ; LEV="-lev 1" ; dep=0  ;
  min=-2 ; max=1.5  ; pas=.5  # ORCA Default
@@ -244,6 +245,7 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
      rapatrie $t $MEANY $t
      rapatrie $ice $MEANY $ice
      gloplt  ; mkplt $filout
+ fi
  fi
 
  # T and S GLOBAL at various depth
@@ -494,6 +496,7 @@ eof
 
   # SSH  mean value set to 0
   clrvar=sossheig
+ if [ $( chkvar $clrvar $t) == 0  ] ; then
   var=SSHp ;  STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${DATE}_DEPTH=@CLR_DEPTH@" ;
   MEAN="-mean 0" ; DEP="" ; LEV="-lev 1" ; dep=0  ;
   min=-1.5 ; max=.75  ; pas=.25 ; mklim $min $max $pas > zclrmark  
@@ -503,6 +506,7 @@ eof
     rapatrie $ice $MEANY $ice
     basplt  ; mkplt $filout
   fi
+ fi
 
  # T and S at various depth
  for var in T S ; do 
@@ -604,6 +608,7 @@ eof
 
   # SSH  mean value set to 0
   clrvar=sossheig
+ if [ $( chkvar $clrvar $t) == 0  ] ; then
   var=SSHp ;  STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${DATE}_DEPTH=@CLR_DEPTH@" ;
   MEAN="-mean 0" ; DEP="" ; LEV="-lev 1" ; dep=0  ;
   min=-1.2 ; max=1.2  ; pas=.2 ; mklim $min $max $pas > zclrmark
@@ -613,6 +618,7 @@ eof
     rapatrie $ice $MEANY $ice
     basplt  ; mkplt $filout
   fi
+ fi
 
 # T and S at various depth
  for var in T S ; do

@@ -167,6 +167,12 @@ esac
 ###
 ######################################################################################
 ######################################################################################
+# check if a variable is available within a cdf file :chkvar var file
+#  return 0 if available, 1 if not available
+chkvar()   {
+   ncdump -h $2 | grep -q $1
+   echo $?
+           }
 
 ######################################################################################
 # find_model_level : return the level corresponding to dep (m) by superior value
