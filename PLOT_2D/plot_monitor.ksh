@@ -905,6 +905,24 @@ equat_section() {
       -format PALETTE f4.1
                 }
 
+equat_section_indian() {
+    $COUPE -clrdata $u \
+      -clrmodif deptht=depthu -pmax -1000 $PTS1 \
+      -clrmet 1 $CLRLIMIT -p nrl21.pal  \
+      -title "$title"  -clrvar vozocrtx -zgrid \
+      -format PALETTE f4.1 -o gmetaw -xyplot  0.1 0.5289 0.3 0.90 \
+      -xstep 5
+
+    $COUPE -clrdata $u \
+      -clrmodif deptht=depthu -pmax -1000 $PTS2 \
+      -clrmet 1 $CLRLIMIT -p nrl21.pal  \
+      -clrvar vozocrtx -zgrid -clrnopal \
+      -o gmetae -xyplot  0.5289 0.95 0.3 0.90 -noperim -nomap \
+      -xstep 5 -nozlab -xaxist '_' -nolat
+
+    med -e 'r gmetaw' -e 'r gmetae' -e '1,2 merge' -e '1 w gmeta '
+                }
+
      var=Uequat
 # Atlantic 
      filout=${CONFIG}_${var}_ATL_${DATE}-${CASE}
@@ -919,7 +937,7 @@ equat_section() {
 
 # Pacific
      filout=${CONFIG}_${var}_PACIF_${DATE}-${CASE}
-     title="${CONFCASE} U at Equator PACIF $YEAR"
+     title="${CONFCASE} U at Equator PAC $YEAR"
      PTS="-pts 130 280 0 0 -360 "
      CLRLIMIT="-clrmin -1.0 -clrmax 1.3"
 
@@ -930,13 +948,14 @@ equat_section() {
 
 # Indian
      filout=${CONFIG}_${var}_INDIAN_${DATE}-${CASE}
-     title="${CONFCASE} U at Equator INDIAN $YEAR"
-     PTS="-pts 40 105  0 0 -360 "
-     CLRLIMIT="-clrmin -1.0 -clrmax 1.0"
+     title="${CONFCASE} U at Equator IND $YEAR"
+     PTS1="-pts 40   72.8  0 0 "
+     PTS2="-pts 72.8 105   0 0 "
+     CLRLIMIT="-clrmin -0.5 -clrmax 0.5"
 
      if [ $( chkfile $PLOTDIR/SECTIONS/$filout.cgm ) == absent ] ; then
             rapatrie $u $MEANY $u
-            equat_section  ; mkplt $filout
+            equat_section_indian  ; mkplt $filout
      fi
 
   puttogaya  SECTIONS 
