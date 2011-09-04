@@ -581,6 +581,40 @@ eof
   done
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
+# 5.1.3 : Bottom sigma-4
+#------------------------------------
+                        if [ $botsig4atl == 1 ] ; then
+    t=${CONFCASE}_y${YEAR}_gridT.nc
+    listplt=' '
+
+    var=botsigma4 ;STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}"
+    filout=${CONFIG}_${var}_${DATE}-${CASE}
+    ZOOM="-zoom -65 0 45 80"
+    if [ $( chkfile $PLOTDIR/ATLN/$filout.cgm ) == absent  ] ; then
+       rapatrie $t $MEANY $t
+       cdfbottomsig $t 4000
+       cat << eof > botsigma4.lim
+0
+44.8
+45
+45.2
+45.4
+45.6
+45.8
+46
+50
+eof
+       $CHART -clrdata botsig.nc -proj ME  -p botsigma4.pal -clrlim botsigma4.lim $ZOOM \
+                   -cntdata botsig.nc -cntmin 45.8 -cntmax 45.81 -cntint 2  -cntllp 0 $STRING  \
+                   -clrvar sobotsigi -cntvar sobotsigi
+
+       mkplt $filout
+    fi
+
+    puttogaya  ATLN
+                        fi
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 5.2 : Some details focused on Drake, Kerguelen and Campbell Plateau regions
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # 5.2.1 : Temperature and Salinity
