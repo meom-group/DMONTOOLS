@@ -895,6 +895,50 @@ eof
         fi
     done
   done
+
+# additional sections of equatorial velocities for Atlantic, Pacific, Indian 
+equat_section() {
+    $COUPE -clrdata $u \
+      -clrmodif deptht=depthu -pmax -1000 $PTS \
+      -clrmet 1 $CLRLIMIT -p nrl21.pal  \
+      -title "$title"  -clrvar vozocrtx -zgrid \
+      -format PALETTE f4.1
+                }
+
+     var=Uequat
+# Atlantic 
+     filout=${CONFIG}_${var}_ATL_${DATE}-${CASE}
+     title="${CONFCASE} U at Equator ATL $YEAR"
+     PTS="-pts -50 10 0 0"
+     CLRLIMIT="-clrmin -1.0 -clrmax 1.2"
+
+     if [ $( chkfile $PLOTDIR/SECTIONS/$filout.cgm ) == absent ] ; then
+            rapatrie $u $MEANY $u
+            equat_section  ; mkplt $filout
+     fi
+
+# Pacific
+     filout=${CONFIG}_${var}_PACIF_${DATE}-${CASE}
+     title="${CONFCASE} U at Equator PACIF $YEAR"
+     PTS="-pts 130 280 0 0 -360 "
+     CLRLIMIT="-clrmin -1.0 -clrmax 1.3"
+
+     if [ $( chkfile $PLOTDIR/SECTIONS/$filout.cgm ) == absent ] ; then
+            rapatrie $u $MEANY $u
+            equat_section  ; mkplt $filout
+     fi
+
+# Indian
+     filout=${CONFIG}_${var}_INDIAN_${DATE}-${CASE}
+     title="${CONFCASE} U at Equator INDIAN $YEAR"
+     PTS="-pts 40 105  0 0 -360 "
+     CLRLIMIT="-clrmin -1.0 -clrmax 1.0"
+
+     if [ $( chkfile $PLOTDIR/SECTIONS/$filout.cgm ) == absent ] ; then
+            rapatrie $u $MEANY $u
+            equat_section  ; mkplt $filout
+     fi
+
   puttogaya  SECTIONS 
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
