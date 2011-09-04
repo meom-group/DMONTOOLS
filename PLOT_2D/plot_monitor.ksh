@@ -589,7 +589,7 @@ eof
 
     var=botsigma4 ;STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}"
     filout=${CONFIG}_${var}_${DATE}-${CASE}
-    ZOOM="-zoom -65 0 45 80"
+    ZOOM="-zoom -65 20 45 75"
     if [ $( chkfile $PLOTDIR/ATLN/$filout.cgm ) == absent  ] ; then
        rapatrie $t $MEANY $t
        cdfbottomsig $t 4000
@@ -606,7 +606,7 @@ eof
 eof
        $CHART -clrdata botsig.nc -proj ME  -p botsigma4.pal -clrlim botsigma4.lim $ZOOM \
                    -cntdata botsig.nc -cntmin 45.8 -cntmax 45.81 -cntint 2  -cntllp 0 $STRING  \
-                   -clrvar sobotsigi -cntvar sobotsigi
+                   -clrvar sobotsigi -cntvar sobotsigi -xstep 5 -ystep 5 -xgrid -ygrid
 
        mkplt $filout
     fi
