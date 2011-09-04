@@ -12,7 +12,7 @@ case $MACHINE in
 
 ##############################################################################
 
-    'jade')
+    'jade' | meolkerg )
 
 # jade version: all is supposed to be in WORKDIR
  
@@ -157,7 +157,7 @@ chkdirw() { ssh drakkar@meolipc.hmg.inpg.fr " if [ ! -d DRAKKAR/$1 ] ; \
 echo "functions for machine $MACHINE successfully loaded" ;;
 
     *)
-    echo available machines are jade desktop ulam vargas ; exit 1 ;;
+    echo available machines are jade meolkerg desktop ulam vargas ; exit 1 ;;
 esac
 
 ######################################################################################

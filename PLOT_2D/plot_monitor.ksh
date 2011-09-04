@@ -232,6 +232,7 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
  CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;
 
  # SSH GLobal  mean value set to 0
+ rapatrie $t $MEANY $t
  clrvar=sossheig
  if [ $( chkvar $clrvar $t) == 0  ] ; then
  var=SSHGLp ;  STRING=" -string $xstring $ystring 1.0 0 ${CONFCASE}_${var}_${DATE}_DEPTH=@CLR_DEPTH@" ;
