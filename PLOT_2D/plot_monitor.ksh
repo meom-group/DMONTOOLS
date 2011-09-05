@@ -1858,12 +1858,19 @@ eof
                         if [ $ekes == 1 ] ; then
 
   ekeplt() { $CHART $ZOOM -forcexy $XYPLOT $STRING $CLRDATA  -p $PAL1 \
-             -clrvar voeke -dep $dep $CLRXYPAL -clrmark zclrmark \
+             -clrvar voeke $dep $CLRXYPAL -clrmark zclrmark \
              $OPTIONS -english $FORMAT -scale 1.e4 ; }
 #-----------
 
   # get files  EKE
   eke=${CONFCASE}_y${DATE}_EKE.nc
+  # check if input file is observation ( obs in CASE ) (no -dep option in this case )
+  echo $CASE | grep -q -i obs 
+  if [ $? = 0 ] ; then 
+     dep='' 
+  else
+     dep='-dep 10' 
+  fi
 
   FORMAT=""
   min=0 ; max=2500 ; pas=250   # ORCA CONFIG default
@@ -1880,7 +1887,7 @@ eof
 
   #Global plot
   listplt=' '
-  var=EKEgl  ; ZOOM='-ijgrid -noproj -noint' ; OPTIONS='' ; dep=10
+  var=EKEgl  ; ZOOM='-ijgrid -noproj -noint' ; OPTIONS='' 
   STRING="-string 0.5 0.95 1.0 0  ${CONFIG}_${var}_${DATE}_${CASE}_DEPTH=@CLR_DEPTH@ "
   filout=${CONFIG}_${var}_${dep}_${DATE}-${CASE}
   if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
@@ -1889,9 +1896,11 @@ eof
   fi
   
   if [ $(chconf PERIANT) = 0 ] ; then  # EKE in the Atlantic
-    var=EKEatl ; ZOOM='-zoom -100 20 -70 70' ; OPTIONS='-proj ME -xstep 15 -ystep 15'; dep=10
+    var=EKEatl ; ZOOM='-zoom -100 20 -70 70' ; OPTIONS='-proj ME -xstep 15 -ystep 15'
     STRING="-string 0.5 0.95 1.0 0 ${CONFIG}_${var}_${DATE}_${CASE}_DEPTH=@CLR_DEPTH@ "
     filout=${CONFIG}_${var}_${dep}_${DATE}-${CASE}
+
+
     if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
        rapatrie $eke $MEANY $eke
        ekeplt ; mkplt $filout
@@ -1911,7 +1920,7 @@ eof
      KERGUELEN)  var=EKEkerg ; ZOOM='-zoom 30 110 -70 -30' ;;
       CAMPBELL)  var=EKEcamp ; ZOOM='-zoom 100 180 -70 -30' ;;
     esac
-    OPTIONS='-proj ME -xstep 10 -ystep 5'; dep=10
+    OPTIONS='-proj ME -xstep 10 -ystep 5'
     STRING="-string 0.5 0.95 1.0 0 ${CONFIG}_${var}_${DATE}_${CASE}_DEPTH=@CLR_DEPTH@ "
     filout=${CONFIG}_${var}_${dep}_${DATE}-${CASE}
     XYPLOT='-xyplot 0.1 0.95 0.2 0.9'
