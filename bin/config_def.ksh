@@ -46,6 +46,7 @@ ELNINO=0                 # compute El Nino monitoring SSTs
 TRP=1                    # compute barotropic transport accross section as given in section.dat (CTL dir)
 MHT=1                    # compute Meridional Heat Transport (advective and from surface fluxes)
 MOC=1                    # compute MOC ( need a sub basin mask file called new_maskglo.nc)
+MONTHLYMOC=1             # compute monthly MOC (need a sub basin mask file called new_maskglo.nc)
 MOCSIG=0                 # compute MOC in sigma coordinates
 # To be set if MOCSIG=1
 mocsig_annual=0          # compute MOC in sigma coordinates from 5-day averaged files (0) or annual files (1)
