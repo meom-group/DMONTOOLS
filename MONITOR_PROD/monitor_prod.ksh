@@ -168,6 +168,29 @@ cd $YEAR
    expatrie moc.nc $MEANY ${CONFCASE}_y${YEAR}_MOC.nc
   fi
 
+# MONTHLY MOC Meridional Overturning Circulation:  Input file: gridV, mesh mask, mask_glo
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  if [ $MONTHLYMOC == 1 ] ; then
+
+   # get mesh mask files + new_maskglo
+   rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+   rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc  $IDIR mesh_hgr.nc
+   rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
+   if (( $orca != 0 )) ; then rapatrie  new_maskglo.nc $IDIR new_maskglo.nc ; fi
+
+for MONTH in 01 02 03 04 05 06 07 08 09 10 11 12 ; do
+
+   # get gridV  files
+   rapatrie ${CONFCASE}_y${YEAR}m${MONTH}_gridV.nc $MEANY ${CONFCASE}_y${YEAR}m${MONTH}_gridV.nc
+
+   cdfmoc ${CONFCASE}_y${YEAR}m${MONTH}_gridV.nc
+
+   # dispose on gaya MEAN/YEAR directory
+   expatrie moc.nc $MEANY ${CONFCASE}_y${YEAR}m${MONTH}_MOC.nc
+done
+  fi
+
+
 # MOCSIG Meridional Overturning Circulation on sigma coordinates:  Input file: gridV, gridT, mesh mask, mask_glo
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -718,9 +741,9 @@ cd $YEAR
     #retrieve tag time from file name
     tag=$(echo $tfich | sed -e "s/${CONFCASE}_//" -e 's/_gridT.nc//')
 
-    echo $tag > ${CONFCASE}_y${tag}_trpsig_monitor.lst
+    #echo $tag > ${CONFCASE}_y${tag}_trpsig_monitor.lst
 
-    cdfsigtrp $tfich $ufich $vfich 21 30 180 -print  >>  ${CONFCASE}_y${tag}_trpsig_monitor.lst
+    cdfsigtrp $tfich $ufich $vfich 21 30 180 # -print  >>  ${CONFCASE}_y${tag}_trpsig_monitor.lst
     # save netcdf files
     listfiles=$( ls | grep trpsig.nc  )
 
@@ -730,7 +753,7 @@ cd $YEAR
     done
 
     # and create a mirror on the local tmpdir
-    mv ${CONFCASE}_y${tag}_trpsig_monitor.lst  $TRPSIGY
+    #mv ${CONFCASE}_y${tag}_trpsig_monitor.lst  $TRPSIGY
 
   # end of month loop
   done
