@@ -2,7 +2,7 @@
 ### PBS is valid on JADE
 #PBS -N zplotmonitor
 #PBS -l select=<NB_NODES>:ncpus=<MPIPROC>:mpiprocs=<MPIPROC>
-#PBS -l walltime=02:00:00
+#PBS -l walltime=04:00:00
 #PBS -l cluster=hpt
 #PBS -M <MAIL>
 #PBS -mb -me
