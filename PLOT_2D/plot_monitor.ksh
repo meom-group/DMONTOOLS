@@ -1130,9 +1130,10 @@ eof
             CLRMARK="-clrmark PV.mark" ;
             rapatrie $fich_pvm3 $MEANY $fich_pvm3 ;
             nlev=$( cdfinfo $fich_pvm3 | grep npk | awk '{ print $3}' );
-            LEV="-lev 2-$nlev" ;
+         #   LEV="-lev 2-$nlev" ;
+            LEV='' ;
             CNTLIM='' ; CNTDATA='' ;;
-      pvm9) clrvar=volspv ; CLRDATA="-clrdata pvm9" ;
+      pvm9) clrvar=volspv ; CLRDATA="-clrdata $fich_pvm9" ; # CLRDATA="-clrdata pvm9" ;
             CLRMODIF='-clrmodif deptht=depthw';
 cat << eof > PV.mark
 -1
@@ -1147,7 +1148,8 @@ eof
             CLRMARK="-clrmark PV.mark" ;
             rapatrie $fich_pvm9 $MEANY $fich_pvm9 ;
             nlev=$( cdfinfo $fich_pvm9 | grep npk | awk '{ print $3}' );
-            LEV="-lev 2-$nlev" ;
+         #   LEV="-lev 2-$nlev" ;
+            LEV='' ; 
             CNTLIM='' ; CNTDATA='' ;;
      esac
      case $sec in
@@ -1178,7 +1180,7 @@ eof
          couptop ; coupbot
          med -e 'r gmetatop' -e 'r gmetabot' -e '1,2 merge' -e '1 w gmeta'
          mkplt $filout
-         rm gmeta* pvm3 pvm9
+         rm gmeta* # $fich_pvm3 $fich_pvm9
        fi
      fi
     done
@@ -1307,7 +1309,7 @@ eof
                   $CNTDATA -cntvar $clrvar $CNTLIM  -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.03 \
                   -xyplot 0.1 0.44 0.20 0.55 -o gmetabot1 -ylon 0.18 -nolat -english -clrmark zclrmark $PAL \
                   -clrxypal 0.1 0.95 0.03 0.13 ; \
-                  $COUPE $CLRDATA -pts $LON3 $LON4 $LATmin $LATmax -forcexy -pmax -5500 -clrvar $clrvar $CLRMODIF \
+                  $COUPE $CLRDATA -pts $LON3spec $LON4 $LATmin $LATmax -forcexy -pmax -5500 -clrvar $clrvar $CLRMODIF \
                   $CNTDATA -cntvar $clrvar $CNTLIM  -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.02 \
                   -xyplot 0.44 0.95 0.20 0.55 -o gmetabot2 -nozlab -ylon 0.18 -nolat -english -clrmark zclrmark $PAL \
                   -clrxypal 0.1 0.95 0.03 0.13 ; }
@@ -1354,33 +1356,33 @@ eof
             CNTDATA='' ; CNTLIM='' ;
             rapatrie $fich_pvm3 $MEANY $fich_pvm3 ; 
             nlev=$( cdfinfo $fich_pvm3 | grep npk | awk '{ print $3}' );
-            LEV="-lev 2-$nlev" ;
+            LEV='' ; # LEV="-lev 2-$nlev" ;
             min=-1.0 ; max=6.0 ; pas=1.0 ;;
       pvm9) clrvar=volspv ; CLRDATA="-clrdata $fich_pvm9" ;
             CLRMODIF='-clrmodif deptht=depthw';
             CNTDATA='' ; CNTLIM='' ;
             rapatrie $fich_pvm9 $MEANY $fich_pvm9 ; 
             nlev=$( cdfinfo $fich_pvm9 | grep npk | awk '{ print $3}' );
-            LEV="-lev 2-$nlev" ; 
+            LEV='' ; # LEV="-lev 2-$nlev" ; 
             min=-1.0 ; max=6.0 ; pas=1.0 ;;
      esac
      case $sec in
-        CIRC70)  LATmin=-70; LATmax=-70 ; SECTION=070S ;
+        CIRC70)  LATmin=-70; LATmax=-70 ; SECTION=070S ; LON3spec=72.9 ;
                  case $fld in
                    t) min=-1 ; max=2 ; pas=0.5 ;;
                    s) min=33.8 ; max=34.6 ; pas=0.2 ;;
                  esac ;;
-        CIRC60)  LATmin=-60; LATmax=-60 ; SECTION=060S ;
+        CIRC60)  LATmin=-60; LATmax=-60 ; SECTION=060S ; LON3spec=72.9 ;
                  case $fld in
                    t) min=-1 ; max=5 ; pas=0.5 ;;
                    s) min=33.8 ; max=34.6 ; pas=0.2 ;;
                  esac ;;
-        CIRC48)  LATmin=-48; LATmax=-48 ; SECTION=048S ;
+        CIRC48)  LATmin=-48; LATmax=-48 ; SECTION=048S ; LON3spec=72.9 ;
                  case $fld in
                    t) min=0 ; max=10 ; pas=1 ;;
                    s) min=33.8 ; max=34.6 ; pas=0.2 ;;
                  esac ;;
-        CIRC40)  LATmin=-40; LATmax=-40 ; SECTION=040S ;
+        CIRC40)  LATmin=-40; LATmax=-40 ; SECTION=040S ; LON3spec=73.0 ;
                  case $fld in
                    t) min=0 ; max=16 ; pas=2 ;;
                    s) min=33.5 ; max=35 ; pas=0.5 ;;
