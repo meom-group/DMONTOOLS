@@ -214,4 +214,14 @@
 #
 30_SOSALG2                  sosalg2                 South_Solomon_Global_2                1
 30_SOSALG2                  SOSMOD                    11  105  58  58
+#
+31_Gibraltar                gibra                   Gibraltar_Strait                      1
+31_Gibraltar                ORCA12.L46              3378 3378 1956 1961
+31_Gibraltar                ORCA12.L75              3378 3378 1956 1961
+31_Gibraltar                ORCA025                 1126 1126  651  655
+31_Gibraltar                ORCA025.L75             1126 1126  651  655
+31_Gibraltar                ORCA2                    140  140   99  103
+31_Gibraltar                ORCA246                  140  140   99  103
+31_Gibraltar                NATL025                  370  370  237  241
+31_Gibraltar                NATL12                  1108 1108  710  722
 
