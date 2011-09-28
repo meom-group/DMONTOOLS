@@ -27,7 +27,10 @@ for file in $listfiles ; do
 
 done
 
-#$CDF/cdfmoy_weighted $listfiles # if cdftools are not in your path uncomment this
-cdfmoy_weighted $listfiles       # if cdftools are not in your path comment this
-mv cdfmoy_weighted.nc ${CONFCASE}_y${YEAR}m${MM}_$TYP.nc
-    
+#$CDF/cdfmoy $listfiles # if cdftools are not in your path uncomment this
+cdfmoy $listfiles       # if cdftools are not in your path comment this
+mv cdfmoy.nc ${CONFCASE}_y${YEAR}m${MM}_$TYP.nc
+
+if [ -f cdfmoy2.nc ] ; then
+   mv cdfmoy2.nc ${CONFCASE}_y${YEAR}m${MM}_${TYP}2.nc
+fi
