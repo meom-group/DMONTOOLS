@@ -18,7 +18,7 @@ echo "                                                                          
 
   set -A oknframes 0 6 5 7 6 6 6 6 6 6 6 6 7
 
-  for typ in gridT gridU gridV gridW icemod ; do
+  for typ in gridT gridU gridV gridW gridT2 gridU2 gridV2 gridW2 icemod ; do
 
     for month in $(seq 1 12) ; do
    
@@ -40,7 +40,7 @@ echo "                                                                          
 ##############################################################################
 ### Check the annual means
 
-  for typ in gridT gridU gridV gridW icemod ; do
+  for typ in gridT gridU gridV gridW gridT2 gridU2 gridV2 gridW2 icemod ; do
 
       nframes=$( ncdump -h ${CONFCASE}_y${YEAR}_${typ}.nc | grep iweight | tail -1 | awk '{ print $3 }' )
 
