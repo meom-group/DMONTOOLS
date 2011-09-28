@@ -1,0 +1,14 @@
+### list of utilities :
+
+    -verif-snap.ksh         : list the outputs in CONFCASE-S directory
+                              verification on consistency of file sizes
+
+    -verif-mean.ksh         : same for the means
+
+    -verif-computations.ksh : verify from iweight in means files
+                              that the correct numbers of files have
+                              been used (5d outputs, no-leap)
+
+    -monthlymean.ksh        : compute a single monthly mean
+
+    -annualmean.ksh         : compute a single annual mean
