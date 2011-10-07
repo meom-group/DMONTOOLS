@@ -159,36 +159,22 @@ SDIR to data directory)
 svn co https://servforge.legi.grenoble-inp.fr/svn/DMONTOOLS/tags/1.0 DMONTOOLS
 \end{verbatim}
 
-\item \textbf{Add DMONTOOLS/bin to your path :}
+\item \textbf{Run the installer :}
 
 \begin{verbatim}
-export PATH="$PATH:$WORKDIR/DMONTOOLS/bin"
+./install.ksh
 \end{verbatim}
 
-\item \textbf{Compile the MPI\_TOOLS :}
+\noindent
+the installer will ask you where to install python libs and bins
+and will update PATH and PYTHONPATH in your shell environment.
+
+\item \textbf{Optional - Compile the MPI\_TOOLS :}
 
 \begin{verbatim}
 cd $WORKDIR/DMONTOOLS/MPI_TOOLS
 ln -s macro.ulam make.macro
 gmake
-\end{verbatim}
-
-\item \textbf{Compile the python scripts :}
-
-\begin{verbatim}
-cd $HOME
-mkdir lib/python/pydmontools
-mkdir bin/pydmontools
-cd $WORKDIR/DMONTOOLS/TIME_SERIES/python/pydmontools/
-python setup.py install --install-lib=$HOME/lib/python/pydmontools  
---install-scripts=$HOME/bin/pydmontools
-\end{verbatim}
-
-\item \textbf{Add some more paths :}
-
-\begin{verbatim}
-export PATH=$HOME/bin/pydmontools:$PATH
-export PYTHONPATH="$PYTHONPATH:$HOME/lib/python/pydmontools"
 \end{verbatim}
 
 \end{enumerate}
