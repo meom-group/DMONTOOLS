@@ -950,8 +950,8 @@ equat_section_indian() {
 # Indian
      filout=${CONFIG}_${var}_INDIAN_${DATE}-${CASE}
      title="${CONFCASE} U at Equator IND $YEAR"
-     PTS1="-pts 40   72.8  0 0 "
-     PTS2="-pts 72.8 105   0 0 "
+     PTS1="-pts 40   73.0  0 0 "  # "-pts 40   72.8  0 0 "
+     PTS2="-pts 73.0 105   0 0 "  # "-pts 72.8 105   0 0 "
      CLRLIMIT="-clrmin -0.5 -clrmax 0.5"
 
      if [ $( chkfile $PLOTDIR/SECTIONS/$filout.cgm ) == absent ] ; then
