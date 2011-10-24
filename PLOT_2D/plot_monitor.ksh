@@ -1877,6 +1877,8 @@ eof
      ZCONF=$CONFIG
   fi
 
+  zdep=$( echo $dep | awk '{print$2}')
+
   FORMAT=""
   min=0 ; max=2500 ; pas=250   # ORCA CONFIG default
   XYPLOT='' ; CLRXYPAL=''
@@ -1894,7 +1896,7 @@ eof
   listplt=' '
   var=EKEgl  ; ZOOM='-ijgrid -noproj -noint' ; OPTIONS='' 
   STRING="-string 0.5 0.95 1.0 0  ${ZCONF}_${var}_${DATE}_${CASE}_DEPTH=@CLR_DEPTH@ "
-  filout=${CONFIG}_${var}_${dep}_${DATE}-${CASE}
+  filout=${CONFIG}_${var}_${zdep}_${DATE}-${CASE}
   if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
      rapatrie $eke $MEANY $eke
      ekeplt ; mkplt $filout
