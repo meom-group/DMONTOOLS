@@ -44,7 +44,7 @@ echo "                                                                          
 ### Check the monthly means
 
   #for typ in gridT gridU gridV gridW gridT2 gridU2 gridV2 gridW2 icemod ; do
-  for typ in $typlist gridT2 gridU2 gridV2 gridW2 ; do
+  for typ in $typlist gridT2 gridU2 gridV2 gridW2 VT ; do
 
     for month in $(seq 1 12) ; do
    
@@ -67,7 +67,7 @@ echo "                                                                          
 ### Check the annual means
 
   #for typ in gridT gridU gridV gridW gridT2 gridU2 gridV2 gridW2 icemod ; do
-  for typ in $typlist gridT2 gridU2 gridV2 gridW2 ; do
+  for typ in $typlist gridT2 gridU2 gridV2 gridW2 VT ; do
 
       nframes=$( ncdump -h ${CONFCASE}_y${YEAR}_${typ}.nc | grep iweight | tail -1 | awk '{ print $3 }' )
 
