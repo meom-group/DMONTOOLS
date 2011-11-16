@@ -254,20 +254,20 @@ class plot_and_send_all_pages:
             comment(' Preparing plot  '+ plotname)
             mkplt = plot_one_page(configs=self.configs,cases=self.cases,plotname=plotname) 
             comment(' processing...')
-            #try:
-            #   filename = mkplt.proceed()
-            #   comment(' ...done')
-            #   if self.remote_send: 
-            #      self.send2remote(filename) 
-            #   if self.local_send:
-            #      self.send2local(filename)
-	    #	  #os.remove(filename)
-            #   comment(' \n')
-            #except:
-            #   import traceback
-            #   print "Unexpected error:", traceback.print_tb(sys.exc_info()[2])
-            #   comment('...problem with plot ' + plotname)
-            filename = mkplt.proceed()            
+            try:
+               filename = mkplt.proceed()
+               comment(' ...done')
+               if self.remote_send: 
+                  self.send2remote(filename) 
+               if self.local_send:
+                  self.send2local(filename)
+	    	  #os.remove(filename)
+               comment(' \n')
+            except:
+               import traceback
+               print "Unexpected error:", traceback.print_tb(sys.exc_info()[2])
+               comment('...problem with plot ' + plotname)
+            #filename = mkplt.proceed()            
    
     def send2remote(self,file):
         """Send file 
@@ -286,11 +286,11 @@ class plot_and_send_all_pages:
 
 def _get_xlims(figure):
     subplots = figure.get_axes()
-    return map(lambda x:x.get_xlim(),subplots)
+    return map(lambda x:x.get_xlim().copy(),subplots)
 
 def _get_ylims(figure):
     subplots = figure.get_axes()
-    return map(lambda x:x.get_ylim(),subplots)
+    return map(lambda x:x.get_ylim().copy(),subplots)
 
 def _set_xlims(figure,xlims):
     subplots = figure.get_axes()
