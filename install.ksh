@@ -1,11 +1,15 @@
-#!/bin/ksh
+#!/bin/bash
 
 ### R.Dussin : installer for DMONTOOLS
 
 #############################################################
 ### functions
 
-edit_env() { echo $1 | cat >> $env_file ; }
+edit_env() { echo "$1" | cat >> $env_file ; }
+
+edit_rc() { echo "$1" | cat >> $rcfile ; }
+
+create_rc() { echo $1 | cat > $rcfile ; }
 
 chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi ; }
 
@@ -38,6 +42,11 @@ done
 ## define the DMONTOOLS ROOT DIRECTORY
 DMON_ROOTDIR=$(pwd)
 PYDMON_SRCDIR=$DMON_ROOTDIR/TIME_SERIES/python/pydmontools
+
+rcdir=$HOME/.dmontools
+rcfile=$rcdir/dmontoolsrc
+
+chkdir $rcdir
 
 #############################################################
 ### choose the custom shell
@@ -145,23 +154,34 @@ done
 install_pydmon
 
 edit_env ''
-edit_env '#######################################################'
-edit_env '### DMONTOOLS '
-edit_env '#######################################################'
+edit_env '####################################################### # DMON_STUFF_DO_NOT_ERASE'
+edit_env '### DMONTOOLS : source specific RC file                 # DMON_STUFF_DO_NOT_ERASE'
+edit_env '####################################################### # DMON_STUFF_DO_NOT_ERASE'
+edit_env '                                                        # DMON_STUFF_DO_NOT_ERASE'
+edit_env ' if [ -f $HOME/.dmontools/dmontoolsrc ] ; then          # DMON_STUFF_DO_NOT_ERASE'
+edit_env '    . $HOME/.dmontools/dmontoolsrc                      # DMON_STUFF_DO_NOT_ERASE'
+edit_env ' fi                                                     # DMON_STUFF_DO_NOT_ERASE'
 edit_env ''
-edit_env '## set path for mkmeans and mkmonitor'
-edit_env "export DMON_ROOTDIR=$DMON_ROOTDIR    "
-edit_env 'export PATH=$PATH:$DMON_ROOTDIR/bin  '
-edit_env ''
-edit_env '## set path for python stuff         '
-edit_env "export PYDMON_BINDIR=$PYDMON_BINDIR  "
-edit_env "export PYDMON_LIBDIR=$PYDMON_LIBDIR  "
-edit_env "export PYDMON_SRCDIR=$PYDMON_SRCDIR  "
-edit_env 'export PATH=$PATH:$PYDMON_BINDIR     '
-edit_env 'export PYTHONPATH=$PYTHONPATH:$PYDMON_LIBDIR'
-edit_env ''
-edit_env '## function for reinstall python stuff '
-edit_env 'reinstall_pydmon() { cd $PYDMON_SRCDIR ; python setup.py install --install-lib=$PYDMON_LIBDIR --install-scripts=$PYDMON_BINDIR ; cd - ; }'
 
-echo '>> to complete the install, please copy/paste and execute '
-echo " cd $HOME ; . $env_file "
+create_rc ''
+edit_rc '#######################################################'
+edit_rc '### DMONTOOLS Ressources Configuration'
+edit_rc '#######################################################'
+edit_rc ''
+edit_rc '## set path for mkmeans and mkmonitor'
+edit_rc "export DMON_ROOTDIR=$DMON_ROOTDIR    "
+edit_rc 'export PATH=$PATH:$DMON_ROOTDIR/bin  '
+edit_rc ''
+edit_rc '## set path for python stuff         '
+edit_rc "export PYDMON_BINDIR=$PYDMON_BINDIR  "
+edit_rc "export PYDMON_LIBDIR=$PYDMON_LIBDIR  "
+edit_rc "export PYDMON_SRCDIR=$PYDMON_SRCDIR  "
+edit_rc 'export PATH=$PATH:$PYDMON_BINDIR     '
+edit_rc 'export PYTHONPATH=$PYTHONPATH:$PYDMON_LIBDIR'
+edit_rc ''
+edit_rc '## function for reinstall python stuff '
+edit_rc 'reinstall_pydmon() { cd $PYDMON_SRCDIR ; python setup.py install --install-lib=$PYDMON_LIBDIR --install-scripts=$PYDMON_BINDIR ; cd - ; }'
+
+#echo '>> to complete the install, please copy/paste and execute '
+cd $HOME ; . $env_file ; cd $DMON_ROOTDIR
+echo '>> installation completed !!! '

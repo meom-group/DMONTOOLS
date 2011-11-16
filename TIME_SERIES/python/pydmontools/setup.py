@@ -34,15 +34,15 @@ setup(name='pydmontools',
 #
 _homedir = user.home
 _sep = os.sep
-_dir_pydmt = _homedir + _sep + '.pydmt'
+_dir_pydmt = _homedir + _sep + '.dmontools'
 
 if not(os.path.exists(_dir_pydmt)):
-   print 'create  ~/.pydmt/ directory'
+   print 'create  ~/.dmontools/ directory'
    os.mkdir(_dir_pydmt)
 
 for cfgfilename in ['rc_monitor_compare.py']: 
    if not(os.path.exists(_dir_pydmt + os.sep + cfgfilename)):
-      print 'copy default ' + cfgfilename + ' to ~/.pydmt/'
+      print 'copy default ' + cfgfilename + ' to ~/.dmontools/'
       shutil.copy(os.curdir+os.sep+'cfg'+os.sep+cfgfilename,_dir_pydmt+os.sep+cfgfilename)
 
 

@@ -1,0 +1,302 @@
+#!/bin/bash
+
+#############################################################
+###                                                       ###
+###                Installer for DMONTOOLS                ###
+###                                                       ###
+#############################################################
+
+
+#############################################################
+### functions
+
+edit_env() { echo "$1" | cat >> $env_file ; }
+
+edit_rc() { echo "$1" | cat >> $rcfile ; }
+
+create_rc() { echo $1 | cat > $rcfile ; }
+
+chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi ; }
+
+install_pydmon() { cd $PYDMON_SRCDIR ; python setup.py install --install-lib=$PYDMON_LIBDIR --install-scripts=$PYDMON_BINDIR ; cd - ; }
+
+#############################################################
+### choose install or uninstall
+
+if [ $# != 1 ] ; then
+   echo "USAGE: ./dmon_install -i for install"
+   echo "       ./dmon_install -r for uninstall"
+   echo "       ./dmon_install -u for update"
+   exit
+fi
+
+if [ $1 == '-i' ] ; then
+
+#############################################################
+####################### INSTALL MODE ########################
+#############################################################
+
+
+      #############################################################
+      ### install yes or no
+
+      echo ''
+      echo '-------------------------------------------------------'
+      echo '>> you are about to install Drakkar MONitoring TOOLS...'
+      echo '>> do you want to continue (y/n) ?'
+
+      good_ans=0
+
+      while [ $good_ans == 0 ]  ; do
+
+	 read answer
+
+	 if [ $answer == 'y' ] || [ $answer == 'Y' ] ; then
+	    echo '>> Good choice !' ; good_ans=1
+	 elif [ $answer == 'n' ] || [ $answer == 'N' ] ; then
+	    echo '>> Oh ! Too bad' ; good_ans=1
+	 else
+	    echo '>> sorry ?!' ; good_ans=0
+	 fi
+
+      done
+
+      ## define the DMONTOOLS ROOT DIRECTORY
+      DMON_ROOTDIR=$(pwd)
+      PYDMON_SRCDIR=$DMON_ROOTDIR/TIME_SERIES/python/pydmontools
+
+      rcdir=$HOME/.dmontools
+      rcfile=$rcdir/dmontoolsrc
+
+      chkdir $rcdir
+
+      #############################################################
+      ### choose the custom shell
+
+      echo ''
+      echo '-------------------------------------------------------'
+      echo '>> What is your custom environnement shell ?           '
+      echo '>> for example .profile or .bashrc etc ( no C-shell )  '
+
+      good_ans=0
+
+      while [ $good_ans == 0 ]  ; do
+
+	 read answer
+
+	 if [ ! -f $HOME/$answer ] ; then
+	    echo ">> $HOME/$answer does not exists... try again, please" ; good_ans=0
+	 else
+	    good_ans=1
+	 fi
+
+      done
+
+      env_file=$HOME/$answer
+
+      #############################################################
+      ### choose install directories for python bin and lib
+
+      echo ''
+      echo '-------------------------------------------------------'
+      echo '>> please choose where python binaries should be put   '
+      echo '>> for example /home/user/bin                          '
+
+      good_ans=0
+
+      while [ $good_ans == 0 ]  ; do
+
+	 read answer
+
+	 if [ ! -d $answer ] ; then
+	    echo ">> $answer does not exists... try again, please" ; good_ans=0
+	 else
+	    good_ans=1
+	 fi
+
+      done
+
+      PYDMON_BINDIR=$answer/pydmontools
+      chkdir $PYDMON_BINDIR
+       
+
+      echo ''
+      echo '-------------------------------------------------------'
+      echo '>> please choose where python libraries should be put  '
+      echo '>> for example /home/user/lib/python                   '
+
+      good_ans=0
+
+      while [ $good_ans == 0 ]  ; do
+
+	 read answer
+
+	 if [ ! -d $answer ] ; then
+	    echo ">> $answer does not exists... try again, please" ; good_ans=0
+	 else
+	    good_ans=1
+	 fi
+
+      done
+
+      PYDMON_LIBDIR=$answer
+      chkdir $PYDMON_LIBDIR
+
+      if [ $PYDMON_LIBDIR == $PYDMON_BINDIR ] ; then
+	 echo "!!! Warning : python bin and lib are set to the same directory !!! "
+      fi
+
+      echo ''
+      echo '-------------------------------------------------------'
+      echo '>> python binaries will be installed in :              '
+      echo ">> $PYDMON_BINDIR                                      "
+      echo '>> python libaries will be installed in :              '
+      echo ">> $PYDMON_LIBDIR/pydmontools                          "
+
+      echo ''
+      echo '-------------------------------------------------------'
+      echo '>> do you want to continue (y/n) ?'
+
+      good_ans=0
+
+      while [ $good_ans == 0 ]  ; do
+
+	 read answer
+
+	 if [ $answer == 'y' ] || [ $answer == 'Y' ] ; then
+	    echo '>> proceeding !' ; good_ans=1
+	 elif [ $answer == 'n' ] || [ $answer == 'N' ] ; then
+	    echo '>> Oh ! Too bad' ; good_ans=1
+	 else
+	    echo '>> sorry ?!' ; good_ans=0
+	 fi
+
+      done
+
+      install_pydmon
+
+      edit_env ''
+      edit_env '####################################################### # DMON_STUFF_DO_NOT_ERASE'
+      edit_env '### DMONTOOLS : source specific RC file                 # DMON_STUFF_DO_NOT_ERASE'
+      edit_env '####################################################### # DMON_STUFF_DO_NOT_ERASE'
+      edit_env '                                                        # DMON_STUFF_DO_NOT_ERASE'
+      edit_env ' if [ -f $HOME/.dmontools/dmontoolsrc ] ; then          # DMON_STUFF_DO_NOT_ERASE'
+      edit_env '    . $HOME/.dmontools/dmontoolsrc                      # DMON_STUFF_DO_NOT_ERASE'
+      edit_env ' fi                                                     # DMON_STUFF_DO_NOT_ERASE'
+      edit_env ''
+
+      create_rc ''
+      edit_rc '#######################################################'
+      edit_rc '### DMONTOOLS Ressources Configuration'
+      edit_rc '#######################################################'
+      edit_rc ''
+      edit_rc '## set path for mkmeans and mkmonitor'
+      edit_rc "export DMON_ROOTDIR=$DMON_ROOTDIR    "
+      edit_rc 'export PATH=$PATH:$DMON_ROOTDIR/bin  '
+      edit_rc ''
+      edit_rc '## set path for python stuff         '
+      edit_rc "export PYDMON_BINDIR=$PYDMON_BINDIR  "
+      edit_rc "export PYDMON_LIBDIR=$PYDMON_LIBDIR  "
+      edit_rc "export PYDMON_SRCDIR=$PYDMON_SRCDIR  "
+      edit_rc 'export PATH=$PATH:$PYDMON_BINDIR     '
+      edit_rc 'export PYTHONPATH=$PYTHONPATH:$PYDMON_LIBDIR'
+      edit_rc ''
+      edit_rc '## function for reinstall python stuff '
+      edit_rc 'reinstall_pydmon() { cd $PYDMON_SRCDIR ; python setup.py install --install-lib=$PYDMON_LIBDIR --install-scripts=$PYDMON_BINDIR ; cd - ; }'
+
+      echo '>> installation completed !!! '
+      echo '>> start a new terminal to update paths,...'
+
+elif [ $1 == '-r' ] ; then
+
+#############################################################
+####################### UNINSTALL MODE ######################
+#############################################################
+
+
+      #############################################################
+      ### uninstall yes or no
+
+      echo ''
+      echo '----------------------------------------------------------'
+      echo '>> you are about to uninstall Drakkar MONitoring TOOLS...'
+      echo '>> do you want to continue (y/n) ?'
+
+      good_ans=0
+
+      while [ $good_ans == 0 ]  ; do
+
+	 read answer
+
+	 if [ $answer == 'y' ] || [ $answer == 'Y' ] ; then
+	    echo '>> Oh ! Too bad... will we meet again ?!' ; good_ans=1
+	 elif [ $answer == 'n' ] || [ $answer == 'N' ] ; then
+	    echo '>> Phew ! That was close...' ; good_ans=1
+	 else
+	    echo '>> sorry ?!' ; good_ans=0
+	 fi
+
+      done
+
+      #############################################################
+      ### choose the custom shell
+
+      echo ''
+      echo '----------------------------------------------------------'
+      echo '>> Which custom environment shell was used for install ?'
+      echo '>> for example .profile or .bashrc etc                 '
+
+      good_ans=0
+
+      while [ $good_ans == 0 ]  ; do
+
+	 read answer
+
+	 if [ ! -f $HOME/$answer ] ; then
+	    echo ">> $HOME/$answer does not exists... try again, please" ; good_ans=0
+	 else
+	    good_ans=1
+	 fi
+
+      done
+
+      env_file=$HOME/$answer
+
+      ### remove python binaries and library
+      rm -Rf $PYDMON_BINDIR
+      rm -Rf $PYDMON_LIBDIR/pydmontools*
+
+      ### remove .dmontools
+      rm -Rf $HOME/.dmontools
+
+      ### clean environment shell
+      cp $env_file $env_file.dmon_uninstall
+      sed '/DMON_STUFF/d' $env_file > $HOME/.tmp_dmon_uninstall
+      cp $HOME/.tmp_dmon_uninstall $env_file
+      rm $HOME/.tmp_dmon_uninstall
+
+      echo ''
+      echo '>> Uninstall completed '
+      echo ">> You may want to clean $env_file.dmon_uninstall"
+      echo '>> start a new terminal to update paths,...'
+
+#############################################################
+####################### UPDATE MODE #########################
+#############################################################
+
+elif [ $1 == '-u' ] ; then
+
+   if [ ! -d $HOME/.dmontools ] ; then
+      echo 'DMONTOOLS is not installed... cannot update'
+   fi
+
+    svn update
+    install_pydmon
+
+#############################################################
+####################### ERROR MODE ##########################
+#############################################################
+
+else
+   echo 'incorrect parameter' ; exit
+fi
