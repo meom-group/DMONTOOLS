@@ -138,7 +138,7 @@ case $MACHINE in
 
     echo "functions for $MACHINE successfully loaded" ;;
 
-    'ulam' | 'vargas' )
+    'vargas' )
 
     chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi ;}
 
@@ -150,6 +150,91 @@ case $MACHINE in
     #                     ex: getmonth 04 gridU  : retrieve all april files for gridU
     getmonth() { for f  in $( rsh gaya -l $REMOTE_USER ls $P_S_DIR/$year/${CONFCASE}_y${year}m${1}\*_$2.nc )  ; do
                      mfget -u $REMOTE_USER $f ./
+                 done  ; }
+    # putmonth mm type : write back monthly mean for month mm type 'type' on remote machine in -MEAN/YEAR/ directory.
+    #                    also move the localfile to local MONTHLY dir for further annual mean computing
+
+    putmonth() { mfput -u $REMOTE_USER cdfmoy.nc $MEANDIR/$year/${CONFCASE}_y${year}m${1}_$2.nc ;\
+                 mv cdfmoy.nc ../${CONFCASE}_y${year}m${1}_$2.nc ; } #\rm ${CONFCASE}_y${year}m${1}d??_$2.nc ; }
+
+    # putmonth2 mm type : write back monthly quadratic  mean for month mm type 'type' on remote machine in -MEAN/YEAR/ dir
+    #                    also move the localfile to local MONTHLY dir for further annual mean computing
+    putmonth2() { mfput -u $REMOTE_USER cdfmoy2.nc $MEANDIR/$year/${CONFCASE}_y${year}m${1}_${2}2.nc ; \
+                  mv cdfmoy2.nc ../${CONFCASE}_y${year}m${1}_${2}2.nc ; }
+
+    # putannual type : write annual MEAN to remote -MEAN dir, in the corresponding year.
+    putannual() { mv cdfmoy_weighted.nc ${CONFCASE}_y${year}_$1.nc
+                  mfput -u $REMOTE_USER ${CONFCASE}_y${year}_$1.nc  $MEANDIR/$year/${CONFCASE}_y${year}_$1.nc ;}
+
+    # putvtmonth mm : write back monthly mean for month mm type 'VT' on remote machine in -MEAN/YEAR/ directory.
+    #                    also move the localfile to local MONTHLY dir for further annual mean computing
+    putvtmonth() { mfput -u $REMOTE_USER vt.nc $MEANDIR/$year/${CONFCASE}_y${year}m${1}_VT.nc ; \
+                   mv vt.nc ../${CONFCASE}_y${year}m${1}_VT.nc ; } #\rm ${CONFCASE}_y${year}m${1}d??_grid[UVT].nc ; }
+
+    # putvtannual type : write annual MEAN to remote -MEAN dir, in the corresponding year.
+    putvtannual() { mv cdfmoy_weighted.nc ${CONFCASE}_y${year}_VT.nc ;
+                    mfput -u $REMOTE_USER ${CONFCASE}_y${year}_VT.nc  $MEANDIR/$year/${CONFCASE}_y${year}_VT.nc ; }
+
+
+    ### META functions :
+    monthly() { mm=$1  
+       cd $TMPDIR/$MOYTMPDIR/$year
+       chkdir $TMPDIR/$MOYTMPDIR/$year/$mm
+       cd $TMPDIR/$MOYTMPDIR/$year/$mm
+
+       for typ in $TYP_LIST ; do
+         getmonth $mm $typ
+         $CDFTOOLS/cdfmoy ${CONFCASE}_y${year}m${mm}d??_${typ}.nc 
+         putmonth $mm $typ
+         case $typ in 
+          gridT | gridU | gridV | gridW  ) 
+             putmonth2 $mm $typ ;;
+         esac
+       done ;}
+
+    monthlyvt() { mm=$1  
+       cd $TMPDIR/$VTTMPDIR/$year
+       chkdir $TMPDIR/$VTTMPDIR/$year/$mm
+       cd $TMPDIR/$VTTMPDIR/$year/$mm
+       
+       getmonth $mm gridT ; getmonth $mm gridU ; getmonth $mm gridV
+       taglist=''
+       for f in ${CONFCASE}_y${year}m${mm}d??_gridT.nc ; do
+         tag=$(echo ${f%_gridT.nc} | awk -F_ '{ print $2 }' ) ; taglist="$taglist $tag"
+       done
+         $CDFTOOLS/cdfvT ${CONFCASE} $taglist
+         putvtmonth $mm ; }
+
+    annual() { cd $TMPDIR/$MOYTMPDIR/$year
+       for typ in $TYP_LIST ; do
+        $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y${year}m??_${typ}.nc
+        putannual $typ
+        case $typ in 
+         gridT | gridU | gridV | gridW  ) 
+           $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y${year}m??_${typ}2.nc
+           putannual ${typ}2 ;;
+        esac
+       done ; }
+
+    annualvt() { cd $TMPDIR/$VTTMPDIR/$year
+        typ=VT
+        $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y${year}m??_${typ}.nc
+        putvtannual ; }
+
+    echo "functions for $MACHINE successfully loaded" ;;
+
+    'ulam' )
+
+    chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi ;}
+
+    # chkdirg  path : check existence of directory path  on (remote) archiving machine. If it does not exist, create it.
+    chkdirg() { rsh gaya -l $REMOTE_USER " if [ ! -d $1 ] ; then mkdir $1 ; fi " ; }
+
+    # getmonth  mm type : retrieve all 5 days average files for month mm and grid type 'type', 
+    # corresponding to current year, current confcase.A
+    #                     ex: getmonth 04 gridU  : retrieve all april files for gridU
+    getmonth() { for f  in $( ls $SDIR/$P_S_DIR/$year/ | grep ${CONFCASE}_y${year}m${1} | grep $2.nc )  ; do
+                     mfget -u $REMOTE_USER $P_S_DIR/$year/$f ./
                  done  ; }
     # putmonth mm type : write back monthly mean for month mm type 'type' on remote machine in -MEAN/YEAR/ directory.
     #                    also move the localfile to local MONTHLY dir for further annual mean computing

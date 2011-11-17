@@ -32,14 +32,14 @@ case $MACHINE in
 
     USER=`whoami`
     REMOTE_USER=`whoami`
-    SDIR=${SDIR}                                      # root of storage directory
-    P_S_DIR=$SDIR/${CONFIG}/${CONFCASE}-S             # input directory
+    SDIR=${SDIR}                                      # root of storage directory (replace by /homegaya/rech/xxx/rxxx012 )
+    P_S_DIR=${CONFIG}/${CONFCASE}-S                   # input directory (relative path to SDIR)
     MOYTMPDIR=${CONFIG}-${CASE}-tmpmean               # tmpdir for means (relative path)
     VTTMPDIR=${CONFIG}-${CASE}-tmpmeanvt              # tmpdir for VT (relative path)
-    MEANDIR=$SDIR/${CONFIG}/${CONFIG}-${CASE}-MEAN    # output directory
+    MEANDIR=${CONFIG}/${CONFIG}-${CASE}-MEAN          # output directory (relative path to SDIR)
     MPDIR=$HOME/DMONTOOLS/MOY_PROD
     MPITOOLS=$HOME/DMONTOOLS/MPI_TOOLS
-    CDFTOOLS=$WORKDIR/CDFTOOLS_forge                  # place of executable
+    CDFTOOLS=$WORKDIR/CDFTOOLS_forge/bin              # place of executable
 
     STEP=3
     BATCH=LoadLev
