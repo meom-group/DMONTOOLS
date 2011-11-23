@@ -83,7 +83,7 @@ def _readnc(filenc=None,argdict=myargs):
     #
     nsection=len(truenames)
     outdict = {} # creates the dictionnary which will contain the arrays 
-    year = rs.get_years(filenc)
+    year = rs.get_years_intpart(filenc)
     mass =[] ; heat=[] ; salt = []
     for kk in range(nsection):
         mass.append(rs.readfilenc(filenc, 'vtrp' + '_' + shortnames[kk]))

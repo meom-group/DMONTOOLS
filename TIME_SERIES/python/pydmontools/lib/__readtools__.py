@@ -49,6 +49,12 @@ def get_years(file,offset=0):
     years = years + offset
     return years 
 
+def get_years_intpart(file,offset=0):
+    fid   = CDF.NetCDFFile(file,'r')
+    years = numpy.array(fid.variables['time_counter'][:]) 
+    years = numpy.floor(years) + offset
+    return years 
+
 def define_sections(argdict, file_section='drakkar_sections_table.txt'):
     if argdict['config'] == '':
         print 'The script needs to know the config name in order to create its section list'

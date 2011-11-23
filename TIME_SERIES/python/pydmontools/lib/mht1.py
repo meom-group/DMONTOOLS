@@ -82,7 +82,7 @@ def _readnc(filenc=None,argdict=myargs):
         list_field = ['zomht_glo', 'hflx_glo']
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year']      = rs.get_years(filenc)
+    outdict['year']      = rs.get_years_intpart(filenc)
     outdict['lat']       = rs.readfilenc(filenc, 'nav_lat')
     for field in list_field:
         temp           = rs.readfilenc(filenc,field)

@@ -79,8 +79,8 @@ def _get_mtlnames(argdict=myargs):
 def _readnc(filenc=None, filenc2=None, argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model']      = rs.get_years(filenc)
-    outdict['year_model_heat'] = rs.get_years(filenc2)
+    outdict['year_model']      = rs.get_years_intpart(filenc)
+    outdict['year_model_heat'] = rs.get_years_intpart(filenc2)
     if argdict['config'].find('ORCA') == 0:
         data_list = ['maxmoc_Glo_maxmoc' , 'maxmoc_Atl_maxmoc', 'maxmoc_Aus_maxmoc',
                      'minmoc_Glo_minmoc' , 'minmoc_Atl_minmoc', 'minmoc_Inp_minmoc',

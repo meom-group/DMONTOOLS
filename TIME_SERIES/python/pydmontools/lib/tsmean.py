@@ -83,7 +83,7 @@ def _readnc(filenc=None):
     outdict['smean']    = rs.readfilenc(filenc,'mean_3Dvosaline') 
     outdict['sshmean']  = rs.readfilenc(filenc,'mean_3Dsossheig') 
     outdict['levels']   = rs.readfilenc(filenc,'gdept')           
-    outdict['year']     = rs.get_years(filenc) 
+    outdict['year']     = rs.get_years_intpart(filenc) 
     outdict['tmodel']   = rs.readfilenc(filenc,'mean_votemper')
     outdict['smodel']   = rs.readfilenc(filenc,'mean_vosaline')  
     return outdict # return the dictionnary of values 

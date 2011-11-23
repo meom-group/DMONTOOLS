@@ -84,7 +84,7 @@ def _readnc(filenc=None,levitus=None):
     # 
     outdict = {} # creates the dictionnary which will contain the arrays 
     outdict['levels']   = rs.readfilenc(filenc,'gdept')           
-    outdict['year']     = rs.get_years(filenc) 
+    outdict['year']     = rs.get_years_intpart(filenc) 
     outdict['tmodel']   = rs.readfilenc(filenc,'mean_votemper')  #2D
     outdict['smodel']   = rs.readfilenc(filenc,'mean_vosaline')  
     outdict['tlev']     = rs.readfilenc(levitus,'mean_votemper') #1D

@@ -82,7 +82,7 @@ def _readnc(filenc=None,argdict=myargs):
     #
     nsection=len(truenames)
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model' ]  = rs.get_years(filenc)
+    outdict['year_model' ]  = rs.get_years_intpart(filenc)
     outdict['sigma_class']  = rs.readfilenc(filenc, 'sigma_class')[0,:]
 
     for kk in shortnames:

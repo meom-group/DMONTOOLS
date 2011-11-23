@@ -95,7 +95,7 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
         pass
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['yearmodel'] = rs.get_years(filenc)
+    outdict['yearmodel'] = rs.get_years_intpart(filenc)
     outdict['trpmodel']  = -1 * rs.readfilenc(filenc, 'vtrp_floba' )
     outdict['yearobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
     outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
