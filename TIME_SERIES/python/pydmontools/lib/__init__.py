@@ -48,7 +48,6 @@ _shellvarname_for['case']         = 'MONPY_CASE'
 _shellvarname_for['datadir']      = 'MONPY_DATADIR'
 _shellvarname_for['plotdir']      = 'MONPY_PLOTDIR'
 _shellvarname_for['dataobsdir']   = 'MONPY_DATAOBSDIR'
-_shellvarname_for['shiftyear']    = 'MONPY_SHIFTYEAR'
 
 def _try_and_load_from_shell(shellvarname):
       """Try to load a shell variable from its name. Return an empty string
@@ -102,8 +101,6 @@ def standard_pydmt_script_parser():
                   help="observations database directory", default=myargs['dataobsdir'])
    parser.add_option("-p", "--plotdir", dest="plotdir",
                   help="config-case monitoring plots directory", default=myargs['plotdir'])
-   parser.add_option("-s", "--shiftyear", dest="shiftyear",
-                  help="takes integer part of year", default=myargs['shiftyear'])
    return parser
 
 # Check the availability of a netcdf interface
