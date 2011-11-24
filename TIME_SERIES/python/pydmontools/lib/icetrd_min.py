@@ -81,7 +81,7 @@ def _get_mtlnames(argdict=myargs):
 def _readnc(filenc=None,fileobs=None,argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model'] = rs.get_years_intpart(filenc)
+    outdict['year_model'] = rs.get_years(filenc)
     outdict['NVolume'   ] = rs.readfilenc(filenc, 'NVolume' )  / 1000
     outdict['NArea'     ] = rs.readfilenc(filenc, 'NArea' )    / 1000
     outdict['NExnsidc'  ] = rs.readfilenc(filenc, 'NExnsidc' ) / 1000
