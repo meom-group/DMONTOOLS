@@ -114,7 +114,7 @@ _osp = os.sep
 class _store_rc(pydmt._core_arguments):
     """This class stores machine- or user- dependent parameters.
     """
-    def __init__(self,file= user.home + _osp + '.pydmt' + _osp + 'rc_monitor_compare.py'):
+    def __init__(self,file= user.home + _osp + '.dmontools' + _osp + 'rc_monitor_compare.py'):
         pydmt._core_arguments.__init__(self) # set 'datadir','plotdir','dataobsdir'
         dic = _get_dic_from_file(file)
         self._update_from_dic(dic)
