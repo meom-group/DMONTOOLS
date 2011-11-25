@@ -286,11 +286,11 @@ class plot_and_send_all_pages:
 
 def _get_xlims(figure):
     subplots = figure.get_axes()
-    return map(lambda x:x.get_xlim().copy(),subplots)
+    return map(lambda x:npy.array(x.get_xlim()).copy(),subplots)
 
 def _get_ylims(figure):
     subplots = figure.get_axes()
-    return map(lambda x:x.get_ylim().copy(),subplots)
+    return map(lambda x:npy.array(x.get_ylim()).copy(),subplots)
 
 def _set_xlims(figure,xlims):
     subplots = figure.get_axes()
