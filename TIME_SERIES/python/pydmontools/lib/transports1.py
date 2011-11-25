@@ -78,6 +78,10 @@ def _get_mtlnames(argdict=myargs):
 #=======================================================================
 
 def _readnc(filenc=None,argdict=myargs):
+    if argdict.has_key('compared_configs'):
+       compare_different_configs = (len(argdict['compared_configs'])>1)
+    else: 
+       compare_different_configs = False 
     # get the section names corresponding to the config
     (truenames, shortnames, longnames, sens) = rs.define_sections(argdict)
     #

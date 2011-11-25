@@ -357,6 +357,7 @@ class plot_one_page:
           self.configs_cases = [configs[k] + '-' + cases[k] for k in range(self.len) ]
           self.argdict = {'dataobsdir':rc.dataobsdir} # will be appended later
           self.compare = (self.len>1) # test whether there will be multiple layers in the plot
+	  self.argdict['compared_configs'] = list(set(self.configs))
 
       def _update_argdict(self,config=None,case=None):
           self.argdict['config'] = config
