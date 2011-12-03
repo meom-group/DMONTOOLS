@@ -89,72 +89,76 @@ cd $YEAR
 # EKE : Eddy Kinetic Energy: Input files gridU, gridV gridU2, gridV2 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^
   if [ $EKE == 1 ] ; then
+   TAG=y${YEAR}
    # retrieve U and V ANNUAL mean files and squared mean
-     rapatrie  ${CONFCASE}_y${YEAR}_gridU.nc  $MEANY ${CONFCASE}_y${YEAR}_gridU.nc
-     rapatrie  ${CONFCASE}_y${YEAR}_gridU2.nc $MEANY ${CONFCASE}_y${YEAR}_gridU2.nc
-     rapatrie  ${CONFCASE}_y${YEAR}_gridV.nc  $MEANY ${CONFCASE}_y${YEAR}_gridV.nc
-     rapatrie  ${CONFCASE}_y${YEAR}_gridV2.nc $MEANY ${CONFCASE}_y${YEAR}_gridV2.nc
+     rapatrie  ${CONFCASE}_${TAG}_gridU.nc  $MEANY ${CONFCASE}_${TAG}_gridU.nc
+     rapatrie  ${CONFCASE}_${TAG}_gridU2.nc $MEANY ${CONFCASE}_${TAG}_gridU2.nc
+     rapatrie  ${CONFCASE}_${TAG}_gridV.nc  $MEANY ${CONFCASE}_${TAG}_gridV.nc
+     rapatrie  ${CONFCASE}_${TAG}_gridV2.nc $MEANY ${CONFCASE}_${TAG}_gridV2.nc
    
    # retrieve a T file needed for headers only (EKE is computed on the T-point)
-     rapatrie  ${CONFCASE}_y${YEAR}_gridT2.nc $MEANY  ${CONFCASE}_y${YEAR}_gridT2.nc
+     rapatrie  ${CONFCASE}_${TAG}_gridT2.nc $MEANY  ${CONFCASE}_${TAG}_gridT2.nc
 
-   cdfeke ${CONFCASE}_y${YEAR}_gridU.nc \
-     ${CONFCASE}_y${YEAR}_gridU2.nc \
-     ${CONFCASE}_y${YEAR}_gridV.nc \
-     ${CONFCASE}_y${YEAR}_gridV2.nc \
-     ${CONFCASE}_y${YEAR}_gridT2.nc
+   cdfeke ${CONFCASE}_${TAG}_gridU.nc \
+     ${CONFCASE}_${TAG}_gridU2.nc \
+     ${CONFCASE}_${TAG}_gridV.nc \
+     ${CONFCASE}_${TAG}_gridV2.nc \
+     ${CONFCASE}_${TAG}_gridT2.nc
 
    # dispose file on the MEAN directory
-   expatrie eke.nc $MEANY  ${CONFCASE}_y${YEAR}_EKE.nc
+   expatrie eke.nc $MEANY  ${CONFCASE}_${TAG}_EKE.nc
    \rm eke.nc
   fi
 
 # RMS SSH and StdDev W : Input files : gridT, gridT2  gridW, gridW2
 #^^^^^^^^^^^^^^^^^^^^^^^
   if [ $RMSSSH == 1 ] ; then 
+   TAG=y$YEAR
    # RMSSSH :get gridT gridT2
-   rapatrie  ${CONFCASE}_y${YEAR}_gridT.nc $MEANY  ${CONFCASE}_y${YEAR}_gridT.nc
-   rapatrie  ${CONFCASE}_y${YEAR}_gridT2.nc $MEANY  ${CONFCASE}_y${YEAR}_gridT2.nc
-   cdfrmsssh  ${CONFCASE}_y${YEAR}_gridT.nc ${CONFCASE}_y${YEAR}_gridT2.nc
+   rapatrie  ${CONFCASE}_${TAG}_gridT.nc $MEANY  ${CONFCASE}_${TAG}_gridT.nc
+   rapatrie  ${CONFCASE}_${TAG}_gridT2.nc $MEANY  ${CONFCASE}_${TAG}_gridT2.nc
+   cdfrmsssh  ${CONFCASE}_${TAG}_gridT.nc ${CONFCASE}_${TAG}_gridT2.nc
 
    # dispose file on the MEAN directory
-   expatrie rms.nc $MEANY  ${CONFCASE}_y${YEAR}_RMSSSH.nc
+   expatrie rms.nc $MEANY  ${CONFCASE}_${TAG}_RMSSSH.nc
    \rm rms.nc
 
    # StdDev W :get gridW and gridW2 files
-   rapatrie ${CONFCASE}_y${YEAR}_gridW.nc $MEANY ${CONFCASE}_y${YEAR}_gridW.nc
-   rapatrie ${CONFCASE}_y${YEAR}_gridW2.nc $MEANY ${CONFCASE}_y${YEAR}_gridW2.nc
+   rapatrie ${CONFCASE}_${TAG}_gridW.nc $MEANY ${CONFCASE}_${TAG}_gridW.nc
+   rapatrie ${CONFCASE}_${TAG}_gridW2.nc $MEANY ${CONFCASE}_${TAG}_gridW2.nc
 
-   cdfstdevw  ${CONFCASE}_y${YEAR}_gridW.nc ${CONFCASE}_y${YEAR}_gridW2.nc
+   cdfstdevw  ${CONFCASE}_${TAG}_gridW.nc ${CONFCASE}_${TAG}_gridW2.nc
 
    # dispose file on the MEAN directory
-   expatrie rmsw.nc $MEANY ${CONFCASE}_y${YEAR}_STDEVW.nc
+   expatrie rmsw.nc $MEANY ${CONFCASE}_${TAG}_STDEVW.nc
   \rm rmsw.nc
   fi
 
 # Barotropic Transport: Input file: gridU, gridV mesh mask
 #^^^^^^^^^^^^^^^^^^^^^
   if [ $BSF == 1 ] ; then
+   TAG=y${YEAR}
    # get gridU gridV files
-   rapatrie ${CONFCASE}_y${YEAR}_gridU.nc $MEANY ${CONFCASE}_y${YEAR}_gridU.nc
-   rapatrie ${CONFCASE}_y${YEAR}_gridV.nc $MEANY ${CONFCASE}_y${YEAR}_gridV.nc
+   rapatrie ${CONFCASE}_${TAG}_gridU.nc $MEANY ${CONFCASE}_${TAG}_gridU.nc
+   rapatrie ${CONFCASE}_${TAG}_gridV.nc $MEANY ${CONFCASE}_${TAG}_gridV.nc
  
    # get mesh mask files 
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc  $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
  
-   cdfpsi ${CONFCASE}_y${YEAR}_gridU.nc ${CONFCASE}_y${YEAR}_gridV.nc 
+   cdfpsi ${CONFCASE}_${TAG}_gridU.nc ${CONFCASE}_${TAG}_gridV.nc 
  
    # dispose and rename on the MEAN directory
-   expatrie psi.nc  $MEANY ${CONFCASE}_y${YEAR}_PSI.nc
+   expatrie psi.nc  $MEANY ${CONFCASE}_${TAG}_PSI.nc
   fi
 
 # MOC Meridional Overturning Circulation:  Input file: gridV, mesh mask, mask_glo
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   if [ $MOC == 1 ] ; then
+   TAG=y${YEAR}
    # get gridV  files
-   rapatrie ${CONFCASE}_y${YEAR}_gridV.nc $MEANY ${CONFCASE}_y${YEAR}_gridV.nc
+   rapatrie ${CONFCASE}_${TAG}_gridV.nc $MEANY ${CONFCASE}_${TAG}_gridV.nc
  
    # get mesh mask files + new_maskglo
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
@@ -162,15 +166,16 @@ cd $YEAR
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
    if (( $orca != 0 )) ; then rapatrie  new_maskglo.nc $IDIR new_maskglo.nc ; fi
  
-   cdfmoc ${CONFCASE}_y${YEAR}_gridV.nc
+   cdfmoc ${CONFCASE}_${TAG}_gridV.nc
  
    # dispose on gaya MEAN/YEAR directory
-   expatrie moc.nc $MEANY ${CONFCASE}_y${YEAR}_MOC.nc
+   expatrie moc.nc $MEANY ${CONFCASE}_${TAG}_MOC.nc
   fi
 
 # MONTHLY MOC Meridional Overturning Circulation:  Input file: gridV, mesh mask, mask_glo
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   if [ $MONTHLYMOC == 1 ] ; then
+   TAG=y${YEAR}
 
    # get mesh mask files + new_maskglo
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
@@ -181,12 +186,12 @@ cd $YEAR
 for MONTH in 01 02 03 04 05 06 07 08 09 10 11 12 ; do
 
    # get gridV  files
-   rapatrie ${CONFCASE}_y${YEAR}m${MONTH}_gridV.nc $MEANY ${CONFCASE}_y${YEAR}m${MONTH}_gridV.nc
+   rapatrie ${CONFCASE}_${TAG}m${MONTH}_gridV.nc $MEANY ${CONFCASE}_${TAG}m${MONTH}_gridV.nc
 
-   cdfmoc ${CONFCASE}_y${YEAR}m${MONTH}_gridV.nc
+   cdfmoc ${CONFCASE}_${TAG}m${MONTH}_gridV.nc
 
    # dispose on gaya MEAN/YEAR directory
-   expatrie moc.nc $MEANY ${CONFCASE}_y${YEAR}m${MONTH}_MOC.nc
+   expatrie moc.nc $MEANY ${CONFCASE}_${TAG}m${MONTH}_MOC.nc
 done
   fi
 
@@ -195,6 +200,7 @@ done
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   if [ $MOCSIG == 1 ] ; then
+   TAG=y${YEAR}
    # Compute NREF
    if [ $DREF == 0 ]; then NREF=0 ; fi
    if [ $DREF == 1000 ]; then NREF=1 ; fi
@@ -208,37 +214,38 @@ done
 
    if [ $mocsig_annual == 1 ] ; then
      # get annual mean gridV and gridT files
-     rapatrie ${CONFCASE}_y${YEAR}_gridV.nc $MEANY ${CONFCASE}_y${YEAR}_gridV.nc
-     rapatrie ${CONFCASE}_y${YEAR}_gridT.nc $MEANY ${CONFCASE}_y${YEAR}_gridT.nc
-     cdfmocsig ${CONFCASE}_y${YEAR}_gridV.nc ${CONFCASE}_y${YEAR}_gridT.nc $DREF
+     rapatrie ${CONFCASE}_${TAG}_gridV.nc $MEANY ${CONFCASE}_${TAG}_gridV.nc
+     rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY ${CONFCASE}_${TAG}_gridT.nc
+     cdfmocsig ${CONFCASE}_${TAG}_gridV.nc ${CONFCASE}_${TAG}_gridT.nc $DREF
    else
      # get 5-day averaged gridV and gridT files
-     rapatrie_5d gridV $SDIRY $YEAR
-     rapatrie_5d gridT $SDIRY $YEAR
-     for fileV in ${CONFCASE}_y${YEAR}m*d*_gridV.nc ; do
+     rapatrie_5d gridV $SDIRY $TAG
+     rapatrie_5d gridT $SDIRY $TAG
+     for fileV in ${CONFCASE}_${TAG}m*d*_gridV.nc ; do
        fileT=$( echo $fileV | sed -e 's/gridV/gridT/'  )
        fileM=$( echo $fileV | sed -e 's/gridV/MOCSIG/'  )
        cdfmocsig $fileV $fileT $DREF
        mv mocsig.nc $fileM
      done
-     cdfmoy ${CONFCASE}_y${YEAR}*MOCSIG.nc
+     cdfmoy ${CONFCASE}_${TAG}*MOCSIG.nc
      mv cdfmoy.nc mocsig.nc
    fi
 
    # dispose on gaya MEAN/YEAR directory
-   expatrie mocsig.nc $MEANY ${CONFCASE}_y${YEAR}_MOCSIG_${NREF}.nc
+   expatrie mocsig.nc $MEANY ${CONFCASE}_${TAG}_MOCSIG_${NREF}.nc
   fi
 
 
 # Mixed Layer Diagnostics : Input file : gridT for month 03 and 09 mesh_hgr, mesh_zgr
 #^^^^^^^^^^^^^^^^^^^^^^^^
   if [ $MXL == 1 ] ; then
+   TAG=y${YEAR}
    # get mesh mask files
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
  
    for m in 3 9  ; do
-     f=${CONFCASE}_y${YEAR}m0${m}_gridT.nc 
+     f=${CONFCASE}_${TAG}m0${m}_gridT.nc 
      g=$(echo $f | sed -e 's/gridT/MXL/')
 
      rapatrie $f $MEANY $f
@@ -253,13 +260,14 @@ done
 # Large scale potential vorticity for m03 m09: input file : gridT, and mesh_mask
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   if [ $LSPV == 1 ] ; then
+   TAG=y${YEAR}
    # get mesh mask files
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc  $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
 
    for m in 3 9  ; do
-     f=${CONFCASE}_y${YEAR}m0${m}_gridT.nc
+     f=${CONFCASE}_${TAG}m0${m}_gridT.nc
      g=$(echo $f | sed -e 's/gridT/LSPV/')
 
      rapatrie $f $MEANY $f
@@ -279,25 +287,26 @@ done
 # Global MEANS: T S SSH Input files: gridT , mesh_hgr, mesh_zgr, mask
 #^^^^^^^^^^^^^^
   if [ $TSMEAN == 1 ] ; then
+   TAG=y${YEAR}
    # get mesh mask files
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
   
    # get gridT files
-   rapatrie ${CONFCASE}_y${YEAR}_gridT.nc $MEANY ${CONFCASE}_y${YEAR}_gridT.nc
+   rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY ${CONFCASE}_${TAG}_gridT.nc
 
    # output file name ascii and nc
-   fsshmean=${CONFCASE}_y${YEAR}_SSHMEAN.txt  ; fsshmean_nc=${CONFCASE}_y${YEAR}_SSHMEAN.nc
-   ftmean=${CONFCASE}_y${YEAR}_TMEAN.txt      ; ftmean_nc=${CONFCASE}_y${YEAR}_TMEAN.nc
-   fsmean=${CONFCASE}_y${YEAR}_SMEAN.txt      ; fsmean_nc=${CONFCASE}_y${YEAR}_SMEAN.nc
+   fsshmean=${CONFCASE}_${TAG}_SSHMEAN.txt  ; fsshmean_nc=${CONFCASE}_${TAG}_SSHMEAN.nc
+   ftmean=${CONFCASE}_${TAG}_TMEAN.txt      ; ftmean_nc=${CONFCASE}_${TAG}_TMEAN.nc
+   fsmean=${CONFCASE}_${TAG}_SMEAN.txt      ; fsmean_nc=${CONFCASE}_${TAG}_SMEAN.nc
    # set header on the output file (ASCII) 
    echo $YEAR >  $fsshmean ; echo $YEAR >  $ftmean ;  echo $YEAR >  $fsmean
 
    # 3D means
-   cdfmean  ${CONFCASE}_y${YEAR}_gridT.nc sossheig T >> $fsshmean ; mv cdfmean.nc $fsshmean_nc
-   cdfmean  ${CONFCASE}_y${YEAR}_gridT.nc votemper T >> $ftmean   ; mv cdfmean.nc $ftmean_nc
-   cdfmean  ${CONFCASE}_y${YEAR}_gridT.nc vosaline T >> $fsmean   ; mv cdfmean.nc $fsmean_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T >> $fsshmean ; mv cdfmean.nc $fsshmean_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T >> $ftmean   ; mv cdfmean.nc $ftmean_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T >> $fsmean   ; mv cdfmean.nc $fsmean_nc
  
    # dispose ASCII file in the -DIAGS directory
    expatrie  $fsshmean $DIAGS/TXT $fsshmean
@@ -334,11 +343,12 @@ done
 # Ice Volume area and extent for m02 m03   m08 m09: input file : icemod, and mesh_mask
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   if [ $ICE == 1 ] ; then
+   TAG=y${YEAR}
    # get icemod file for the month 02 03 and 08  09
-   rapatrie  ${CONFCASE}_y${YEAR}m02_icemod.nc $MEANY ${CONFCASE}_y${YEAR}m02_icemod.nc
-   rapatrie  ${CONFCASE}_y${YEAR}m03_icemod.nc $MEANY ${CONFCASE}_y${YEAR}m03_icemod.nc
-   rapatrie  ${CONFCASE}_y${YEAR}m08_icemod.nc $MEANY ${CONFCASE}_y${YEAR}m08_icemod.nc
-   rapatrie  ${CONFCASE}_y${YEAR}m09_icemod.nc $MEANY ${CONFCASE}_y${YEAR}m09_icemod.nc
+   rapatrie  ${CONFCASE}_${TAG}m02_icemod.nc $MEANY ${CONFCASE}_${TAG}m02_icemod.nc
+   rapatrie  ${CONFCASE}_${TAG}m03_icemod.nc $MEANY ${CONFCASE}_${TAG}m03_icemod.nc
+   rapatrie  ${CONFCASE}_${TAG}m08_icemod.nc $MEANY ${CONFCASE}_${TAG}m08_icemod.nc
+   rapatrie  ${CONFCASE}_${TAG}m09_icemod.nc $MEANY ${CONFCASE}_${TAG}m09_icemod.nc
  
    # get mesh mask files
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
@@ -346,17 +356,17 @@ done
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
  
    # Ascii/nc output file:
-   fice=${CONFCASE}_y${YEAR}_ice.txt
-   fice_nc=${CONFCASE}_y${YEAR}_ice.nc
+   fice=${CONFCASE}_${TAG}_ice.txt
+   fice_nc=${CONFCASE}_${TAG}_ice.nc
  
    echo '###' $YEAR 02 > $fice
-   cdficediags ${CONFCASE}_y${YEAR}m02_icemod.nc  >> $fice ; mv icediags.nc $fice_nc
+   cdficediags ${CONFCASE}_${TAG}m02_icemod.nc  >> $fice ; mv icediags.nc $fice_nc
    echo '###' $YEAR 03 >> $fice
-   cdficediags ${CONFCASE}_y${YEAR}m03_icemod.nc  >> $fice ; ncrcat -A $fice_nc icediags.nc -o $fice_nc
+   cdficediags ${CONFCASE}_${TAG}m03_icemod.nc  >> $fice ; ncrcat -A $fice_nc icediags.nc -o $fice_nc
    echo '###' $YEAR 08 >> $fice
-   cdficediags ${CONFCASE}_y${YEAR}m08_icemod.nc  >> $fice ; ncrcat -A $fice_nc icediags.nc -o $fice_nc
+   cdficediags ${CONFCASE}_${TAG}m08_icemod.nc  >> $fice ; ncrcat -A $fice_nc icediags.nc -o $fice_nc
    echo '###' $YEAR 09 >> $fice
-   cdficediags ${CONFCASE}_y${YEAR}m09_icemod.nc  >> $fice ; ncrcat -A $fice_nc icediags.nc -o $fice_nc
+   cdficediags ${CONFCASE}_${TAG}m09_icemod.nc  >> $fice ; ncrcat -A $fice_nc icediags.nc -o $fice_nc
  
    expatrie $fice    $DIAGS/TXT $fice 
    expatrie $fice_nc $DIAGS/NC  $fice_nc
@@ -365,11 +375,12 @@ done
 # Ice Volume area and extent for all months: input file : icemod, and mesh_mask
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   if [ $ICEMONTH == 1 ] ; then
+   TAG=y${YEAR}
    # get icemod files
    m=1
    while (( $m <= 12 )) ; do
     mm=$( printf "%02d" $m )
-    rapatrie  ${CONFCASE}_y${YEAR}m${mm}_icemod.nc $MEANY ${CONFCASE}_y${YEAR}m${mm}_icemod.nc
+    rapatrie  ${CONFCASE}_${TAG}m${mm}_icemod.nc $MEANY ${CONFCASE}_${TAG}m${mm}_icemod.nc
     m=$(( m + 1 ))
    done
  
@@ -379,8 +390,8 @@ done
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
  
    # Ascii/nc output file:
-   fice=${CONFCASE}_y${YEAR}_icemonth.txt
-   fice_nc=${CONFCASE}_y${YEAR}_icemonth.nc
+   fice=${CONFCASE}_${TAG}_icemonth.txt
+   fice_nc=${CONFCASE}_${TAG}_icemonth.nc
 
    # special function for concatenation of Netcdf output
    cdfmean_concat_ice() { case $mm in
@@ -400,7 +411,7 @@ done
     *)  echo '###' $YEAR $mm >> $fice ;;
     esac
 
-    cdficediags ${CONFCASE}_y${YEAR}m${mm}_icemod.nc  >> $fice 
+    cdficediags ${CONFCASE}_${TAG}m${mm}_icemod.nc  >> $fice 
     cdfmean_concat_ice $fice_nc
 
     #case $mm in
@@ -419,8 +430,9 @@ done
 # Vertical T-S profiles off the coast of Portugal for Gib monitoring: input file: gridT, mesh_mask
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   if [ $GIB == 1 ] ; then
+   TAG=y${YEAR}
    # get gridT file
-   rapatrie ${CONFCASE}_y${YEAR}_gridT.nc $MEANY ${CONFCASE}_y${YEAR}_gridT.nc
+   rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY ${CONFCASE}_${TAG}_gridT.nc
  
    # get mesh mask files
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
@@ -428,16 +440,16 @@ done
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
  
    # Ascii output files:
-   ftgib=${CONFCASE}_y${YEAR}_TGIB.txt
-   fsgib=${CONFCASE}_y${YEAR}_SGIB.txt
+   ftgib=${CONFCASE}_${TAG}_TGIB.txt
+   fsgib=${CONFCASE}_${TAG}_SGIB.txt
    # nc output files
-   ftgib_nc=${CONFCASE}_y${YEAR}_TGIB.nc
-   fsgib_nc=${CONFCASE}_y${YEAR}_SGIB.nc
+   ftgib_nc=${CONFCASE}_${TAG}_TGIB.nc
+   fsgib_nc=${CONFCASE}_${TAG}_SGIB.nc
  
    echo $YEAR > $ftgib
-   cdfmean ${CONFCASE}_y${YEAR}_gridT.nc  votemper T $GIBWIN  0 0  >>  $ftgib ; mv cdfmean.nc $ftgib_nc
+   cdfmean ${CONFCASE}_${TAG}_gridT.nc  votemper T $GIBWIN  0 0  >>  $ftgib ; mv cdfmean.nc $ftgib_nc
    echo $YEAR > $fsgib
-   cdfmean ${CONFCASE}_y${YEAR}_gridT.nc  vosaline T $GIBWIN  0 0  >>  $fsgib ; mv cdfmean.nc $fsgib_nc
+   cdfmean ${CONFCASE}_${TAG}_gridT.nc  vosaline T $GIBWIN  0 0  >>  $fsgib ; mv cdfmean.nc $fsgib_nc
  
    expatrie $ftgib    $DIAGS/TXT $ftgib
    expatrie $fsgib    $DIAGS/TXT $fsgib
@@ -469,18 +481,19 @@ done
 # El nino indexes : Input files : monthly gridT,  mesh mask
 #^^^^^^^^^^^^^^^^^^
   if [ $ELNINO == 1 ] ; then
+   TAG=y${YEAR}
    # get mesh mask files
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
  
    # Ascii outputfile
-   fnino=${CONFCASE}_y${YEAR}_NINO.txt
+   fnino=${CONFCASE}_${TAG}_NINO.txt
    # nc outputfile
-   fnino12_nc=${CONFCASE}_y${YEAR}_NINO12.nc
-   fnino3_nc=${CONFCASE}_y${YEAR}_NINO3.nc
-   fnino4_nc=${CONFCASE}_y${YEAR}_NINO4.nc
-   fnino34_nc=${CONFCASE}_y${YEAR}_NINO34.nc
+   fnino12_nc=${CONFCASE}_${TAG}_NINO12.nc
+   fnino3_nc=${CONFCASE}_${TAG}_NINO3.nc
+   fnino4_nc=${CONFCASE}_${TAG}_NINO4.nc
+   fnino34_nc=${CONFCASE}_${TAG}_NINO34.nc
 
    # special function for concatenation of Netcdf output
    cdfmean_concat() { case $mm in
@@ -494,12 +507,12 @@ done
    \rm $fnino
    for  m in  1 2 3 4 5 6 7 8 9 10 11 12 ; do
      mm=$(printf "%02d" $m)
-     f=${CONFCASE}_y${YEAR}m${mm}_gridT.nc 
+     f=${CONFCASE}_${TAG}m${mm}_gridT.nc 
 
      rapatrie $f $MEANY  $f
  
      #  header
-     printf "%04d %02d" $YEAR $m >>   $fnino
+     printf "%04d %02d" $TAG $m >>   $fnino
  
     # nino 1+2   [ -90 W -- -80 W, -10 S -- 10 N ]
     cdfmean  $f votemper T $NINO12 1 1 | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino 
@@ -529,14 +542,15 @@ done
 # Transport: Input files: VT, gridU, gridV, mesh mask, section.dat
 #^^^^^^^^^^^
   if [ $TRP == 1 ] ; then
+   TAG=y${YEAR}
    # section.dat describes the position (I,J) of the sections to monitor
    # ./create_sections_list.ksh ${CONFIG%.*}   # to skip .Lxx part of the config name
    ../create_sections_list.ksh ${CONFIG} 
  
    # get VT , gridU, gridV files
-   rapatrie ${CONFCASE}_y${YEAR}_VT.nc $MEANY ${CONFCASE}_y${YEAR}_VT.nc
-   rapatrie ${CONFCASE}_y${YEAR}_gridU.nc $MEANY ${CONFCASE}_y${YEAR}_gridU.nc
-   rapatrie ${CONFCASE}_y${YEAR}_gridV.nc $MEANY ${CONFCASE}_y${YEAR}_gridV.nc
+   rapatrie ${CONFCASE}_${TAG}_VT.nc $MEANY ${CONFCASE}_${TAG}_VT.nc
+   rapatrie ${CONFCASE}_${TAG}_gridU.nc $MEANY ${CONFCASE}_${TAG}_gridU.nc
+   rapatrie ${CONFCASE}_${TAG}_gridV.nc $MEANY ${CONFCASE}_${TAG}_gridV.nc
  
    # get mesh mask files
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
@@ -544,16 +558,16 @@ done
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
  
    # Ascii output file:
-   fsection=${CONFCASE}_y${YEAR}_section_monitor.txt
+   fsection=${CONFCASE}_${TAG}_section_monitor.txt
  
    echo $YEAR > $fsection
  
    # clean eventually old x_transport.nc files in this current directory
    \rm -f *transports.nc
 
-   cdftransport   ${CONFCASE}_y${YEAR}_VT.nc \
-                  ${CONFCASE}_y${YEAR}_gridU.nc \
-                  ${CONFCASE}_y${YEAR}_gridV.nc  < section.dat >> $fsection
+   cdftransport   ${CONFCASE}_${TAG}_VT.nc \
+                  ${CONFCASE}_${TAG}_gridU.nc \
+                  ${CONFCASE}_${TAG}_gridV.nc  < section.dat >> $fsection
  
    # eliminate garbage from txt file ...
    grep -v Give $fsection | grep -v level | grep -v IMAX | grep -v FROM > tmp
@@ -565,8 +579,8 @@ done
    listfiles=$( ls | grep transports.nc )
 
    for file in $listfiles ; do
-       mv $file ${CONFCASE}_y${YEAR}_$file
-       expatrie ${CONFCASE}_y${YEAR}_$file $DIAGS/NC ${CONFCASE}_y${YEAR}_$file
+       mv $file ${CONFCASE}_${TAG}_$file
+       expatrie ${CONFCASE}_${TAG}_$file $DIAGS/NC ${CONFCASE}_${TAG}_$file
    done
 
   fi
@@ -574,10 +588,11 @@ done
 # Heat and Salt Meridional Transport : Input files : VT, mesh mask, new_maskglo
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   if [ $MHT == 1 ] ; then
+   TAG=y${YEAR}
 # (a) From advection:
 #--------------------
    # get VT  files
-   rapatrie ${CONFCASE}_y${YEAR}_VT.nc $MEANY ${CONFCASE}_y${YEAR}_VT.nc
+   rapatrie ${CONFCASE}_${TAG}_VT.nc $MEANY ${CONFCASE}_${TAG}_VT.nc
  
    # get mesh mask files + new_maskglo
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
@@ -586,40 +601,41 @@ done
    if (( $orca != 0 )) ; then rapatrie  new_maskglo.nc $IDIR new_maskglo.nc ; fi
  
    # Ascii output files:
-   fheat=${CONFCASE}_y${YEAR}_heattrp.dat
-   fsalt=${CONFCASE}_y${YEAR}_salttrp.dat
+   fheat=${CONFCASE}_${TAG}_heattrp.dat
+   fsalt=${CONFCASE}_${TAG}_salttrp.dat
    # Netcdf output files: (both head and salt in 2 separated variables)
  
-   cdfmhst  ${CONFCASE}_y${YEAR}_VT.nc MST   # Save Meridional salt transport as well
-   mv mhst.nc ${CONFCASE}_y${YEAR}_mhst.nc
+   cdfmhst  ${CONFCASE}_${TAG}_VT.nc MST   # Save Meridional salt transport as well
+   mv mhst.nc ${CONFCASE}_${TAG}_mhst.nc
  
    expatrie zonal_heat_trp.dat $DIAGS/TXT $fheat
    expatrie zonal_salt_trp.dat $DIAGS/TXT $fsalt
-   expatrie ${CONFCASE}_y${YEAR}_mhst.nc $DIAGS/NC ${CONFCASE}_y${YEAR}_mhst.nc
+   expatrie ${CONFCASE}_${TAG}_mhst.nc $DIAGS/NC ${CONFCASE}_${TAG}_mhst.nc
  
    # needed below with the correct name
-   cp zonal_heat_trp.dat ${CONFCASE}_y${YEAR}_heattrp.dat
+   cp zonal_heat_trp.dat ${CONFCASE}_${TAG}_heattrp.dat
  
 # (b) from Surface Heat fluxes
 #-----------------------------
-    rapatrie ${CONFCASE}_y${YEAR}_gridT.nc $MEANY  ${CONFCASE}_y${YEAR}_gridT.nc
-    cdfhflx  ${CONFCASE}_y${YEAR}_gridT.nc
+    rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY  ${CONFCASE}_${TAG}_gridT.nc
+    cdfhflx  ${CONFCASE}_${TAG}_gridT.nc
  
-    expatrie hflx.out $DIAGS/TXT ${CONFCASE}_y${YEAR}_hflx.dat
-    expatrie cdfhflx.nc $DIAGS/NC ${CONFCASE}_y${YEAR}_hflx.nc
+    expatrie hflx.out $DIAGS/TXT ${CONFCASE}_${TAG}_hflx.dat
+    expatrie cdfhflx.nc $DIAGS/NC ${CONFCASE}_${TAG}_hflx.nc
   fi
 
 
 # MAX and MIN of MOC: requires that MOC files already exists
 #^^^^^^^^^^^^^^^^^^^^
   if [ $MAXMOC == 1  ] ; then
+   TAG=y${YEAR}
    f=moc.nc
-   rapatrie ${CONFCASE}_y${YEAR}_MOC.nc $MEANY $f
+   rapatrie ${CONFCASE}_${TAG}_MOC.nc $MEANY $f
 
    # Ascii output file
-   fmaxmoc=${CONFCASE}_y${YEAR}_minmaxmoc.txt
+   fmaxmoc=${CONFCASE}_${TAG}_minmaxmoc.txt
    echo $YEAR > $fmaxmoc
-   fmaxmoc40=${CONFIG}-${CASE}_y${YEAR}_maxmoc40.txt
+   fmaxmoc40=${CONFIG}-${CASE}_${TAG}_maxmoc40.txt
    echo $YEAR > $fmaxmoc40
 
    case $CONFIG in
@@ -627,53 +643,53 @@ done
 
    #AUS
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 0 2000   | grep Maximum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_maxmoc.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Glo_maxmoc.nc
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 2000 5500  | grep Minimum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_minmoc.nc 
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Glo_minmoc.nc 
    
    expatrie $fmaxmoc $DIAGS/TXT $fmaxmoc ;;
 
         ORCA12 | ORCA12.L46 | ORCA12.L75 | ORCA025 | ORCA025.L75 | ORCA05 | ORCA2 | ORCA246 )
    # GLO
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo 20 60 500 2000 | grep Maximum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_maxmoc.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Glo_maxmoc.nc
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo -40 30 2000 5500 | grep Minimum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_minmoc.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Glo_minmoc.nc
    # ATL
    printf "%s" 'Atl ' >>  $fmaxmoc ; cdfmaxmoc $f atl 0 60 500 2000 | grep Maximum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Atl_maxmoc.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Atl_maxmoc.nc
    printf "%s" 'Atl ' >>  $fmaxmoc ; cdfmaxmoc $f atl -20 40 2000 5500 | grep Minimum  >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Atl_minmoc.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Atl_minmoc.nc
    #INP
    printf "%s" 'Inp ' >>  $fmaxmoc ; cdfmaxmoc $f inp 15 50 100 1000 | grep Minimum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Inp_minmoc.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Inp_minmoc.nc
    printf "%s" 'Inp ' >>  $fmaxmoc ; cdfmaxmoc $f inp -30 20 1000 5500  | grep Minimum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Inp_minmoc2.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Inp_minmoc2.nc
    #AUS
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 0 2000   | grep Maximum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Aus_maxmoc.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Aus_maxmoc.nc
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 2000 5500  | grep Minimum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Aus_minmoc.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Aus_minmoc.nc
    
    expatrie $fmaxmoc $DIAGS/TXT $fmaxmoc
 
    # Max and Min of MOC at some specific latitudes
    # GLO  MAX at 40 N and 30S
    printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo 40 40 500 2000 | grep Maximum >> $fmaxmoc40
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_maxmoc40N.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Glo_maxmoc40N.nc
    printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo -30 -30 500  5500 | grep Maximum >> $fmaxmoc40
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_maxmoc30S.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Glo_maxmoc30S.nc
    # ATL  MAX at 40N and 30S
    printf "%s" 'Atl ' >>  $fmaxmoc40 ; cdfmaxmoc $f atl 40 40 500 2000 | grep Maximum >> $fmaxmoc40
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Atl_maxmoc40N.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Atl_maxmoc40N.nc
    printf "%s" 'Atl ' >>  $fmaxmoc40 ; cdfmaxmoc $f atl -30 -30  500 5000 | grep Maximum >> $fmaxmoc40
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Atl_maxmoc30S.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Atl_maxmoc30S.nc
    #INP  Min at 30 S
    printf "%s" 'Inp ' >>  $fmaxmoc40 ; cdfmaxmoc $f inp -30 -30 1000 5500  | grep Minimum >> $fmaxmoc40
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Inp_minmoc30S.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Inp_minmoc30S.nc
    #AUS  MAX at 50 S
    printf "%s" 'Aus ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo -50 -50 0 2000   | grep Maximum >> $fmaxmoc40
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Aus_maxmoc50S.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Aus_maxmoc50S.nc
 
    expatrie $fmaxmoc40 $DIAGS/TXT $fmaxmoc40 ;;
 
@@ -681,17 +697,17 @@ done
         NATL025 | NATL4 | NATL12 )
    # GLO
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo 20 60 500 2000 | grep Maximum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_maxmoc.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Glo_maxmoc.nc
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo -40 30 2000 5500 | grep Minimum >> $fmaxmoc
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_minmoc.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Glo_minmoc.nc
    expatrie $fmaxmoc $DIAGS/TXT $fmaxmoc
 
    # Max and Min of MOC at some specific latitudes
    # GLO  MAX at 40 N and 30S
    printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo 40 40 500 2000 | grep Maximum >> $fmaxmoc40
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_maxmoc40N.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Glo_maxmoc40N.nc
    printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo -15 -15 500  5500 | grep Maximum >> $fmaxmoc40
-     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_y${YEAR}_Glo_maxmoc15S.nc
+     expatrie maxmoc.nc $DIAGS/NC ${CONFIG}-${CASE}_${TAG}_Glo_maxmoc15S.nc
 
    expatrie $fmaxmoc40 $DIAGS/TXT $fmaxmoc40 ;;
 
@@ -704,6 +720,7 @@ done
 # DCT :Density Class transport: Input files : gridT, gridU gridV, mesh mask, dens_section.dat
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   if [ $DCT == 1 ] ; then
+   TAG=y${YEAR}
   # dens_section.dat describe the sections (either zonal or meridional) 
   # where the DCT is computed: it is buildt by a  DMONTOOLS script
   #./create_sections_list.ksh ${CONFIG%.*}   # to skip .Lxx part of the config name
@@ -729,7 +746,7 @@ done
 
   for  m in  1 2 3 4 5 6 7 8 9 10 11 12 ; do
     mm=$(printf "%02d" $m)
-    tfich=${CONFCASE}_y${YEAR}m${mm}_gridT.nc 
+    tfich=${CONFCASE}_${TAG}m${mm}_gridT.nc 
     ufich=$(echo  $tfich | sed -e 's/gridT/gridU/' )
     vfich=$(echo  $tfich | sed -e 's/gridT/gridV/' )
 
@@ -771,8 +788,8 @@ done
   done
 
   for section in $section_list ; do
-   cdfmoy_weighted ${CONFCASE}_y${YEAR}m??_${section}_trpsig.nc 
-   froot=${CONFCASE}_y${YEAR}_${section}_trpsig
+   cdfmoy_weighted ${CONFCASE}_${TAG}m??_${section}_trpsig.nc 
+   froot=${CONFCASE}_${TAG}_${section}_trpsig
    mv cdfmoy_weighted.nc  $froot.nc
    expatrie $froot.nc $DIAGS/NC $froot.nc
    ncks -v sigtrp  $froot.nc | \
@@ -790,6 +807,7 @@ done
 # TRACER DIAGS (31/12 of each year) : Input files : ptrcT, mesh mask
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   if [ $TRACER == 1 ] ; then
+   TAG=y${YEAR}
    # get mesh mask files
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
@@ -797,20 +815,20 @@ done
    if (( $orca != 0 )) ; then rapatrie  new_maskglo.nc $IDIR new_maskglo.nc ; fi
  
    # get tracer file from gaya: note that this is from -S dir (5 day average ... to discuss ...)
-   rapatrie ${CONFCASE}_y${YEAR}m12d31_ptrcT.nc $SDIRY ${CONFCASE}_y${YEAR}m12d31_ptrcT.nc
-   rapatrie ${CONFCASE}_y${YEAR}m12d31_diadT.nc $SDIRY ${CONFCASE}_y${YEAR}m12d31_diadT.nc
-   rapatrie ${CONFCASE}_y${YEAR}_ptrcT.nc $MEANY ${CONFCASE}_y${YEAR}_ptrcT.nc
+   rapatrie ${CONFCASE}_${TAG}m12d31_ptrcT.nc $SDIRY ${CONFCASE}_${TAG}m12d31_ptrcT.nc
+   rapatrie ${CONFCASE}_${TAG}m12d31_diadT.nc $SDIRY ${CONFCASE}_${TAG}m12d31_diadT.nc
+   rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
  
    # Ascii output file:
-   ftrc=${CONFCASE}_y${YEAR}_TRCmean.dat
-   ftrc_nc=${CONFCASE}_y${YEAR}_TRCmean.nc
+   ftrc=${CONFCASE}_${TAG}_TRCmean.dat
+   ftrc_nc=${CONFCASE}_${TAG}_TRCmean.nc
  
    # Number of mol in the ocean ...
    printf "%04d "  $YEAR   >  $ftrc
  
    # CFC11
    \rm -f tmp1
-   cdfmean  ${CONFCASE}_y${YEAR}m12d31_diadT.nc  INVCFC T > tmp1
+   cdfmean  ${CONFCASE}_${TAG}m12d31_diadT.nc  INVCFC T > tmp1
    area=$(cat tmp1 |  grep -e 'Mean value at level' | awk ' {print $12}')
    mean=$(cat tmp1 |  grep -e 'Mean value over the ocean' | awk ' {print $6}')
    total=$(echo $mean $area |  awk '{print $1 * $2 }' )
@@ -831,14 +849,14 @@ done
    expatrie $ftrc_nc $DIAGS/NC $ftrc_nc
  
    # zonal integral of inventories
-   cdfzonalsum  ${CONFCASE}_y${YEAR}m12d31_ptrcT.nc  T
-   expatrie zonalsum.nc $MEANY ${CONFCASE}_y${YEAR}_TRCzonalsum_conc.nc
-   cdfzonalsum  ${CONFCASE}_y${YEAR}m12d31_diadT.nc  T
+   cdfzonalsum  ${CONFCASE}_${TAG}m12d31_ptrcT.nc  T
+   expatrie zonalsum.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalsum_conc.nc
+   cdfzonalsum  ${CONFCASE}_${TAG}m12d31_diadT.nc  T
  
    # zonal means
-   cdfzonalmean  ${CONFCASE}_y${YEAR}m12d31_ptrcT.nc  T
-   expatrie zonalmean.nc $MEANY ${CONFCASE}_y${YEAR}_TRCzonalmean_conc.nc
-   cdfzonalmean  ${CONFCASE}_y${YEAR}m12d31_diadT.nc  T
+   cdfzonalmean  ${CONFCASE}_${TAG}m12d31_ptrcT.nc  T
+   expatrie zonalmean.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalmean_conc.nc
+   cdfzonalmean  ${CONFCASE}_${TAG}m12d31_diadT.nc  T
  
    # ncks is required on the prod machine ... !! not standard !!
    # it is used to take only the interesting variables from the results
@@ -850,32 +868,33 @@ done
    cdfzonalout zonalsum.nc >  zonalsum.dat
    cdfzonalout zonalsurf.nc >  zonalsurf.dat
  
-   expatrie zonalmean.nc $MEANY ${CONFCASE}_y${YEAR}_TRCzonalmean_flx.nc
-   expatrie zonalsum.nc $MEANY ${CONFCASE}_y${YEAR}_TRCzonalsum_flx.nc
+   expatrie zonalmean.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalmean_flx.nc
+   expatrie zonalsum.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalsum_flx.nc
  
-   expatrie zonalmean.dat $DIAGS/TXT ${CONFCASE}_y${YEAR}_TRCzonalmean_flx.dat
-   expatrie zonalsum.dat $DIAGS/TXT ${CONFCASE}_y${YEAR}_TRCzonalsum_flx.dat
-   expatrie zonalsurf.dat $DIAGS/TXT ${CONFCASE}_y${YEAR}_TRCzonalsurf_flx.dat
+   expatrie zonalmean.dat $DIAGS/TXT ${CONFCASE}_${TAG}_TRCzonalmean_flx.dat
+   expatrie zonalsum.dat $DIAGS/TXT ${CONFCASE}_${TAG}_TRCzonalsum_flx.dat
+   expatrie zonalsurf.dat $DIAGS/TXT ${CONFCASE}_${TAG}_TRCzonalsurf_flx.dat
    \rm zonalsurf.nc
 
    # penetration depth
-   cdfpendep ${CONFCASE}_y${YEAR}m12d31_ptrcT.nc ${CONFCASE}_y${YEAR}m12d31_diadT.nc -inv INVCFC -trc CFC11
-   expatrie pendep.nc $MEANY ${CONFCASE}_y${YEAR}_pendep.nc
+   cdfpendep ${CONFCASE}_${TAG}m12d31_ptrcT.nc ${CONFCASE}_${TAG}m12d31_diadT.nc -inv INVCFC -trc CFC11
+   expatrie pendep.nc $MEANY ${CONFCASE}_${TAG}_pendep.nc
 
    # Fraction of inventory
-   cdffracinv ${CONFCASE}_y${YEAR}m12d31_diadT.nc -inv INVCFC
-   expatrie fracinv.nc $MEANY ${CONFCASE}_y${YEAR}_fracinv.nc
+   cdffracinv ${CONFCASE}_${TAG}m12d31_diadT.nc -inv INVCFC
+   expatrie fracinv.nc $MEANY ${CONFCASE}_${TAG}_fracinv.nc
  
   fi
 
 # Compare zonal current with TAO moorings: Input file: gridU, gridV, gridT2, coordinates
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   if [ $TAO == 1 ] ; then
+   TAG=y${YEAR}
      
      LAT=0
-     u=${CONFCASE}_y${YEAR}_gridU.nc
-     v=${CONFCASE}_y${YEAR}_gridV.nc
-     t2=${CONFCASE}_y${YEAR}_gridT2.nc 
+     u=${CONFCASE}_${TAG}_gridU.nc
+     v=${CONFCASE}_${TAG}_gridV.nc
+     t2=${CONFCASE}_${TAG}_gridT2.nc 
 
      rapatrie $u  $MEANY $u
      rapatrie $v  $MEANY $v
@@ -884,7 +903,7 @@ done
      rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc  $IDIR mesh_hgr.nc
 
      cdfvita $u $v $t2
-     \mv vita.nc ${CONFCASE}_y${YEAR}_vita.nc
+     \mv vita.nc ${CONFCASE}_${TAG}_vita.nc
 
      for LON in 156 165 -110 -140 -170 ; do
 
@@ -896,54 +915,54 @@ done
         if (( $LAT < 0 )) ; then LATI=${LAT}s ; fi
         LONG=$( echo $LONG | sed -e 's/-//' )
         LATI=$( echo $LATI | sed -e 's/-//' )
-        file=${CONFCASE}_y${YEAR}_vita.nc
+        file=${CONFCASE}_${TAG}_vita.nc
         varu=sovitua
         cdfprofile $I $J $file $varu  # extraire les profils aux coordonnees desirees
-        mv profile.nc ${CONFCASE}_y${YEAR}_VELOCITY_${LATI}${LONG}.nc
-        ncrename -O -v sovitua,u_$LONG ${CONFCASE}_y${YEAR}_VELOCITY_${LATI}${LONG}.nc 
-        expatrie ${CONFCASE}_y${YEAR}_VELOCITY_${LATI}${LONG}.nc $DIAGS/NC  ${CONFCASE}_y${YEAR}_VELOCITY_${LATI}${LONG}.nc
+        mv profile.nc ${CONFCASE}_${TAG}_VELOCITY_${LATI}${LONG}.nc
+        ncrename -O -v sovitua,u_$LONG ${CONFCASE}_${TAG}_VELOCITY_${LATI}${LONG}.nc 
+        expatrie ${CONFCASE}_${TAG}_VELOCITY_${LATI}${LONG}.nc $DIAGS/NC  ${CONFCASE}_${TAG}_VELOCITY_${LATI}${LONG}.nc
 
      done
      	
-  uclev=$( find_model_level depth 80 ${CONFCASE}_y${YEAR}_VELOCITY_0n110w.nc )
-  ncks -F -O -v u_110w -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n110w.nc \
-                     -o ${CONFCASE}_y${YEAR}_VELOCITY_0n110w_UC.nc
-  newval=$( interpolation_vertical depth 80 u_110w ${CONFCASE}_y${YEAR}_VELOCITY_0n110w.nc )
+  uclev=$( find_model_level depth 80 ${CONFCASE}_${TAG}_VELOCITY_0n110w.nc )
+  ncks -F -O -v u_110w -d depth,$uclev,$uclev ${CONFCASE}_${TAG}_VELOCITY_0n110w.nc \
+                     -o ${CONFCASE}_${TAG}_VELOCITY_0n110w_UC.nc
+  newval=$( interpolation_vertical depth 80 u_110w ${CONFCASE}_${TAG}_VELOCITY_0n110w.nc )
   echo Value interpolated to $newval
-  ncap -F -O -s "u_110w[time_counter] = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n110w_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n110w_UC.nc
-  ncrename -O -v u_110w,u_110w_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n110w_UC.nc 
+  ncap -F -O -s "u_110w[time_counter] = float($newval) " ${CONFCASE}_${TAG}_VELOCITY_0n110w_UC.nc ${CONFCASE}_${TAG}_VELOCITY_0n110w_UC.nc
+  ncrename -O -v u_110w,u_110w_UC ${CONFCASE}_${TAG}_VELOCITY_0n110w_UC.nc 
 
-  uclev=$( find_model_level depth 120 ${CONFCASE}_y${YEAR}_VELOCITY_0n140w.nc )
-  ncks -F -O -v u_140w -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n140w.nc \
-                     -o ${CONFCASE}_y${YEAR}_VELOCITY_0n140w_UC.nc
-  newval=$( interpolation_vertical depth 120 u_140w ${CONFCASE}_y${YEAR}_VELOCITY_0n140w.nc )
+  uclev=$( find_model_level depth 120 ${CONFCASE}_${TAG}_VELOCITY_0n140w.nc )
+  ncks -F -O -v u_140w -d depth,$uclev,$uclev ${CONFCASE}_${TAG}_VELOCITY_0n140w.nc \
+                     -o ${CONFCASE}_${TAG}_VELOCITY_0n140w_UC.nc
+  newval=$( interpolation_vertical depth 120 u_140w ${CONFCASE}_${TAG}_VELOCITY_0n140w.nc )
   echo Value interpolated to $newval
-  ncap -F -O -s "u_140w[time_counter] = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n140w_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n140w_UC.nc
-  ncrename -O -v u_140w,u_140w_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n140w_UC.nc 
+  ncap -F -O -s "u_140w[time_counter] = float($newval) " ${CONFCASE}_${TAG}_VELOCITY_0n140w_UC.nc ${CONFCASE}_${TAG}_VELOCITY_0n140w_UC.nc
+  ncrename -O -v u_140w,u_140w_UC ${CONFCASE}_${TAG}_VELOCITY_0n140w_UC.nc 
 	
-  uclev=$( find_model_level depth 150 ${CONFCASE}_y${YEAR}_VELOCITY_0n170w.nc ) 
-  ncks -F -O -v u_170w -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n170w.nc \
-                     -o ${CONFCASE}_y${YEAR}_VELOCITY_0n170w_UC.nc
-  newval=$( interpolation_vertical depth 150 u_170w ${CONFCASE}_y${YEAR}_VELOCITY_0n170w.nc )
+  uclev=$( find_model_level depth 150 ${CONFCASE}_${TAG}_VELOCITY_0n170w.nc ) 
+  ncks -F -O -v u_170w -d depth,$uclev,$uclev ${CONFCASE}_${TAG}_VELOCITY_0n170w.nc \
+                     -o ${CONFCASE}_${TAG}_VELOCITY_0n170w_UC.nc
+  newval=$( interpolation_vertical depth 150 u_170w ${CONFCASE}_${TAG}_VELOCITY_0n170w.nc )
   echo Value interpolated to $newval
-  ncap -F -O -s "u_170w[time_counter] = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n170w_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n170w_UC.nc
-  ncrename -O -v u_170w,u_170w_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n170w_UC.nc 
+  ncap -F -O -s "u_170w[time_counter] = float($newval) " ${CONFCASE}_${TAG}_VELOCITY_0n170w_UC.nc ${CONFCASE}_${TAG}_VELOCITY_0n170w_UC.nc
+  ncrename -O -v u_170w,u_170w_UC ${CONFCASE}_${TAG}_VELOCITY_0n170w_UC.nc 
 
-  uclev=$( find_model_level depth 200 ${CONFCASE}_y${YEAR}_VELOCITY_0n156e.nc )
-  ncks -F -O -v u_156e -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n156e.nc \
-                     -o ${CONFCASE}_y${YEAR}_VELOCITY_0n156e_UC.nc
-  newval=$( interpolation_vertical depth 200 u_156e ${CONFCASE}_y${YEAR}_VELOCITY_0n156e.nc )
+  uclev=$( find_model_level depth 200 ${CONFCASE}_${TAG}_VELOCITY_0n156e.nc )
+  ncks -F -O -v u_156e -d depth,$uclev,$uclev ${CONFCASE}_${TAG}_VELOCITY_0n156e.nc \
+                     -o ${CONFCASE}_${TAG}_VELOCITY_0n156e_UC.nc
+  newval=$( interpolation_vertical depth 200 u_156e ${CONFCASE}_${TAG}_VELOCITY_0n156e.nc )
   echo Value interpolated to $newval
-  ncap -F -O -s "u_156e[time_counter] = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n156e_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n156e_UC.nc
-  ncrename -O -v u_156e,u_156e_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n156e_UC.nc 
+  ncap -F -O -s "u_156e[time_counter] = float($newval) " ${CONFCASE}_${TAG}_VELOCITY_0n156e_UC.nc ${CONFCASE}_${TAG}_VELOCITY_0n156e_UC.nc
+  ncrename -O -v u_156e,u_156e_UC ${CONFCASE}_${TAG}_VELOCITY_0n156e_UC.nc 
 
-  uclev=$( find_model_level depth 200 ${CONFCASE}_y${YEAR}_VELOCITY_0n165e.nc )
-  ncks -F -O -v u_165e -d depth,$uclev,$uclev ${CONFCASE}_y${YEAR}_VELOCITY_0n165e.nc \
-                     -o ${CONFCASE}_y${YEAR}_VELOCITY_0n165e_UC.nc
-  newval=$( interpolation_vertical depth 200 u_165e ${CONFCASE}_y${YEAR}_VELOCITY_0n165e.nc )
+  uclev=$( find_model_level depth 200 ${CONFCASE}_${TAG}_VELOCITY_0n165e.nc )
+  ncks -F -O -v u_165e -d depth,$uclev,$uclev ${CONFCASE}_${TAG}_VELOCITY_0n165e.nc \
+                     -o ${CONFCASE}_${TAG}_VELOCITY_0n165e_UC.nc
+  newval=$( interpolation_vertical depth 200 u_165e ${CONFCASE}_${TAG}_VELOCITY_0n165e.nc )
   echo Value interpolated to $newval
-  ncap -F -O -s "u_165e[time_counter] = float($newval) " ${CONFCASE}_y${YEAR}_VELOCITY_0n165e_UC.nc ${CONFCASE}_y${YEAR}_VELOCITY_0n165e_UC.nc
-  ncrename -O -v u_165e,u_165e_UC ${CONFCASE}_y${YEAR}_VELOCITY_0n165e_UC.nc 
+  ncap -F -O -s "u_165e[time_counter] = float($newval) " ${CONFCASE}_${TAG}_VELOCITY_0n165e_UC.nc ${CONFCASE}_${TAG}_VELOCITY_0n165e_UC.nc
+  ncrename -O -v u_165e,u_165e_UC ${CONFCASE}_${TAG}_VELOCITY_0n165e_UC.nc 
 
 
   for file in ${CONFCASE}_*UC.nc ; do
@@ -958,6 +977,7 @@ fi
 
 # PISCES PROFILES : Input files : ptrcT
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   TAG=y${YEAR}
 
 if [ $BIO_PROFILE == 1 ] ; then
    # get mesh mask files
@@ -966,7 +986,7 @@ if [ $BIO_PROFILE == 1 ] ; then
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
 
    # get tracer file from gaya: 
-   rapatrie ${CONFCASE}_y${YEAR}_ptrcT.nc $MEANY ${CONFCASE}_y${YEAR}_ptrcT.nc
+   rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
 
    # Parameters for integration
    latmin=$( cdffindij -180 180 -75 -45 -c mesh_hgr.nc -p T | tail -2 | head -1 | awk '{ print $4 }' )
@@ -974,16 +994,16 @@ if [ $BIO_PROFILE == 1 ] ; then
    # compute vertical profiles
    jc=0
    for var in DIC Alkalini O2 PO4 Si NO3 Fer DOC ; do 
-     cdfmean ${CONFCASE}_y${YEAR}_ptrcT.nc $var T 0 180 1 $latmin 0 46 
+     cdfmean ${CONFCASE}_${TAG}_ptrcT.nc $var T 0 180 1 $latmin 0 46 
      if [ $jc == 0 ] ; then
-       mv cdfmean.nc ${CONFCASE}_y${YEAR}_bioprofile.nc
+       mv cdfmean.nc ${CONFCASE}_${TAG}_bioprofile.nc
      else
-       ncks -A -v mean_$var cdfmean.nc ${CONFCASE}_y${YEAR}_bioprofile.nc
+       ncks -A -v mean_$var cdfmean.nc ${CONFCASE}_${TAG}_bioprofile.nc
      fi
      jc=$((jc+1))
    done
 
-   expatrie ${CONFCASE}_y${YEAR}_bioprofile.nc $MEANY  ${CONFCASE}_y${YEAR}_bioprofile.nc 
+   expatrie ${CONFCASE}_${TAG}_bioprofile.nc $MEANY  ${CONFCASE}_${TAG}_bioprofile.nc 
 
 fi
 
