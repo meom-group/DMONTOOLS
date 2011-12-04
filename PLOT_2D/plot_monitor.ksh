@@ -1620,7 +1620,7 @@ eof
     year=$( echo $tag | awk -Fm '{print $1}' )
     month=$( echo $tag | awk -Fm '{print $2}' )
     icetxt=${CONFCASE}_y${YEAR}_icemonth.txt
-    rapatrie $icetxt $DIAGS $icetxt
+    rapatrie $icetxt $DIAGS/TXT $icetxt
 
     case $month in
       01 ) month_name=Jan ;;
