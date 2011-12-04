@@ -178,16 +178,17 @@ cd $YEAR
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
    if (( $orca != 0 )) ; then rapatrie  new_maskglo.nc $IDIR new_maskglo.nc ; fi
 
-for MONTH in 01 02 03 04 05 06 07 08 09 10 11 12 ; do
+   for m in $(seq 1 12) ; do
+    MONTH=$( printf "%02d" $m )
 
-   # get gridV  files
-   rapatrie ${CONFCASE}_y${YEAR}m${MONTH}_gridV.nc $MEANY ${CONFCASE}_y${YEAR}m${MONTH}_gridV.nc
+    # get gridV  files
+    rapatrie ${CONFCASE}_y${YEAR}m${MONTH}_gridV.nc $MEANY ${CONFCASE}_y${YEAR}m${MONTH}_gridV.nc
 
-   cdfmoc ${CONFCASE}_y${YEAR}m${MONTH}_gridV.nc
+    cdfmoc ${CONFCASE}_y${YEAR}m${MONTH}_gridV.nc
 
-   # dispose on gaya MEAN/YEAR directory
-   expatrie moc.nc $MEANY ${CONFCASE}_y${YEAR}m${MONTH}_MOC.nc
-done
+    # dispose on gaya MEAN/YEAR directory
+    expatrie moc.nc $MEANY ${CONFCASE}_y${YEAR}m${MONTH}_MOC.nc
+   done
   fi
 
 
