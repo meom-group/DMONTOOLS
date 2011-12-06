@@ -420,7 +420,7 @@ eof
   puttogaya  GLOBAL 
                        fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# 4. Surface heat fluxes( W/m2) and freshwater flux (mm/days)
+# 4.1 Surface heat fluxes( W/m2) and freshwater flux (mm/days)
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                        if [ $fluxes == 1 ] ; then
 
@@ -443,15 +443,16 @@ eof
 
   # plot the heat flux (w/m2) and fresh water flux (mm/day) (scaled by 86400 from kg/m2/s)
   MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED3" ; CNTICE="" ; FORMAT='-format PALETTE I4'
-    for var in HeatFlx WaterFlx WaterDmp ; do
+    for var in HeatFlx WaterFlx WaterDmp CDWaterFlx ; do
       STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}_DEPTH=@CLR_DEPTH@"
       filout=${CONFIG}_${var}_${YEAR}-${CASE}
       if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
          rapatrie $t    $MEANY $t
          case $var in
-           HeatFlx) clrvar=sohefldo ; CLRDATA=" -clrdata $t"; min=-140 ; max=140  ; pas=15 ;;
-           WaterFlx) clrvar=sowaflup ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
-           WaterDmp) clrvar=sowafldp ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+           HeatFlx)    clrvar=sohefldo ; CLRDATA=" -clrdata $t"              ; min=-140 ; max=140  ; pas=15 ;;
+           WaterFlx)   clrvar=sowaflup ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+           WaterDmp)   clrvar=sowafldp ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+           CDWaterFlx) clrvar=sowaflcd ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
          esac
          CLRLIM="-clrmin $min -clrmax $max -clrmet 1"
          gloplt  ; mkplt $filout
@@ -461,6 +462,49 @@ eof
     # dispose to gaya all plots in the listplt
     puttogaya  GLOBAL 
                          fi
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# 4.2 Hallberg Salinity Damping : HSD (flx (mm/day) and trend ??)
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+                if [ $hsd == 1 ] ; then
+
+ # particular plotting distorsion for non ORCA plots
+ XYPLOT=''   # Default ORCA model
+ CLRXYPAL='' # Defaut ORCA model
+ xstring=0.5 ; ystring=0.95
+
+ if [ $(chconf PERIANT) != 0 ] ; then
+  XYPLOT="-xyplot 0.1 0.95 0.4 0.8"
+  CLRXYPAL="-clrxypal 0.1 0.95 0.2 0.3"
+  xstring=0.52 ; ystring=0.9
+ fi
+
+  # get files  gridT
+  t=${CONFCASE}_y${YEAR}_gridT.nc
+
+  # reset the list of plots that are produced ( list is updated in mkplt )
+  listplt=' '
+
+  # plot the corrective Hallberg flux (scaled by 86400 from kg/m2/S) and SSS Damping trends (PSU/day) (scaled by 86400 from PSU/s)
+  MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED3" ; CNTICE="" ; FORMAT='-format PALETTE I4'
+    for var in HsdFlx HsdTrd ; do
+      STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}_DEPTH=@CLR_DEPTH@"
+      filout=${CONFIG}_${var}_${YEAR}-${CASE}
+      if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
+         rapatrie $t    $MEANY $t
+         case $var in
+           HsdFlx) clrvar=sohsdflxc ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+           HsdTrd) clrvar=sohsdtrdc ; CLRDATA=" -clrdata $t -scale 345600."; min=-7 ; max=7  ; pas=2 ;
+         esac
+         CLRLIM="-clrmin $min -clrmax $max -clrmet 1"
+         gloplt  ; mkplt $filout
+      fi
+    done
+
+    # dispose to gaya all plots in the listplt
+    puttogaya  GLOBAL
+                         fi
+
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 5. Local details of the TS fields
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1905,7 +1949,7 @@ eof
   if [ $(chconf PERIANT) = 0 ] ; then  # EKE in the Atlantic
     var=EKEatl ; ZOOM='-zoom -100 20 -70 70' ; OPTIONS='-proj ME -xstep 15 -ystep 15'
     STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${DATE}_${CASE}_DEPTH=@CLR_DEPTH@ "
-    filout=${CONFIG}_${var}_${dep}_${DATE}-${CASE}
+    filout=${CONFIG}_${var}_${zdep}_${DATE}-${CASE}
 
 
     if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
@@ -1929,7 +1973,7 @@ eof
     esac
     OPTIONS='-proj ME -xstep 10 -ystep 5'
     STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${DATE}_${CASE}_DEPTH=@CLR_DEPTH@ "
-    filout=${CONFIG}_${var}_${dep}_${DATE}-${CASE}
+    filout=${CONFIG}_${var}_${zdep}_${DATE}-${CASE}
     XYPLOT='-xyplot 0.1 0.95 0.2 0.9'
     CLRXYPAL='-clrxypal 0.1 0.95 0.05 0.15'
     if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
