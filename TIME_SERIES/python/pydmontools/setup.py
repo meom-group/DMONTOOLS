@@ -30,7 +30,7 @@ setup(name='pydmontools',
       package_data={'pydmontools': ['data/*.nc']}
      )
 
-#- Set-up the default .pydmt/ if needed
+#- Set-up the default .dmontools/ if needed
 #
 _homedir = user.home
 _sep = os.sep
@@ -45,4 +45,7 @@ for cfgfilename in ['rc_monitor_compare.py']:
       print 'copy default ' + cfgfilename + ' to ~/.dmontools/'
       shutil.copy(os.curdir+os.sep+'cfg'+os.sep+cfgfilename,_dir_pydmt+os.sep+cfgfilename)
 
+for sectionlist in ['drakkar_sections_table.txt','drakkar_trpsig_table.txt']:
+   print 'copy ' + sectionlist + ' to ~/.dmontools/'
+   shutil.copy(os.curdir+os.sep+'../../../MONITOR_PROD'+os.sep+sectionlist,_dir_pydmt+os.sep+sectionlist)
 

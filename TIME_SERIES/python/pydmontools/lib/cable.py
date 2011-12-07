@@ -82,7 +82,18 @@ def _get_mtlnames(argdict=myargs):
 
 def _readnc(filenc=None,fileobs=None,argdict=myargs):
     # get the section names corresponding to the config
-    (truenames, shortnames, longnames, sens) = rs.define_sections(argdict)
+
+    if argdict.has_key('compared_configs'):
+       compare = True
+    else:
+       argdict['compared_configs'] = [ argdict['config'] ]
+       compare = False
+    # get the section names corresponding to the config
+    section_dict = rs.define_all_sections(argdict,compare)
+
+    truenames = section_dict.keys()
+    truenames.sort()
+
     # test on existence of florida bahamas section in list
     found = None
     for k in range(len(truenames)):
@@ -96,9 +107,15 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
     outdict['yearmodel'] = rs.get_years_intpart(filenc)
-    outdict['trpmodel']  = -1 * rs.readfilenc(filenc, 'vtrp_floba' )
-    outdict['yearobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
-    outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
+    try:
+       outdict['trpmodel']  = -1 * rs.readfilenc(filenc, 'vtrp_floba' )
+       outdict['yearobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
+       outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
+    except:
+       outdict['trpmodel']  = npy.zeros((len(outdict['yearmodel'])))
+       outdict['yearobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
+       outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
+
 
     return outdict # return the dictionnary of values 
 
@@ -106,7 +123,7 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
 def _readmtl(filemtl=None,fileobs=None,argdict=myargs):
     #
     # get the section names corresponding to the config
-    (truenames, shortnames, longnames, sens) = rs.define_sections(argdict)
+    (truenames, shortnames, longnames, sens) = rs.define_sections_old(argdict)
     nsection=len(truenames)
     #
     # getting the index of the section
@@ -144,9 +161,10 @@ def plot(argdict=myargs, figure=None,color='r',yearmodel=None,trpmodel=None,year
     #
     if figure is None :
         figure = plt.figure()
-    plt.plot(yearmodel,trpmodel,color + '.-',yearobs,trpobs,'b.-')
-    plt.axis([min(yearmodel),max(max(yearmodel),max(yearobs)),min(min(trpmodel),min(trpobs)), 
-              max(max(trpmodel),max(trpobs))])
+    if trpmodel.mean() != 0.:
+        plt.plot(yearmodel,trpmodel,color + '.-',yearobs,trpobs,'b.-')
+        plt.axis([min(yearmodel),max(max(yearmodel),max(yearobs)),min(min(trpmodel),min(trpobs)), 
+                  max(max(trpmodel),max(trpobs))])
     plt.grid(True)
     if not(compare) :
          plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Mass Transport - Obs (b)',fontsize='small')

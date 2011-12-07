@@ -20,7 +20,7 @@
 
 import pydmontools as pydmt 
 from pydmontools import CDF
-import sys,os
+import sys,os, user
 import numpy
 
 osp = os.sep
@@ -55,7 +55,112 @@ def get_years_intpart(file,offset=0):
     years = numpy.floor(years) + offset
     return years 
 
-def define_sections(argdict, file_section='drakkar_sections_table.txt'):
+def define_all_sections(argdict,compare,file_section='drakkar_sections_table.txt'):
+    #
+    if compare:
+        homedir = user.home
+        if os.path.isfile(homedir + '/.dmontools/' + file_section):
+           fid_section = open(homedir + '/.dmontools/' + file_section,'r')
+        else:
+           print '---------------------------------------------------------------------------------'
+           print 'Compare mode !'
+           print file_section , ' is not in your .dmontools directory, please update DMONTOOLS'
+           print 'aborting...'
+           print '---------------------------------------------------------------------------------'
+           sys.exit()
+    else:
+       if os.path.isfile(argdict['datadir'] + osp + file_section):
+           print file_section , ' taken from datadir'
+           fid_section = open(argdict['datadir'] + osp + file_section,'r')
+       elif os.path.isfile(file_section):
+           print file_section , ' taken from current dir'
+           fid_section = open(file_section,'r')
+       else:
+           print 'diag mode : ' , file_section , ' must be in your current directory'
+           print 'prod mode : ' , file_section , ' is not in your datadir'
+           sys.exit()
+    #
+    lines=[lines for lines in fid_section.readlines() if lines.find('#') != 0 ] # remove empty lines
+    fid_section.close()
+    tmp = []
+    for line in lines:
+        lst = line.split()
+        if len(lst) > 0:
+           tmp.append( lst[0] ) 
+
+    truenames = list(set(tmp))
+    #
+    sections_dict = {}
+    for section in truenames:
+        describing_line = [ line for line in lines if line.find(section) != -1 ][0]
+        elements = describing_line.split()
+        this_section_dict = {}
+        this_section_dict['truename']  = elements[0]
+        this_section_dict['shortname'] = elements[1]
+        this_section_dict['longname']  = elements[2]
+        if len(elements) == 4:
+           this_section_dict['sens']   = elements[3]
+        sections_dict[this_section_dict['truename']] = this_section_dict
+
+    return sections_dict
+
+
+def define_sections(argdict, compare, file_section='drakkar_sections_table.txt'):
+    if argdict['config'] == '':
+        print 'The script needs to know the config name in order to create its section list'
+        print 'diag mode -> use : script.py --config CONFIG' 
+        print 'prod mode -> check your environment variables'
+        sys.exit()
+    else:
+        pass
+    #
+    if compare:
+        homedir = user.home
+        if os.path.isfile(homedir + '/.dmontools/' + file_section):
+           fid_section = open(homedir + '/.dmontools/' + file_section,'r')
+        else:
+           print '---------------------------------------------------------------------------------'
+           print 'Compare mode !'
+           print file_section , ' is not in your .dmontools directory, please update DMONTOOLS'
+           print 'aborting...'
+           print '---------------------------------------------------------------------------------'
+           sys.exit()
+    else:
+       if os.path.isfile(argdict['datadir'] + osp + file_section):
+           print file_section , ' taken from datadir'
+           fid_section = open(argdict['datadir'] + osp + file_section,'r')
+       elif os.path.isfile(file_section):
+           print file_section , ' taken from current dir'
+           fid_section = open(file_section,'r')
+       else:
+           print 'diag mode : ' , file_section , ' must be in your current directory'
+           print 'prod mode : ' , file_section , ' is not in your datadir'
+           sys.exit()
+
+    #
+    lines=[lines for lines in fid_section.readlines() if lines.find('#') != 0 ] # remove empty lines
+    fid_section.close()
+    truenames = set([])
+    for config in argdict['compared_configs']:
+        tmp = set([line.split()[0] for line in lines if line.find(' ' + config + ' ') != -1 ])
+        truenames = truenames.union(tmp)
+    #
+    sections_dict = {}
+    for section in truenames:
+        describing_line = [ line for line in lines if line.find(section) != -1 ][0]
+        elements = describing_line.split()
+        this_section_dict = {}
+        this_section_dict['truename']  = elements[0]
+        this_section_dict['shortname'] = elements[1]
+        this_section_dict['longname']  = elements[2]
+        if len(elements) == 4:
+           this_section_dict['sens']   = elements[3]
+        sections_dict[this_section_dict['truename']] = this_section_dict
+
+    return sections_dict
+
+### for MTL - obsolete sooner or later
+def define_sections_old(argdict, file_section='drakkar_sections_table.txt'):
     if argdict['config'] == '':
         print 'The script needs to know the config name in order to create its section list'
         print 'diag mode -> use : script.py --config CONFIG' 
@@ -89,6 +194,7 @@ def define_sections(argdict, file_section='drakkar_sections_table.txt'):
     sens = numpy.array((sens),'i')
     return truenames, shortnames, longnames, sens
 
+### obsolete -- for MTL only
 def define_trpsig(argdict, file_section='drakkar_trpsig_table.txt'):
     if argdict['config'] == '':
         print 'The script needs to know the config name in order to create its section list'

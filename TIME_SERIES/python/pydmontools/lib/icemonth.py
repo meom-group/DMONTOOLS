@@ -153,10 +153,11 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         north = 1 ; south = 0
         print "icemonth.py : use custom values for NATL configs"
     else :
+        north = 1 ; south = 1 
         print "icemonth.py : Your config is not supported..."
         print "The monitoring will try to use default values from Global Configuration"
     #
-    nbzone = north + south
+    nbzone = 2
     nbplotline = 3
     fig_size = [float(nbplotline) * 6., float(nbzone) * 5.]
     if figure is None: # by default create a new figure
@@ -187,14 +188,14 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         plt.title('Ice extent (10**9 m**2)',fontsize='large')
         
     if south == 1 :  
-        plt.subplot(nbzone,nbplotline,north*nbplotline + 1)
+        plt.subplot(nbzone,nbplotline,4)
         plt.plot(year_model, SVolume, color)
         plt.grid(True)
         plt.axis([min(year_model), max(year_model), 0, 20000])
         plt.ylabel('Southern',fontsize='large')
         plt.title('Ice Volume (10**9 m**3)',fontsize='large')
 
-        plt.subplot(nbzone,nbplotline,north*nbplotline + 2)
+        plt.subplot(nbzone,nbplotline,5)
         plt.plot(year_model, SArea, color)
         plt.grid(True)
         plt.axis([min(year_model), max(year_model), 0, 20000])
@@ -203,7 +204,7 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         else:
             plt.title('Ice Area (10**9 m**2)',fontsize='large')
 
-        plt.subplot(nbzone,nbplotline,north*nbplotline + 3)
+        plt.subplot(nbzone,nbplotline,6)
         plt.plot(year_model, SExnsidc, color)
         plt.grid(True)
         plt.axis([min(year_model), max(year_model), 0, 20000])

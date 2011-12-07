@@ -170,13 +170,13 @@ def _readmtl(filemtl=None, fileobs=None, argdict=myargs):
 #=======================================================================
 # same than icemonth but for a particular month + data
 
-#def plot(argdict=myargs, figure=None, color='r', compare=False, month=None,**kwargs):
 def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     #
     month=3
     for key in kwargs:
         exec(key+'=kwargs[key]')
-    #
+   
+
     if argdict['config'].find('ORCA') != -1 :
         north = 1 ; south = 1
         print "icetrd.py : use default values (for global)"
@@ -187,10 +187,11 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         north = 1 ; south = 0
         print "icetrd.py : use custom values for NATL configs"
     else :
+        north = 1 ; south = 1
         print "icetrd.py : Your config is not supported..."
         print "The monitoring will try to use default values from Global Configuration"
     #
-    nbzone = north + south
+    nbzone = 2
     nbplotline = 3
     fig_size = [float(nbplotline) * 6., float(nbzone) * 5.]
     if figure is None: # by default create a new figure
@@ -263,13 +264,13 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         plt.title('Extent Arctic ' + listmonth[(month-1)%12]+' - Obs. (b)',fontsize='large')
     #
     if south == 1 :
-        plt.subplot(nbzone,nbplotline,north*nbplotline + 1)
+        plt.subplot(nbzone,nbplotline,4)
         plt.plot(year_model_6m, SVolume, color)
         plt.grid(True)
         plt.axis([min(year_model_6m), max(year_model_6m), 0, 20])
         plt.title('Volume Antarctic ' + listmonth[(month+6-1)%12],fontsize='large')
 
-        plt.subplot(nbzone,nbplotline,north*nbplotline + 2)
+        plt.subplot(nbzone,nbplotline,5)
         plt.plot(year_model_6m, SArea, color,year_obs_south, SOUTH_ICE_AREA, 'b.-')
         plt.grid(True)
         plt.axis([min(year_model_6m), max(year_model_6m),
@@ -279,7 +280,7 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         else :
             plt.title('Area Antarctic ' + listmonth[(month+6-1)%12]+' - Obs. (b)',fontsize='large')
 
-        plt.subplot(nbzone,nbplotline,north*nbplotline + 3)
+        plt.subplot(nbzone,nbplotline,6)
         plt.plot(year_model_6m, SExnsidc, color, year_obs_south, SOUTH_ICE_EXTENT, 'b.-')
         plt.grid(True)
         plt.axis([min(year_model_6m), max(year_model_6m),
@@ -314,7 +315,6 @@ def main():
    # read, plot and save   
    values = read(argdict=argdict,fromfile=infiles)
    # march
-#   fig = plot(argdict=argdict,month=3,**values)
    fig = plot(argdict=argdict,**values)
    if len(args)==0:
       save(argdict=argdict,figure=fig,suffix='icetrd')
