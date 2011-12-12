@@ -140,6 +140,48 @@ copy_nc_to_web() {
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/DATA ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/DATA ; fi "
           scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/DATA/$1 ;}
 
+# merge_files_into : merge diag files from monitor_prod (for timeseries)
+# usage : merge_files_into suffix_of_output_file list of suffix of input files 
+# exemple : merge_files_into DATA data1 data2 
+#           will merge create and merge timeseries from ${CONFCASE}_y????_data1.nc ${CONFCASE}_y????_data2.nc 
+#           and put it into ${CONFCASE}_DATA.nc
+merge_files_into() {
+
+        tofile=$1
+        shift
+        fromfiles=$@
+
+        echo ">>> Working on $tofile diags..."
+
+        domerge=0
+
+        for var in $fromfiles ; do
+
+            if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
+               cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
+               ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
+               # this is ugly but bulletproof 
+               fileout=${CONFCASE}_$tofile.nc
+               \cp ${CONFCASE}_${var}.nc $fileout
+               domerge=1
+            else
+               echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
+            fi
+
+        done
+
+        if [ $domerge == 1 ] ; then
+
+           for var in $fromfiles ; do
+               ncmerge $fileout ${CONFCASE}_${var}.nc
+               \rm -f ${CONFCASE}_${var}.nc
+           done
+
+           nc_correct_time_counter $FRSTYEAR $fileout
+           \mv $fileout $MONITOR/$fileout
+
+        fi ; }
+
 #####################################################################################
 ### This is where the real stuff begins                                           ###
 #####################################################################################
@@ -465,40 +507,10 @@ fi
 #------------------------------------------------------------------
 # TAO
 
-echo '>>> Working on TAO diags...'
-
-domerge=0
 list_vars="VELOCITY_0n110w    VELOCITY_0n140w    VELOCITY_0n156e    VELOCITY_0n165e    VELOCITY_0n170w  
            VELOCITY_0n110w_UC VELOCITY_0n140w_UC VELOCITY_0n156e_UC VELOCITY_0n165e_UC VELOCITY_0n170w_UC"
 
-for var in $list_vars ; do
-
-    if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
-       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
-       # this is ugly but bulletproof 
-       fileout=${CONFCASE}_TAO.nc
-       \cp ${CONFCASE}_${var}.nc $fileout
-       domerge=1
-    else
-       echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
-    fi
-
-done
-
-if [ $domerge == 1 ] ; then
-
-   for var in $list_vars ; do 
-       ncmerge $fileout ${CONFCASE}_${var}.nc 
-       \rm -f ${CONFCASE}_${var}.nc 
-   done
-
-   ncks -F -O -x -v sovitva $fileout $fileout
-   nc_correct_time_counter $FRSTYEAR $fileout
-   \mv $fileout $MONITOR/$fileout
-
-fi
-
+merge_files_into TAO $list_vars
 
 ### end of concat and merge of netcdf files
 #------------------------------------------------------------------
