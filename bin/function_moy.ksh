@@ -133,8 +133,7 @@ case $MACHINE in
              rm ${CONFCASE}_y????m${mm}_${typ}.nc
 
           done
-        done
-                    ; }
+        done ; }
 
     echo "functions for $MACHINE successfully loaded" ;;
 
