@@ -176,28 +176,28 @@
 17_AM_AFR                   PERIANT025               940 1226  398  398
 17_AM_AFR                   BIOPERIANT05             470  613  200  200
 #
-18_SOSAL                    sosal                   South_Solomon                1
+18_SOSAL                    sosal                   South_Solomon                         1
 18_SOSAL                    SOSMOD                    43  90  58  58
 #
-19_SOSAL2                   sosal2                  South_Solomon_2                1
+19_SOSAL2                   sosal2                  South_Solomon_2                       1
 19_SOSAL2                   SOSMOD                    42  82  60  62
 #
-20_VITIAZ                   vitiaz                  Vitiaz_Strait                1
+20_VITIAZ                   vitiaz                  Vitiaz_Strait                         1
 20_VITIAZ                   SOSMOD                   31  40  75  77
 #
-21_SALSTR                   salstr                  Solomon_Strait                1
+21_SALSTR                   salstr                  Solomon_Strait                        1
 21_SALSTR                   SOSMOD                    50  64  82 75
 #
-22_SOVIT2                   sovit2                  South_Vitiaz_2                1
+22_SOVIT2                   sovit2                  South_Vitiaz_2                        1
 22_SOVIT2                   SOSMOD                    28  48  74  74
 #
-23_SOVIT                    sovit                   South_Vitiaz                1
+23_SOVIT                    sovit                   South_Vitiaz                          1 
 23_SOVIT                    SOSMOD                    28  49  75  75
 #
-24_NBCU                     nbcu                    New_Britain_Coastal_Undecurrent        1
+24_NBCU                     nbcu                    New_Britain_Coastal_Undecurrent       1
 24_NBCU                     SOSMOD                    49 49 80 75
 #
-25_SICU                     sicu                    Sicu                1
+25_SICU                     sicu                    Sicu                                  1
 25_SICU                     SOSMOD                    64  81  75  75
 #
 26_NICU                     nicu                    New_Ireland_Coastal_Undercurrent      1
@@ -224,4 +224,52 @@
 31_Gibraltar                ORCA246                  140  140   99  103
 31_Gibraltar                NATL025                  370  370  237  241
 31_Gibraltar                NATL12                  1108 1108  710  722
+#
+32_DETROIT_TORES            tores                   Tores_Strait                          1
+32_DETROIT_TORES            SOSMOD12                  31   31  167  186
+#
+33_DETROIT_VITIAZ           vitiaz                  Vitiaz_Strait                         1
+33_DETROIT_VITIAZ           SOSMOD12                  91   96  222  228
+#
+34_DETROIT_DAMPIER          dampier                 Dampier_Strait                        1
+34_DETROIT_DAMPIER          SOSMOD12                  96  101  228  229
+#
+35_STGEORGES                stgeorg                 St_Georges_Channel                    1
+35_STGEORGES                SOSMOD12                 148  154  244  244
+#
+36_SOLOMONSTR               solostr                 Solomon_Strait                        1
+36_SOLOMONSTR               SOSMOD12                 156  176  243  236
+#
+37_INDISP                   indisp                  Indispensable_Strait                  1
+37_INDISP                   SOSMOD12                 249  256  178  174
+#
+38_SOLOSOUTH                solosouth               South_Entrance_Solomon_Sea            1
+38_SOLOSOUTH                SOSMOD12                 127  266  169  167
+#
+39_MILNE_BAY_S              milnebs                 Milne_Bay_South                       1
+39_MILNE_BAY_S              SOSMOD12                 127  132  173  176
+#
+40_MILNE_BAY_N              milnebn                 Milne_Bay_North                       1
+40_MILNE_BAY_N              SOSMOD12                 120  124  180  184
+#
+41_MILNE_BAY_NE             milnebne                Milne_Bay_North-East                  1
+41_MILNE_BAY_NE             SOSMOD12                 249  256  178  174
+#
+42_MILNE_BAY_E              milnebe                 Milne_Bay_East                        1
+42_MILNE_BAY_E              SOSMOD12                 131  131  179  181
+#
+43_SICU                     sicu                    Solomon_Island_Coastal_Undercurrent   1
+43_SICU                     SOSMOD12                 182  202  225  225    
+#
+44_NICU                     nicu                    New_Ireland_Coastal_Undercurrent      1
+44_NICU                     SOSMOD12                 156  202  247  247
+#
+45_NBCU                     nbcu                    New_Britain_Coastal_Undecurrent       1
+45_NBCU                     SOSMOD12                 146  146  217  233
+#
+46_SOVIT                    sovit                   South_Vitiaz                          1
+46_SOVIT                    SOSMOD12                  83  146  217  217
+#
+47_SICU_NICU                sicunicu                Sicu_Nicu                             1
+47_SICU_NICU                SOSMOD12                 202  202  225  247
 #

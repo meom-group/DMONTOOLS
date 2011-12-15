@@ -173,3 +173,52 @@
 #
 30_SOSALG2                  sosalg2                 South_Solomon_Global_2 
 30_SOSALG2                  SOSMOD                    11  105  58  58
+#
+31_DETROIT_TORES            tores                   Tores_Strait                          1
+31_DETROIT_TORES            SOSMOD12                  31   31  167  186
+#
+32_DETROIT_VITIAZ           vitiaz                  Vitiaz_Strait                         1
+32_DETROIT_VITIAZ           SOSMOD12                  91   96  222  228
+#
+33_DETROIT_DAMPIER          dampier                 Dampier_Strait                        1
+33_DETROIT_DAMPIER          SOSMOD12                  96  101  228  229
+#
+34_STGEORGES                stgeorg                 St_Georges_Channel                    1
+34_STGEORGES                SOSMOD12                 148  154  244  244
+#
+35_SOLOMONSTR               solostr                 Solomon_Strait                        1
+35_SOLOMONSTR               SOSMOD12                 156  176  243  236
+#
+36_INDISP                   indisp                  Indispensable_Strait                  1
+36_INDISP                   SOSMOD12                 249  256  178  174
+#
+37_SOLOSOUTH                solosouth               South_Entrance_Solomon_Sea            1
+37_SOLOSOUTH                SOSMOD12                 127  266  169  167
+#
+38_MILNE_BAY_S              milnebs                 Milne_Bay_South                       1
+38_MILNE_BAY_S              SOSMOD12                 127  132  173  176
+#
+39_MILNE_BAY_N              milnebn                 Milne_Bay_North                       1
+39_MILNE_BAY_N              SOSMOD12                 120  124  180  184
+#
+40_MILNE_BAY_NE             milnebne                Milne_Bay_North-East                  1
+40_MILNE_BAY_NE             SOSMOD12                 249  256  178  174
+#
+41_MILNE_BAY_E              milnebe                 Milne_Bay_East                        1
+41_MILNE_BAY_E              SOSMOD12                 131  131  179  181
+#
+42_SICU                     sicu                    Solomon_Island_Coastal_Undercurrent   1
+42_SICU                     SOSMOD12                 182  202  225  225
+#
+43_NICU                     nicu                    New_Ireland_Coastal_Undercurrent      1
+43_NICU                     SOSMOD12                 156  202  247  247
+#
+44_NBCU                     nbcu                    New_Britain_Coastal_Undecurrent       1
+44_NBCU                     SOSMOD12                 146  146  217  233
+#
+45_SOVIT                    sovit                   South_Vitiaz                          1
+45_SOVIT                    SOSMOD12                  83  146  217  217
+#
+46_SICU_NICU                sicunicu                Sicu_Nicu                             1
+46_SICU_NICU                SOSMOD12                 202  202  225  247
+#
