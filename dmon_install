@@ -199,6 +199,7 @@ if [ $1 == '-i' ] ; then
       edit_rc "export PYDMON_SRCDIR=$PYDMON_SRCDIR  "
       edit_rc 'export PATH=$PATH:$PYDMON_BINDIR     '
       edit_rc 'export PYTHONPATH=$PYTHONPATH:$PYDMON_LIBDIR'
+      edit_rc 'export PYTHONPATH=$PYTHONPATH:.dmontools'
       edit_rc ''
       edit_rc '## function for reinstall python stuff '
       edit_rc 'reinstall_pydmon() { cd $PYDMON_SRCDIR ; python setup.py install --install-lib=$PYDMON_LIBDIR --install-scripts=$PYDMON_BINDIR ; cd - ; }'
