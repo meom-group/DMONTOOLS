@@ -114,8 +114,9 @@ while not(found_an_interface):
    try:
      exec('import ' + interface + ' as CDF')
      found_an_interface = True
+     print "Interface "+ interface  + " was found "
    except:
-     print "Interface "+ interface  + " is not available on this plateform"
+     print "Warning : Interface "+ interface  + " is not available on this plateform"
      _possible_netcdf_interfaces.remove(interface)
      
 # unfortunately the syntax is slightly different for pupynere,
