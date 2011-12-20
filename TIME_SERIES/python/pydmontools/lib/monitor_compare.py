@@ -40,7 +40,7 @@ def comment(mycomment):
 def datadir(config=None,case=None):
     """Return the data directory for (config, case)
     """
-    return rc.datadir + config + _osp + config + '-' + case + '-' +  'MONITOR' + _osp
+    return rc.datadir + _osp + config + _osp + config + '-' + case + '-' +  'MONITOR' + _osp
 
 #def datameandir(config=None,case=None):
 #    """Return the data MEAN directory for (config, case)

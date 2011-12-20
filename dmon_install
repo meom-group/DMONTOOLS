@@ -19,6 +19,29 @@ chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi ; }
 
 install_pydmon() { cd $PYDMON_SRCDIR ; python setup.py install --install-lib=$PYDMON_LIBDIR --install-scripts=$PYDMON_BINDIR ; cd - ; }
 
+fill_rc() {
+
+create_rc ''
+edit_rc '#######################################################'
+edit_rc '### DMONTOOLS Ressources Configuration'
+edit_rc '#######################################################'
+edit_rc ''
+edit_rc '## set path for mkmeans and mkmonitor'
+edit_rc "export DMON_ROOTDIR=$DMON_ROOTDIR    "
+edit_rc 'export PATH=$PATH:$DMON_ROOTDIR/bin  '
+edit_rc ''
+edit_rc '## set path for python stuff         '
+edit_rc "export PYDMON_BINDIR=$PYDMON_BINDIR  "
+edit_rc "export PYDMON_LIBDIR=$PYDMON_LIBDIR  "
+edit_rc "export PYDMON_SRCDIR=$PYDMON_SRCDIR  "
+edit_rc "export PYDMON_DATADIR=$PYDMON_SRCDIR/data/NC  "
+edit_rc 'export PATH=$PATH:$PYDMON_BINDIR     '
+edit_rc 'export PYTHONPATH=$PYTHONPATH:$PYDMON_LIBDIR'
+edit_rc 'export PYTHONPATH=$PYTHONPATH:$HOME/.dmontools'
+edit_rc ''
+edit_rc '## function for reinstall python stuff '
+edit_rc 'reinstall_pydmon() { cd $PYDMON_SRCDIR ; python setup.py install --install-lib=$PYDMON_LIBDIR --install-scripts=$PYDMON_BINDIR ; cd - ; }' ; }
+
 #############################################################
 ### choose install or uninstall
 
@@ -184,25 +207,7 @@ if [ $1 == '-i' ] ; then
       edit_env ' fi                                                     # DMON_STUFF_DO_NOT_ERASE'
       edit_env ''
 
-      create_rc ''
-      edit_rc '#######################################################'
-      edit_rc '### DMONTOOLS Ressources Configuration'
-      edit_rc '#######################################################'
-      edit_rc ''
-      edit_rc '## set path for mkmeans and mkmonitor'
-      edit_rc "export DMON_ROOTDIR=$DMON_ROOTDIR    "
-      edit_rc 'export PATH=$PATH:$DMON_ROOTDIR/bin  '
-      edit_rc ''
-      edit_rc '## set path for python stuff         '
-      edit_rc "export PYDMON_BINDIR=$PYDMON_BINDIR  "
-      edit_rc "export PYDMON_LIBDIR=$PYDMON_LIBDIR  "
-      edit_rc "export PYDMON_SRCDIR=$PYDMON_SRCDIR  "
-      edit_rc 'export PATH=$PATH:$PYDMON_BINDIR     '
-      edit_rc 'export PYTHONPATH=$PYTHONPATH:$PYDMON_LIBDIR'
-      edit_rc 'export PYTHONPATH=$PYTHONPATH:.dmontools'
-      edit_rc ''
-      edit_rc '## function for reinstall python stuff '
-      edit_rc 'reinstall_pydmon() { cd $PYDMON_SRCDIR ; python setup.py install --install-lib=$PYDMON_LIBDIR --install-scripts=$PYDMON_BINDIR ; cd - ; }'
+      fill_rc
 
       echo '>> installation completed !!! '
       echo '>> start a new terminal to update paths,...'
@@ -286,12 +291,17 @@ elif [ $1 == '-r' ] ; then
 
 elif [ $1 == '-u' ] ; then
 
-   if [ ! -d $HOME/.dmontools ] ; then
-      echo 'DMONTOOLS is not installed... cannot update'
-   fi
+     rcdir=$HOME/.dmontools
+     rcfile=$rcdir/dmontoolsrc
 
-    svn update
-    install_pydmon
+     if [ ! -d $rcdir ] ; then
+        echo 'DMONTOOLS is not installed... cannot update'
+     fi
+
+     svn update
+     install_pydmon
+
+     fill_rc
 
 #############################################################
 ####################### ERROR MODE ##########################
