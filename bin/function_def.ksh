@@ -32,9 +32,9 @@ rapatrie() { ln -sf $WORKDIR/$2/$1 $3 ; }
 
 # RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2 
 #               directory $2 is normally on the Storage machine
-rapatrie_5d() { for f  in $WORKDIR/$2/*_$1.nc    ; do
+rapatrie_5d() { for f  in $WORKDIR/$2/${CONFCASE}_$3*_$1.nc    ; do
                  file=`basename $f`
-                 ln -sf $WORKDIR/$2/$file . 
+                 ln -sf $WORKDIR/$2/$file .
                 done  ; }
 
 # EXPATRIE : put file $1 to directory $2 with name $3
@@ -72,9 +72,9 @@ rapatrie() { ln -sf $SDIR/$2/$1 $3 ; }
 
 # RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2 
 #               directory $2 is normally on the Storage machine
-rapatrie_5d() { for f  in $SDIR/$2/*_$1.nc    ; do
+rapatrie_5d() { for f  in $SDIR/$2/${CONFCASE}_$3*_$1.nc    ; do
                  file=`basename $f`
-                 ln -sf $SDIR/$2/$file . 
+                 ln -sf $SDIR/$2/$file .
                 done  ; }
 
 # EXPATRIE : put file $1 to directory $2 with name $3
@@ -107,9 +107,9 @@ rapatrie() { if [ ! -f $3 ] ; then mfget -u $REMOTE_USER $2/$1 $3 ; else echo $3
 
 # RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2 
 #               directory $2 is normally on the Storage machine
-rapatrie_5d() { for f  in $SDIR/$2/*_$1.nc    ; do
+rapatrie_5d() { for f  in $SDIR/$2/${CONFCASE}_$3*_$1.nc    ; do
                  file=`basename $f`
-                 ln -sf $SDIR/$2/$file . 
+                 ln -sf $SDIR/$2/$file .
                 done  ; }
 
 # EXPATRIE : put file $1 to directory $2 with name $3
@@ -142,7 +142,7 @@ rapatrie() { if [ ! -f $3 ] ; then mfget -u $REMOTE_USER $2/$1 $3 ; else echo $3
 
 # RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2 
 #               directory $2 is normally on the Storage machine
-rapatrie_5d() { for f  in $( rsh gaya -l $REMOTE_USER ls $2/*_$1.nc ) ; do
+rapatrie_5d() { for f  in $( rsh gaya -l $REMOTE_USER ls $2/${CONFCASE}_$3*_$1.nc ) ; do
                  file=`basename $f`
                  mfget -u $REMOTE_USER $2/$file .
                 done  ; }
