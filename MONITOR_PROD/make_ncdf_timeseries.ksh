@@ -102,14 +102,14 @@ ncmerge() { listdata1=`ncdump -h $1 | grep float | sed -e "s/(/ /g" | awk '{prin
 #           drakkar_sections_table.txt and change the long names 
 # usage :   rename_trp section file
 #
-rename_trp() { suffix=` grep $1 drakkar_sections_table.txt | head -1 | awk '{ print $2}' ` ;
-               longname=` grep $1 drakkar_sections_table.txt | head -1 | awk '{ print $3}' ` ;
-               ncrename -v vtrp,vtrp_$suffix $2 ;
-               ncrename -v htrp,htrp_$suffix $2 ;
-               ncrename -v strp,strp_$suffix $2 ;
-               ncatted  -a long_name,vtrp_$suffix,o,c,${longname}_mass_transport $2 ;
-               ncatted  -a long_name,htrp_$suffix,o,c,${longname}_heat_transport $2 ;
-               ncatted  -a long_name,strp_$suffix,o,c,${longname}_salt_transport $2 ; }
+rename_trp() { suffix=$( grep $1 drakkar_sections_table.txt | head -1 | awk '{ print $2}' ) ;
+               longname=$( grep $1 drakkar_sections_table.txt | head -1 | awk '{ print $3}' ) ;
+               ncrename -v vtrp,vtrp_$suffix \
+                        -v htrp,htrp_$suffix \
+                        -v strp,strp_$suffix $2 -o $3 ;
+               ncatted  -a long_name,vtrp_$suffix,o,c,${longname}_mass_transport \
+                        -a long_name,htrp_$suffix,o,c,${longname}_heat_transport \
+                        -a long_name,strp_$suffix,o,c,${longname}_salt_transport $3 ; }
 
 # rename_trpsig : rename the variables vtrp, htrp and strp adding a suffix found in
 #           drakkar_sections_table.txt and change the long names 
@@ -117,8 +117,8 @@ rename_trp() { suffix=` grep $1 drakkar_sections_table.txt | head -1 | awk '{ pr
 #
 rename_trpsig() { suffix=` grep $1 drakkar_trpsig_table.txt | head -1 | awk '{ print $2}' ` ;
                   longname=` grep $1 drakkar_trpsig_table.txt | head -1 | awk '{ print $3}' ` ;
-                  ncrename -v sigtrp,sigtrp_$suffix $2 ;
-                  ncatted  -a long_name,sigtrp_$suffix,o,c,${longname} $2 ; }
+                  ncrename -v sigtrp,sigtrp_$suffix $2 -o $3 ;
+                  ncatted  -a long_name,sigtrp_$suffix,o,c,${longname} $3 ; }
 
 # list_transports : make a list of transports based on drakkar_sections_table.txt
 list_transports() { grep '[0-9][0-9]_' drakkar_sections_table.txt | awk '{print $1}' | cat > temp_listsections.txt ;
@@ -140,6 +140,48 @@ copy_nc_to_web() {
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/DATA ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/DATA ; fi "
           scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/DATA/$1 ;}
 
+# merge_files_into : merge diag files from monitor_prod (for timeseries)
+# usage : merge_files_into suffix_of_output_file list of suffix of input files 
+# exemple : merge_files_into DATA data1 data2 
+#           will merge create and merge timeseries from ${CONFCASE}_y????_data1.nc ${CONFCASE}_y????_data2.nc 
+#           and put it into ${CONFCASE}_DATA.nc
+merge_files_into() {
+
+        tofile=$1
+        shift
+        fromfiles=$@
+
+        echo ">>> Working on $tofile diags..."
+
+        domerge=0
+
+        for var in $fromfiles ; do
+
+            if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
+               cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
+               ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
+               # this is ugly but bulletproof 
+               fileout=${CONFCASE}_$tofile.nc
+               \cp ${CONFCASE}_${var}.nc $fileout
+               domerge=1
+            else
+               echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
+            fi
+
+        done
+
+        if [ $domerge == 1 ] ; then
+
+           for var in $fromfiles ; do
+               ncmerge $fileout ${CONFCASE}_${var}.nc
+               \rm -f ${CONFCASE}_${var}.nc
+           done
+
+           nc_correct_time_counter $FRSTYEAR $fileout
+           \mv $fileout $MONITOR/$fileout
+
+        fi ; }
+
 #####################################################################################
 ### This is where the real stuff begins                                           ###
 #####################################################################################
@@ -153,124 +195,104 @@ cp drakkar_trpsig_table.txt   $MONITOR
 #------------------------------------------------------------------
 # MOC
 
-echo '>>> Working on MOC diags...'
+list_vars="Atl_maxmoc40N Atl_maxmoc Atl_maxmoc30S Atl_minmoc Aus_maxmoc Aus_maxmoc50S 
+           Aus_minmoc Glo_maxmoc40N Glo_maxmoc Glo_maxmoc30S Glo_maxmoc15S Glo_minmoc 
+           Inp_minmoc2 Inp_minmoc30S Inp_minmoc"
 
-domerge=0
+## RD: this is an ugly patch to ensure retrocompatibility
+## but this kind of thing should be avoided for new diags
+## netcdf variable names should be properly set after the monitor_prod.ksh step
 
-for var in Atl_maxmoc40N Atl_maxmoc Atl_maxmoc30S Atl_minmoc Aus_maxmoc Aus_maxmoc50S \
-           Aus_minmoc Glo_maxmoc40N Glo_maxmoc Glo_maxmoc30S Glo_maxmoc15S Glo_minmoc \
-           Inp_minmoc2 Inp_minmoc30S Inp_minmoc ; do 
+#build temporary files with renamed netcdf variables
+for var in $list_vars ; do
 
-    if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
-       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc   # concatenation
-       nc_correct_time_counter $FRSTYEAR ${CONFCASE}_${var}.nc                      # time counter in years
-       ncrename -v maxmoc,maxmoc_${var}           ${CONFCASE}_${var}.nc             # rename fields
-       ncrename -v minmoc,minmoc_${var}           ${CONFCASE}_${var}.nc
-       ncrename -v latmaxmoc,latmaxmoc_${var}     ${CONFCASE}_${var}.nc
-       ncrename -v latminmoc,latminmoc_${var}     ${CONFCASE}_${var}.nc
-       ncrename -v depthmaxmoc,depthmaxmoc_${var} ${CONFCASE}_${var}.nc
-       ncrename -v depthminmoc,depthminmoc_${var} ${CONFCASE}_${var}.nc
-       # this is ugly but bulletproof : define the final file
-       fileout=${CONFCASE}_MOC.nc
-       \cp ${CONFCASE}_${var}.nc $fileout
-       domerge=1      # means there is something to work with
-    else
-       echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
-    fi
+    #find list of tag
+    tags=$( ls $DIAGS | grep ${var}.nc | sed -e "s/_/ /g" | awk '{ print $2 }' )
+
+    for tag in $tags ; do
+
+      if [ -f $DIAGS/${CONFCASE}_${tag}_${var}.nc ] ; then
+         cd $DIAGS
+         ncrename -v maxmoc,maxmoc_${var} \
+                  -v minmoc,minmoc_${var} \
+                  -v latmaxmoc,latmaxmoc_${var} \
+                  -v latminmoc,latminmoc_${var} \
+                  -v depthmaxmoc,depthmaxmoc_${var} \
+                  -v depthminmoc,depthminmoc_${var} ${CONFCASE}_${tag}_${var}.nc -o ${CONFCASE}_${tag}_${var}_renamed.nc
+      else
+         echo "*** sorry ${CONFCASE}_${tag}_${var}.nc does not exist ***"
+      fi
+
+   done
+
+done
+
+list_vars_renamed=''
+for var in $list_vars ; do
+
+    list_vars_renamed="$list_vars_renamed ${var}_renamed"
 
 done
 
-### merging :
-if [ $domerge == 1 ] ; then
-for var in Atl_maxmoc40N Atl_maxmoc Atl_maxmoc30S Atl_minmoc Aus_maxmoc Aus_maxmoc50S \
-           Aus_minmoc Glo_maxmoc40N Glo_maxmoc Glo_maxmoc30S Glo_maxmoc15S Glo_minmoc \
-           Inp_minmoc2 Inp_minmoc30S Inp_minmoc ; do
+## end of ugly patch
 
-    if [ -f $DIAGS/${CONFCASE}_${var}.nc ] ; then
-       ncmerge $fileout ${CONFCASE}_${var}.nc
-       \rm -f ${CONFCASE}_${var}.nc
-    fi
+merge_files_into MOC $list_vars_renamed
 
-done
-fi
-
-\mv ${CONFCASE}_MOC.nc $MONITOR/${CONFCASE}_MOC.nc
+# clean the mess up
+\rm -f $DIAGS/${CONFCASE}_*_renamed.nc
 
 #------------------------------------------------------------------
 # EL NINO
 
-echo '>>> Working on EL NINO diags...'
+list_vars="NINO12 NINO34 NINO3 NINO4"
 
-domerge=0
+## RD: this is an ugly patch to ensure retrocompatibility
+## but this kind of thing should be avoided for new diags
+## netcdf variable names should be properly set after the monitor_prod.ksh step
 
-for var in NINO12 NINO34 NINO3 NINO4 ; do
+#build temporary files with renamed netcdf variables
+for var in $list_vars ; do
 
-    if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
-       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
-       nc_correct_time_counter $FRSTYEAR ${CONFCASE}_${var}.nc
-       ncrename -v mean_votemper,votemper_$var ${CONFCASE}_${var}.nc
-       domerge=1
-    else
-       echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
-    fi
+    #find list of tag
+    tags=$( ls $DIAGS | grep ${var}.nc | sed -e "s/_/ /g" | awk '{ print $2 }' )
+
+    for tag in $tags ; do
+
+      if [ -f $DIAGS/${CONFCASE}_${tag}_${var}.nc ] ; then
+         cd $DIAGS
+         ncrename -v mean_votemper,votemper_$var \
+                     ${CONFCASE}_${tag}_${var}.nc -o ${CONFCASE}_${tag}_${var}_renamed.nc
+      else
+         echo "*** sorry ${CONFCASE}_${tag}_${var}.nc does not exist ***"
+      fi
+
+   done
 
 done
 
-if [ $domerge == 1 ] ; then
+list_vars_renamed=''
+for var in $list_vars ; do
 
-fileout=${CONFCASE}_NINO.nc
-file_nino12=${CONFCASE}_NINO12.nc
-file_nino34=${CONFCASE}_NINO34.nc
-file_nino3=${CONFCASE}_NINO3.nc
-file_nino4=${CONFCASE}_NINO4.nc
+    list_vars_renamed="$list_vars_renamed ${var}_renamed"
 
-\cp $file_nino12 $fileout
-ncmerge $fileout $file_nino12
-ncmerge $fileout $file_nino34
-ncmerge $fileout $file_nino3
-ncmerge $fileout $file_nino4
-\mv $fileout $MONITOR/$fileout
-\rm -f $file_nino12 $file_nino34 $file_nino3 $file_nino4
+done
 
-fi
+## end of ugly patch
+
+merge_files_into NINO $list_vars_renamed
+
+# clean the mess up
+\rm -f $DIAGS/${CONFCASE}_*_renamed.nc
 
 #------------------------------------------------------------------
 # TEMPERATURE AND SALINITY MEANS
 #
 
-echo '>>> Working on TSMEAN diags...'
+list_vars="TMEAN SMEAN SSHMEAN"
 
-domerge=0
+merge_files_into TSMEAN $list_vars
 
-for var in SMEAN SSHMEAN TMEAN ; do
-
-    if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
-       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
-       domerge=1
-    else
-       echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
-    fi
-
-done
-
-if [ $domerge == 1 ] ; then
-
-filet=${CONFCASE}_TMEAN.nc
-files=${CONFCASE}_SMEAN.nc
-filessh=${CONFCASE}_SSHMEAN.nc
-fileout=${CONFCASE}_TSMEAN.nc
-
-\cp $filet $fileout
-ncmerge $fileout $files
-ncmerge $fileout $filessh
-
-nc_correct_time_counter $FRSTYEAR $fileout
-\mv $fileout $MONITOR/$fileout
-\rm -f $filet $files $filessh
-
+# some more stuff needed for Levitus
 filelevt=LEVITUS_y0000_TMEAN.nc
 filelevs=LEVITUS_y0000_SMEAN.nc
 fileout=LEVITUS_y0000_TSMEAN.nc
@@ -280,40 +302,14 @@ ncmerge $fileout $filelevs
 
 mv $fileout $MONITOR/$fileout
 
-fi
-
 #------------------------------------------------------------------
 # GIBRALTAR
 
-echo '>>> Working on GIB diags...'
+list_vars="SGIB TGIB"
 
-domerge=0
+merge_files_into TSGIB $list_vars
 
-for var in SGIB TGIB ; do
-
-    if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
-       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
-       domerge=1
-    else
-       echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
-    fi
-
-done
-
-if [ $domerge == 1 ] ; then
-
-filet=${CONFCASE}_TGIB.nc
-files=${CONFCASE}_SGIB.nc
-fileout=${CONFCASE}_TSGIB.nc
-
-\cp $filet $fileout
-ncmerge $fileout $files
-
-nc_correct_time_counter $FRSTYEAR $fileout
-\mv $fileout $MONITOR/$fileout
-\rm -f $filet $files 
-
+# some more stuff needed for Levitus
 filelevt=LEVITUS_y0000_TGIB.nc
 filelevs=LEVITUS_y0000_SGIB.nc
 fileout=LEVITUS_y0000_TSGIB.nc
@@ -323,182 +319,111 @@ ncmerge $fileout $filelevs
 
 \mv $fileout $MONITOR/$fileout
 
-fi
-
 #------------------------------------------------------------------
 # HEAT FLUXES AND TRANSPORT
 
-echo '>>> Working on HEAT diags...'
+list_vars="mhst hflx"
 
-domerge=0
-
-for var in mhst hflx ; do
-
-    if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
-       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
-       domerge=1
-    else
-       echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
-    fi
-
-done
-
-if [ $domerge == 1 ] ; then
-
-filemhst=${CONFCASE}_mhst.nc
-fileflx=${CONFCASE}_hflx.nc
-fileout=${CONFCASE}_HEAT.nc
-
-\cp $filemhst $fileout
-ncmerge $fileout $fileflx
-
-nc_correct_time_counter $FRSTYEAR $fileout
-\mv $fileout $MONITOR/$fileout
-\rm -f $filemhst $fileflx 
-
-fi
+merge_files_into HEAT $list_vars
 
 #------------------------------------------------------------------
 # TRANSPORTS ALONG SECTIONS
 
-echo '>>> Working on TRANSPORTS diags...'
+list_vars=$( list_transports )
 
-domerge=0
+## RD: this is an ugly patch to ensure retrocompatibility
+## but this kind of thing should be avoided for new diags
+## netcdf variable names should be properly set after the monitor_prod.ksh step
 
-for var in `list_transports` ; do
+#build temporary files with renamed netcdf variables
+for var in $list_vars ; do
 
-    if [ -f $DIAGS/${CONFCASE}_y????_${var}_transports.nc ] ; then
-       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}_transports.nc
-       ncrcat -O ${CONFCASE}_y????_${var}_transports.nc -o ${CONFCASE}_${var}_transports.nc
-       rename_trp $var ${CONFCASE}_${var}_transports.nc
-       # this is ugly but bulletproof 
-       fileout=${CONFCASE}_TRANSPORTS.nc
-       \cp ${CONFCASE}_${var}_transports.nc $fileout
-       domerge=1
-    else
-       echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
-    fi
+    #find list of tag
+    tags=$( ls $DIAGS | grep ${var}_transports.nc | sed -e "s/_/ /g" | awk '{ print $2 }' )
+
+    for tag in $tags ; do
+
+      if [ -f $DIAGS/${CONFCASE}_${tag}_${var}_transports.nc ] ; then
+         cd $DIAGS
+         rename_trp $var ${CONFCASE}_${tag}_${var}_transports.nc ${CONFCASE}_${tag}_${var}_renamed_transports.nc
+      else
+         echo "*** sorry ${CONFCASE}_${tag}_${var}_transports.nc does not exist ***"
+      fi
+
+   done
 
 done
 
-if [ $domerge == 1 ] ; then
+list_vars_renamed=''
+for var in $list_vars ; do
 
-   for var in `list_transports` ; do 
-       ncmerge $fileout ${CONFCASE}_${var}_transports.nc 
-       \rm -f ${CONFCASE}_${var}_transports.nc 
-   done
+    list_vars_renamed="$list_vars_renamed ${var}_renamed_transports"
 
-   nc_correct_time_counter $FRSTYEAR $fileout
-   \mv $fileout $MONITOR/$fileout
+done
 
-fi
+## end of ugly patch
+
+merge_files_into TRANSPORTS $list_vars_renamed
+
+# clean the mess up
+\rm -f $DIAGS/${CONFCASE}_*_renamed_transports.nc
 
 #------------------------------------------------------------------
 # ICE
 
-echo '>>> Working on ICE diags...'
+list_vars="icemonth"
 
-domerge=0
-
-for var in icemonth ; do
-
-    if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
-       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
-       domerge=1
-    else
-       echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
-    fi
-
-done
-
-if [ $domerge == 1 ] ; then
-
-fileicemonth=${CONFCASE}_icemonth.nc
-fileout=${CONFCASE}_ICEMONTH.nc
-\cp $fileicemonth $fileout
-
-nc_correct_time_counter $FRSTYEAR $fileout
-\mv $fileout $MONITOR/$fileout
-\rm -f $fileicemonth  
-
-fi
+merge_files_into ICEMONTH $list_vars
 
 #------------------------------------------------------------------
 # TRANSPORTS IN SIGMA CLASSES
 
-echo '>>> Working on TRPSIG diags...'
+list_vars=$( list_trpsig )
 
-domerge=0
-mylist_trpsig=''
+## RD: this is an ugly patch to ensure retrocompatibility
+## but this kind of thing should be avoided for new diags
+## netcdf variable names should be properly set after the monitor_prod.ksh step
 
-for var in `list_trpsig` ; do
+#build temporary files with renamed netcdf variables
+for var in $list_vars ; do
 
-    if [ -f $DIAGS/${CONFCASE}_y????_${var}_trpsig.nc ] ; then
-       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}_trpsig.nc
-       ncrcat -O ${CONFCASE}_y????_${var}_trpsig.nc -o ${CONFCASE}_${var}_trpsig.nc
-       rename_trpsig $var ${CONFCASE}_${var}_trpsig.nc
-       # this is ugly but bulletproof 
-       fileout=${CONFCASE}_TRPSIG.nc
-       \cp ${CONFCASE}_${var}_trpsig.nc $fileout
-       domerge=1
-       mylist_trpsig="$mylist_trpsig $var"
-    else
-       echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
-    fi
+    #find list of tag
+    tags=$( ls $DIAGS | grep ${var}_trpsig.nc | sed -e "s/_/ /g" | awk '{ print $2 }' )
+
+    for tag in $tags ; do
+
+      if [ -f $DIAGS/${CONFCASE}_${tag}_${var}_trpsig.nc ] ; then
+         cd $DIAGS
+         rename_trpsig $var ${CONFCASE}_${tag}_${var}_trpsig.nc ${CONFCASE}_${tag}_${var}_renamed_trpsig.nc
+      else
+         echo "*** sorry ${CONFCASE}_${tag}_${var}_trpsig.nc does not exist ***"
+      fi
+
+   done
 
 done
 
-if [ $domerge == 1 ] ; then
+list_vars_renamed=''
+for var in $list_vars ; do
 
-   for var in $mylist_trpsig ; do 
-       ncmerge $fileout ${CONFCASE}_${var}_trpsig.nc 
-       \rm -f ${CONFCASE}_${var}_trpsig.nc
-   done
+    list_vars_renamed="$list_vars_renamed ${var}_renamed_trpsig"
 
-   nc_correct_time_counter $FRSTYEAR $fileout
-   \mv $fileout $MONITOR/$fileout
+done
 
-fi
+## end of ugly patch
+
+merge_files_into TRPSIG $list_vars_renamed
+
+# clean the mess up
+\rm -f $DIAGS/${CONFCASE}_*_renamed_trpsig.nc
 
 #------------------------------------------------------------------
 # TAO
 
-echo '>>> Working on TAO diags...'
-
-domerge=0
 list_vars="VELOCITY_0n110w    VELOCITY_0n140w    VELOCITY_0n156e    VELOCITY_0n165e    VELOCITY_0n170w  
            VELOCITY_0n110w_UC VELOCITY_0n140w_UC VELOCITY_0n156e_UC VELOCITY_0n165e_UC VELOCITY_0n170w_UC"
 
-for var in $list_vars ; do
-
-    if [ -f $DIAGS/${CONFCASE}_y????_${var}.nc ] ; then
-       cd $DIAGS ; nc_rm_missval ${CONFCASE}_y????_${var}.nc
-       ncrcat -O ${CONFCASE}_y????_${var}.nc -o ${CONFCASE}_${var}.nc
-       # this is ugly but bulletproof 
-       fileout=${CONFCASE}_TAO.nc
-       \cp ${CONFCASE}_${var}.nc $fileout
-       domerge=1
-    else
-       echo "*** sorry ${CONFCASE}_y????_${var}.nc does not exist ***"
-    fi
-
-done
-
-if [ $domerge == 1 ] ; then
-
-   for var in $list_vars ; do 
-       ncmerge $fileout ${CONFCASE}_${var}.nc 
-       \rm -f ${CONFCASE}_${var}.nc 
-   done
-
-   ncks -F -O -x -v sovitva $fileout $fileout
-   nc_correct_time_counter $FRSTYEAR $fileout
-   \mv $fileout $MONITOR/$fileout
-
-fi
-
+merge_files_into TAO $list_vars
 
 ### end of concat and merge of netcdf files
 #------------------------------------------------------------------
