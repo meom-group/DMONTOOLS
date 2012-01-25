@@ -137,7 +137,7 @@ def _get_ncname(argdict=myargs):
 ### This function reads the netcdf files and return a dictionnary
 ### containing all the arrays needed by the plot function
  
-def _readnc(filenc=None,levitus=None):
+def _readnc(filemodel=None,fileobs=None):
     """Read the netcdf files and return a dictionnary of output. 
 
     Remark
@@ -161,7 +161,7 @@ def _readnc(filenc=None,levitus=None):
 ### This is the plot which actually does the plot from the
 ### outdic dictionnary returned by the read() function
 
-def plot(figure=None,color='r',compare=False,**kwargs):
+def plot(argdict,figure=None,color='r',compare=False,**kwargs):
     """Plot the data and return a pylab.figure object.
 
     Parameters
@@ -238,7 +238,7 @@ def main():
    infiles = args                # default value is an empty list
    # read, plot and save   
    values = read(argdict=argdict,fromfiles=infiles)
-   fig = plot(**values)
+   fig = plot(argdict,**values)
    if len(args)==0:              # if no argument is provided, use the std production output file
       save(argdict=argdict,figure=fig)
    else:                         # if arguments are provided, use a local output file
