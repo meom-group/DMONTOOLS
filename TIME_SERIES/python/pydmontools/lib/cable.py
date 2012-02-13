@@ -146,8 +146,9 @@ def plot(argdict=myargs, figure=None,color='r',compare=False,datemodel=None,trpm
         figure = plt.figure()
     ax = figure.add_subplot(111)
     ax.plot(datemodel,trpmodel,color + '.-',dateobs,trpobs,'b.-')
-    ax.axis([min(datemodel),max(max(datemodel),max(dateobs)),min(min(trpmodel),min(trpobs)), 
-              max(max(trpmodel),max(trpobs))])
+    _datemodel = mdates.date2num(datemodel) # now a numerical value
+    _dateobs = mdates.date2num(dateobs)     # idem
+    ax.axis([min(_datemodel),max(max(_datemodel),max(_dateobs)),min(min(trpmodel),min(trpobs)), max(max(trpmodel),max(trpobs))])
     ax.grid(True)
     ps.set_setdateticks(ax)
     fig.autofmt_xdate()
