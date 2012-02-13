@@ -76,25 +76,25 @@ def set_dateticks(ax):
        mth_int = 3
     elif dt <= 10*dtyr:
        yr_int = 1
-       mth_int= 12 * yr_int
+       mth_int= 6 * yr_int
     elif dt <= 20*dtyr:
        yr_int = 2
-       mth_int= 12 * yr_int
+       mth_int= None
     elif dt <= 40*dtyr:
        yr_int = 5
-       mth_int= 12 * yr_int
+       mth_int= None
     else:
        yr_int = 10
-       mth_int= 12 * yr_int
+       mth_int= None 
     # set the ticks locators and formatters
-    rule = mdates.rrulewrapper(mdates.YEARLY, interval=yr_int)
-    majorLoc   = mdates.RRuleLocator(rule)   # every year
-    minorLoc   = mdates.MonthLocator(interval=mth_int)  # every month
+    majorLoc   = mdates.YearLocator(base=yr_int)
     majorFmt = mdates.DateFormatter('%Y')
     # format the ticks
     ax.xaxis.set_major_locator(majorLoc)
     ax.xaxis.set_major_formatter(majorFmt)
-    ax.xaxis.set_minor_locator(minorLoc)
+    if mth_int is not None:
+       minorLoc   = mdates.MonthLocator(interval=mth_int)
+       ax.xaxis.set_minor_locator(minorLoc)
 
 
 def plotdir_confcase_single(argdict): # could be used in individual plotting scripts...
