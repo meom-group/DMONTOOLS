@@ -42,9 +42,14 @@ plt.rcParams.update(params)
 osp = os.sep
 
 # adapted from http://matplotlib.sourceforge.net/mpl_examples/api/date_demo.py
-years    = mdates.YearLocator()   # every year
-months   = mdates.MonthLocator()  # every month
-yearsFmt = mdates.DateFormatter('%Y')
+# http://www.packtpub.com/article/advanced-matplotlib-part2
+# mdates.AutoDateLocator : http://matplotlib.sourceforge.net/api/dates_api.html#matplotlib.dates.AutoDateLocator
+# http://matplotlib.sourceforge.net/api/dates_api.html
+# http://matplotlib.sourceforge.net/examples/pylab_examples/date_demo_rrule.html
+
+#mLoc = mdates.AutoDateLocator
+#mFmt = mdates.AutoDateFormatter
+
 
 def set_dateticks(ax):
     """Set a pretty xtick for ax subplot.
@@ -57,10 +62,39 @@ def set_dateticks(ax):
     in the plotting script, add also this command 
     fig.autofmt_xdate()
     """
+    # get the time interval
+    xlims = ax.get_xlim()
+    datelims = mdates.num2date(xlims)
+    dt = datelims[-1] - datelims[0]
+    dtyr = datetime.timedelta(weeks=52) # delta = 1 yr 
+    # set the ticks intervals
+    if dt<=2*dtyr:
+       yr_int = 1
+       mth_int = 1
+    elif dt<=5*dtyr:
+       yr_int = 1
+       mth_int = 3
+    elif dt <= 10*dtyr:
+       yr_int = 1
+       mth_int= 12 * yr_int
+    elif dt <= 20*dtyr:
+       yr_int = 2
+       mth_int= 12 * yr_int
+    elif dt <= 40*dtyr:
+       yr_int = 5
+       mth_int= 12 * yr_int
+    else:
+       yr_int = 10
+       mth_int= 12 * yr_int
+    # set the ticks locators and formatters
+    rule = mdates.rrulewrapper(mdates.YEARLY, interval=yr_int)
+    majorLoc   = mdates.RRuleLocator(rule)   # every year
+    minorLoc   = mdates.MonthLocator(interval=mth_int)  # every month
+    majorFmt = mdates.DateFormatter('%Y')
     # format the ticks
-    ax.xaxis.set_major_locator(years)
-    ax.xaxis.set_major_formatter(yearsFmt)
-    ax.xaxis.set_minor_locator(months)
+    ax.xaxis.set_major_locator(majorLoc)
+    ax.xaxis.set_major_formatter(majorFmt)
+    ax.xaxis.set_minor_locator(minorLoc)
 
 
 def plotdir_confcase_single(argdict): # could be used in individual plotting scripts...
