@@ -23,6 +23,14 @@ import pydmontools as pydmt
 import matplotlib.pylab as plt
 import numpy as npy
 
+import datetime
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as pyp
+import matplotlib.dates as mdates
+import matplotlib.mlab as mlab
+
+
 params = {'axes.labelsize': 10,
           'text.fontsize': 10,
           'legend.fontsize': 10,
@@ -32,6 +40,28 @@ params = {'axes.labelsize': 10,
 plt.rcParams.update(params)
 
 osp = os.sep
+
+# adapted from http://matplotlib.sourceforge.net/mpl_examples/api/date_demo.py
+years    = mdates.YearLocator()   # every year
+months   = mdates.MonthLocator()  # every month
+yearsFmt = mdates.DateFormatter('%Y')
+
+def set_dateticks(ax):
+    """Set a pretty xtick for ax subplot.
+    nota bene : ax should have been created as follows : 
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(date,mydata)
+    set_dateticks(ax)
+    
+    in the plotting script, add also this command 
+    fig.autofmt_xdate()
+    """
+    # format the ticks
+    ax.xaxis.set_major_locator(years)
+    ax.xaxis.set_major_formatter(yearsFmt)
+    ax.xaxis.set_minor_locator(months)
+
 
 def plotdir_confcase_single(argdict): # could be used in individual plotting scripts...
     dirname = argdict['plotdir'] + osp + argdict['config'] + '-' + argdict['case'] 

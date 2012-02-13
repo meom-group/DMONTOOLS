@@ -22,11 +22,25 @@ import pydmontools as pydmt
 from pydmontools import CDF
 import sys,os
 import numpy
+import matplotlib.dates as mdates
+
 
 osp = os.sep
 
 #=======================================================================
 
+
+def get_datetime(ncfile):
+    """Return a datetime.datetime object built from ncfile time_counter.
+    Assume that time_counter is given in years. 
+    """
+    fid   = CDF.NetCDFFile(ncfile,'r')
+    years =  fid.variables['time_counter'][:]
+    fid.close()
+    _dates = mdates.num2date((years-1)*365.2425+1)
+    cleandate = lambda d:d.replace(hour=0,minute=0,second=0)
+    dates = map(cleandate,_dates)
+    return dates
 
 def datafileroot(argdict): # could be used in individual plotting scripts...
     return argdict['datadir'] + osp + argdict['config'] + '-' + argdict['case']

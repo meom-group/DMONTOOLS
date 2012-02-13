@@ -95,9 +95,9 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
         pass
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['yearmodel'] = rs.get_years_intpart(filenc)
+    outdict['datemodel'] = rs.get_datetime(filenc)
     outdict['trpmodel']  = -1 * rs.readfilenc(filenc, 'vtrp_floba' )
-    outdict['yearobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
+    outdict['dateobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
     outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
 
     return outdict # return the dictionnary of values 
@@ -118,20 +118,20 @@ def _readmtl(filemtl=None,fileobs=None,argdict=myargs):
     lignes1=[lignes1 for lignes1 in f1.readlines() if lignes1.strip() ] # remove empty lines
     f1.close()
     # 
-    yearmodel = [] ; vtrp = [] ; yearobs = [] ; trpobs = []
+    datemodel = [] ; vtrp = [] ; dateobs = [] ; trpobs = []
     #
     for chaine in lignes1[3:] :
         element=chaine.split()
-        yearmodel.append(float(element[0]))
+        datemodel.append(float(element[0]))
         for k in range(1,1+nsection) :
             vtrp.append(float(element[k]))
 
     vtrp=npy.reshape(vtrp, (-1,nsection))
 
     outdict = {}
-    outdict['yearmodel'] = yearmodel
+    outdict['datemodel'] = datemodel
     outdict['trpmodel']  = -1 * vtrp[:,indsection]
-    outdict['yearobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
+    outdict['dateobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
     outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
 
     return outdict # return the dictionnary of values 
@@ -140,14 +140,17 @@ def _readmtl(filemtl=None,fileobs=None,argdict=myargs):
 #--- Plotting the data 
 #=======================================================================
 
-def plot(argdict=myargs, figure=None,color='r',yearmodel=None,trpmodel=None,yearobs=None,trpobs=None,compare=False):
+def plot(argdict=myargs, figure=None,color='r',compare=False,datemodel=None,trpmodel=None,dateobs=None,trpobs=None):
     #
     if figure is None :
         figure = plt.figure()
-    plt.plot(yearmodel,trpmodel,color + '.-',yearobs,trpobs,'b.-')
-    plt.axis([min(yearmodel),max(max(yearmodel),max(yearobs)),min(min(trpmodel),min(trpobs)), 
+    ax = figure.add_subplot(111)
+    ax.plot(datemodel,trpmodel,color + '.-',dateobs,trpobs,'b.-')
+    ax.axis([min(datemodel),max(max(datemodel),max(dateobs)),min(min(trpmodel),min(trpobs)), 
               max(max(trpmodel),max(trpobs))])
-    plt.grid(True)
+    ax.grid(True)
+    ps.set_setdateticks(ax)
+    fig.autofmt_xdate()
     if not(compare) :
          plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Mass Transport - Obs (b)',fontsize='small')
     else:
