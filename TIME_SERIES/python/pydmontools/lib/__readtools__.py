@@ -30,12 +30,12 @@ osp = os.sep
 #=======================================================================
 
 
-def get_datetime(ncfile):
+def get_datetime(ncfile,tname='time_counter'):
     """Return a datetime.datetime object built from ncfile time_counter.
     Assume that time_counter is given in years. 
     """
     fid   = CDF.NetCDFFile(ncfile,'r')
-    years =  fid.variables['time_counter'][:]
+    years =  fid.variables[tname][:].squeeze()
     fid.close()
     _dates = mdates.num2date((years-1)*365.2425+1)
     cleandate = lambda d:d.replace(hour=0,minute=0,second=0)

@@ -97,7 +97,7 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     outdict = {} # creates the dictionnary which will contain the arrays 
     outdict['datemodel'] = rs.get_datetime(filenc)
     outdict['trpmodel']  = -1 * rs.readfilenc(filenc, 'vtrp_floba' )
-    outdict['dateobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
+    outdict['dateobs']   = rs.get_datetime(fileobs,tname='YEAR_CABLE')
     outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
 
     return outdict # return the dictionnary of values 
@@ -146,12 +146,12 @@ def plot(argdict=myargs, figure=None,color='r',compare=False,datemodel=None,trpm
         figure = plt.figure()
     ax = figure.add_subplot(111)
     ax.plot(datemodel,trpmodel,color + '.-',dateobs,trpobs,'b.-')
-    _datemodel = mdates.date2num(datemodel) # now a numerical value
-    _dateobs = mdates.date2num(dateobs)     # idem
+    _datemodel = ps.mdates.date2num(datemodel) # now a numerical value
+    _dateobs = ps.mdates.date2num(dateobs)     # idem
     ax.axis([min(_datemodel),max(max(_datemodel),max(_dateobs)),min(min(trpmodel),min(trpobs)), max(max(trpmodel),max(trpobs))])
     ax.grid(True)
-    ps.set_setdateticks(ax)
-    fig.autofmt_xdate()
+    ps.set_dateticks(ax)
+    figure.autofmt_xdate()
     if not(compare) :
          plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Mass Transport - Obs (b)',fontsize='small')
     else:
