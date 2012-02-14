@@ -77,7 +77,7 @@ def _get_mtlnames(argdict=myargs):
 def _readnc(filenc=None, argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model'] = rs.get_years(filenc)
+    outdict['datemodel'] = rs.get_datetime(filenc)
     outdict['NVolume'   ] = rs.readfilenc(filenc, 'NVolume' )
     outdict['NArea'     ] = rs.readfilenc(filenc, 'NArea' )
     outdict['NExnsidc'  ] = rs.readfilenc(filenc, 'NExnsidc' )
@@ -91,7 +91,7 @@ def _readnc(filenc=None, argdict=myargs):
 def _readmtl(filemtl=None, argdict=myargs):
     #
     lignes = rs.mtl_flush(filemtl)
-    datalist=['year','varc','vant','aarc','aant','earc','eant']
+    datalist=['date','varc','vant','aarc','aant','earc','eant']
     nmonth=12
     #
     for k in datalist:
@@ -101,7 +101,7 @@ def _readmtl(filemtl=None, argdict=myargs):
         element=chaine.split()
         if argdict['config'].find('ORCA') == 0 :
             for k in range(1,1+nmonth) :
-                year.append(float(element[0]) + ((float(k)-0.5)/nmonth) )
+                date.append(float(element[0]) + ((float(k)-0.5)/nmonth) )
                 varc.append(float(element[k]))
             for k in range( 1+nmonth,1+(2*nmonth) ) :
                 vant.append(float(element[k]))
@@ -116,7 +116,7 @@ def _readmtl(filemtl=None, argdict=myargs):
         #
         elif argdict['config'].find('PERIANT') == 0 :
             for k in range(1,1+nmonth) :
-                year.append(float(element[0]) + ((float(k)-0.5)/nmonth) )
+                date.append(float(element[0]) + ((float(k)-0.5)/nmonth) )
                 vant.append(float(element[k]))
             for k in range( 1+nmonth,1+(2*nmonth) ) :
                 aant.append(float(element[k]))
@@ -124,7 +124,7 @@ def _readmtl(filemtl=None, argdict=myargs):
                 eant.append(float(element[k]))
     
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model'] = year
+    outdict['datemodel'] = date
     outdict['NVolume'   ] = varc
     outdict['NArea'     ] = aarc
     outdict['NExnsidc'  ] = earc
@@ -153,10 +153,11 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         north = 1 ; south = 0
         print "icemonth.py : use custom values for NATL configs"
     else :
+        north = 1 ; south = 1 
         print "icemonth.py : Your config is not supported..."
         print "The monitoring will try to use default values from Global Configuration"
     #
-    nbzone = north + south
+    nbzone = 2
     nbplotline = 3
     fig_size = [float(nbplotline) * 6., float(nbzone) * 5.]
     if figure is None: # by default create a new figure
@@ -164,50 +165,60 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
 
     #
     if north == 1 :
-        plt.subplot(nbzone,nbplotline,1)
-        plt.plot(year_model, NVolume, color)
-        plt.axis([min(year_model), max(year_model), 0, 60000])
-        plt.grid(True)
+        ax=figure.add_subplot(nbzone,nbplotline,1)
+        ax.plot(datemodel, NVolume, color)
+        _datemodel = ps.mdates.date2num(datemodel) # now a numerical value
+        ax.axis([min(_datemodel), max(_datemodel), 0, 60000])
+        ax.grid(True)
         plt.ylabel('Northern',fontsize='large')
         plt.title('Ice Volume (10**9 m**3)',fontsize='large')
-        
-        plt.subplot(nbzone,nbplotline,2)
-        plt.plot(year_model, NArea, color)
-        plt.grid(True)
-        plt.axis([min(year_model), max(year_model), 0, 15000])
+        ps.set_dateticks(ax)
+
+        ax=figure.add_subplot(nbzone,nbplotline,2)
+        ax.plot(datemodel, NArea, color)
+        ax.grid(True)
+        ax.axis([min(_datemodel), max(_datemodel), 0, 15000])
+        ps.set_dateticks(ax)
         if not(compare) :
             plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Ice Area (10**9 m**2)',fontsize='large')
         else:
             plt.title('Ice Area (10**9 m**2)',fontsize='large')
         
-        plt.subplot(nbzone,nbplotline,3)
-        plt.plot(year_model, NExnsidc, color)
-        plt.grid(True)
-        plt.axis([min(year_model), max(year_model), 0, 20000])
+        ax=figure.add_subplot(nbzone,nbplotline,3)
+        ax.plot(datemodel, NExnsidc, color)
+        ax.grid(True)
+        ax.axis([min(_datemodel), max(_datemodel), 0, 20000])
         plt.title('Ice extent (10**9 m**2)',fontsize='large')
+        ps.set_dateticks(ax)
+        figure.autofmt_xdate()
         
     if south == 1 :  
-        plt.subplot(nbzone,nbplotline,north*nbplotline + 1)
-        plt.plot(year_model, SVolume, color)
-        plt.grid(True)
-        plt.axis([min(year_model), max(year_model), 0, 20000])
+        ax=figure.add_subplot(nbzone,nbplotline,4)
+        ax.plot(datemodel, SVolume, color)
+        ax.grid(True)
+        _datemodel = ps.mdates.date2num(datemodel) # now a numerical value
+        ax.axis([min(_datemodel), max(_datemodel), 0, 20000])
         plt.ylabel('Southern',fontsize='large')
         plt.title('Ice Volume (10**9 m**3)',fontsize='large')
+        ps.set_dateticks(ax)
 
-        plt.subplot(nbzone,nbplotline,north*nbplotline + 2)
-        plt.plot(year_model, SArea, color)
-        plt.grid(True)
-        plt.axis([min(year_model), max(year_model), 0, 20000])
+        ax=figure.add_subplot(nbzone,nbplotline,5)
+        ax.plot(datemodel, SArea, color)
+        ax.grid(True)
+        ax.axis([min(_datemodel), max(_datemodel), 0, 20000])
+        ps.set_dateticks(ax)
         if not(compare) :
             plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Ice Area (10**9 m**2)',fontsize='large')
         else:
             plt.title('Ice Area (10**9 m**2)',fontsize='large')
 
-        plt.subplot(nbzone,nbplotline,north*nbplotline + 3)
-        plt.plot(year_model, SExnsidc, color)
-        plt.grid(True)
-        plt.axis([min(year_model), max(year_model), 0, 20000])
+        ax=figure.add_subplot(nbzone,nbplotline,6)
+        ax.plot(datemodel, SExnsidc, color)
+        ax.grid(True)
+        ax.axis([min(_datemodel), max(_datemodel), 0, 20000])
         plt.title('Ice extent (10**9 m**2)',fontsize='large')
+        ps.set_dateticks(ax)
+        figure.autofmt_xdate()
      
     return figure
 
