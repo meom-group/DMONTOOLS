@@ -15,6 +15,7 @@
 01_BERING                   ORCA025.L75              452  461  834  834
 01_BERING                   ORCA2                     54   59  124  124
 01_BERING                   ORCA246                   54   59  124  124
+01_BERING                   ORCA05                   227  232  418  418
 #
 02_FRAM                     fram                    Fram_Strait                     1
 02_FRAM                     ORCA12.L46              3202 3317 2823 2823
@@ -25,6 +26,7 @@
 02_FRAM                     ORCA246                  132  140  137  137    
 02_FRAM                     NATL025                  311  351  527  527
 02_FRAM                     NATL12                   931 1051 1580 1580
+02_FRAM                     ORCA05                   535  554  473  472
 #
 03_BAFFIN                   baffi                   Baffin_Strait                   1
 03_BAFFIN                   ORCA12.L46              2779 2939 2760 2760
@@ -35,6 +37,7 @@
 03_BAFFIN                   ORCA246                  113  122  136  136 
 03_BAFFIN                   NATL025                  171  225  506  506
 03_BAFFIN                   NATL12                   511  673 1517 1517
+03_BAFFIN                   ORCA05                   465  483  467  467
 #
 04_DENMARK_STRAIT           denma                   Denmark_Strait                  1
 04_DENMARK_STRAIT           ORCA12.L46              3079 3157 2532 2490
@@ -45,6 +48,7 @@
 04_DENMARK_STRAIT           ORCA246                  126  131  126  123
 04_DENMARK_STRAIT           NATL025                  269  299  431  416
 04_DENMARK_STRAIT           NATL12                   805  895 1292 1247
+04_DENMARK_STRAIT           ORCA05                   511  527  419  415
 #
 05_ICELAND_SCOTLAND         icsco                   Iceland-Scotland_Section        1
 05_ICELAND_SCOTLAND         ORCA12.L46              3249 3361 2472 2354
@@ -55,6 +59,7 @@
 05_ICELAND_SCOTLAND         ORCA246                  134  139  123  117
 05_ICELAND_SCOTLAND         NATL025                  328  364  410  371
 05_ICELAND_SCOTLAND         NATL12                   982 1090 1229 1112
+05_ICELAND_SCOTLAND         ORCA05                   542  563  412  395
 #
 06_CUBA_FLORIDA             cubaf                   Cuba-Florida_Section            1
 06_CUBA_FLORIDA             ORCA12.L46              2480 2480 1776 1810
@@ -65,6 +70,7 @@
 06_CUBA_FLORIDA             ORCA246                  101  101   93   96
 06_CUBA_FLORIDA             NATL025                   72   72  179  189
 06_CUBA_FLORIDA             NATL12                   214  214  533  566
+06_CUBA_FLORIDA             ORCA05                   414  414  297  302
 #
 07_FLORIDA_BAHAMAS          floba                   Florida-Bahamas_Section        -1
 07_FLORIDA_BAHAMAS          ORCA12.L46              2484 2501 1826 1826
@@ -75,6 +81,7 @@
 07_FLORIDA_BAHAMAS          ORCA246                  101  103   97   97
 07_FLORIDA_BAHAMAS          NATL025                   73   80  196  196
 07_FLORIDA_BAHAMAS          NATL12                   217  238  585  585
+07_FLORIDA_BAHAMAS          ORCA05                   414  419  302  301
 #
 08_DRAKE                    drake                   Drake_Passage                   1
 08_DRAKE                    ORCA12.L46              2640 2670  705  426    
@@ -87,6 +94,7 @@
 08_DRAKE                    PERIANT05                439  439    5  200
 08_DRAKE                    PERIANT025               878  878    9  399
 08_DRAKE                    BIOPERIANT05             439  439    5  200
+08_DRAKE                    ORCA05                   443  439   70  116
 #
 09_AUS_AA                   ausaa                   Australia-Antarctic_Section     1
 09_AUS_AA                   ORCA12.L46               910  910 1007  352
@@ -99,6 +107,7 @@
 09_AUS_AA                   PERIANT05                134  134    5  200
 09_AUS_AA                   PERIANT025               268  268    9  399
 09_AUS_AA                   BIOPERIANT05             134  134    5  200
+09_AUS_AA                   ORCA05                   142  142  168   65
 #
 10_ITF                      itflo                   Indonesian_Troughflow          -1
 10_ITF                      ORCA12.L46               510  510 1393 1228
@@ -107,6 +116,7 @@
 10_ITF                      ORCA025.L75              170  170  465  410
 10_ITF                      ORCA2                     22   22   63   54
 10_ITF                      ORCA246                   22   22   63   54
+10_ITF                      ORCA05                    85   85  233  205
 #
 11_MOZAMBIQUE_CHANNEL       mozam                   Mozambique_Channel              1
 11_MOZAMBIQUE_CHANNEL       ORCA12.L46              3923 3980 1296 1296  
@@ -115,6 +125,7 @@
 11_MOZAMBIQUE_CHANNEL       ORCA025.L75             1309 1328  432  432
 11_MOZAMBIQUE_CHANNEL       ORCA2                    161  166   58   58
 11_MOZAMBIQUE_CHANNEL       ORCA246                  161  166   58   58
+11_MOZAMBIQUE_CHANNEL       ORCA05                   655  665  217  217
 #
 12_SOUTH_AFR                soafr                   South-Africa                    1
 12_SOUTH_AFR                ORCA12.L46              3685 3685  300 1052
