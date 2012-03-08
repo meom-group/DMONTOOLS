@@ -134,6 +134,19 @@ case $MACHINE in
 
           done
         done
+
+        # compute standard deviation for gridT (useful for contour diagnostics)
+        for typ in $TYP_LIST ; do
+          case $typ in
+            gridT ) 
+                    for year in $( seq $1 $2 ) ; do
+                      ln -sf $MEANDIR/$year/${CONFCASE}_y${year}_${typ}.nc .
+                    done
+                    $CDFTOOLS/cdfstd ${CONFCASE}_y????_${typ}.nc
+                    mv cdfstd.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}_${typ}_STD.nc 
+                    rm ${CONFCASE}_y????_${typ}.nc ;;
+          esac
+        done
                     ; }
 
     echo "functions for $MACHINE successfully loaded" ;;
