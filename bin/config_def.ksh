@@ -114,6 +114,7 @@ mxls_clim=1              # 18. MXL comparison to Boyer-Montegut climatology
 pisces_coupes_aus=1      # 19. PISCES coupes australes
 pisces_coupes_clim=1     # 20. PISCES coupes australes compared to climatologies
 pisces_fluxes=1          # 21. PISCES fluxes 
+contour=1                # 22. CONTOUR tool
 
 ######################################################################
 ### -3- TIME SERIES Menu :
