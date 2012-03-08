@@ -6,13 +6,22 @@ set -x
 #  $Id$
 #  $History: (02/2009) adapted to PERIANT configuration by C. Dufour $
 #-------------------------------------------------------------------------------
+
 if [ $# = 0 ] ; then
-   echo 'USAGE : plot_monitor.ksh year'
+   echo 'USAGE: plot_monitor.ksh year'
    exit 1
 fi
 
 # take YEAR as the argument to this script
 YEAR=$1
+
+# check if computing plots for a climatology or for a sequence of years
+single=$( echo $YEAR | awk '{ print index($1,"-") }' )
+if [ $single == 0 ] ; then
+  clim=0
+else
+  clim=1
+fi
 
 #-----------------------------------------------------------------------------
 # define some config dependent variable
@@ -22,7 +31,7 @@ YEAR=$1
 . ./function_def.ksh
 
 # PALDIR hold color palettes for these plots
-# it is distributed with PLOT_2D scripts, and copied ther by the main script
+# it is distributed with PLOT_2D scripts, and copied there by the main script
 PALDIR=$(pwd)/PALDIR
 export BIMG_PALDIR=$PALDIR   # chart will look in this dir for palettes
 
@@ -127,6 +136,8 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
  PALBLUE2RED3=blue2red3.pal
  PALBLUE2RED4=ferretblue2red.pal
  PALNOAA=noaa_blue2white.pal
+ PALBLUE2RED5=ferretblue2red_withland_contour.pal
+ PALBLUE2WHITE=globvit_withland_contour.pal
 
 #------------------------------------------------------------------------------
 # DIRECTORY NAMES FREQUENTLY USED
@@ -135,14 +146,18 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
  SDIRY=$CONFIG/${CONFCASE}-S/$YEAR
  DIAGS=${CONFIG}/${CONFCASE}-DIAGS
  IDIR=$CONFIG/${CONFIG}-I
- PLOTDIR=${CONFIG}/PLOTS/${CONFCASE}
+ if [ $clim == 0 ] ; then
+   PLOTDIR=${CONFIG}/PLOTS/${CONFCASE}
+ else
+   PLOTDIR=${CONFIG}/CLIM_PLOTS/${CONFCASE}
+ fi
  CLIMY=${IDIR}/CLIM_PLOT
 
  # check for existence
  chkdirg ${CONFIG}/PLOTS/
  chkdirg ${CONFIG}/PLOTS/${CONFCASE} # PLOTDIR
-
- DATE=${YEAR}  
+ chkdirg ${CONFIG}/CLIM_PLOTS/
+ chkdirg ${CONFIG}/CLIM_PLOTS/${CONFCASE}
 
 #------------------------------------------------------------------------------
 # NOW PERFORMS PLOTS REGARDING THE SETTINGS IN THE MENU
@@ -159,7 +174,7 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
              $PTS $STRING ;}
 
   # get files
-  mocf=${CONFCASE}_y${DATE}_MOC.nc
+  mocf=${CONFCASE}_y${YEAR}_MOC.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
@@ -235,12 +250,12 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
  rapatrie $t $MEANY $t
  clrvar=sossheig
  if [ $( chkvar $clrvar $t) == 0  ] ; then
- var=SSHGLp ;  STRING=" -string $xstring $ystring 1.0 0 ${CONFCASE}_${var}_${DATE}_DEPTH=@CLR_DEPTH@" ;
+ var=SSHGLp ;  STRING=" -string $xstring $ystring 1.0 0 ${CONFCASE}_${var}_${YEAR}_DEPTH=@CLR_DEPTH@" ;
  MEAN="-mean 0" ; DEP="" ; LEV="-lev 1" ; dep=0  ;
  min=-2 ; max=1.5  ; pas=.5  # ORCA Default
  if [ $(chconf PERIANT) != 0 ] ; then min=-1.2 ; max=1.2  ; pas=.4  ; fi
  mklim $min $max $pas > zclrmark
- filout=${CONFIG}_${var}_${dep}_${DATE}-${CASE}
+ filout=${CONFIG}_${var}_${dep}_${YEAR}-${CASE}
 
  if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent  ] ; then
      rapatrie $t $MEANY $t
@@ -254,7 +269,7 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
    MEAN=""
    for dep in 0 150 ; do
      DEP="-dep $dep" ; LEV="" ; CNTICE=""
-     filout=${CONFIG}_${var}_${dep}_${DATE}-${CASE}
+     filout=${CONFIG}_${var}_${dep}_${YEAR}-${CASE}
      if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent  ] ; then
         rapatrie $t $MEANY $t
         rapatrie $ice $MEANY $ice
@@ -279,7 +294,7 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
             esac ;;
         esac
         mklim $min $max $pas > zclrmark
-       STRING=" -string $xstring $ystring 1.0 0 ${CONFCASE}_${var}_${DATE}_DEPTH=@CLR_DEPTH@"
+       STRING=" -string $xstring $ystring 1.0 0 ${CONFCASE}_${var}_${YEAR}_DEPTH=@CLR_DEPTH@"
        gloplt  ; mkplt $filout
      fi
    done
@@ -377,7 +392,7 @@ eof
          difTRey )  mkdiffrey $t $sstr votemper dt.nc ;;
          difLevRey) mkdiffrey $tlev $sstr votemper dt.nc ;;
        esac
-       STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}_SST_DEPTH=@CLR_DEPTH@"
+       STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${YEAR}_SST_DEPTH=@CLR_DEPTH@"
        gloplt  ; mkplt $filout
      fi
     done
@@ -394,7 +409,7 @@ eof
     for var in difTgl difSgl ; do
      filout=${CONFIG}_${var}_k${level}_${YEAR}-${CASE}
      if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
-        STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}_DEPTH=@CLR_DEPTH@"
+        STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${YEAR}_DEPTH=@CLR_DEPTH@"
         case $var in
          difTgl) rapatrie $t    $MEANY $t
                  rapatrie $tlev $IDIR $tlev
@@ -444,7 +459,7 @@ eof
   # plot the heat flux (w/m2) and fresh water flux (mm/day) (scaled by 86400 from kg/m2/s)
   MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED3" ; CNTICE="" ; FORMAT='-format PALETTE I4'
     for var in HeatFlx WaterFlx WaterDmp ; do
-      STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}_DEPTH=@CLR_DEPTH@"
+      STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${YEAR}_DEPTH=@CLR_DEPTH@"
       filout=${CONFIG}_${var}_${YEAR}-${CASE}
       if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
          rapatrie $t    $MEANY $t
@@ -498,10 +513,10 @@ eof
   # SSH  mean value set to 0
   clrvar=sossheig
  if [ $( chkvar $clrvar $t) == 0  ] ; then
-  var=SSHp ;  STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${DATE}_DEPTH=@CLR_DEPTH@" ;
+  var=SSHp ;  STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${YEAR}_DEPTH=@CLR_DEPTH@" ;
   MEAN="-mean 0" ; DEP="" ; LEV="-lev 1" ; dep=0  ;
   min=-1.5 ; max=.75  ; pas=.25 ; mklim $min $max $pas > zclrmark  
-  filout=${CONFIG}_${var}_${bas}_${dep}_${DATE}-${CASE}
+  filout=${CONFIG}_${var}_${bas}_${dep}_${YEAR}-${CASE}
   if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then 
     rapatrie $t $MEANY $t
     rapatrie $ice $MEANY $ice
@@ -514,7 +529,7 @@ eof
   MEAN=""
   for dep in 0 200 1000 2000 3000 4000 5000 ; do
      DEP="-dep $dep" ; LEV="" ; CNTICE="" 
-     filout=${CONFIG}_${var}_${bas}_${dep}_${DATE}-${CASE}
+     filout=${CONFIG}_${var}_${bas}_${dep}_${YEAR}-${CASE}
      if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
         rapatrie $t $MEANY $t
         rapatrie $ice $MEANY $ice
@@ -543,7 +558,7 @@ eof
          esac ;;
         esac
         mklim $min $max $pas > zclrmark
-        STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${DATE}_DEPTH=@CLR_DEPTH@"
+        STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${YEAR}_DEPTH=@CLR_DEPTH@"
         basplt  ; mkplt $filout
      fi
   done
@@ -559,7 +574,7 @@ eof
                         if [ $atlUV == 1 ] ; then
 
   # get files  for PSI
-  psi=${CONFCASE}_y${DATE}_PSI.nc
+  psi=${CONFCASE}_y${YEAR}_PSI.nc
 
   for BASIN in  ATLN ATLS ; do
     case $BASIN in
@@ -569,8 +584,8 @@ eof
 
     listplt=' '
 
-    var=PSI ;STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${DATE}"
-    filout=${CONFIG}_${var}_${bas}_${DATE}-${CASE}
+    var=PSI ;STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${YEAR}"
+    filout=${CONFIG}_${var}_${bas}_${YEAR}-${CASE}
     if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent  ] ; then
        rapatrie $psi $MEANY $psi
        $CHART -forcexy  -english $zoom $STRING -cntdata $psi -cntvar sobarstf -cntmin -300e6 \
@@ -588,8 +603,8 @@ eof
     t=${CONFCASE}_y${YEAR}_gridT.nc
     listplt=' '
 
-    var=botsigma4 ;STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}"
-    filout=${CONFIG}_${var}_${DATE}-${CASE}
+    var=botsigma4 ;STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${YEAR}"
+    filout=${CONFIG}_${var}_${YEAR}-${CASE}
     ZOOM="-zoom -65 20 45 75"
     if [ $( chkfile $PLOTDIR/ATLN/$filout.cgm ) == absent  ] ; then
        rapatrie $t $MEANY $t
@@ -644,10 +659,10 @@ eof
   # SSH  mean value set to 0
   clrvar=sossheig
  if [ $( chkvar $clrvar $t) == 0  ] ; then
-  var=SSHp ;  STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${DATE}_DEPTH=@CLR_DEPTH@" ;
+  var=SSHp ;  STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${YEAR}_DEPTH=@CLR_DEPTH@" ;
   MEAN="-mean 0" ; DEP="" ; LEV="-lev 1" ; dep=0  ;
   min=-1.2 ; max=1.2  ; pas=.2 ; mklim $min $max $pas > zclrmark
-  filout=${CONFIG}_${var}_${bas}_${dep}_${DATE}-${CASE}
+  filout=${CONFIG}_${var}_${bas}_${dep}_${YEAR}-${CASE}
   if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
     rapatrie $t $MEANY $t
     rapatrie $ice $MEANY $ice
@@ -660,7 +675,7 @@ eof
    MEAN=""
    for dep in 0 200 1000 2000 3000 4000 5000 ; do
      DEP="-dep $dep" ; LEV="" ; CNTICE=""
-     filout=${CONFIG}_${var}_${bas}_${dep}_${DATE}-${CASE}
+     filout=${CONFIG}_${var}_${bas}_${dep}_${YEAR}-${CASE}
      if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
         rapatrie $t $MEANY $t
         rapatrie $ice $MEANY $ice
@@ -689,7 +704,7 @@ eof
              esac ;;
         esac
         mklim $min $max $pas > zclrmark
-        STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${DATE}_DEPTH=@CLR_DEPTH@"
+        STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${YEAR}_DEPTH=@CLR_DEPTH@"
         basplt  ; mkplt $filout
      fi
    done
@@ -705,7 +720,7 @@ eof
                         if [ $zoomUV == 1 ] ; then
 
   # get files  for PSI
-  psi=${CONFCASE}_y${DATE}_PSI.nc
+  psi=${CONFCASE}_y${YEAR}_PSI.nc
 
 
   for BASIN in DRAKE KERGUELEN CAMPBELL ; do
@@ -717,8 +732,8 @@ eof
 
     listplt=' '
 
-    var=PSI ;STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${DATE}"
-    filout=${CONFIG}_${var}_${bas}_${DATE}-${CASE}
+    var=PSI ;STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${YEAR}"
+    filout=${CONFIG}_${var}_${bas}_${YEAR}-${CASE}
     OPTIONS='-proj ME -xstep 10 -ystep 5'
     CNTOPTION="-cntilxy 0.5 0.12 -cntils 0.015 -cntilp 0 -cntmin -300.e+06 -cntmax 300.e+06 \
              -cntint 20.e+06 -cntdash -cntshade -cntlls 0.015 -cntexp 6 -cntrc2 0.4 -cntlis 3 -cntlw 1:2"
@@ -739,7 +754,7 @@ eof
 # Generic function for coupe plot
   coupplt() {  echo COUPPLT for section $var ;
              $COUPE $CLRDATA $PTS -forcexy -clrnoint \
-             -string 0.5 0.95 1.0 0 ${CONFIG}_${var}_${DATE}-${CASE}  \
+             -string 0.5 0.95 1.0 0 ${CONFIG}_${var}_${YEAR}-${CASE}  \
              -clrvar $clrvar -pmax $pmax -pmin $pmin -zstep $zstep  -english \
              $PAL  $CLRLIM $CLRMODIF $FORMAT; }
 #---
@@ -840,7 +855,7 @@ eof
             * ) skip=1 ;;
         esac
        if [ $skip != 1 ] ; then
-         filout=${CONFIG}_${var}_${DATE}-${CASE}
+         filout=${CONFIG}_${var}_${YEAR}-${CASE}
          if [ $( chkfile $PLOTDIR/SECTIONS/$filout.cgm ) == absent ] ; then
             rapatrie $t $MEANY $t
             rapatrie $u $MEANY $u
@@ -885,7 +900,7 @@ eof
         esac
 
         if [ $skip != 1 ] ; then
-         filout=${CONFIG}_${var}_${DATE}-${CASE}
+         filout=${CONFIG}_${var}_${YEAR}-${CASE}
          if [ $( chkfile $PLOTDIR/SECTIONS/$filout.cgm ) == absent ] ; then
             rapatrie $t $MEANY $t
             rapatrie $u $MEANY $u
@@ -926,7 +941,7 @@ equat_section_indian() {
 
      var=Uequat
 # Atlantic 
-     filout=${CONFIG}_${var}_ATL_${DATE}-${CASE}
+     filout=${CONFIG}_${var}_ATL_${YEAR}-${CASE}
      title="${CONFCASE} U at Equator ATL $YEAR"
      PTS="-pts -50 10 0 0"
      CLRLIMIT="-clrmin -1.0 -clrmax 1.2"
@@ -937,7 +952,7 @@ equat_section_indian() {
      fi
 
 # Pacific
-     filout=${CONFIG}_${var}_PACIF_${DATE}-${CASE}
+     filout=${CONFIG}_${var}_PACIF_${YEAR}-${CASE}
      title="${CONFCASE} U at Equator PAC $YEAR"
      PTS="-pts 130 280 0 0 -360 "
      CLRLIMIT="-clrmin -1.0 -clrmax 1.3"
@@ -948,7 +963,7 @@ equat_section_indian() {
      fi
 
 # Indian
-     filout=${CONFIG}_${var}_INDIAN_${DATE}-${CASE}
+     filout=${CONFIG}_${var}_INDIAN_${YEAR}-${CASE}
      title="${CONFCASE} U at Equator IND $YEAR"
      PTS1="-pts 40   73.0  0 0 "  # "-pts 40   72.8  0 0 "
      PTS2="-pts 73.0 105   0 0 "  # "-pts 72.8 105   0 0 "
@@ -1039,7 +1054,7 @@ equat_section_indian() {
   couptop() { $COUPE $CLRDATA -pts $LONmin $LONmax $LATmin $LATmax $LEV -forcexy -pmax -1000 -clrvar $clrvar $CLRMODIF \
               $CNTDATA -cntvar $clrvar $CNTLIM -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.013 \
               -xyplot 0.1 0.95 0.70 0.95 -o gmetatop -nolon -ylat 0.10 -english $CLRMARK $PAL \
-              -clrxypal 0.1 0.95 0.08 0.18 -string 0.5 0.98 1.0 0 ${CONFIG}_${var}_${SECTION}_${DATE}-${CASE}; }
+              -clrxypal 0.1 0.95 0.08 0.18 -string 0.5 0.98 1.0 0 ${CONFIG}_${var}_${SECTION}_${YEAR}-${CASE}; }
   # Bottom panel (0<depth<1000m)
   coupbot() { $COUPE $CLRDATA -pts $LONmin $LONmax $LATmin $LATmax $LEV -forcexy -pmax -5500 -clrvar $clrvar $CLRMODIF \
               $CNTDATA -cntvar $clrvar $CNTLIM  -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.013 \
@@ -1167,7 +1182,7 @@ eof
      esac
 # JMM WARNING  hard coded 46 below ; can be avoided with coupe option
      if [ $skip != 1 ] ; then
-       filout=${CONFIG}_${var}_${DATE}-${CASE}
+       filout=${CONFIG}_${var}_${YEAR}-${CASE}
        if [ $( chkfile $PLOTDIR/SECTIONS/$filout.cgm ) == absent ] ; then
          rapatrie $t $MEANY $t
          rapatrie $u $MEANY $u
@@ -1196,7 +1211,7 @@ eof
   coupsig() { $COUPE -clrdata sig0.nc -pts $LONmin $LONmax $LATmin $LATmax -forcexy -pmax -1000 -clrvar vosigma0 \
               -cntdata sig0.nc -cntvar vosigma0 $CNTLIM0 -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.013 \
               -xyplot 0.1 0.95 0.65 0.9 -o gmetatop $CLRMARK0 $PAL -nolon -clrnopal\
-              -ylat 0.10 -string 0.5 0.98 1.0 0 ${CONFIG}_${var}_${SECTION}_${DATE}-${CASE} ; \
+              -ylat 0.10 -string 0.5 0.98 1.0 0 ${CONFIG}_${var}_${SECTION}_${YEAR}-${CASE} ; \
   # Bottom panel (0<depth<1000m)
               $COUPE -clrdata sig0.nc -pts $LONmin $LONmax $LATmin $LATmax -forcexy -pmax -1000 -clrvar vosigma0 \
               -cntdata sig0.nc -cntvar vosigma0 $CNTLIM0  -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.013 \
@@ -1273,7 +1288,7 @@ eof
         * )  skip=1 ;;
     esac
     if [ $skip != 1 ] ; then
-      filout=${CONFIG}_${var}_${DATE}-${CASE}
+      filout=${CONFIG}_${var}_${YEAR}-${CASE}
       if [ $( chkfile $PLOTDIR/SECTIONS/$filout.cgm ) == absent ] ; then
         rapatrie $t $MEANY $t
         cdfsig0 $t
@@ -1303,7 +1318,7 @@ eof
   couptopcirc() { $COUPE $CLRDATA -pts $LON1 $LON2 $LATmin $LATmax $LEV -forcexy -pmax -5500 -clrvar $clrvar $CLRMODIF \
                   $CNTDATA -cntvar $clrvar $CNTLIM -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.013 \
                   -xyplot 0.1 0.95 0.60 0.95 -o gmetatop -ylon 0.58 -nolat -english -clrmark zclrmark $PAL \
-                  -clrxypal 0.1 0.95 0.03 0.13 -string 0.5 0.98 1.0 0 ${CONFIG}_${var}_${SECTION}_${DATE}-${CASE}; }
+                  -clrxypal 0.1 0.95 0.03 0.13 -string 0.5 0.98 1.0 0 ${CONFIG}_${var}_${SECTION}_${YEAR}-${CASE}; }
   # Bottom panel (0<depth<1000m)
   coupbotcirc() { $COUPE $CLRDATA -pts $LON2 $LON3 $LATmin $LATmax $LEV -forcexy -pmax -5500 -clrvar $clrvar $CLRMODIF \
                   $CNTDATA -cntvar $clrvar $CNTLIM  -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.03 \
@@ -1390,7 +1405,7 @@ eof
             * )  skip=1 ;;
      esac
      if [ $skip != 1 ] ; then
-       filout=${CONFIG}_${var}${sec}_${DATE}-${CASE}
+       filout=${CONFIG}_${var}${sec}_${YEAR}-${CASE}
        if [ $( chkfile $PLOTDIR/CIRCUM/$filout.cgm ) == absent ] ; then
          rapatrie $t $MEANY $t
 #        rapatrie $fich_pvm3 $MEANY $fich_pvm3
@@ -1420,7 +1435,7 @@ eof
   coupsigcirc() { $COUPE -clrdata sig0.nc -pts $LON1 $LON2 $LATmin $LATmax -forcexy -pmax -1000 -clrvar vosigma0 \
                   -cntdata sig0.nc -cntvar vosigma0 $CNTLIM0 -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.013 \
                   -xyplot 0.1 0.95 0.87 0.95 -o gmetatop1 $CLRMARK0 $PAL -clrnopal -ylon 0.53 -nolat -zstep 500 \
-                  -ylat 0.10 -string 0.5 0.98 1.0 0 ${CONFIG}_${var}_${SECTION}_${DATE}-${CASE} ; \
+                  -ylat 0.10 -string 0.5 0.98 1.0 0 ${CONFIG}_${var}_${SECTION}_${YEAR}-${CASE} ; \
                   $COUPE -clrdata sig2.nc -pts $LON1 $LON2 $LATmin $LATmax -forcexy -pmin -1000 -pmax -3000 \
                   -clrvar vosigmai -cntdata sig2.nc -cntvar vosigmai $CNTLIM2 -cntrc1 0.04 -cntrc2 0.07 \
                   -cntlis 1 -cntlls 0.013 \
@@ -1512,7 +1527,7 @@ eof
           * )  skip=1 ;;
     esac
     if [ $skip != 1 ] ; then
-      filout=${CONFIG}_sig${sec}_${DATE}-${CASE}
+      filout=${CONFIG}_sig${sec}_${YEAR}-${CASE}
       if [ $( chkfile $PLOTDIR/SECTIONS/$filout.cgm ) == absent ] ; then
         rapatrie $t $MEANY $t
         cdfsig0 $t
@@ -1797,7 +1812,7 @@ eof
         esac
 
         if [ $skip != 1 ] ; then
-          filout=${CONFIG}_${var}_${DATE}-${CASE}
+          filout=${CONFIG}_${var}_${YEAR}-${CASE}
           if [ $( chkfile $PLOTDIR/DWBC/$filout.cgm ) == absent ] ; then
              rapatrie $u $MEANY $u
              rapatrie $v $MEANY $v
@@ -1841,7 +1856,7 @@ eof
      esac
 
      if [ $skip != 1 ] ; then
-       filout=${CONFIG}_${var}_${DATE}-${CASE}
+       filout=${CONFIG}_${var}_${YEAR}-${CASE}
        if [ $( chkfile $PLOTDIR/DWBC/$filout.cgm ) == absent ] ; then
          rapatrie $v $MEANY $v
          couptop ; coupbot
@@ -1865,7 +1880,7 @@ eof
 #-----------
 
   # get files  EKE
-  eke=${CONFCASE}_y${DATE}_EKE.nc
+  eke=${CONFCASE}_y${YEAR}_EKE.nc
   # check if input file is observation ( obs in CASE )
   # if observation, surface EKE and no CONFIG in the header of the plot
   echo $CASE | grep -q -i obs 
@@ -1895,8 +1910,8 @@ eof
   #Global plot
   listplt=' '
   var=EKEgl  ; ZOOM='-ijgrid -noproj -noint' ; OPTIONS='' 
-  STRING="-string 0.5 0.95 1.0 0  ${ZCONF}_${var}_${DATE}_${CASE}_DEPTH=@CLR_DEPTH@ "
-  filout=${CONFIG}_${var}_${zdep}_${DATE}-${CASE}
+  STRING="-string 0.5 0.95 1.0 0  ${ZCONF}_${var}_${YEAR}_${CASE}_DEPTH=@CLR_DEPTH@ "
+  filout=${CONFIG}_${var}_${zdep}_${YEAR}-${CASE}
   if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
      rapatrie $eke $MEANY $eke
      ekeplt ; mkplt $filout
@@ -1904,8 +1919,8 @@ eof
   
   if [ $(chconf PERIANT) = 0 ] ; then  # EKE in the Atlantic
     var=EKEatl ; ZOOM='-zoom -100 20 -70 70' ; OPTIONS='-proj ME -xstep 15 -ystep 15'
-    STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${DATE}_${CASE}_DEPTH=@CLR_DEPTH@ "
-    filout=${CONFIG}_${var}_${dep}_${DATE}-${CASE}
+    STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${YEAR}_${CASE}_DEPTH=@CLR_DEPTH@ "
+    filout=${CONFIG}_${var}_${zdep}_${YEAR}-${CASE}
 
 
     if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
@@ -1928,8 +1943,8 @@ eof
       CAMPBELL)  var=EKEcamp ; ZOOM='-zoom 100 180 -70 -30' ;;
     esac
     OPTIONS='-proj ME -xstep 10 -ystep 5'
-    STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${DATE}_${CASE}_DEPTH=@CLR_DEPTH@ "
-    filout=${CONFIG}_${var}_${dep}_${DATE}-${CASE}
+    STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${YEAR}_${CASE}_DEPTH=@CLR_DEPTH@ "
+    filout=${CONFIG}_${var}_${zdep}_${YEAR}-${CASE}
     XYPLOT='-xyplot 0.1 0.95 0.2 0.9'
     CLRXYPAL='-clrxypal 0.1 0.95 0.05 0.15'
     if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
@@ -2090,7 +2105,7 @@ eof
  couptrcplt() { $COUPE $CLRDATA -pts $LONmin $LONmax $LATmin $LATmax -forcexy -clrvar $clrvar \
                 $CNTDATA -cntvar $clrvar $CNTLIM  -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.013 \
                 -xyplot 0.1 0.95 0.2 0.95 -o gmeta -nolon -ylat 0.10  -english $CLRMARK $PAL $FORMAT $MEAN \
-                -string 0.5 0.98 1.0 0 ${CONFIG}_${var}_${SECTION}_${DATE}-${CASE}_DEPTH=@CLR_DEPTH@ \
+                -string 0.5 0.98 1.0 0 ${CONFIG}_${var}_${SECTION}_${YEAR}-${CASE}_DEPTH=@CLR_DEPTH@ \
                 -clrexp $exp -clrxypal 0.1 0.95 0.08 0.18 -string 0.95 0.1 1 1 "x10|S|$exp" ; }
 
                         if [ $tracer == 1 ] ; then
@@ -2239,9 +2254,9 @@ eof
     esac
 
     CNTTRC=" -cntdata $trc -cntvar $clrvar -cntlim trc.lim"
-    STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${DATE}_DEPTH=@CLR_DEPTH@"
+    STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${YEAR}_DEPTH=@CLR_DEPTH@"
     if [ $skip != 1 ] ; then
-      filout=${CONFIG}_${var}_${lev}_${bas}_${DATE}-${CASE}
+      filout=${CONFIG}_${var}_${lev}_${bas}_${YEAR}-${CASE}
       mklim $min $max $pas > zclrmark
       if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent  ] ; then
         rapatrie $trc $MEANY $trc
@@ -2297,36 +2312,36 @@ eof
     LATmax=-30
     case $fld in
       CLR01) clrvar=clr01 ; lev=1
-             filout=${CONFIG}_${var}_${lev}_${sec}_${DATE}-${CASE} ;
+             filout=${CONFIG}_${var}_${lev}_${sec}_${YEAR}-${CASE} ;
              exp=7
              min=8.e07 ; max=3.e08 ; pas=1.e$exp ;;
       CLR02) clrvar=clr02 ; lev=24
-             filout=${CONFIG}_${var}_${lev}_${sec}_${DATE}-${CASE}
+             filout=${CONFIG}_${var}_${lev}_${sec}_${YEAR}-${CASE}
              exp=7
              min=9.e08 ; max=1.e09 ; pas=1.e$exp ;;
       CLR03) clrvar=clr03 ; lev=24
-             filout=${CONFIG}_${var}_${lev}_${sec}_${DATE}-${CASE}
+             filout=${CONFIG}_${var}_${lev}_${sec}_${YEAR}-${CASE}
              exp=8
              min=1.e08 ; max=1.e09 ; pas=1.e$exp ;;
       CLR04) clrvar=clr04 ; lev=30
-             filout=${CONFIG}_${var}_${lev}_${sec}_${DATE}-${CASE}
+             filout=${CONFIG}_${var}_${lev}_${sec}_${YEAR}-${CASE}
              exp=7
              min=9.e08 ; max=1.e09 ; pas=1.e$exp ;;
       CLR05) clrvar=clr05 ; lev=30
-             filout=${CONFIG}_${var}_${lev}_${sec}_${DATE}-${CASE}
+             filout=${CONFIG}_${var}_${lev}_${sec}_${YEAR}-${CASE}
              exp=8
              min=1.e08 ; max=1.e09 ; pas=1.e$exp ;;
       CLR06) clrvar=clr06 ; lev=34
-             filout=${CONFIG}_${var}_${lev}_${sec}_${DATE}-${CASE}
+             filout=${CONFIG}_${var}_${lev}_${sec}_${YEAR}-${CASE}
              exp=7
              min=9.e08 ; max=1.e09 ; pas=1.e$exp ;;
       CLR07) clrvar=clr07 ; lev=34
-             filout=${CONFIG}_${var}_${lev}_${sec}_${DATE}-${CASE}
+             filout=${CONFIG}_${var}_${lev}_${sec}_${YEAR}-${CASE}
              exp=8
              min=1.e08 ; max=1.e09 ; pas=1.e$exp ;;
     esac 
     if [ $skip != 1 ] ; then
-#      filout=${CONFIG}_${var}_${lev}_${DATE}-${CASE}
+#      filout=${CONFIG}_${var}_${lev}_${YEAR}-${CASE}
       mklim $min $max $pas > zclrmark
       couptrcplt ; mkplt $filout
       rm gmeta* 
@@ -2419,7 +2434,7 @@ eof
     filout=${CONFIG}_${vari}_global_${YEAR}-${CASE}
     if [ $( chkfile $PLOTDIR/CFC/$filout.cgm) == absent ] ; then
      rapatrie $file $source $file
-     STRING="-string 0.5 0.97 1.0 0 ${CONFIG}_${CASE}_${vari}_(10_exp_${clrexp}_picomol)${DATE}"
+     STRING="-string 0.5 0.97 1.0 0 ${CONFIG}_${CASE}_${vari}_(10_exp_${clrexp}_picomol)${YEAR}"
      mklim $min $max $pas > zclrmark
      cfcgloplt ; mkplt $filout
     fi
@@ -2456,7 +2471,7 @@ eof
   for var in DIC TALK O2 PO4 Si NO3 Fer DOC ; do
     for dep in 0 150  ; do
       DEP="-dep $dep"
-      filout=${CONFIG}_${var}_${dep}_${DATE}-${CASE}
+      filout=${CONFIG}_${var}_${dep}_${YEAR}-${CASE}
       case $var in
         DIC) clrvar=DIC ; unit="mol-C/L"
           case $dep in
@@ -2501,7 +2516,7 @@ eof
       esac
       if [ $( chkfile $PLOTDIR/PISCES/GLOBAL/$filout.cgm) == absent ] ; then
         rapatrie $t $MEANY $t
-        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${DATE}_DEPTH=@CLR_DEPTH@"
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${YEAR}_DEPTH=@CLR_DEPTH@"
         mklim $min $max $pas > zclrmark
         glopiplt  ; mkplt $filout
       fi
@@ -2639,7 +2654,7 @@ eof
   coupitop() { $COUPE $CLRDATA -pts $LONmin $LONmax $LATmin $LATmax $LEV -forcexy -pmax -1000 -clrvar $clrvar \
                $CNTDATA -cntvar $clrvar $CNTLIM -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.013 \
                -xyplot 0.1 0.95 0.70 0.95 -o gmetatop -nolon -ylat 0.10 -english $CLRMARK $PAL -scale $scale \
-               -clrxypal 0.1 0.95 0.08 0.18 -string 0.5 0.98 1.0 0 ${CONFIG}-${CASE}_${var}_${unit}*${scale}_${SECTION}_${DATE} ; }
+               -clrxypal 0.1 0.95 0.08 0.18 -string 0.5 0.98 1.0 0 ${CONFIG}-${CASE}_${var}_${unit}*${scale}_${SECTION}_${YEAR} ; }
   # Bottom panel (0<depth<1000m)
   coupibot() { $COUPE $CLRDATA -pts $LONmin $LONmax $LATmin $LATmax $LEV -forcexy -pmax -5500 -clrvar $clrvar \
                $CNTDATA -cntvar $clrvar $CNTLIM  -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.013 \
@@ -2797,7 +2812,7 @@ eof
         rapatrie $t $MEANY $t
         coupitop ; coupibot
         med -e 'r gmetatop' -e 'r gmetabot' -e '1,2 merge' -e '1 w gmeta'
-        filout=${CONFIG}_${var}_${DATE}-${CASE}
+        filout=${CONFIG}_${var}_${YEAR}-${CASE}
         mkplt $filout
         rm gmeta*
      fi
@@ -2985,8 +3000,8 @@ eof
 
   # Set options
   for var in DICFlx O2Flx DeltaCO2 PPdiatoms PPnano ; do
-      filout=${CONFIG}_${var}_${dep}_${DATE}-${CASE}
-      filout=${CONFIG}_${var}_${DATE}-${CASE}
+      filout=${CONFIG}_${var}_${dep}_${YEAR}-${CASE}
+      filout=${CONFIG}_${var}_${YEAR}-${CASE}
       case $var in
           DICFlx) clrvar=Cflx ; unit="molC/m2/s" ;
                   scale=1.e8 ; min=-7 ; max=6  ; pas=1 ; PAL="-p $PALBLUE2RED3" ;;
@@ -3001,7 +3016,7 @@ eof
       esac
       if [ $( chkfile $PLOTDIR/PISCES/GLOBAL/$filout.cgm) == absent ] ; then
         rapatrie $t $MEANY $t
-        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${DATE}"
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${YEAR}"
         mklim $min $max $pas > zclrmark
         glopiplt  ; mkplt $filout
       fi
@@ -3010,6 +3025,146 @@ eof
   puttogaya PISCES/GLOBAL
 
                              fi
+
+#------------------------------------------------------------------------------
+# 22. Contour tool
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+                  if [ $contour == 1 ] ; then
+
+  # Generic function to create the contour file  
+  mkcnt() { set -x
+            $CHART $CNTDATA -cntvar $cntvar $ZOOM $PROJ $DEP $CNTLIM $CNTSAV > infolayer.txt
+            LAYER=`cat infolayer.txt | grep Layer | uniq | awk '{print $10}'`
+            PROF=`ncks -F -d deptht,$LAYER,$LAYER -v deptht $t | tail -2 | head -1 | awk -F= '{print $2}' | awk '{print $1}'`
+            echo "# AREA : $AREA" > $fileout.txt
+            echo "# CONFCASE : $CONFCASE" >> $fileout.txt
+            echo "# PERIOD : $YEAR" >> $fileout.txt
+            echo "# LAYER : $LAYER" >> $fileout.txt
+            echo "# DEPTH : $PROF m" >> $fileout.txt
+            echo "# VARIABLE : $cntvar" >> $fileout.txt
+            echo "# ISOTHERM : $ISOTHERM" >> $fileout.txt
+            cat cntlimit.txt >> $fileout.txt
+            \rm cntlimit.txt infolayer.txt gmeta
+          }
+
+  # Generic function to create the plot with contour + SSH/SPEED/STD(T)/MXL
+  mkcntplt() { set -x
+               $CHART $CLRDATA -clrvar $clrvar $ZOOM $PROJ $CLRMARK -xyplot 0.1 0.95 0.24 0.86 $OPTIONS -overdata $fileout.txt -overlw 2 $PAL -string 0.5 0.95 1 0 $TITLE1 -string 0.5 0.9 1 0 $TITLE2 -string 0.5 0.15 1 0 $STRING  
+             }
+
+  # get files
+  t=${CONFCASE}_y${YEAR}_gridT.nc
+  u=${CONFCASE}_y${YEAR}_gridU.nc
+  v=${CONFCASE}_y${YEAR}_gridV.nc
+  stdt=${CONFCASE}_y${YEAR}_gridT_STD.nc
+
+  # reset the list of plots that are produced ( list is updated in mkplt )
+  listplt=''
+
+  cntvar=votemper
+  AREA="GULFSTREAM"
+  case $AREA in
+    GULFSTREAM) ZOOM="-zoom -82 -50 24 43" ;
+                ISOTHERM=17 ;
+                NEAREST_DEPTH=180 ;;
+    KUROSHIO)   ZOOM="-zoom 110 140 15 35" ;
+                ISOTHERM=17 ;
+                NEAREST_DEPTH=180 ;;
+    ACC)        ZOOM="-zoom -180 178 -90 -40" ;
+                ISOTHERM=3 ; # to be defined 3 5 7 9 ?
+                NEAREST_DEPTH=380 ;;
+  esac
+
+  DEP="-ndep $NEAREST_DEPTH"
+  PROJ="-proj ME -noint"
+  CNTDATA="-cntdata $t"
+  CNTLIM="-cntlim limit.dat"
+  CNTSAV="-cntsav cntlimit.txt"
+cat << eof > limit.dat
+$ISOTHERM
+eof
+  fileout=${CONFCASE}_y${YEAR}_cnt_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_${AREA}
+
+cat << eof > sshclrmark
+-0.9
+-0.6
+-0.3
+0
+0.3
+0.6
+0.9
+eof
+cat << eof > speedclrmark
+-2
+-1.69897
+-1.52288
+-1.30103
+-1
+-0.69897
+-0.52288
+-0.30103
+0
+0.17609
+eof
+cat << eof > stdtclrmark
+0
+0.3
+0.6
+0.9
+1.2
+1.5
+1.8
+eof
+
+    rapatrie $t $MEANY $t
+    rapatrie $u $MEANY $u
+    rapatrie $v $MEANY $v
+
+    CLRDATA="-clrdata $t"
+    mkcnt
+    
+    CLRDATA="-clrdata $t"
+    clrvar=sossheig
+    CLRMARK="-clrmark sshclrmark"
+    OPTIONS="-clrmean 0"
+    PAL="-format PALETTE f5.2 -p $PALBLUE2RED5"
+    TITLE1="${cntvar}:${ISOTHERM}_(${PROF}m)"
+    TITLE2="${CONFCASE}_${YEAR}"
+    STRING="SSH_in_m_(-clrmean_0_option)"
+    mkcntplt
+    sshfilout=${CONFIG}_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_SSH_${AREA}_${YEAR}-${CASE}
+    mkplt $sshfilout
+
+    cdfvita $u $v $t -lev $LAYER
+    CLRDATA="-clrdata vita.nc"
+    clrvar=sovitmod
+    CLRMARK="-clrmark speedclrmark"
+    OPTIONS="-log10"
+    PAL="-format PALETTE f5.2 -p $PALBLUE2WHITE"
+    STRING="Horizontal_velocity_at_@CLR_DEPTH@m_in_m/s"
+    mkcntplt
+    \rm vita.nc
+    speedfilout=${CONFIG}_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_SPEED_${AREA}_${YEAR}-${CASE}
+    mkplt $speedfilout
+
+    if [ $clim == 1 ] ; then
+      rapatrie $stdt $MEANY $stdt
+      CLRDATA="-clrdata $stdt"
+      clrvar=votemper_std
+      CLRMARK="-clrmark stdtclrmark"
+      OPTIONS="-lev $LAYER"
+      PAL="-format PALETTE f5.2 -p $PALBLUE2RED5"
+      STRING="Interannual_Std(T)_at_@CLR_DEPTH@m_in_deg"
+      mkcntplt
+      stdtfilout=${CONFIG}_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_STDT_${AREA}_${YEAR}-${CASE}
+      mkplt $stdtfilout
+    fi
+
+  chkdirg $DIAGS/CONTOURS
+  expatrie $fileout.txt $DIAGS/CONTOURS $fileout.txt
+  puttogaya CONTOURS
+                  fi
 
 #==============================================================================
 #==============================================================================
