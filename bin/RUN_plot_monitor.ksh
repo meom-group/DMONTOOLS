@@ -24,6 +24,8 @@ set -x
 
 cp $PLOTTOOLS/make_movies.ksh     .
 cp $PLOTTOOLS/make_movies_trc.ksh .
+cp $PLOTTOOLS/cp2web_climgif.ksh .
+
 
 if [ $RNDTMPDIR == 0 ] ; then
 
