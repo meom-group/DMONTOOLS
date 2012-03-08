@@ -1,0 +1,65 @@
+#!/bin/ksh
+
+# This script allows to export the 2D plots of a climatology on the DRAKKAR website
+# It also exports the CONTOURS plots
+
+if [ $# = 0 ] ; then
+   echo 'USAGE : cp2web_climgif.ksh year1-year2'
+   exit 1
+fi
+
+# take CLIM (YEAR1-YEAR2) as the argument to this script
+CLIM=$1
+
+. ./config_def.ksh
+. ./function_def.ksh
+
+copy() {
+          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
+          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE ; fi "
+          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/CLIM_${CLIM} ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/CLIM_${CLIM} ; fi "
+          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/CLIM_${CLIM}/${dir} ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/CLIM_${CLIM}/${dir} ; fi "
+          scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${CLIM}/${dir}/$(basename $1) ;
+          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+         " chmod a+r DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${CLIM}/${dir}/$(basename $1) "
+        }
+
+mkgif() {
+   ctrans -d sun -res 1024x1024 $1 > ztmp.sun
+   convert ztmp.sun $2
+   \rm ztmp.sun
+        }
+
+cd $PLOTDIR/$CONFIG/CLIM_PLOTS/$CONFCASE                             # work on gaya directly
+
+for dir in OVT GLOBAL DRAKE CAMPBELL KERGUELEN SECTIONS SECTIONS1 CIRCUM ICE DWBC MXL ATLN ATLS CONTOURS ; do
+  if [ -d $dir ] ; then 
+    cd $dir
+    chkdir GIFS  # this directory should exist but who knows ...?
+
+    for cgmfile in `ls *${CLIM}*.cgm` ; do
+      giffile=GIFS/${cgmfile%.cgm}.gif
+      if [ ! -f $giffile ] ; then
+         mkgif $cgmfile $giffile
+      fi
+      copy $giffile
+    done
+
+    # if $dir=CONTOURS, copy the lon/lat.dat file from the -DIAGS/CONTOURS to DRAKKAR website too
+    if [ $dir == CONTOURS ] ; then
+       here=$(pwd)
+       CONTOURDIR=$WORKDIR/${CONFIG}/${CONFCASE}-DIAGS/CONTOURS/
+       cd $CONTOURDIR
+       for cntfile in `ls ${CONFCASE}_y${CLIM}_cnt_*.txt` ; do
+          copy $cntfile
+       done
+       cd $here
+    fi
+    cd ../.
+  else
+    echo $dir does not exit, going my way forward
+  fi   # if dir does'nt exist
+ done
