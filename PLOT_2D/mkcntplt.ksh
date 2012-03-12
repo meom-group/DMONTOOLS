@@ -1,0 +1,229 @@
+#!/bin/ksh
+
+#set -x
+
+usage() {
+      echo USAGE: $( basename $0 ) [-h ]
+      echo "   -h : this help [xxx] indicate the default value "
+      echo "   mkcntplt.ksh allows to merge several contours"
+      echo "   Contour datafile should be either:"
+      echo "     - in WORKDIR/CONFIG/CONFCASE-DIAGS/CONTOURS/"
+      echo "     - or in the DRAKKAR Website: DRAKKAR/CONFIG/CONFCASE/CLIM_YEAR/CONTOURS/"
+      echo "   It will create a CONTOURS subsection in the COMPARE section in the MONITORING"
+      echo "   Before using this tool you must fill the contour definition file: contour_def.ksh"
+      exit 0
+        }
+
+mkcnt_argo() {
+$CHART $CNTDATA -cntvar $cntvar $ZOOM $PROJ $DEP $CNTLIM $CNTSAV > infolayer.txt
+LAYER=`cat infolayer.txt | grep Layer | uniq | awk '{print $10}'`
+PROF=`ncks -F -d deptht,$LAYER,$LAYER -v deptht $ARGOFILE | tail -2 | head -1 | awk -F= '{print $2}' | awk '{print $1}'`
+echo "# AREA : $AREA" > $fileout.txt
+echo "# DATASET : $CONFCASE" >> $fileout.txt
+echo "# PERIOD : $YEAR" >> $fileout.txt
+echo "# LAYER : $LAYER" >> $fileout.txt
+echo "# DEPTH : $PROF" >> $fileout.txt
+echo "# VARIABLE : $cntvar" >> $fileout.txt
+echo "# ISOTHERM : $ISOTHERM" >> $fileout.txt
+cat cntlimit.txt >> $fileout.txt
+rm cntlimit.txt infolayer.txt gmeta ; }
+
+# Copy the cnt.data file from $WORKDIR/$CONFIG/${CONFCASE}-DIAGS/CONTOURS directory if it exists or from DRAKKAR website
+copycntfile(){ if [ -f $WORKDIR/$CONFIG/${CONFCASE}-DIAGS/CONTOURS/$1 ] ; then
+                 ln -sf $WORKDIR/$CONFIG/${CONFCASE}-DIAGS/CONTOURS/$1 $1
+               else
+                 echo "CONTOUR DATAFILE NOT FOUND IN THE $WORKDIR/$CONFIG/${CONFCASE}-DIAGS/CONTOURS directory, searching in DRAKKAR MONITORING WEBSITE ..."
+                 scp drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${YEAR}/CONTOURS/$1 .
+               fi
+               if [ ! -f $1 ] ; then
+                 echo "CONTOUR DATAFILE NOT FOUND IN THE DRAKKAR MONITORING WEBSITE"
+               fi ; }
+
+copygif() { if [ -f $WORKDIR/$CONFIG/CLIM_PLOTS/${CONFCASE}/CONTOURS/GIFS/$1 ] ; then
+              ln -sf $WORKDIR/$CONFIG/CLIM_PLOTS/${CONFCASE}/CONTOURS/GIFS/$1 $1
+            else
+              echo "===> $WORKDIR/$CONFIG/CLIM_PLOTS/${CONFCASE}/CONTOURS/GIFS/$1 NOT FOUND"
+              echo "     searching in DRAKKAR MONITORING WEBSITE ..."
+              scp drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${YEAR}/CONTOURS/$1 .
+            fi
+            if [ ! -f $1 ] ; then
+              echo "===> $1 NOT FOUND IN THE DRAKKAR MONITORING WEBSITE"
+              echo "     Going my way forward..."
+            fi ; }
+
+cp2web() { ssh drakkar@meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/COMPARE/${listconfcase} ] ; then mkdir DRAKKAR/COMPARE/${listconfcase} ; fi "
+           ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+          " if [ ! -d DRAKKAR/COMPARE/${listconfcase}/CONTOURS ] ; then mkdir DRAKKAR/COMPARE/${listconfcase}/CONTOURS ; fi "
+           scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/COMPARE/${listconfcase}/CONTOURS/$1 ;
+           ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+          " chmod a+r DRAKKAR/COMPARE/${listconfcase}/CONTOURS/$1 " ; }
+
+# Merge 2 frames: merge frame 2 in frame 1 and remove frame 2
+mergeframe() { med -e "r $1" -e "r $2" -e "1,2 merge" -e "1 w $1" ;
+               \rm $2 ; }
+
+ #-------------------------------------------------------------------------------
+ # LIST OF PALETTES (available in PALDIR)
+ #-------------------------------------------------------------------------------
+ PALGREY=grey8w2b_withland_contour.pal
+
+###############################################################################################
+
+while getopts :h opt ; do
+   case $opt in 
+    (h) usage ;;
+    (\?) echo $( basename $0 ): option -$OPTARG not valid. ; usage ;;
+   esac
+done
+
+cd $WORKDIR/TMPDIR_PLT_CONTOURS
+
+if [ ! -f ./contour_def.ksh ] ; then
+  echo "contour_def.ksh must be present in the $WORKDIR/TMPDIR_PLT_CONTOURS directory"
+fi
+
+. ./contour_def.ksh
+
+CHART=chart
+listconfcase=''
+
+NBSIMUS=`cat contour_def.ksh | grep "#CNT_" | wc -l`
+
+echo "##########################################################################"
+echo "Merging frames of $cntvar $ISOTHERM at $NEAREST_DEPTH m in $AREA region"
+echo "in the $NBSIMUS following configurations and periods:"
+for SIMU in $(seq 1 $NBSIMUS) ; do
+  CONFIG=`cat contour_def.ksh | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $2}'`
+  CASE=`cat contour_def.ksh | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $3}'`
+  YEAR=`cat contour_def.ksh | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $4}'`
+  CONFCASE=${CONFIG}-${CASE}
+  listconfcase="${listconfcase} ${CONFCASE}"
+  echo "   - $( printf "%20s" $CONFCASE)  $( printf "%10s" $YEAR)" 
+done
+echo "Bathymetry is coming from: "
+echo "$BATDIR/$BATFILE"
+echo "Observed dataset is coming from:"
+echo "$ARGODIR/$ARGOFILE"
+echo "##########################################################################"
+listconfcase=`echo $listconfcase | sed -e "s/\ /_/g"`
+
+case $AREA in
+  GULFSTREAM) ZOOM="-zoom -82 -50 24 43" ;;
+  KUROSHIO)   ZOOM="-zoom 110 140 15 35" ;;
+esac
+
+# Create the background plot with the bathymetry
+cat << eof > zclrmark
+0
+1000
+2000
+3000
+4000
+5000
+6000
+eof
+BATCLRMARK="-clrmark zclrmark"
+PROJ="-proj ME -noint"
+BATPAL="-format PALETTE I4 -p $PALGREY"
+FONT="-font HELVETICA-BOLD"
+ln -sf $BATDIR/$BATFILE .
+$CHART $ZOOM -clrdata $BATFILE -clrvar Bathymetry $BATCLRMARK \
+    -c plotcoord.dat $PROJ $BATPAL \
+    -o frame.cgm $FONT -title "${cntvar}:${ISOTHERM} at ${NEAREST_DEPTH}m" -string 0.5 0.15 1 0 "Bathymetry in m"
+xmin=`cat plotcoord.dat | head -2 | tail -1`
+xmax=`cat plotcoord.dat | head -4 | tail -1`
+ymin=`cat plotcoord.dat | head -6 | tail -1`
+ymax=`cat plotcoord.dat | head -8 | tail -1`
+\rm plotcoord.dat
+xstring=0.4
+
+# Create the contour for observations
+SIMU=0
+ln -sf $ARGODIR/$ARGOFILE $ARGOFILE
+YEAR=$ARGOYEAR
+CONFCASE=ARGO
+fileout=${CONFCASE}_y${YEAR}_cnt_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_${AREA}
+cntvar=$cntvar
+DEP="-ndep $NEAREST_DEPTH"
+PROJ="-proj ME -noint"
+CNTDATA="-cntdata $ARGOFILE"
+CNTLIM="-cntlim limit.dat"
+CNTSAV="-cntsav cntlimit.txt"
+cat << eof > limit.dat
+$ISOTHERM
+eof
+mkcnt_argo
+\rm limit.dat $ARGOFILE
+ystring=`echo "scale=3; $ymin+0.07+0.03*$SIMU" | bc`
+OVEROPT="-overdata $fileout.txt -overclr $((-SIMU)) -overlw 3"
+$CHART $ZOOM -clrdata $BATFILE -clrvar Bathymetry $BATCLRMARK -clrnocol \
+  -xyplot $xmin $xmax $ymin $ymax -noteam -perim -noylab -noxlab $PROJ \
+  $OVEROPT $BATPAL \
+  -o frame_${SIMU}.cgm $FONT -stringrc $xstring $ystring 1 -1 0 $SIMU "${CONFCASE} ${YEAR} (${PROF} m)"
+\rm $fileout.txt
+mergeframe frame.cgm frame_${SIMU}.cgm
+
+# Create and superpose the contours for all simulations, and create the plot with tiny ssh and speed
+listspeedgif=''
+listsshgif=''
+liststdtgif=''
+# LIST OF SIMUS
+for SIMU in $(seq 1 $NBSIMUS) ; do
+  CONFIG=`cat contour_def.ksh | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $2}'`
+  CASE=`cat contour_def.ksh | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $3}'`
+  YEAR=`cat contour_def.ksh | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $4}'`
+  CONFCASE=${CONFIG}-${CASE}
+  cntfile=${CONFCASE}_y${YEAR}_cnt_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_${AREA}.txt
+  copycntfile $cntfile
+  ystring=`echo "scale=3; $ymin+0.07+0.03*$SIMU" | bc`
+  PROF=`cat $cntfile | grep DEPTH | awk '{print $4}'`
+  OVEROPT="-overdata $cntfile -overclr $((-SIMU)) -overlw 3"
+  $CHART $ZOOM -clrdata $BATFILE -clrvar Bathymetry $BATCLRMARK -clrnocol \
+    -xyplot $xmin $xmax $ymin $ymax -noteam -perim -noylab -noxlab $PROJ \
+    $OVEROPT $BATPAL \
+    -o frame_${SIMU}.cgm $FONT -stringrc $xstring $ystring 1 -1 0 $((-SIMU)) "${CONFCASE} ${YEAR}  (${PROF}m)"
+\rm $cntfile
+mergeframe frame.cgm frame_${SIMU}.cgm
+speedgif=${CONFIG}_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_SPEED_${AREA}_${YEAR}-${CASE}.gif
+sshgif=${CONFIG}_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_SSH_${AREA}_${YEAR}-${CASE}.gif
+stdtgif=${CONFIG}_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_STDT_${AREA}_${YEAR}-${CASE}.gif
+copygif $speedgif
+copygif $sshgif
+copygif $stdtgif
+listspeedgif="$listspeedgif $speedgif"
+listsshgif="$listsshgif $sshgif"
+liststdtgif="$liststdtgif $stdtgif"
+done
+
+\rm zclrmark $BATFILE
+
+# Convert cgm file with all contours in a gif file
+
+mkgif() { ctrans -d sun -res 1024x1024 $1 > tmp.sun ; convert tmp.sun $2 ;
+          \rm $1 tmp.sun ; }
+
+giffile=${listconfcase}_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_${AREA}.gif
+mkgif frame.cgm $giffile
+cp2web $giffile
+\rm $giffile
+
+# Assembly the ssh and speed and stdt plots in one ony plot and export them to the web
+TILE=3x5 ; GEOMETRY=560x560 ;
+
+montagegif=${listconfcase}_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_SPEED_${AREA}.gif
+montage -tile $TILE -geometry $GEOMETRY $listspeedgif $montagegif
+\rm $listspeedgif
+cp2web $montagegif
+\rm $montagegif
+
+montagegif=${listconfcase}_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_SSH_${AREA}.gif
+montage -tile $TILE -geometry $GEOMETRY $listsshgif $montagegif
+\rm $listsshgif
+cp2web $montagegif
+\rm $montagegif
+
+montagegif=${listconfcase}_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_STDT_${AREA}.gif
+montage -tile $TILE -geometry $GEOMETRY $liststdtgif $montagegif
+\rm $liststdtgif
+cp2web $montagegif
+\rm $montagegif
