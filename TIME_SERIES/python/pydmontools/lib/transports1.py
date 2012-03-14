@@ -87,20 +87,20 @@ def _readnc(filenc=None,argdict=myargs):
     #
     nsection=len(truenames)
     outdict = {} # creates the dictionnary which will contain the arrays 
-    year = rs.get_years_intpart(filenc)
+    date = rs.get_datetime(filenc)
     mass =[] ; heat=[] ; salt = []
     for kk in range(nsection):
         mass.append(rs.readfilenc(filenc, 'vtrp' + '_' + shortnames[kk]))
         heat.append(rs.readfilenc(filenc, 'htrp' + '_' + shortnames[kk]))
         salt.append(rs.readfilenc(filenc, 'strp' + '_' + shortnames[kk]))
 
-    mass = npy.reshape(mass, [nsection, len(year)])
-    heat = npy.reshape(heat, [nsection, len(year)])
-    salt = npy.reshape(salt, [nsection, len(year)])
+    mass = npy.reshape(mass, [nsection, len(date)])
+    heat = npy.reshape(heat, [nsection, len(date)])
+    salt = npy.reshape(salt, [nsection, len(date)])
 
-    bigsens = npy.transpose(sens * npy.ones((len(year),nsection)))
+    bigsens = npy.transpose(sens * npy.ones((len(date),nsection)))
 
-    outdict['year']    = year
+    outdict['date']    = date
     outdict['massplt'] = mass * bigsens
     outdict['heatplt'] = heat * bigsens
     outdict['saltplt'] = salt * bigsens
@@ -135,7 +135,7 @@ def _readmtl(filemtl=None,argdict=myargs):
     heat=npy.reshape(heat, (-1,nsection))
     salt=npy.reshape(salt, (-1,nsection))
 
-    outdict['year']    = year
+    outdict['date']    = year
     outdict['massplt'] = npy.transpose( mass * bigsens )
     outdict['heatplt'] = npy.transpose( heat * bigsens )
     outdict['saltplt'] = npy.transpose( salt * bigsens )
@@ -146,7 +146,7 @@ def _readmtl(filemtl=None,argdict=myargs):
 #--- Plotting the data 
 #=======================================================================
 
-def plot(argdict=myargs, figure=None,color='r',massplt=None,heatplt=None,saltplt=None,year=None,compare=False):
+def plot(argdict=myargs, figure=None,color='r',massplt=None,heatplt=None,saltplt=None,date=None,compare=False):
     
     # adjust the figure size 
     (truenames, shortnames, longnames, sens) = rs.define_sections(argdict)
@@ -156,30 +156,35 @@ def plot(argdict=myargs, figure=None,color='r',massplt=None,heatplt=None,saltplt
     if figure is None: # by default create a new figure
           figure = plt.figure(figsize=fig_size)
 
+    _date = ps.mdates.date2num(date) # now a numerical value
     for k in range(1,nsection+1) :
-          plt.subplot(nsection,3,3*(k-1)+1)
-          plt.plot(year, massplt[k-1,:], color + '.-')
-          plt.axis([min(year),max(year),min(massplt[k-1,:]),max(massplt[k-1,:])])
-          plt.grid(True)
+          ax1 = figure.add_subplot(nsection,3,3*(k-1)+1)
+          ax1.plot(date, massplt[k-1,:], color + '.-')
+          ax1.axis([min(_date),max(_date),min(massplt[k-1,:]),max(massplt[k-1,:])])
+          ax1.grid(True)
           plt.ylabel(longnames[k-1].replace('_',' '),fontsize='small')
+          ps.set_dateticks(ax1)
           if k==1 :
                 plt.title('Mass Transport',fontsize='large')
-          plt.subplot(nsection,3,3*(k-1)+2)
-          plt.plot(year, heatplt[k-1,:], color + '.-')
-          plt.axis([min(year),max(year),min(heatplt[k-1,:]),max(heatplt[k-1,:])])
-          plt.grid(True)
-
+          ax2 = figure.add_subplot(nsection,3,3*(k-1)+2)
+          ax2.plot(date, heatplt[k-1,:], color + '.-')
+          ax2.axis([min(date),max(date),min(heatplt[k-1,:]),max(heatplt[k-1,:])])
+          ax2.grid(True)
+          ps.set_dateticks(ax2)
           if not(compare) and k==1 :
                 plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Heat Transport',fontsize='large')
-          else :
+          elif k==1 :
                 plt.title('Heat Transport',fontsize='large')
 
-          plt.subplot(nsection,3,3*(k-1)+3)
-          plt.plot(year, saltplt[k-1,:], color + '.-')
-          plt.axis([min(year),max(year),min(saltplt[k-1,:]),max(saltplt[k-1,:])])
+          ax3 = figure.add_subplot(nsection,3,3*(k-1)+3)
+          ax3.plot(date, saltplt[k-1,:], color + '.-')
+          ax3.axis([min(date),max(date),min(saltplt[k-1,:]),max(saltplt[k-1,:])])
           plt.grid(True)
+          ps.set_dateticks(ax3)
           if k==1 :
                 plt.title('Salt Transport',fontsize='large')
+          figure.autofmt_xdate() # should be adapted a bit more...
+  
     return figure
 
 #=======================================================================
