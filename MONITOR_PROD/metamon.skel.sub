@@ -78,13 +78,16 @@ else
 ### this allows to ensure compatibility for most of the tags
   if [ ${#yinit} -gt 4 ] ; then
      # interannual plot
+     chmod +x monitor_prod.ksh
      ./monitor_prod.ksh $yinit
   elif [ ${#yinit} -gt 4 ] ; then
      # standard modern year
+     chmod +x monitor_prod.ksh
      ./monitor_prod.ksh $yinit
   else
      # climato runs
      yinit=$( printf "%04d" $yinit ) 
+     chmod +x monitor_prod.ksh
      ./monitor_prod.ksh $yinit
   fi
 
