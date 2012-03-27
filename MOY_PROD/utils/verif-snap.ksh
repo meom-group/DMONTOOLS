@@ -67,8 +67,10 @@ echo "   -> Check for size   "
 echo ""
 
 for grid in $listgrid ; do
-    sizeref[$jg]=$( du ${CONFCASE}_${firsttag}_${grid}.nc | awk '{ print $1 }' )
-    sizeh=$( du -h ${CONFCASE}_${firsttag}_${grid}.nc | awk '{ print $1 }' )
+#    sizeref[$jg]=$( du ${CONFCASE}_${firsttag}_${grid}.nc | awk '{ print $1 }' )
+#    sizeh=$( du -h ${CONFCASE}_${firsttag}_${grid}.nc | awk '{ print $1 }' )
+    sizeref[$jg]=$( ls -la ${CONFCASE}_${firsttag}_${grid}.nc | awk '{ print $5 }' )
+    sizeh=$( ls -la ${CONFCASE}_${firsttag}_${grid}.nc | awk '{ print $5 }' )
     echo "      file $grid : $sizeh "
     jg=$(( $jg + 1 ))
 done 
@@ -78,7 +80,8 @@ for tag in $listtag ; do
 
     jg=0
     for grid in $listgrid ; do
-       size[$jg]=$( du ${CONFCASE}_${tag}_${grid}.nc | awk '{ print $1 }' )
+       #size[$jg]=$( du ${CONFCASE}_${tag}_${grid}.nc | awk '{ print $1 }' )
+       size[$jg]=$( ls -la ${CONFCASE}_${tag}_${grid}.nc | awk '{ print $5 }' )
        if [ ! $size[$jg] == $sizeref[$jg] ] ; then
           echo ""
           echo "     WARNING : file ${CONFCASE}_${tag}_${grid}.nc looks weird"

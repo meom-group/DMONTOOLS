@@ -12,7 +12,7 @@
 # @ job_type = parallel
 # @ total_tasks = <NPROC>
 ## This is for ulam
-# @ as_limit = 3.2gb
+# @ as_limit = 4.0gb
 # @ wall_clock_limit = 2:00:00
 ## On vargas for large configs try
 ## @ data_limit = 1.0gb
@@ -25,7 +25,7 @@
 # @ job_type = parallel
 # @ total_tasks = <NPROC> 
 ## This is for ulam
-# @ as_limit = 3.2gb
+# @ as_limit = 4.0gb
 # @ wall_clock_limit = 2:00:00
 ## On vargas for large configs try
 ## @ data_limit = 1.0gb
