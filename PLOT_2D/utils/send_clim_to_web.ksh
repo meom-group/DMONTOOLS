@@ -1,0 +1,58 @@
+#!/bin/ksh
+
+if [ ! $# == 3 ] ; then
+   echo "USAGE : send_clim_to_web.ksh CONFIG CASE YBEG-YEND "
+   echo "       This will copy climatofiles to drakkar website "
+   echo "       USE WITH CARE ! " ; exit 1
+fi
+
+###########################################################################################################################
+### Functions
+
+## Copy gif file to web directory and creates it if needed
+## copyclim file dir
+## example : copyclim toto.gif OVT
+copy_clim() {
+          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
+          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE ; fi "
+          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/CLIM_${YEARS} ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/CLIM_${YEARS} ; fi "
+          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/CLIM_${YEARS}/${2} ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/CLIM_${YEARS}/${2} ; fi "
+          scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${YEARS}/${2}/$1 ;}
+
+
+###########################################################################################################################
+
+CONFIG=$1
+CASE=$2
+YEARS=$3
+CONFCASE=$CONFIG-$CASE
+
+if [ ! $SDIR ] ; then
+  echo "SDIR is not defined ; aborting " ; exit 1
+fi
+
+cd $SDIR/$CONFIG/PLOTS/$CONFCASE
+
+for dirtmp in $( ls ) ; do
+
+   if [ -d $dirtmp/GIFS ] ; then
+
+       echo WORKING in directory $SDIR/$CONFIG/PLOTS/$CONFCASE/$dirtmp
+
+       cd $SDIR/$CONFIG/PLOTS/$CONFCASE/$dirtmp/GIFS 
+
+       for file in $( ls | grep $YEARS ) ; do
+
+           copy_clim $file $dirtmp
+
+       done
+
+   fi
+
+   cd $SDIR/$CONFIG/PLOTS/$CONFCASE
+
+done
+
