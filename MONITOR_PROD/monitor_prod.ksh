@@ -424,6 +424,10 @@ mklspv(){
    esac
 
   done
+  # in case of monthly diags, concatenate monthly files in yearly files:
+   case $TSMEAN in
+      2,3) ;; 
+   esac
 
 # Ice Volume area and extent for all months: input file : icemod, and mesh_mask
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
