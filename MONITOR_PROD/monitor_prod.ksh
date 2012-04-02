@@ -86,7 +86,6 @@ cd $YEAR
   # ... on gaya
   chkdirg $CONFIG
   chkdirg $DIAGS
-  chkdirg $DIAGS/TXT    # for ASCII diag files (to become obsolete)
   chkdirg $DIAGS/NC     # for NetCdf diag files
   chkdirg $DIAGS/MONTHLY
   chkdirg $DIAGS/MONTHLY/TXT
@@ -233,7 +232,7 @@ mkmocsig5d(){
 
   for TAG in $(mktaglist $MOCSIG) ; do
    # Compute NREF
-   if [ $DREF == 0 ]; then NREF=0 ; fi
+   if [ $DREF == 0    ]; then NREF=0 ; fi
    if [ $DREF == 1000 ]; then NREF=1 ; fi
    if [ $DREF == 2000 ]; then NREF=2 ; fi
 
@@ -307,7 +306,7 @@ mklspv(){
          }
 
    case $LSPV in
-     1) taglist="3 9" ; mklspv $taglist ;;
+     1) taglist="3 9"       ; mklspv $taglist ;;
      2) taglist=$(seq 1 12) ; mklspv $taglist ;;
      3) taglist=$(seq 1 12) ; mklspv $taglist
         cdfmoy_weighted $listfiles
@@ -337,13 +336,11 @@ mklspv(){
     mv ${levitus}_masked_masked ${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
     levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
     #  
-    cdfmean $levitus  votemper T  >  LEVITUS_y0000_TMEAN.txt  ; mv cdfmean.nc LEVITUS_y0000_TMEAN.nc
-    cdfmean $levitus  vosaline T  >  LEVITUS_y0000_SMEAN.txt  ; mv cdfmean.nc LEVITUS_y0000_SMEAN.nc
+    cdfmean $levitus  votemper T  >  LEVITUS_y0000_1y_TMEAN.txt  ; mv cdfmean.nc LEVITUS_y0000_1y_TMEAN.nc
+    cdfmean $levitus  vosaline T  >  LEVITUS_y0000_1y_SMEAN.txt  ; mv cdfmean.nc LEVITUS_y0000_1y_SMEAN.nc
 
-    expatrie  LEVITUS_y0000_TMEAN.txt $DIAGS/TXT  LEVITUS_y0000_TMEAN.txt
-    expatrie  LEVITUS_y0000_SMEAN.txt $DIAGS/TXT  LEVITUS_y0000_SMEAN.txt
-    expatrie  LEVITUS_y0000_TMEAN.nc $DIAGS/NC  LEVITUS_y0000_TMEAN.nc
-    expatrie  LEVITUS_y0000_SMEAN.nc $DIAGS/NC  LEVITUS_y0000_SMEAN.nc
+    expatrie  LEVITUS_y0000_1y_TMEAN.nc $DIAGS/NC  LEVITUS_y0000_1y_TMEAN.nc
+    expatrie  LEVITUS_y0000_1y_SMEAN.nc $DIAGS/NC  LEVITUS_y0000_1y_SMEAN.nc
    fi
                     }
 
@@ -470,7 +467,6 @@ mklspv(){
 
    done
  
-   expatrie $fice    $DIAGS/TXT $fice 
    expatrie $fice_nc $DIAGS/NC  $fice_nc
  
   fi
@@ -494,8 +490,6 @@ mklspv(){
     fi
     cdfmean $levitus  votemper T $GIBWIN  0 0  >  LEVITUS_y0000_TGIB.txt ; mv cdfmean.nc LEVITUS_y0000_TGIB.nc
     cdfmean $levitus  vosaline T $GIBWIN  0 0  >  LEVITUS_y0000_SGIB.txt ; mv cdfmean.nc LEVITUS_y0000_SGIB.nc
-    expatrie  LEVITUS_y0000_TGIB.txt $DIAGS/TXT LEVITUS_y0000_TGIB.txt
-    expatrie  LEVITUS_y0000_SGIB.txt $DIAGS/TXT LEVITUS_y0000_SGIB.txt
     expatrie  LEVITUS_y0000_TGIB.nc $DIAGS/NC   LEVITUS_y0000_TGIB.nc
     expatrie  LEVITUS_y0000_SGIB.nc $DIAGS/NC   LEVITUS_y0000_SGIB.nc
    fi
@@ -584,13 +578,11 @@ mklspv(){
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
  
-   # Ascii outputfile
-   fnino=${CONFCASE}_${TAG}_NINO.txt
    # nc outputfile
-   fnino12_nc=${CONFCASE}_${TAG}_NINO12.nc
-   fnino3_nc=${CONFCASE}_${TAG}_NINO3.nc
-   fnino4_nc=${CONFCASE}_${TAG}_NINO4.nc
-   fnino34_nc=${CONFCASE}_${TAG}_NINO34.nc
+   fnino12_nc=${CONFCASE}_${TAG}_1m_NINO12.nc
+   fnino3_nc=${CONFCASE}_${TAG}_1m_NINO3.nc
+   fnino4_nc=${CONFCASE}_${TAG}_1m_NINO4.nc
+   fnino34_nc=${CONFCASE}_${TAG}_1m_NINO34.nc
 
    # special function for concatenation of Netcdf output
    cdfmean_concat() { case $mm in
@@ -629,7 +621,6 @@ mklspv(){
  
    done
  
-   expatrie $fnino      $DIAGS/TXT $fnino
    expatrie $fnino12_nc $DIAGS/NC  $fnino12_nc
    expatrie $fnino3_nc  $DIAGS/NC  $fnino3_nc
    expatrie $fnino4_nc  $DIAGS/NC  $fnino4_nc
