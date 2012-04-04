@@ -26,6 +26,9 @@ fi
 # take YEAR as the argument to this script
 YEAR=$1
 
+#define a variable for new_maskglo.nc for easy change later on
+fbasinmask=new_maskglo.nc
+
 # define some config dependent variable 
 . ./config_def.ksh    # can be a link
 
@@ -108,34 +111,6 @@ concat_file() {
 filter_list() {
    for ll in $* ; do echo $ll ; done | sort -u
               } 
-
-# find_model_level : return the level corresponding to dep (m) by superior value
-# usage : find_model_level depth_dim_name depth file
-find_model_level() { 
-     ncks -H -F -C -v $1 $3 | sed -e 's/(/ /' -e 's/)/ /' -e 's/=/ /' | \
-            awk '{if ( $3 > dep ) {print $2 ; nextfile }   }' dep=$2  
-                   }
-
-# Function for vertical interpolation, used in TA diags
-# vert_interp depth_dim_name target_depth var_to_interpolate file
-vert_interp()  { 
-     if [ $# != 4 ] ; then exit 1 ; fi 
-     level_sup=$( find_model_level $1 $2 $4 )
-     level_inf=$(( $level_sup - 1 ))
-     depth_sup=$( ncks -H -F -C -v $1 $4 | sed -e 's/(/ /' -e 's/)/ /' -e 's/=/ /' | \
-                                          grep " $level_sup " | awk '{print $NF}' ) 
-     depth_inf=$( ncks -H -F -C -v $1 $4 | sed -e 's/(/ /' -e 's/)/ /' -e 's/=/ /' | \
-                                          grep " $level_inf " | awk '{print $NF}' )
-     vit_sup=$( ncks -H -F -C -v $3 $4 | sed -e 's/(/ /g' -e 's/)/ /g' -e 's/=/ /g' | \
-                                        grep " $level_sup " | awk '{print $NF}' )
-     vit_inf=$( ncks -H -F -C -v $3 $4 | sed -e 's/(/ /g' -e 's/)/ /g' -e 's/=/ /g' | \
-                                        grep " $level_inf " | awk '{print $NF}' ) 
-     up=$(   echo "$2 $depth_inf"       |  awk '{print $1 - $2}' )
-     down=$( echo "$depth_sup $depth_inf" |  awk '{print $1 - $2}' )
-     diff=$( echo "$vit_sup $vit_inf"     |  awk '{print $1 - $2}' )
-     interp=$(echo "$vit_inf $diff $up $down" | awk '{print $1 + ( $2 * ( $3 / $4 )) }')
-     echo $interp 
-                          }
 
 cd $YEAR
 #------------------------------------------------------------------------------
@@ -267,7 +242,7 @@ cd $YEAR
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc  $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
-   if (( $orca != 0 )) ; then rapatrie  new_maskglo.nc $IDIR new_maskglo.nc ; fi
+   if (( $orca != 0 )) ; then rapatrie  $fbasinmask $IDIR $fbasinmask ; fi
  
    cdfmoc ${CONFCASE}_${TAG}_gridV.nc
  
@@ -313,7 +288,7 @@ mkmocsig5d(){
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc  $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
-   if (( $orca == 0 )) ; then rapatrie  new_maskglo.nc $IDIR new_maskglo.nc ; fi
+   if (( $orca == 0 )) ; then rapatrie  $fbasinmask $IDIR $fbasinmask ; fi
 
    MONTH=`echo ${TAG} | awk -Fm '{print $2}'`
 
@@ -389,6 +364,7 @@ mklspv(){
         expatrie cdfmoy_weighted.nc $MEANY $h ;;
    esac
 
+
 #=============================================================================
 #  PART II: Time series: compute some integral quantities relevant for monitor
 #           the ocean variability, and the behaviour of the on going run. 
@@ -443,8 +419,8 @@ if [   $TSMEAN != 0 ] ; then
          tmlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
          smlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
 
-         ncks -F -d time_counter,${MONTH},${MONTH} $tlevitus $tmlevitus
-         ncks -F -d time_counter,${MONTH},${MONTH} $slevitus $smlevitus
+         ncks -h -F -d time_counter,${MONTH},${MONTH} $tlevitus $tmlevitus
+         ncks -h -F -d time_counter,${MONTH},${MONTH} $slevitus $smlevitus
          cdfmltmask $tmlevitus  mask.nc votemper T      # votemper --> $levitus_masked
          cdfmltmask $smlevitus  mask.nc vosaline T      # vosaline --> $levitus_masked
          mv ${tmlevitus}_masked ${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
@@ -511,45 +487,6 @@ if [   $TSMEAN != 0 ] ; then
   esac
 fi
 
-# Ice Volume area and extent for all months: input file : icemod, and mesh_mask
-#  keyword : ICEMONTH file_id :  icemonth
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-if [    $ICEMONTH != 0    ] ; then
-   TAG=y${YEAR}
-   # get icemod files
-   file_lst=''
-   for m in $(seq 1 12) ; do
-    mm=$( printf "%02d" $m )
-    rapatrie  ${CONFCASE}_${TAG}m${mm}_icemod.nc $MEANY ${CONFCASE}_${TAG}m${mm}_icemod.nc
-   done
- 
-   # get mesh mask files
-   rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
-   rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc  $IDIR mesh_hgr.nc
-   rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
- 
-   # output files:
-   fbase=${CONFCASE}_${TAG}_1m
-   fice=${fbase}_icemonth.txt
-   fice_nc=${fbase}_1m_icemonth.nc
-
-   for m in $(seq 1 12) ; do 
-    mm=$( printf "%02d" $m )
-
-    case $mm in 
-    01) echo '###' $YEAR $mm > $fice ;;
-    *)  echo '###' $YEAR $mm >> $fice ;;
-    esac
-
-    cdficediags ${CONFCASE}_${TAG}m${mm}_icemod.nc  >> $fice 
-    concat_file ${TAG}m${mm} icediags.nc $fice_nc
-
-   done
- 
-   expatrie $fice_nc $DIAGS/NC  $fice_nc
- 
-fi
-
 # Vertical T-S profiles off the coast of Portugal for Gib monitoring: input file: gridT, mesh_mask
 #  keyword : GIB       file_id :  TGIB / SGIB
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -598,8 +535,8 @@ if [        $GIB  !=  0    ] ; then
       
            tmlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
            smlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
-           ncks -F -d time_counter,${MONTH},${MONTH} $tlevitus $tmlevitus
-           ncks -F -d time_counter,${MONTH},${MONTH} $slevitus $smlevitus
+           ncks -h -F -d time_counter,${MONTH},${MONTH} $tlevitus $tmlevitus
+           ncks -h -F -d time_counter,${MONTH},${MONTH} $slevitus $smlevitus
            cdfmltmask $tmlevitus  mask.nc votemper T      # votemper --> $levitus_masked
            cdfmltmask $smlevitus  mask.nc vosaline T      # vosaline --> $levitus_masked
            mv ${tmlevitus}_masked ${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
@@ -668,6 +605,45 @@ if [        $GIB  !=  0    ] ; then
   esac
 fi
   
+# Ice Volume area and extent for all months: input file : icemod, and mesh_mask
+#  keyword : ICEMONTH file_id :  icemonth
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+if [    $ICEMONTH != 0    ] ; then
+   TAG=y${YEAR}
+   # get icemod files
+   file_lst=''
+   for m in $(seq 1 12) ; do
+    mm=$( printf "%02d" $m )
+    rapatrie  ${CONFCASE}_${TAG}m${mm}_icemod.nc $MEANY ${CONFCASE}_${TAG}m${mm}_icemod.nc
+   done
+ 
+   # get mesh mask files
+   rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+   rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc  $IDIR mesh_hgr.nc
+   rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
+ 
+   # output files:
+   fbase=${CONFCASE}_${TAG}_1m
+   fice=${fbase}_icemonth.txt
+   fice_nc=${fbase}_1m_icemonth.nc
+
+   for m in $(seq 1 12) ; do 
+    mm=$( printf "%02d" $m )
+
+    case $mm in 
+    01) echo '###' $YEAR $mm > $fice ;;
+    *)  echo '###' $YEAR $mm >> $fice ;;
+    esac
+
+    cdficediags ${CONFCASE}_${TAG}m${mm}_icemod.nc  >> $fice 
+    concat_file ${TAG}m${mm} icediags.nc $fice_nc
+
+   done
+ 
+   expatrie $fice_nc $DIAGS/NC  $fice_nc
+ 
+fi
+
 # El nino indexes : Input files : monthly gridT,  mesh mask
 #  keyword : ELNINO  file_id: NINO12 / NINO3 / NINO4 / NINO34
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -726,36 +702,7 @@ fi
 #  keyword : TRP    file_id : transport
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 if [            $TRP != 0    ] ; then
-
-cdf_trpconcatexpatrie(){
-   if [ $MONTH ] ; then
-     cat $1 >> ${CONFCASE}_y${YEAR}_section_monitor_concat.txt
-     if [ $MONTH == 12 ] ; then
-       mv ${CONFCASE}_y${YEAR}_section_monitor_concat.txt ${CONFCASE}_y${YEAR}_MONTHLY_section_monitor.txt
-       expatrie ${CONFCASE}_y${YEAR}_MONTHLY_section_monitor.txt $DIAGS/MONTHLY/TXT ${CONFCASE}_y${YEAR}_MONTHLY_section_monitor.txt
-     fi
-   else
-     expatrie  $1 $DIAGS/TXT $1
-   fi
-               }
-
-cdf_trpncconcatexpatrie(){
-   if [ $MONTH ] ; then
-     case $MONTH in
-       01 ) mv $1 $1_concat ;;
-       *  ) ncrcat $1_concat $1 -o tmp.nc ; mv tmp.nc $1_concat ;
-            if [ $MONTH == 12 ] ; then 
-              mv $1_concat ${CONFCASE}_y${YEAR}_MONTHLY_$1
-              expatrie ${CONFCASE}_y${YEAR}_MONTHLY_$1 $DIAGS/MONTHLY/NC ${CONFCASE}_y${YEAR}_MONTHLY_$1
-            fi ;;
-     esac
-   else
-     mv $1 ${CONFCASE}_${TAG}_$1
-     expatrie ${CONFCASE}_${TAG}_$1 $DIAGS/NC ${CONFCASE}_${TAG}_$1
-   fi
-                 }
-
-
+  file_lst=''
   for TAG in $(mktaglist $TRP) ; do
    # section.dat describes the position (I,J) of the sections to monitor
    # ./create_sections_list.ksh ${CONFIG%.*}   # to skip .Lxx part of the config name
@@ -772,9 +719,9 @@ cdf_trpncconcatexpatrie(){
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
  
    # Ascii output file:
-   define_diags_dir $TAG
    suf=$( getsuffix $TAG )
-   fsection=${CONFCASE}_${TAG}${suf}_section_monitor.txt
+   fbase=${CONFCASE}_${YEAR}${suf}
+   fsection=${fbase}_section_monitor.txt
  
    MONTH=`echo ${TAG} | awk -Fm '{print $2}'`
    echo $YEAR $MONTH >> $fsection
@@ -789,19 +736,127 @@ cdf_trpncconcatexpatrie(){
    # eliminate garbage from txt file ...
    grep -v Give $fsection | grep -v level | grep -v IMAX | grep -v FROM > tmp
    mv -f tmp $fsection
- 
-   cdf_trpconcatexpatrie $fsection
- 
-   # save x_transports.nc file
-   listfiles=$( ls | grep transports.nc )
+
+   file_lst=$( filter_lst $file_lst $fsection )
+
+   listfiles=$( ls | grep -e "^[0-9]" | grep transports.nc )
 
    for file in $listfiles ; do
-     cdf_trpncconcatexpatrie $file
+       concat_file ${TAG} $file ${fbase}_$file  
+       file_lst=$( filter_list $file_lst ${fbase}_$file )
+       \rm -f $file
    done
-
   done  # loop on tags
+  
+  # dispose files
+  for f in $file_lst ; do
+     define_diags_dir $f
+     expatrie $f $DIAGSOUT $f
+  done
 fi
  
+# DCT :Density Class transport: Input files : gridT, gridU gridV, mesh mask, dens_section.dat
+#  keyword : DCT   file_id :  trpsig
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+if [ $DCT != 0 ] ; then
+   TAG=y${YEAR}
+  # dens_section.dat describe the sections (either zonal or meridional) 
+  # where the DCT is computed: it is buildt by a  DMONTOOLS script
+  #./create_sections_list.ksh ${CONFIG%.*}   # to skip .Lxx part of the config name
+  ../create_sections_list.ksh ${CONFIG}   
+
+  # get mesh mask files
+  rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+  rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
+  rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
+
+  # due to the large amount of files that are produced by this diags, 
+  # we prefer to keep them on a separate directory
+  chkdirg ${CONFIG}/${CONFCASE}-TRPSIG/
+  chkdirg ${CONFIG}/${CONFCASE}-TRPSIG/$YEAR/
+  chkdirg $DIAGS/TXT/TRPSIG/
+
+  # also need temporary directories in the actual directory:
+  chkdir ${CONFIG}
+  chkdir ${CONFIG}/${CONFCASE}-TRPSIG
+  chkdir ${CONFIG}/${CONFCASE}-TRPSIG/$YEAR/
+
+  TRPSIGY=${CONFIG}/${CONFCASE}-TRPSIG/$YEAR/
+
+  file_lst=''
+  for m in $(seq 1 12) ; do
+    mm=$(printf "%02d" $m)
+    suf=$( getsuffix ${TAG}m${mm} )
+    fbase=${CONFCASE}_${TAG}${suf}
+
+    tfich=${CONFCASE}_${TAG}m${mm}_gridT.nc 
+    ufich=$(echo  $tfich | sed -e 's/gridT/gridU/' )
+    vfich=$(echo  $tfich | sed -e 's/gridT/gridV/' )
+
+    #get files on gaya
+    rapatrie  $tfich $MEANY  $tfich
+    rapatrie  $ufich $MEANY  $ufich
+    rapatrie  $vfich $MEANY  $vfich
+    
+    #retrieve tag time from file name
+    tag=$(echo $tfich | sed -e "s/${CONFCASE}_//" -e 's/_gridT.nc//')
+
+    #echo $tag > ${CONFCASE}_y${tag}_trpsig_monitor.lst
+
+    cdfsigtrp $tfich $ufich $vfich 21 30 180 # -print  >>  ${CONFCASE}_y${tag}_trpsig_monitor.lst
+    # save netcdf files ( one per section )
+    listfiles=$( ls | grep -e "^[0-9]" | grep trpsig.nc  )
+
+    for file in $listfiles ; do
+       concat_file ${TAG}m${mm} $file ${fbase}_$file  # this is one monthly file to be archived
+       file_lst=$( filter_list $file_lst ${fbase}_$file )
+       mv $file $TRPSIGY/${CONFCASE}_${tag}_$file     # we need individual monthly file for cdfmoyweighted
+    done
+
+  done  # month loop
+
+  # dispose monthly files previous to computing the annual mean
+  for f in $file_lst ; do
+    define_diags_dir $f
+    expatrie $f $DIAGSOUT $f
+  done
+
+  here=$(pwd)  # save the actual directory path
+  cd $TRPSIGY
+  file_lst=''
+  # compute mean nc files : all sections are mixed in this dir with 12 months each 
+  # isolate sections from m01 files whose name is similar to 
+  #  NATL025-GRD83_y1999m01_01_Denmark_strait_trpsig.nc
+  section_list=''
+  for f in *m01_*trpsig.nc ; do
+   section=${f%_trpsig.nc} ; section=${section#*m01_}
+   section_list="$section_list $section"
+  done
+
+  for section in $section_list ; do
+   cdfmoy_weighted ${CONFCASE}_${TAG}m??_${section}_trpsig.nc 
+   froot=${CONFCASE}_${TAG}_1y_${section}_trpsig
+   concat_file ${TAG} cdfmoy_weighted.nc  $froot.nc
+   file_lst=$( filter_list $file_lst $froot.nc )
+
+   ncks -h -v sigtrp  $froot.nc | \
+       sed -e 's/=/ /g' | grep -e '^time_counter\[' | grep -e lev | \
+       awk '{printf " %07.4f %+14.9e\n", $4, $8}' > $froot.txt
+   file_lst=$( filter_list $file_lst $froot.txt )
+  done
+  
+  # save yearly files
+  for f in $file_lst ; do
+    define_diags_dir $f
+    expatrie $f $DIAGSOUT $f
+  done
+
+   # return to tmpdir
+   cd $here
+   # Erase the TRPSIG tree for this current year
+   \rm -rf ${CONFIG} ${CONFCASE}_y*_trpsig.txt *.mtl
+fi
+
 # Heat and Salt Meridional Transport : Input files : VT, mesh mask, new_maskglo
 #  keyword : MHT   file_id :  hflx
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -817,7 +872,7 @@ if [            $MHT  !=  0   ] ; then
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
-   if (( $orca != 0 )) ; then rapatrie  new_maskglo.nc $IDIR new_maskglo.nc ; fi
+   if (( $orca != 0 )) ; then rapatrie  $fbasinmask $IDIR $fbasinmask ; fi
  
    # output files:
    suf=$( getsuffix $TAG )
@@ -856,6 +911,16 @@ fi
 #                               Inp_minmoc30S  Aus_maxmoc50S Glo_maxmoc15S
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 if [            $MAXMOC  !=  0    ] ; then
+
+# function rename_maxmoc : append id to variable name
+# eg : rename_maxmoc  maxmoc.nc Atl_maxmoc30S
+rename_maxmoc()   {
+   for var in maxmoc minmoc latmaxmoc latminmoc depthmaxmoc depthminmoc ; do
+      ncrename -h -v $var,${var}_$2 $1
+   done
+                  }
+
+  file_lst_txt=''
   file_lst=''
   for TAG in $(mktaglist $MAXMOC) ; do
    f=moc.nc
@@ -870,7 +935,7 @@ if [            $MAXMOC  !=  0    ] ; then
    echo $YEAR $MONTH > $fmaxmoc
    fmaxmoc40=${fbase}_maxmoc40.txt
    echo $YEAR $MONTH > $fmaxmoc40
-   file_lst=$( filter_lst $fmaxmoc $fmaxmoc40 )
+   file_lst_txt=$( filter_lst $file_lst_txt $fmaxmoc $fmaxmoc40 )
 
    fglomaxmoc=${fbase}_Glo_maxmoc.nc
    fglominmoc=${fbase}_Glo_minmoc.nc
@@ -894,82 +959,98 @@ if [            $MAXMOC  !=  0    ] ; then
 
    #AUS
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 0 2000   | grep Maximum >> $fmaxmoc
+   rename_maxmoc maxmoc.nc Glo_maxmoc
    concat_file $TAG maxmoc.nc $fglomaxmoc
    file_lst=$( filter_lst $file_lst $fglomaxmoc )
 
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 2000 5500  | grep Minimum >> $fmaxmoc
+   rename_maxmoc maxmoc.nc Glo_minmoc
    concat_file $TAG maxmoc.nc $fglominmoc
    file_lst=$( filter_lst $file_lst $fglominmoc )  ;;
 
         ORCA12 | ORCA12.L46 | ORCA12.L75 | ORCA025 | ORCA025.L75 | ORCA05 | ORCA2 | ORCA246 )
    # GLO
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo 20 60 500 2000 | grep Maximum >> $fmaxmoc
+   rename_maxmoc maxmoc.nc Glo_maxmoc
    concat_file $TAG maxmoc.nc $fglomaxmoc
    file_lst=$( filter_lst $file_lst $fglomaxmoc )
 
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo -40 30 2000 5500 | grep Minimum >> $fmaxmoc
+   rename_maxmoc maxmoc.nc Glo_minmoc
    concat_file $TAG maxmoc.nc $fglominmoc
    file_lst=$( filter_lst $file_lst $fglominmoc )
 
 
    # ATL
    printf "%s" 'Atl ' >>  $fmaxmoc ; cdfmaxmoc $f atl 0 60 500 2000 | grep Maximum >> $fmaxmoc
+   rename_maxmoc maxmoc.nc Atl_maxmoc
    concat_file $TAG maxmoc.nc $fatlmaxmoc
    file_lst=$( filter_lst $file_lst $fatlmaxmoc )
 
    printf "%s" 'Atl ' >>  $fmaxmoc ; cdfmaxmoc $f atl -20 40 2000 5500 | grep Minimum  >> $fmaxmoc
+   rename_maxmoc maxmoc.nc Atl_minmoc
    concat_file $TAG maxmoc.nc $fatlminmoc
    file_lst=$( filter_lst $file_lst $fatlminmoc )
 
 
    #INP
    printf "%s" 'Inp ' >>  $fmaxmoc ; cdfmaxmoc $f inp 15 50 100 1000 | grep Minimum >> $fmaxmoc
+   rename_maxmoc maxmoc.nc Inp_minmoc
    concat_file $TAG maxmoc.nc $finpminmoc
    file_lst=$( filter_lst $file_lst $finpminmoc )
 
    printf "%s" 'Inp ' >>  $fmaxmoc ; cdfmaxmoc $f inp -30 20 1000 5500  | grep Minimum >> $fmaxmoc
+   rename_maxmoc maxmoc.nc Inp_minmoc2
    concat_file $TAG maxmoc.nc $finpminmoc2
    file_lst=$( filter_lst $file_lst $finpminmoc2 )
 
 
    #AUS
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 0 2000   | grep Maximum >> $fmaxmoc
+   rename_maxmoc maxmoc.nc Aus_maxmoc
    concat_file $TAG maxmoc.nc $fausmaxmoc
    file_lst=$( filter_lst $file_lst $fausmaxmoc )
 
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 2000 5500  | grep Minimum >> $fmaxmoc
+   rename_maxmoc maxmoc.nc Aus_minmoc
    concat_file $TAG maxmoc.nc $fausminmoc
    file_lst=$( filter_lst $file_lst $fausminmoc )
 
    # Max and Min of MOC at some specific latitudes
    # GLO  MAX at 40 N and 30S
    printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo 40 40 500 2000 | grep Maximum >> $fmaxmoc40
+   rename_maxmoc maxmoc.nc Glo_maxmoc40N
    concat_file $TAG maxmoc.nc $fglomaxmoc40n
    file_lst=$( filter_lst $file_lst $fglomaxmoc40n )
 
    printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo -30 -30 500  5500 | grep Maximum >> $fmaxmoc40
+   rename_maxmoc maxmoc.nc Glo_maxmoc30S
    concat_file $TAG maxmoc.nc $fglomaxmoc30s
    file_lst=$( filter_lst $file_lst $fglomaxmoc30s )
 
 
    # ATL  MAX at 40N and 30S
    printf "%s" 'Atl ' >>  $fmaxmoc40 ; cdfmaxmoc $f atl 40 40 500 2000 | grep Maximum >> $fmaxmoc40
+   rename_maxmoc maxmoc.nc Atl_maxmoc40N
    concat_file $TAG maxmoc.nc $fatlmaxmoc40n
    file_lst=$( filter_lst $file_lst $fatlmaxmoc40n )
 
    printf "%s" 'Atl ' >>  $fmaxmoc40 ; cdfmaxmoc $f atl -30 -30  500 5000 | grep Maximum >> $fmaxmoc40
+   rename_maxmoc maxmoc.nc Atl_maxmoc30S
    concat_file $TAG maxmoc.nc $fatlmaxmoc30s
    file_lst=$( filter_lst $file_lst $fatlmaxmoc30s )
 
 
    #INP  Min at 30 S
    printf "%s" 'Inp ' >>  $fmaxmoc40 ; cdfmaxmoc $f inp -30 -30 1000 5500  | grep Minimum >> $fmaxmoc40
+   rename_maxmoc maxmoc.nc Inp_minmoc30S
    concat_file $TAG maxmoc.nc $finpminmoc30s
    file_lst=$( filter_lst $file_lst $finpminmoc30s )
 
 
    #AUS  MAX at 50 S
    printf "%s" 'Aus ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo -50 -50 0 2000   | grep Maximum >> $fmaxmoc40
+   rename_maxmoc maxmoc.nc Aus_maxmoc50S
    concat_file $TAG maxmoc.nc $fausmaxmoc50s
    file_lst=$( filter_lst $file_lst $fausmaxmoc50s ) ;;
 
@@ -977,10 +1058,12 @@ if [            $MAXMOC  !=  0    ] ; then
         NATL025 | NATL4 | NATL12 )
    # GLO
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo 20 60 500 2000 | grep Maximum >> $fmaxmoc
+   rename_maxmoc maxmoc.nc Glo_maxmoc
    concat_file $TAG maxmoc.nc $fglomaxmoc
    file_lst=$( filter_lst $file_lst $fglomaxmoc )
 
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo -40 30 2000 5500 | grep Minimum >> $fmaxmoc
+   rename_maxmoc maxmoc.nc Glo_minmoc
    concat_file $TAG maxmoc.nc $fglominmoc
    file_lst=$( filter_lst $file_lst $fglominmoc )
 
@@ -988,193 +1071,139 @@ if [            $MAXMOC  !=  0    ] ; then
    # Max and Min of MOC at some specific latitudes
    # GLO  MAX at 40 N and 30S
    printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo 40 40 500 2000 | grep Maximum >> $fmaxmoc40
+   rename_maxmoc maxmoc.nc Glo_maxmoc40N
    concat_file $TAG maxmoc.nc $fglomaxmoc40n
    file_lst=$( filter_lst $file_lst $fglomaxmoc40n )
 
    printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo -15 -15 500  5500 | grep Maximum >> $fmaxmoc40
+   rename_maxmoc maxmoc.nc Glo_maxmoc15S
    concat_file $TAG maxmoc.nc $fglomaxmoc15s
    file_lst=$( filter_lst $file_lst $fglomaxmoc15s ) ;;
 
    esac
    # clean for next year 
    \rm moc.nc 
+  done  # loop on TAG
+  
+  # dispose txt file first
+  for f in $file_lst_txt ; do 
+    define_diags_dir $f
+    expatrie $f $DIAGSOUT $f
   done
 
   # dispose files on ad-hoc DIAG/xxx directory
+  fmaxmocall=${fbase}_MAXMOC.nc
+
+  # Concatenate all files into  a single one
+  fileout_lst=''
   for f in $file_lst ; do
+    suf=$( echo $f | awk -F_ '{ print $3 }' )  # suf is then 1m or 1y
+    fmaxmocall=${CONFCASE}_${YEAR}_${suf}_MAXMOC.nc
+    ncks -h -A $f $fmaxmocall
+    fileout_lst=$( filter_lst $fileout_lst $fmaxmocall )
+    # clean temporary files
+    \rm -f $f 
+  done
+     
+  # dispose file
+  for f in $fileout_lst ; do
    define_diags_dir $f 
    expatrie $f $DIAGSOUT $f
   done
 fi
 
-# DCT :Density Class transport: Input files : gridT, gridU gridV, mesh mask, dens_section.dat
-#  keyword : DCT   file_id :  trpsig
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  if [ $DCT != 0 ] ; then
-   TAG=y${YEAR}
-  # dens_section.dat describe the sections (either zonal or meridional) 
-  # where the DCT is computed: it is buildt by a  DMONTOOLS script
-  #./create_sections_list.ksh ${CONFIG%.*}   # to skip .Lxx part of the config name
-  ../create_sections_list.ksh ${CONFIG}   
-
-  # get mesh mask files
-  rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
-  rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
-  rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
-
-  # due to the large amount of files that are produced by this diags, 
-  # we prefer to keep them on a separate directory
-  chkdirg ${CONFIG}/${CONFCASE}-TRPSIG/
-  chkdirg ${CONFIG}/${CONFCASE}-TRPSIG/$YEAR/
-  chkdirg $DIAGS/TXT/TRPSIG/
-
-  # also need temporary directories in the actual directory:
-  chkdir ${CONFIG}
-  chkdir ${CONFIG}/${CONFCASE}-TRPSIG
-  chkdir ${CONFIG}/${CONFCASE}-TRPSIG/$YEAR/
-
-  TRPSIGY=${CONFIG}/${CONFCASE}-TRPSIG/$YEAR/
-
-  for m in $(seq 1 12) ; do
-    mm=$(printf "%02d" $m)
-    tfich=${CONFCASE}_${TAG}m${mm}_gridT.nc 
-    ufich=$(echo  $tfich | sed -e 's/gridT/gridU/' )
-    vfich=$(echo  $tfich | sed -e 's/gridT/gridV/' )
-
-    #get files on gaya
-    rapatrie  $tfich $MEANY  $tfich
-    rapatrie  $ufich $MEANY  $ufich
-    rapatrie  $vfich $MEANY  $vfich
-    
-    #retrieve tag time from file name
-    tag=$(echo $tfich | sed -e "s/${CONFCASE}_//" -e 's/_gridT.nc//')
-
-    #echo $tag > ${CONFCASE}_y${tag}_trpsig_monitor.lst
-
-    cdfsigtrp $tfich $ufich $vfich 21 30 180 # -print  >>  ${CONFCASE}_y${tag}_trpsig_monitor.lst
-    # save netcdf files
-    listfiles=$( ls | grep trpsig.nc  )
-
-    for file in $listfiles ; do
-        expatrie $file $DIAGS/NC ${CONFCASE}_${tag}_$file
-        mv $file $TRPSIGY/${CONFCASE}_${tag}_$file
-    done
-
-    # and create a mirror on the local tmpdir
-    #mv ${CONFCASE}_y${tag}_trpsig_monitor.lst  $TRPSIGY
-
-  # end of month loop
-  done
-
-  here=$(pwd)  # save the actual directory path
-  cd $TRPSIGY
-
-  # compute mean nc files : all sections are mixed in this dir with 12 months each 
-  # isolate sections from m01 files whose name is similar to 
-  #  NATL025-GRD83_y1999m01_01_Denmark_strait_trpsig.nc
-  section_list=''
-  for f in *m01_*trpsig.nc ; do
-   section=${f%_trpsig.nc} ; section=${section#*m01_}
-   section_list="$section_list $section"
-  done
-
-  for section in $section_list ; do
-   cdfmoy_weighted ${CONFCASE}_${TAG}m??_${section}_trpsig.nc 
-   froot=${CONFCASE}_${TAG}_${section}_trpsig
-   mv cdfmoy_weighted.nc  $froot.nc
-   expatrie $froot.nc $DIAGS/NC $froot.nc
-   ncks -v sigtrp  $froot.nc | \
-       sed -e 's/=/ /g' | grep -e '^time_counter\[' | grep -e lev | \
-       awk '{printf " %07.4f %+14.9e\n", $4, $8}' > $froot.txt
-   expatrie $froot.txt $DIAGS/TXT/TRPSIG/  $froot.txt
-  done
-
-   # return to tmpdir
-   cd $here
-   # Erase the TRPSIG tree for this current year
-   \rm -rf ${CONFIG} ${CONFCASE}_y*_trpsig.txt *.mtl
-fi
-
-# TRACER DIAGS (31/12 of each year) : Input files : ptrcT, mesh mask
+# TRACER DIAGS  : Input files : ptrcT, mesh mask
 #  keyword : TRACER   file_id : TRCmean  TRCzonalmean_conc TRCzonalmean_flx TRCzonalsum_flx pendep fracinv
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 if [ $TRACER != 1 ] ; then
-   TAG=y${YEAR}
+   file_lst=''
+ for TAG in $(mktaglist $TRACER) ; do
    # get mesh mask files
    rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
-   if (( $orca != 0 )) ; then rapatrie  new_maskglo.nc $IDIR new_maskglo.nc ; fi
+   if (( $orca != 0 )) ; then rapatrie  $fbasinmask $IDIR $fbasinmask ; fi
  
    # get tracer file from gaya: note that this is from -S dir (5 day average ... to discuss ...)
-   rapatrie ${CONFCASE}_${TAG}m12d31_ptrcT.nc $SDIRY ${CONFCASE}_${TAG}m12d31_ptrcT.nc
-   rapatrie ${CONFCASE}_${TAG}m12d31_diadT.nc $SDIRY ${CONFCASE}_${TAG}m12d31_diadT.nc
+   rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
+   rapatrie ${CONFCASE}_${TAG}_diadT.nc $MEANY ${CONFCASE}_${TAG}_diadT.nc
    rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
  
-   # Ascii output file:
-   ftrc=${CONFCASE}_${TAG}_TRCmean.dat
-   ftrc_nc=${CONFCASE}_${TAG}_TRCmean.nc
+   # output files:
+   suf=$(getsuffix $TAG )
+   fbase=${CONFCASE}_y${YEAR}${suf}
+   ftrc=${fbase}_TRCmean.txt
+   ftrc_zomean=${fbase}_TRCzonalmean_flx.txt
+   ftrc_zosum=${fbase}_TRCzonalsum_flx.txt
+   ftrc_zosurf=${fbase}_TRCzonalsurf_flx.txt
+
+   ftrc_nc=${fbase}_TRCmean.nc
+#  ftrc_zomean_nc=${fbase}_TRCzonalmean_flx.nc
+#  ftrc_zosum_nc=${fbase}_TRCzonalsum_flx.nc
+#  ftrc_zosurf_nc=${fbase}_TRCzonalsurf_flx.nc
  
    # Number of mol in the ocean ...
-   printf "%04d "  $YEAR   >  $ftrc
+   printf "%04d "  $YEAR   >>  $ftrc
  
    # CFC11
    \rm -f tmp1
-   cdfmean  ${CONFCASE}_${TAG}m12d31_diadT.nc  INVCFC T > tmp1
+   cdfmean  ${CONFCASE}_${TAG}_diadT.nc  INVCFC T > tmp1
    area=$(cat tmp1 |  grep -e 'Mean value at level' | awk ' {print $12}')
    mean=$(cat tmp1 |  grep -e 'Mean value over the ocean' | awk ' {print $6}')
    total=$(echo $mean $area |  awk '{print $1 * $2 }' )
    printf "%s "  $total  >> $ftrc
-   mv cdfmean.nc $ftrc_nc
+   concat_file $TAG  cdfmean.nc $ftrc_nc
+   file_lst=$( filter_list $file_lst $ftrc_nc)
  
-   # B-C14
-#   \rm -f tmp1
-#   cdfmean  ${CONFCASE}_y${YEAR}m12d31_ptrcT.nc  invc14 T > tmp1
-#   area=$(cat tmp1 |  grep -e 'Mean value at level' | awk ' {print $12}')
-#   mean=$(cat tmp1 |  grep -e 'Mean value over the ocean' | awk ' {print $6}')
-#   total=$(echo $mean $area |  awk '{print $1 * $2 }' )
-#   printf "%s \n"  $total  >> $ftrc
-#   # append cdfmean.nc variable to the already existing nc file
-#   ncks -A cdfmean.nc $ftrc_nc
- 
-   expatrie $ftrc $DIAGS/TXT $ftrc
-   expatrie $ftrc_nc $DIAGS/NC $ftrc_nc
+   if [ $TRACER_BC14 != 0 ] ; then
+     # B-C14
+     \rm -f tmp1
+     cdfmean  ${CONFCASE}_${TAG}_ptrcT.nc  invc14 T > tmp1
+     area=$(cat tmp1 |  grep -e 'Mean value at level' | awk ' {print $12}')
+     mean=$(cat tmp1 |  grep -e 'Mean value over the ocean' | awk ' {print $6}')
+     total=$(echo $mean $area |  awk '{print $1 * $2 }' )
+     printf "%s \n"  $total  >> $ftrc
+     # append cdfmean.nc variable to the already existing nc file
+     concat_file $TAG  cdfmean.nc $ftrc_nc
+     file_lst=$( filter_list $file_lst $ftrc_nc)
+   fi
  
    # zonal integral of inventories
-   cdfzonalsum  ${CONFCASE}_${TAG}m12d31_ptrcT.nc  T
-   expatrie zonalsum.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalsum_conc.nc
-   cdfzonalsum  ${CONFCASE}_${TAG}m12d31_diadT.nc  T
- 
-   # zonal means
-   cdfzonalmean  ${CONFCASE}_${TAG}m12d31_ptrcT.nc  T
-   expatrie zonalmean.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalmean_conc.nc
-   cdfzonalmean  ${CONFCASE}_${TAG}m12d31_diadT.nc  T
- 
-   # ncks is required on the prod machine ... !! not standard !!
-   # it is used to take only the interesting variables from the results
-#   ncks -F -d deptht,1,1 -v zocfc11_glo,zobc14_glo,nav_lon,nav_lat zonalmean.nc zonalsurf.nc
-   ncks -F -d deptht,1,1 -v zoVCFC_glo,zoRCFC_glo,zoNTCFC_glo,nav_lon,nav_lat zonalmean.nc zonalsurf.nc
- 
-   # put in ascii format the 1D profiles
-   cdfzonalout zonalmean.nc > zonalmean.dat
-   cdfzonalout zonalsum.nc >  zonalsum.dat
-   cdfzonalout zonalsurf.nc >  zonalsurf.dat
- 
-   expatrie zonalmean.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalmean_flx.nc
+   cdfzonalsum  ${CONFCASE}_${TAG}_ptrcT.nc  T
+   expatrie zonalsum.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalsum_conc.nc  # in MEANDIR, not a time-series
+   cdfzonalsum  ${CONFCASE}_${TAG}_diadT.nc  T
    expatrie zonalsum.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalsum_flx.nc
  
-   expatrie zonalmean.dat $DIAGS/TXT ${CONFCASE}_${TAG}_TRCzonalmean_flx.dat
-   expatrie zonalsum.dat $DIAGS/TXT ${CONFCASE}_${TAG}_TRCzonalsum_flx.dat
-   expatrie zonalsurf.dat $DIAGS/TXT ${CONFCASE}_${TAG}_TRCzonalsurf_flx.dat
-   \rm zonalsurf.nc
-
+   # zonal means
+   cdfzonalmean  ${CONFCASE}_${TAG}_ptrcT.nc  T
+   expatrie zonalmean.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalmean_conc.nc
+   cdfzonalmean  ${CONFCASE}_${TAG}_diadT.nc  T
+   expatrie zonalmean.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalmean_flx.nc
+ 
+   # it is used to take only the interesting variables from the results
+#   ncks -F -d deptht,1,1 -v zocfc11_glo,zobc14_glo,nav_lon,nav_lat zonalmean.nc zonalsurf.nc
+   ncks -h -F -d deptht,1,1 -v zoVCFC_glo,zoRCFC_glo,zoNTCFC_glo,nav_lon,nav_lat zonalmean.nc zonalsurf.nc
+ 
+   # put in ascii format the 1D profiles
+   cdfzonalout zonalmean.nc >> $ftrc_zomean
+   cdfzonalout zonalsum.nc >>  $ftrc_zosum
+   cdfzonalout zonalsurf.nc >>  $ftrc_zosurf
+   file_lst=$( filter_list $file_lst $ftrc_zomean $ftrc_zosum $ftrc_zosurf )
+ 
    # penetration depth
-   cdfpendep ${CONFCASE}_${TAG}m12d31_ptrcT.nc ${CONFCASE}_${TAG}m12d31_diadT.nc -inv INVCFC -trc CFC11
+   cdfpendep ${CONFCASE}_${TAG}_ptrcT.nc ${CONFCASE}_${TAG}_diadT.nc -inv INVCFC -trc CFC11
    expatrie pendep.nc $MEANY ${CONFCASE}_${TAG}_pendep.nc
 
    # Fraction of inventory
-   cdffracinv ${CONFCASE}_${TAG}m12d31_diadT.nc -inv INVCFC
+   cdffracinv ${CONFCASE}_${TAG}_diadT.nc -inv INVCFC
    expatrie fracinv.nc $MEANY ${CONFCASE}_${TAG}_fracinv.nc
+ done
+
+ # dispose time-series files
+ for f in $file_lst ; do
+   define_diags_dir $f
+   expatrie $f $DIAGSOUT $f
+ done
  
 fi
 
@@ -1215,8 +1244,8 @@ if [             $TAO !=  0   ] ; then
         file=${CONFCASE}_${TAG}_vita.nc
         fvel=${fbase}_${LATI}${LONG}.nc
         varu=sovitua
-        cdfprofile $I $J $file $varu  # extraire les profils aux coordonnees desirees
-        ncrename -O -v sovitua,u_$LONG profile.nc
+        cdfprofile $I $J $file $varu  # extract profile at given position for given variable
+        ncrename -h -O -v sovitua,u_$LONG profile.nc
 
         concat_file $TAG profile.nc $fvel
         file_lst=$( filter_lst $file_lst $fvel )
@@ -1236,54 +1265,37 @@ if [             $TAO !=  0   ] ; then
      if [ -f ${fbase}_0n110w.nc ] ; then  # assume that if the 1rst file exist for this suffix, all exist
        # 110W  depth = 80 m
        fvel=${fbase}_0n110w ; dep=80
-       cdfprofile 1 1 $fvel.nc u_110w -dep 80
-#      uclev=$( find_model_level depth $dep $fvel.nc )
-#      ncks -F -O -v u_110w -d depth,$uclev,$uclev $fvel.nc  -o ${fvel}_UC.nc
-#      newval=$( vert_interp depth $dep u_110w $fvel.nc )
-#      echo Value interpolated to $newval
-#      ncap -F -O -s "u_110w[time_counter] = float($newval) " ${fvel}_UC.nc ${fvel}_UC.nc
+       cdfprofile 1 1 $fvel.nc u_110w -dep $dep
        mv profile.nc ${fvel}_UC.nc
-       ncrename -O -v u_110w,u_110w_UC ${fvel}_UC.nc 
+       ncrename -h -O -v u_110w,u_110w_UC ${fvel}_UC.nc 
        file_lst=$( filter_lst $file_lst ${fvel}_UC.nc )
 
      # 140W  depth = 120m
        fvel=${fbase}_0n140w  ; dep=120
-       uclev=$( find_model_level depth $dep $fvel.nc )
-       ncks -F -O -v u_140w -d depth,$uclev,$uclev $fvel.nc  -o ${fvel}_UC.nc
-       newval=$( vert_interp depth $dep u_110w $fvel.nc )
-       echo Value interpolated to $newval
-       ncap -F -O -s "u_140w[time_counter] = float($newval) " ${fvel}_UC.nc ${fvel}_UC.nc
-       ncrename -O -v u_140w,u_140w_UC ${fvel}_UC.nc 
+       cdfprofile 1 1 $fvel.nc u_140w -dep $dep
+       mv profile.nc ${fvel}_UC.nc
+       ncrename -h -O -v u_140w,u_140w_UC ${fvel}_UC.nc 
        file_lst=$( filter_lst $file_lst ${fvel}_UC.nc )
 
      # 170W  depth = 150m
        fvel=${fbase}_0n170w  ; dep=150
-       uclev=$( find_model_level depth $dep $fvel.nc )
-       ncks -F -O -v u_170w -d depth,$uclev,$uclev $fvel.nc  -o ${fvel}_UC.nc
-       newval=$( vert_interp depth $dep u_110w $fvel.nc )
-       echo Value interpolated to $newval
-       ncap -F -O -s "u_170w[time_counter] = float($newval) " ${fvel}_UC.nc ${fvel}_UC.nc
-       ncrename -O -v u_170w,u_170w_UC ${fvel}_UC.nc
+       cdfprofile 1 1 $fvel.nc u_170w -dep $dep
+       mv profile.nc ${fvel}_UC.nc
+       ncrename -h -O -v u_170w,u_170w_UC ${fvel}_UC.nc
        file_lst=$( filter_lst $file_lst ${fvel}_UC.nc )
 
      # 156E  depth = 200m
        fvel=${fbase}_0n156e  ; dep=200
-       uclev=$( find_model_level depth $dep $fvel.nc )
-       ncks -F -O -v u_156e -d depth,$uclev,$uclev $fvel.nc  -o ${fvel}_UC.nc
-       newval=$( vert_interp depth $dep u_110w $fvel.nc )
-       echo Value interpolated to $newval
-       ncap -F -O -s "u_156e[time_counter] = float($newval) " ${fvel}_UC.nc ${fvel}_UC.nc
-       ncrename -O -v u_156e,u_156e_UC ${fvel}_UC.nc
+       cdfprofile 1 1 $fvel.nc u_156e -dep $dep
+       mv profile.nc ${fvel}_UC.nc
+       ncrename -h -O -v u_156e,u_156e_UC ${fvel}_UC.nc
        file_lst=$( filter_lst $file_lst ${fvel}_UC.nc )
 
      # 165E  depth = 200m
        fvel=${fbase}_0n165e  ; dep=200
-       uclev=$( find_model_level depth $dep $fvel.nc )
-       ncks -F -O -v u_165e -d depth,$uclev,$uclev $fvel.nc  -o ${fvel}_UC.nc
-       newval=$( vert_interp depth $dep u_110w $fvel.nc )
-       echo Value interpolated to $newval
-       ncap -F -O -s "u_165e[time_counter] = float($newval) " ${fvel}_UC.nc ${fvel}_UC.nc
-       ncrename -O -v u_165e,u_165e_UC ${fvel}_UC.nc
+       cdfprofile 1 1 $fvel.nc u_165e -dep $dep
+       mv profile.nc ${fvel}_UC.nc
+       ncrename -h -O -v u_165e,u_165e_UC ${fvel}_UC.nc
        file_lst=$( filter_lst $file_lst ${fvel}_UC.nc )
      fi
   done
@@ -1291,8 +1303,8 @@ if [             $TAO !=  0   ] ; then
   # export UC files
   for f in $file_lst ; do
     define_diags_dir $f
-    ncwa -F -O -a depth $f -o $f     # remove depth dim
-    ncks -F -O -x -v depth $f -o $f  # remove depth var
+    ncwa -h -F -O -a depth $f -o $f     # remove depth dim
+    ncks -h -F -O -x -v depth $f -o $f  # remove depth var
     expatrie $f $DIAGSOUT $f
   done
 
@@ -1302,34 +1314,96 @@ fi
 #  keyword : BIO_PROFILE   file_id: bioprofile
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 if [ $BIO_PROFILE != 0 ] ; then
-   TAG=y${YEAR}
-   # get mesh mask files
-   rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
-   rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
-   rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
 
-   # get tracer file from gaya: 
-   rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
+   file_lst=''
+   for TAG in $( mktaglist $BIO_PROFILE ) ; do
+     # get mesh mask files
+     rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+     rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
+     rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
 
-   # Parameters for integration
-   latmin=$( cdffindij -180 180 -75 -45 -c mesh_hgr.nc -p T | tail -2 | head -1 | awk '{ print $4 }' )
+     # get tracer file from gaya: 
+     rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
+
+     # Parameters for integration
+     latmin=$( cdffindij -180 180 -75 -45 -c mesh_hgr.nc -p T | tail -2 | head -1 | awk '{ print $4 }' )
    
-   # compute vertical profiles
-   jc=0
-   for var in DIC Alkalini O2 PO4 Si NO3 Fer DOC ; do 
-     cdfmean ${CONFCASE}_${TAG}_ptrcT.nc $var T 0 180 1 $latmin 0 46 
-     if [ $jc == 0 ] ; then
-       mv cdfmean.nc ${CONFCASE}_${TAG}_bioprofile.nc
-     else
-       ncks -A -v mean_$var cdfmean.nc ${CONFCASE}_${TAG}_bioprofile.nc
-     fi
-     jc=$((jc+1))
-   done
+     # compute vertical profiles
+     suf=$(getsuffix $TAG )
+     fbioprofile=${CONFCASE}_y${YEAR}${suf}_bioprofile.nc
 
-   expatrie ${CONFCASE}_${TAG}_bioprofile.nc $MEANY  ${CONFCASE}_${TAG}_bioprofile.nc 
+     jc=0
+     for var in DIC Alkalini O2 PO4 Si NO3 Fer DOC ; do 
+       cdfmean ${CONFCASE}_${TAG}_ptrcT.nc $var T 0 180 1 $latmin 0 46 
+       if [ $jc == 0 ] ; then
+         ncks -h -A -v nav_lon,nav_lat,mean_$var cdfmean.nc tmpbioprofile.nc
+       else
+         ncks -h -A -v mean_$var cdfmean.nc tmpbioprofile.nc
+       fi
+       jc=$((jc+1))
+     done
+     concat_file $TAG tmpbioprofile.nc $fbioprofile
+     \rm tmpbioprofile.nc
+     file_lst=$( filter_lst $file_lst $fbioprofile )
+   done
+   
+   # dispose files
+   for f in $file_lst ; do
+      define_diags_dir $f
+      expatrie $f $DIAGSOUT $f
+   done
 
 fi
 
+# PISCES integrated values : Input files : ptrcT, diadT
+#  keyword : PISCES_INT  file_id : biovertmean
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+if [ $PISCES_INT != 0 ] ; then
+   file_lst=''
+   for TAG in $(mktaglist $PISCES_INT ) ; do
+     # get mesh mask files
+     rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+     rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
+
+     # get tracer file from gaya:
+     rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
+     rapatrie ${CONFCASE}_${TAG}_diadT.nc $MEANY ${CONFCASE}_${TAG}_diadT.nc
+   
+     # output files
+     suf=$(getsuffix $TAG )
+     fbiovert=${CONFCASE}_y${YEAR}${suf}_biovertmean.nc
+
+     jc=0
+     # compute vertically integrated mean
+     for var in DIC Alkalini O2 PO4 Si NO3 Fer DOC NCHL DCHL POC PHY PHY2 ZOO ZOO2 GOC SFe CFC11; do
+       cdfvertmean ${CONFCASE}_${TAG}_ptrcT.nc $var T 0 150
+       ncrename -h -v sovertmean,vertmean_${var} vertmean.nc
+       if [ $jc == 0 ] ; then
+         ncks -h -A -v nav_lon,nav_lat,vertmean_$var vertmean.nc tmpvertmean.nc
+       else
+         ncks -h -A -v vertmean_$var vertmean.nc tmpvertmean.nc
+       fi
+       jc=$((jc+1))
+     done
+
+     for var in PPPHY2 PPPHY PPNEWN PPNEWD PMO PMO2 PAR PH; do
+       cdfvertmean ${CONFCASE}_${TAG}_diadT.nc $var T 0 150
+       ncrename -h -v sovertmean,vertmean_${var} vertmean.nc
+       ncks -A -v vertmean_$var vertmean.nc tmpvertmean.nc
+     done
+
+     concat_file $TAG tmpvertmean.nc $fbiovert
+     \rm tmpvertmean.nc
+     file_lst=$( filter_lst $file_lst $fbiovert )
+   done
+
+   # dispose files
+   for f in $file_lst ; do
+      define_diags_dir $f
+      expatrie $f $DIAGSOUT $f
+   done
+
+fi
 ######################################################################
 ### Clean the working directory :
 ######################################################################
