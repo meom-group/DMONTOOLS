@@ -98,7 +98,7 @@ concat_file() {
    month=$( echo $1 | awk -Fm '{ print $2 }' )
    if [ $month ] ; then  # monthly diags
      case $month in
-     01) mv $2 $3 ;;     # first month initialize output file
+     01) cp $2 $3 ;;     # first month initialize output file
       *)  ncrcat -h $3 $2 -o tmp.nc  ; mv tmp.nc $3 ;;
      esac
    else                  # no month
@@ -130,6 +130,7 @@ cd $YEAR
   chkdirg $CONFIG
   chkdirg $DIAGS
   chkdirg $DIAGS/NC     # for NetCdf diag files
+  chkdirg $DIAGS/TXT    # for NetCdf diag files
   chkdirg $DIAGS/MONTHLY
   chkdirg $DIAGS/MONTHLY/TXT
   chkdirg $DIAGS/MONTHLY/NC
@@ -625,7 +626,7 @@ if [    $ICEMONTH != 0    ] ; then
    # output files:
    fbase=${CONFCASE}_${TAG}_1m
    fice=${fbase}_icemonth.txt
-   fice_nc=${fbase}_1m_icemonth.nc
+   fice_nc=${fbase}_icemonth.nc
 
    for m in $(seq 1 12) ; do 
     mm=$( printf "%02d" $m )
@@ -703,10 +704,13 @@ fi
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 if [            $TRP != 0    ] ; then
   file_lst=''
-  for TAG in $(mktaglist $TRP) ; do
+  # clean eventually old x_transport.nc files in this current directory
+  \rm -f *transports.nc
    # section.dat describes the position (I,J) of the sections to monitor
    # ./create_sections_list.ksh ${CONFIG%.*}   # to skip .Lxx part of the config name
    ../create_sections_list.ksh ${CONFIG} 
+
+  for TAG in $(mktaglist $TRP) ; do
  
    # get VT , gridU, gridV files
    rapatrie ${CONFCASE}_${TAG}_VT.nc $MEANY ${CONFCASE}_${TAG}_VT.nc
@@ -725,9 +729,6 @@ if [            $TRP != 0    ] ; then
  
    MONTH=`echo ${TAG} | awk -Fm '{print $2}'`
    echo $YEAR $MONTH >> $fsection
- 
-   # clean eventually old x_transport.nc files in this current directory
-   \rm -f *transports.nc
 
    cdftransport   ${CONFCASE}_${TAG}_VT.nc \
                   ${CONFCASE}_${TAG}_gridU.nc \
@@ -1115,7 +1116,7 @@ fi
 # TRACER DIAGS  : Input files : ptrcT, mesh mask
 #  keyword : TRACER   file_id : TRCmean  TRCzonalmean_conc TRCzonalmean_flx TRCzonalsum_flx pendep fracinv
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-if [ $TRACER != 1 ] ; then
+if [ $TRACER != 0 ] ; then
    file_lst=''
  for TAG in $(mktaglist $TRACER) ; do
    # get mesh mask files

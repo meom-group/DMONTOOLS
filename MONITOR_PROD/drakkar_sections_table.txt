@@ -100,7 +100,7 @@
 09_AUS_AA                   PERIANT025               268  268    9  399
 09_AUS_AA                   BIOPERIANT05             134  134    5  200
 #
-10_ITF                      itflo                   Indonesian_Troughflow          -1
+10_ITF                      itflo                   Indonesian_Throughflow         -1
 10_ITF                      ORCA12.L46               510  510 1393 1228
 10_ITF                      ORCA12.L75               510  510 1393 1228
 10_ITF                      ORCA025                  170  170  465  410
