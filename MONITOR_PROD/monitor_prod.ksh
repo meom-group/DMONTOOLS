@@ -737,7 +737,7 @@ if [            $TRP != 0    ] ; then
    grep -v Give $fsection | grep -v level | grep -v IMAX | grep -v FROM > tmp
    mv -f tmp $fsection
 
-   file_lst=$( filter_lst $file_lst $fsection )
+   file_lst=$( filter_list $file_lst $fsection )
 
    listfiles=$( ls | grep -e "^[0-9]" | grep transports.nc )
 
@@ -935,7 +935,7 @@ rename_maxmoc()   {
    echo $YEAR $MONTH > $fmaxmoc
    fmaxmoc40=${fbase}_maxmoc40.txt
    echo $YEAR $MONTH > $fmaxmoc40
-   file_lst_txt=$( filter_lst $file_lst_txt $fmaxmoc $fmaxmoc40 )
+   file_lst_txt=$( filter_list $file_lst_txt $fmaxmoc $fmaxmoc40 )
 
    fglomaxmoc=${fbase}_Glo_maxmoc.nc
    fglominmoc=${fbase}_Glo_minmoc.nc
@@ -961,98 +961,98 @@ rename_maxmoc()   {
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 0 2000   | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_maxmoc
    concat_file $TAG maxmoc.nc $fglomaxmoc
-   file_lst=$( filter_lst $file_lst $fglomaxmoc )
+   file_lst=$( filter_list $file_lst $fglomaxmoc )
 
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 2000 5500  | grep Minimum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_minmoc
    concat_file $TAG maxmoc.nc $fglominmoc
-   file_lst=$( filter_lst $file_lst $fglominmoc )  ;;
+   file_lst=$( filter_list $file_lst $fglominmoc )  ;;
 
         ORCA12 | ORCA12.L46 | ORCA12.L75 | ORCA025 | ORCA025.L75 | ORCA05 | ORCA2 | ORCA246 )
    # GLO
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo 20 60 500 2000 | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_maxmoc
    concat_file $TAG maxmoc.nc $fglomaxmoc
-   file_lst=$( filter_lst $file_lst $fglomaxmoc )
+   file_lst=$( filter_list $file_lst $fglomaxmoc )
 
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo -40 30 2000 5500 | grep Minimum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_minmoc
    concat_file $TAG maxmoc.nc $fglominmoc
-   file_lst=$( filter_lst $file_lst $fglominmoc )
+   file_lst=$( filter_list $file_lst $fglominmoc )
 
 
    # ATL
    printf "%s" 'Atl ' >>  $fmaxmoc ; cdfmaxmoc $f atl 0 60 500 2000 | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Atl_maxmoc
    concat_file $TAG maxmoc.nc $fatlmaxmoc
-   file_lst=$( filter_lst $file_lst $fatlmaxmoc )
+   file_lst=$( filter_list $file_lst $fatlmaxmoc )
 
    printf "%s" 'Atl ' >>  $fmaxmoc ; cdfmaxmoc $f atl -20 40 2000 5500 | grep Minimum  >> $fmaxmoc
    rename_maxmoc maxmoc.nc Atl_minmoc
    concat_file $TAG maxmoc.nc $fatlminmoc
-   file_lst=$( filter_lst $file_lst $fatlminmoc )
+   file_lst=$( filter_list $file_lst $fatlminmoc )
 
 
    #INP
    printf "%s" 'Inp ' >>  $fmaxmoc ; cdfmaxmoc $f inp 15 50 100 1000 | grep Minimum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Inp_minmoc
    concat_file $TAG maxmoc.nc $finpminmoc
-   file_lst=$( filter_lst $file_lst $finpminmoc )
+   file_lst=$( filter_list $file_lst $finpminmoc )
 
    printf "%s" 'Inp ' >>  $fmaxmoc ; cdfmaxmoc $f inp -30 20 1000 5500  | grep Minimum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Inp_minmoc2
    concat_file $TAG maxmoc.nc $finpminmoc2
-   file_lst=$( filter_lst $file_lst $finpminmoc2 )
+   file_lst=$( filter_list $file_lst $finpminmoc2 )
 
 
    #AUS
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 0 2000   | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Aus_maxmoc
    concat_file $TAG maxmoc.nc $fausmaxmoc
-   file_lst=$( filter_lst $file_lst $fausmaxmoc )
+   file_lst=$( filter_list $file_lst $fausmaxmoc )
 
    printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 2000 5500  | grep Minimum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Aus_minmoc
    concat_file $TAG maxmoc.nc $fausminmoc
-   file_lst=$( filter_lst $file_lst $fausminmoc )
+   file_lst=$( filter_list $file_lst $fausminmoc )
 
    # Max and Min of MOC at some specific latitudes
    # GLO  MAX at 40 N and 30S
    printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo 40 40 500 2000 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Glo_maxmoc40N
    concat_file $TAG maxmoc.nc $fglomaxmoc40n
-   file_lst=$( filter_lst $file_lst $fglomaxmoc40n )
+   file_lst=$( filter_list $file_lst $fglomaxmoc40n )
 
    printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo -30 -30 500  5500 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Glo_maxmoc30S
    concat_file $TAG maxmoc.nc $fglomaxmoc30s
-   file_lst=$( filter_lst $file_lst $fglomaxmoc30s )
+   file_lst=$( filter_list $file_lst $fglomaxmoc30s )
 
 
    # ATL  MAX at 40N and 30S
    printf "%s" 'Atl ' >>  $fmaxmoc40 ; cdfmaxmoc $f atl 40 40 500 2000 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Atl_maxmoc40N
    concat_file $TAG maxmoc.nc $fatlmaxmoc40n
-   file_lst=$( filter_lst $file_lst $fatlmaxmoc40n )
+   file_lst=$( filter_list $file_lst $fatlmaxmoc40n )
 
    printf "%s" 'Atl ' >>  $fmaxmoc40 ; cdfmaxmoc $f atl -30 -30  500 5000 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Atl_maxmoc30S
    concat_file $TAG maxmoc.nc $fatlmaxmoc30s
-   file_lst=$( filter_lst $file_lst $fatlmaxmoc30s )
+   file_lst=$( filter_list $file_lst $fatlmaxmoc30s )
 
 
    #INP  Min at 30 S
    printf "%s" 'Inp ' >>  $fmaxmoc40 ; cdfmaxmoc $f inp -30 -30 1000 5500  | grep Minimum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Inp_minmoc30S
    concat_file $TAG maxmoc.nc $finpminmoc30s
-   file_lst=$( filter_lst $file_lst $finpminmoc30s )
+   file_lst=$( filter_list $file_lst $finpminmoc30s )
 
 
    #AUS  MAX at 50 S
    printf "%s" 'Aus ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo -50 -50 0 2000   | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Aus_maxmoc50S
    concat_file $TAG maxmoc.nc $fausmaxmoc50s
-   file_lst=$( filter_lst $file_lst $fausmaxmoc50s ) ;;
+   file_lst=$( filter_list $file_lst $fausmaxmoc50s ) ;;
 
        # NATL configuration
         NATL025 | NATL4 | NATL12 )
@@ -1060,12 +1060,12 @@ rename_maxmoc()   {
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo 20 60 500 2000 | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_maxmoc
    concat_file $TAG maxmoc.nc $fglomaxmoc
-   file_lst=$( filter_lst $file_lst $fglomaxmoc )
+   file_lst=$( filter_list $file_lst $fglomaxmoc )
 
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo -40 30 2000 5500 | grep Minimum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_minmoc
    concat_file $TAG maxmoc.nc $fglominmoc
-   file_lst=$( filter_lst $file_lst $fglominmoc )
+   file_lst=$( filter_list $file_lst $fglominmoc )
 
 
    # Max and Min of MOC at some specific latitudes
@@ -1073,12 +1073,12 @@ rename_maxmoc()   {
    printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo 40 40 500 2000 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Glo_maxmoc40N
    concat_file $TAG maxmoc.nc $fglomaxmoc40n
-   file_lst=$( filter_lst $file_lst $fglomaxmoc40n )
+   file_lst=$( filter_list $file_lst $fglomaxmoc40n )
 
    printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo -15 -15 500  5500 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Glo_maxmoc15S
    concat_file $TAG maxmoc.nc $fglomaxmoc15s
-   file_lst=$( filter_lst $file_lst $fglomaxmoc15s ) ;;
+   file_lst=$( filter_list $file_lst $fglomaxmoc15s ) ;;
 
    esac
    # clean for next year 
@@ -1100,7 +1100,7 @@ rename_maxmoc()   {
     suf=$( echo $f | awk -F_ '{ print $3 }' )  # suf is then 1m or 1y
     fmaxmocall=${CONFCASE}_${YEAR}_${suf}_MAXMOC.nc
     ncks -h -A $f $fmaxmocall
-    fileout_lst=$( filter_lst $fileout_lst $fmaxmocall )
+    fileout_lst=$( filter_list $fileout_lst $fmaxmocall )
     # clean temporary files
     \rm -f $f 
   done
@@ -1248,7 +1248,7 @@ if [             $TAO !=  0   ] ; then
         ncrename -h -O -v sovitua,u_$LONG profile.nc
 
         concat_file $TAG profile.nc $fvel
-        file_lst=$( filter_lst $file_lst $fvel )
+        file_lst=$( filter_list $file_lst $fvel )
      done
   done
 
@@ -1268,35 +1268,35 @@ if [             $TAO !=  0   ] ; then
        cdfprofile 1 1 $fvel.nc u_110w -dep $dep
        mv profile.nc ${fvel}_UC.nc
        ncrename -h -O -v u_110w,u_110w_UC ${fvel}_UC.nc 
-       file_lst=$( filter_lst $file_lst ${fvel}_UC.nc )
+       file_lst=$( filter_list $file_lst ${fvel}_UC.nc )
 
      # 140W  depth = 120m
        fvel=${fbase}_0n140w  ; dep=120
        cdfprofile 1 1 $fvel.nc u_140w -dep $dep
        mv profile.nc ${fvel}_UC.nc
        ncrename -h -O -v u_140w,u_140w_UC ${fvel}_UC.nc 
-       file_lst=$( filter_lst $file_lst ${fvel}_UC.nc )
+       file_lst=$( filter_list $file_lst ${fvel}_UC.nc )
 
      # 170W  depth = 150m
        fvel=${fbase}_0n170w  ; dep=150
        cdfprofile 1 1 $fvel.nc u_170w -dep $dep
        mv profile.nc ${fvel}_UC.nc
        ncrename -h -O -v u_170w,u_170w_UC ${fvel}_UC.nc
-       file_lst=$( filter_lst $file_lst ${fvel}_UC.nc )
+       file_lst=$( filter_list $file_lst ${fvel}_UC.nc )
 
      # 156E  depth = 200m
        fvel=${fbase}_0n156e  ; dep=200
        cdfprofile 1 1 $fvel.nc u_156e -dep $dep
        mv profile.nc ${fvel}_UC.nc
        ncrename -h -O -v u_156e,u_156e_UC ${fvel}_UC.nc
-       file_lst=$( filter_lst $file_lst ${fvel}_UC.nc )
+       file_lst=$( filter_list $file_lst ${fvel}_UC.nc )
 
      # 165E  depth = 200m
        fvel=${fbase}_0n165e  ; dep=200
        cdfprofile 1 1 $fvel.nc u_165e -dep $dep
        mv profile.nc ${fvel}_UC.nc
        ncrename -h -O -v u_165e,u_165e_UC ${fvel}_UC.nc
-       file_lst=$( filter_lst $file_lst ${fvel}_UC.nc )
+       file_lst=$( filter_list $file_lst ${fvel}_UC.nc )
      fi
   done
 
@@ -1344,7 +1344,7 @@ if [ $BIO_PROFILE != 0 ] ; then
      done
      concat_file $TAG tmpbioprofile.nc $fbioprofile
      \rm tmpbioprofile.nc
-     file_lst=$( filter_lst $file_lst $fbioprofile )
+     file_lst=$( filter_list $file_lst $fbioprofile )
    done
    
    # dispose files
@@ -1394,7 +1394,7 @@ if [ $PISCES_INT != 0 ] ; then
 
      concat_file $TAG tmpvertmean.nc $fbiovert
      \rm tmpvertmean.nc
-     file_lst=$( filter_lst $file_lst $fbiovert )
+     file_lst=$( filter_list $file_lst $fbiovert )
    done
 
    # dispose files
