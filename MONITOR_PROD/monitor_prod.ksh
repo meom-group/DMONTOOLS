@@ -93,7 +93,6 @@ define_diags_dir() {
 # Function that transfert/concatenate cdftool file to target file
 #  eg : concat_file $TAG cdftool_file  target_file
 concat_file() {
-   ncatted -h -O -a missing_value,,d,, $2
    # look for month
    month=$( echo $1 | awk -Fm '{ print $2 }' )
    if [ $month ] ; then  # monthly diags
