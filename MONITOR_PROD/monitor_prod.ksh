@@ -97,7 +97,7 @@ concat_file() {
    # look for month
    month=$( echo $1 | awk -Fm '{ print $2 }' )
    if [ $month ] ; then  # monthly diags
-     case $month
+     case $month in
      01) mv $2 $3 ;;     # first month initialize output file
       *)  ncrcat -h $3 $2 -o tmp.nc  ; mv tmp.nc $3 ;;
      esac
