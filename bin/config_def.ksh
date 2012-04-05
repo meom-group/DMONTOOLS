@@ -75,6 +75,7 @@ TRACER=0                 # compute passive Tracer statistics
 LSPV=0                   # compute large scale potential vorticity
 TAO=0                    # compute profiles at TAO moorings location
 BIO_PROFILE=0            # compute PISCES mean vertical profiles
+PISCES_INT=0             # compute PISCES vertical integration
 
 ######################################################################
 ### -2- PLOT 2D Menu :
