@@ -126,7 +126,7 @@ cd $MONITOR
 listfiles=$( ls ${CONFCASE}*.nc )
 ftest=$( echo $listfiles | awk '{ print $1 }' )
 # We test if we find the 'Start_date' string in it
-stest=$( ncdump -h $ftest | grep Start_date )
+stest=$( ncdump -h $ftest | grep -i Start_date )
 # We define a flag
 lk_startdate=1
 if [ "$stest" == '' ] ; then
