@@ -1179,7 +1179,7 @@ rename_maxmoc()   {
   fileout_lst=''
   for f in $file_lst ; do
     suf=$( echo $f | awk -F_ '{ print $3 }' )  # suf is then 1m or 1y
-    fmaxmocall=${CONFCASE}_${YEAR}_${suf}_MAXMOC.nc
+    fmaxmocall=${CONFCASE}_y${YEAR}_${suf}_MAXMOC.nc
     ncks -h -A $f $fmaxmocall
     fileout_lst=$( filter_list $fileout_lst $fmaxmocall )
     # clean temporary files
