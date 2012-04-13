@@ -900,11 +900,6 @@ if [ $DCT != 0 ] ; then
    froot=${CONFCASE}_${TAG}_1y_${section}_trpsig
    concat_file ${TAG} cdfmoy_weighted.nc  $froot.nc
    file_lst=$( filter_list $file_lst $froot.nc )
-
-   ncks -h -v sigtrp  $froot.nc | \
-       sed -e 's/=/ /g' | grep -e '^time_counter\[' | grep -e lev | \
-       awk '{printf " %07.4f %+14.9e\n", $4, $8}' > $froot.txt
-   file_lst=$( filter_list $file_lst $froot.txt )
   done
   
   # save yearly files
@@ -1171,9 +1166,6 @@ rename_maxmoc()   {
     define_diags_dir $f
     expatrie $f $DIAGSOUT $f
   done
-
-  # dispose files on ad-hoc DIAG/xxx directory
-  fmaxmocall=${fbase}_MAXMOC.nc
 
   # Concatenate all files into  a single one
   fileout_lst=''
