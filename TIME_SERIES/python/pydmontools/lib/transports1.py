@@ -47,33 +47,20 @@ def read(argdict=myargs,fromfile=[]):
              sys.exit() 
           return _readnc(fromfile[0],argdict=argdict) 
        elif fromfile[0].endswith('.mtl'): # if mtlfile name is provided
-          if not(len(fromfile)==1):
-             print 'please provide one mlt filename'
-             sys.exit() 
-          return _readmtl(fromfile[0],argdict=argdict)
+          print 'mtl files are no longer supported'
        else:                               
           pass
     elif fromfile==[]:                    # production mode 
        filenc = _get_ncname(argdict=argdict)
-       filemtl = _get_mtlnames(argdict=argdict)
-       # first try to open a netcdf file
+       # try to open the netcdf file
        if os.path.isfile(filenc):
           return _readnc(filenc,argdict=argdict) 
-       # or try the mlt version   
-       elif os.path.isfile(filemtl):
-          return _readmtl(filemtl,argdict=argdict)
           
 def _get_ncname(argdict=myargs):
     fileroot = argdict['datadir'] + osp + argdict['config'] + '-' \
             + argdict['case'] 
     filename = fileroot + '_TRANSPORTS.nc'
     return filename
-
-def _get_mtlnames(argdict=myargs):
-    fileroot = argdict['datadir'] + osp + argdict['config'] + '-' \
-            + argdict['case']  
-    file  = fileroot + '_matrix.mtl'
-    return file
 
 #=======================================================================
 
@@ -107,40 +94,6 @@ def _readnc(filenc=None,argdict=myargs):
 
     return outdict # return the dictionnary of values 
 
-
-def _readmtl(filemtl=None,argdict=myargs):
-    f=open(filemtl,'r')
-    lignes=[lignes for lignes in f.readlines() if lignes.strip() ] # remove empty lines
-    f.close()
-    # 
-    (truenames, shortnames, longnames, sens) = rs.define_sections(argdict)
-    nsection=len(truenames)
-    outdict = {} # creates the dictionnary which will contain the arrays 
-    #
-    mass = [] ; heat = [] ; salt = [] ; year = []
-    #
-    for chaine in lignes[3:] :
-        element=chaine.split()
-        year.append(float(element[0]))
-        for k in range(1,1+nsection) :
-                mass.append(float(element[k]))
-        for k in range( 1+nsection,1+(2*nsection) ) :
-                heat.append(float(element[k]))
-        for k in range( 1+(2*nsection),1+(3*nsection) ) :
-                salt.append(float(element[k]))
-
-    bigsens = (sens * npy.ones((len(year),nsection)))
-
-    mass=npy.reshape(mass, (-1,nsection))
-    heat=npy.reshape(heat, (-1,nsection))
-    salt=npy.reshape(salt, (-1,nsection))
-
-    outdict['date']    = year
-    outdict['massplt'] = npy.transpose( mass * bigsens )
-    outdict['heatplt'] = npy.transpose( heat * bigsens )
-    outdict['saltplt'] = npy.transpose( salt * bigsens )
-
-    return outdict # return the dictionnary of values 
 
 #=======================================================================
 #--- Plotting the data 

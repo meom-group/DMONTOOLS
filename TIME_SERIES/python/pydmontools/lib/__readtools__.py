@@ -35,9 +35,16 @@ def get_datetime(ncfile,tname='time_counter'):
     Assume that time_counter is given in years. 
     """
     fid   = CDF.NetCDFFile(ncfile,'r')
-    years =  fid.variables[tname][:].squeeze()
+    time_counter =  fid.variables[tname][:].squeeze()
+    time_origin = fid.variables[tname].time_origin
     fid.close()
-    _dates = mdates.num2date((years-1)*365.2425+1)
+    if time_origin=='1959-JAN-02 12:00:00':
+        date_origin = mdates.datetime.datetime(1959,1,2,12,0,0)
+	num_origin = mdates.date2num(date_origin)
+    else:
+	num_origin = 0 
+        print 'time_origin attributes has not the expected value'
+    _dates = mdates.num2date(time_counter/mdates.SECONDS_PER_DAY + num_origin) # num are given in days
     cleandate = lambda d:d.replace(hour=0,minute=0,second=0)
     dates = map(cleandate,_dates)
     return dates
