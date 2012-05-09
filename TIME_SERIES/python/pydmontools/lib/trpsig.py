@@ -71,7 +71,7 @@ def _readnc(filenc=None,argdict=myargs):
     #
     nsection=len(truenames) # nsection is never used, why ? 
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model' ]  = rs.get_years_intpart(filenc)
+    outdict['date' ]  = rs.get_datetime(filenc)
     outdict['sigma_class']  = rs.readfilenc(filenc, 'sigma_class')[0,:]
 
     for kk in shortnames:
@@ -80,41 +80,6 @@ def _readnc(filenc=None,argdict=myargs):
 
     return outdict # return the dictionnary of values 
 
-
-def _readmtl(filemtl=None,argdict=myargs):
-    lignes = rs.mtl_flush(filemtl)
-    sigma_class=[] ; year_model = []
-    # get the section names corresponding to the config
-    (truenames, shortnames, longnames) = rs.define_trpsig(argdict)
-    nsection=len(truenames) ; trplist = []
-    #
-    for k in shortnames:
-        vartmp= 'sigtrp_' + k
-        trplist= trplist + [vartmp]
-        exec( vartmp + '=[]' )
-    #
-    for chaine in lignes[0:1] :
-        element=chaine.split()
-        for k in range(1,len(element)) :
-            sigma_class.append(float(element[k]))
-    for n in range(1,nsection+1) :
-        for chaine in lignes[n::nsection] :
-            element=chaine.split()
-            if n == 1 :
-                year_model.append(float(element[0]))
-            for k in range(1,len(element)) :
-                vars()[trplist[n-1]].append(float(element[k]))
-    
-    for n in range(1,nsection+1) :
-        vars()[trplist[n-1]] = npy.reshape( vars()[trplist[n-1]] , (len(year_model),-1) )
-
-    outdict = {}
-    outdict['year_model']  = npy.array((year_model),'f')
-    outdict['sigma_class'] = npy.array((sigma_class),'f')
-    for k in trplist:
-        outdict[k] = npy.array((vars()[k]),'f')
-
-    return outdict # return the dictionnary of values 
 
 #=======================================================================
 #--- Plotting the data 
@@ -132,7 +97,7 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
     if figure is None: # by default create a new figure
           figure = plt.figure(figsize=fig_size)
     
-    year=year_model
+    _date = ps.mdates.date2num(date) # now a numerical value
     sigma=sigma_class 
     ncontour=70
     sigmadens = rs.get_index(sigma,27.8)
@@ -147,21 +112,22 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
         transport_total = sum(npy.transpose(trpdense))
         trpsig = ma.masked_equal(trpsig,0.)
         if not(compare):
-           plt.subplot(nsection,2,2*k+1)
-           plt.contourf(year, sigma,npy.transpose(trpsig),ncontour,cmap=cm.jet_r)
+           ax1 = figure.add_subplot(nsection,2,2*k+1)
+           plt.contourf(date, sigma,npy.transpose(trpsig),ncontour,cmap=cm.jet_r)
            plt.colorbar(format='%.1f')
-           plt.contour(year, sigma,npy.transpose(trpsig),[0],colors='white')
-           plt.plot(year, 27.8 * npy.ones(year.shape),'w-.')
-           plt.grid(True)
-           plt.axis([min(year), max(year), 29.2, 25.3])
+           plt.contour(date, sigma,npy.transpose(trpsig),[0],colors='white')
+           plt.plot(date, 27.8 * npy.ones(_date.shape),'w-.')
+           ax1.grid(True)
+           ax1.axis([min(_date), max(_date), 29.2, 25.3])
            plt.ylabel('Sigma classes',fontsize='large')
            plt.title(titleplot + ' (Sv)',fontsize='large')
+	   ps.set_dateticks(ax1)
         # when comparison is done only next plot is done
         # and we want it on the left of the screen
         if not(compare) :
-           plt.subplot(nsection,2,2*k+2)
+           ax2 = figure.add_subplot(nsection,2,2*k+2)
         else :
-           plt.subplot(nsection,2,2*k+1)
+           ax2 = figure.add_subplot(nsection,2,2*k+1)
 
         titleplot=titleplot.replace('transport in sigma classes',' ')
         if not(compare) and k == 0 :
@@ -169,12 +135,12 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
         else:
            plt.title(titleplot , fontsize='large')
 
-        plt.plot(year, transport_total, color)
-        plt.grid(True)
-        plt.axis([min(year), max(year),
+        ax2.plot(date, transport_total, color)
+        ax2.grid(True)
+        ax2.axis([min(_date), max(_date),
         min(transport_total),max(transport_total)])
         plt.ylabel('Dense waters trp.(> 27.8) (Sv) ', fontsize='large')
-
+        ps.set_dateticks(ax2)
     return figure
 
 #=======================================================================

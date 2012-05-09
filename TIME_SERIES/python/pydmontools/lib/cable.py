@@ -85,7 +85,7 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     outdict['trpmodel']  = -1 * rs.readfilenc(filenc, 'vtrp_floba' )
     outdict['dateobs']   = rs.get_datetime(fileobs,tname='YEAR_CABLE')
     outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
-
+    #
     return outdict # return the dictionnary of values 
 
 

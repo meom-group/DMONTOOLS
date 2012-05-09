@@ -42,7 +42,7 @@ def read(argdict=myargs,fromfile=[]):
     if fromfile!=[]:                      # diagnostic mode...
        if fromfile[0].endswith('.nc'):    # if ncfile name is provided
           if not(len(fromfile)==2):
-             print 'please provide two netcdf filename : MOC and HEAT'
+             print 'please provide two netcdf filename : MOC and MHT'
              sys.exit() 
           return _readnc(fromfile[0], fromfile[1], argdict=argdict) 
        elif fromfile[0].endswith('.mtl'): # if mtlfile name is provided
@@ -60,7 +60,7 @@ def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
              + argdict['case'] + '_MOC.nc' 
     filename2 = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_HEAT.nc' 
+             + argdict['case'] + '_MHT.nc' 
     return filename,filename2
 
 #=======================================================================
@@ -68,8 +68,8 @@ def _get_ncname(argdict=myargs):
 def _readnc(filenc=None, filenc2=None, argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model']      = rs.get_years_intpart(filenc)
-    outdict['year_model_heat'] = rs.get_years_intpart(filenc2)
+    outdict['date_model']      = rs.get_datetime(filenc)
+    outdict['date_model_heat'] = rs.get_datetime(filenc2)
     if argdict['config'].find('ORCA') == 0:
         data_list = ['maxmoc_Glo_maxmoc' , 'maxmoc_Atl_maxmoc', 'maxmoc_Aus_maxmoc',
                      'minmoc_Glo_minmoc' , 'minmoc_Atl_minmoc', 'minmoc_Inp_minmoc',
@@ -95,46 +95,18 @@ def _readnc(filenc=None, filenc2=None, argdict=myargs):
  
     return outdict # return the dictionnary of values 
 
-def _readmtl(filemtl=None, argdict=myargs):
-    #
-    lignes = rs.mtl_flush(filemtl)
-    if argdict['config'].find('ORCA') == 0:
-        #
-        data_list = ['year_model', 'maxmoc_Glo_maxmoc', 'minmoc_Glo_minmoc' , 'zomht_glo',
-                     'maxmoc_Atl_maxmoc', 'minmoc_Atl_minmoc' , 'zomht_atl',
-                     'minmoc_Inp_minmoc', 'minmoc_Inp_minmoc2', 'unused',
-                     'maxmoc_Aus_maxmoc', 'minmoc_Aus_minmoc', 'unused'] 
-    elif argdict['config'].find('NATL') == 0:
-        data_list = ['year_model', 'maxmoc_Glo_maxmoc', 'minmoc_Glo_minmoc','zomht_glo']
-    elif 'PERIANT' in argdict['config']: # this should be checked. 
-	data_list = ['maxmoc_Glo_maxmoc', 'minmoc_Glo_minmoc']
-    else:
-        print "config not supported"
-        sys.exit()
-    #
-    for k in data_list:
-        exec(k + '=[]')
-    #
-    for chaine in lignes :
-        element=chaine.split()
-        for k in range(len(data_list)) :
-            vars()[data_list[k]].append(float(element[k]))
-
-    outdict={}
-    for k in data_list:
-        outdict[k] = npy.array((vars()[k]),'f')
-
-    return outdict # return the dictionnary of values 
-
 #=======================================================================
 #--- Plotting the data 
 #=======================================================================
 
-def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
+def plot(argdict=myargs, date_model=None, date_model_heat=None,figure=None, color='r', compare=False, **kwargs):
     #
     for key in kwargs:
         exec(key+'=kwargs[key]')
     #
+    _date_model = ps.mdates.date2num(date_model) # now a numerical value
+    _date_model_heat = ps.mdates.date2num(date_model_heat) # now a numerical value
+
     if argdict['config'].find('ORCA') == 0:
         #
         data_list_plt = ['maxmoc_Glo_maxmoc', 'minmoc_Glo_minmoc' , 'zomht_glo',
@@ -172,17 +144,19 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     #
     for k in range(len(data_list_plt)) :
         if data_list_plt[k].find('unused') != 0 :
-            plt.subplot(nbzone, nbfig, k+1)
-            plt.plot(year_model,vars()[data_list_plt[k]],color + '.-')
-            plt.axis([min(year_model), max(year_model), 
+            ax = figure.add_subplot(nbzone, nbfig, k+1)
+            ax.plot(date_model,vars()[data_list_plt[k]],color + '.-')
+            ax.axis([min(_date_model), max(_date_model), 
             min(vars()[data_list_plt[k]]), max(vars()[data_list_plt[k]])])
             plt.grid(True)
+	    ps.set_dateticks(ax)
             if not(compare) and k <= 2 :
                 plt.title(argdict['config'] + '-' + argdict['case']+'\n'+titleplot[k],fontsize='small')
             else :
                 plt.title(titleplot[k],fontsize='small')
             if divmod(k,nbfig)[1] == 1 :
                 plt.ylabel(listylabel[divmod(k,nbfig)[0]],fontsize='small')
+    #figure.autofmt_xdate() # should be adapted a bit more...
     #
     return figure
 

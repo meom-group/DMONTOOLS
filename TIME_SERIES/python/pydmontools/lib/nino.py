@@ -71,12 +71,13 @@ def _get_ncname(argdict=myargs):
 def _readnc(filenc=None,fileobs=None,argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model'  ]  = rs.get_years(filenc)
+    outdict['date_model'  ]  = rs.get_datetime(filenc)
     outdict['NINO12_model']  = rs.readfilenc(filenc, 'votemper_NINO12' )
     outdict['NINO34_model']  = rs.readfilenc(filenc, 'votemper_NINO34' )
     outdict['NINO3_model' ]  = rs.readfilenc(filenc, 'votemper_NINO3'  )
     outdict['NINO4_model' ]  = rs.readfilenc(filenc, 'votemper_NINO4'  )
-    #
+    # The following code block should also be adapted to the new date format :
+    # waiting until RD modifies data_obs_DRAKKAR.nc file. 
     year_tmp  = rs.readfilenc(fileobs, 'YEAR_ELNINO')
     month_tmp = rs.readfilenc(fileobs, 'MONTH_ELNINO')
     outdict['year_obs'    ]  = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
@@ -92,45 +93,6 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     
     return outdict # return the dictionnary of values 
 
-
-def _readmtl(filemtl=None, fileobs=None, argdict=myargs):
-    #
-    f1=open(filemtl,'r')
-    lignes1=[lignes1 for lignes1 in f1.readlines() if lignes1.strip() ] # remove empty lines
-    f1.close()
-    #
-    datalist=['year','month','nino1','unused1','nino2','unused2','nino3','unused3','nino4','unused4']
-    #
-    for k in datalist:
-        exec(k+'=[]')
-    #
-    for chaine in lignes1 :
-        element=chaine.split()
-        vars()[datalist[0]].append(float(element[0]) + (float(element[1]) -0.5)/12 )
-        for k in range(1,len(datalist)) :
-            vars()[datalist[k]].append(float(element[k]))
-	
-    outdict = {}
-    outdict['year_model'  ]  = year
-    outdict['NINO12_model']  = nino1
-    outdict['NINO34_model']  = nino4
-    outdict['NINO3_model' ]  = nino2
-    outdict['NINO4_model' ]  = nino3
-    #
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ELNINO')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ELNINO')
-    outdict['year_obs'    ]  = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-    outdict['NINO12_obs'  ]  = rs.readfilenc(fileobs, 'NINO1+2' )
-    outdict['NINO34_obs'  ]  = rs.readfilenc(fileobs, 'NINO3.4' )
-    outdict['NINO3_obs'   ]  = rs.readfilenc(fileobs, 'NINO3'   )
-    outdict['NINO4_obs'   ]  = rs.readfilenc(fileobs, 'NINO4'   )
-    #
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_SOI')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_SOI')
-    outdict['year_soi'    ]  = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-    outdict['SOI'         ]  = rs.readfilenc(fileobs, 'SOI')
-
-    return outdict # return the dictionnary of values 
 
 #=======================================================================
 #--- Plotting the data 

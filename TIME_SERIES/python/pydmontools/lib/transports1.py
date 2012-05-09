@@ -69,7 +69,7 @@ def _readnc(filenc=None,argdict=myargs):
     if argdict.has_key('compared_configs'):
        compare_different_configs = (len(argdict['compared_configs'])>1)
     else: 
-       compare_different_configs = False 
+       compare_different_configs = False # assigned to but never used, why ?  
     # get the section names corresponding to the config
     (truenames, shortnames, longnames, sens) = rs.define_sections(argdict)
     #
@@ -137,7 +137,7 @@ def plot(argdict=myargs, figure=None,color='r',massplt=None,heatplt=None,saltplt
           ps.set_dateticks(ax3)
           if k==1 :
                 plt.title('Salt Transport',fontsize='large')
-          figure.autofmt_xdate() # should be adapted a bit more...
+          #figure.autofmt_xdate() # should be adapted a bit more...
   
     return figure
 

@@ -34,7 +34,7 @@ strmth2strnum = {'JAN':'01','FEB':'02','MAR':'03','APR':'04','MAY':'05','JUN':'0
 
 def get_datetime(ncfile,tname='time_counter'):
     """Return a datetime.datetime object built from ncfile time_counter.
-    Assume that time_counter is given in years. 
+    Assume that time_counter is given in seconds since its time_origin. 
     """
     fid   = CDF.NetCDFFile(ncfile,'r')
     time_counter =  fid.variables[tname][:].squeeze()

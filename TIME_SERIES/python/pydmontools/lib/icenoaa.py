@@ -70,35 +70,28 @@ def _get_ncname(argdict=myargs):
 def _readnc(filenc=None,fileobs=None,argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model'] = rs.get_years(filenc)
+    outdict['date_model'] = rs.get_datetime(filenc)
     outdict['NVolume'   ] = rs.readfilenc(filenc, 'NVolume' )  / 1000
     outdict['NArea'     ] = rs.readfilenc(filenc, 'NArea' )    / 1000
     outdict['NExnsidc'  ] = rs.readfilenc(filenc, 'NExnsidc' ) / 1000
     outdict['SVolume'   ] = rs.readfilenc(filenc, 'SVolume' )  / 1000
     outdict['SArea'     ] = rs.readfilenc(filenc, 'SArea' )    / 1000
     outdict['SExnsidc'  ] = rs.readfilenc(filenc, 'SExnsidc' ) / 1000
-    #
+    # The following code block should also be adapted to the new date format :
+    # waiting until RD modifies data_obs_DRAKKAR.nc file. 
     year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_NORTH')
     month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_NORTH')
     year_obs_north = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
     year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_SOUTH')
     month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_SOUTH')
     year_obs_south = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-
+    #
     dataobslist = ['NORTH_ICE_EXTENT', 'NORTH_ICE_AREA', 'SOUTH_ICE_EXTENT', 'SOUTH_ICE_AREA']
-    NORTH_ICE_EXTENT = rs.readfilenc(fileobs, 'NORTH_ICE_EXTENT')
-    NORTH_ICE_AREA   = rs.readfilenc(fileobs, 'NORTH_ICE_AREA')
-    SOUTH_ICE_EXTENT = rs.readfilenc(fileobs, 'SOUTH_ICE_EXTENT')
-    SOUTH_ICE_AREA   = rs.readfilenc(fileobs, 'SOUTH_ICE_AREA')
-    
-    ### This correction has already been done when we have created the data_obs_DRAKKAR.nc file
-    # Correction for pole area not seen by sensor: 1.19  before june 1987, 0.31 after ( Change of satellite SSM/R SSM/I )
-    #indN = rs.get_index(year_obs_north, 1987.45)
-    #for k in range(indN+1) :
-    #    NORTH_ICE_AREA[k] = NORTH_ICE_AREA[k] + 1.19
-    #for k in range(indN+1,len(NORTH_ICE_AREA)) :
-    #    NORTH_ICE_AREA[k] = NORTH_ICE_AREA[k] + 0.31
-
+    outdict['NORTH_ICE_EXTENT'] = rs.readfilenc(fileobs, 'NORTH_ICE_EXTENT')
+    outdict['NORTH_ICE_AREA']   = rs.readfilenc(fileobs, 'NORTH_ICE_AREA')
+    outdict['SOUTH_ICE_EXTENT'] = rs.readfilenc(fileobs, 'SOUTH_ICE_EXTENT')
+    outdict['SOUTH_ICE_AREA']   = rs.readfilenc(fileobs, 'SOUTH_ICE_AREA')
+    #
     outdict['year_obs_north' ] = year_obs_north
     outdict['year_obs_south' ] = year_obs_south
     for k in dataobslist:
@@ -107,63 +100,6 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     return outdict # return the dictionnary of values 
 
 
-def _readmtl(filemtl=None, fileobs=None, argdict=myargs):
-    #
-    lignes  = rs.mtl_flush(filemtl)
-    #
-    datalist  = ['year_model','NVolume','SVolume','NArea','SArea','NExnsidc','SExnsidc']
-    nmonth=12
-    #
-    for k in datalist:
-        exec(k+'=[]') # init to empty array
-    #
-    for chaine in lignes[3:] :
-        element=chaine.split()
-        for k in range(1,1+nmonth) :
-            year_model.append(float(element[0]) + ((float(k)-0.5)/nmonth) )
-            NVolume.append(float(element[k])/1000) 
-        for k in range( 1+nmonth,1+(2*nmonth) ) :
-            SVolume.append(float(element[k])/1000) 
-        for k in range( 1+(2*nmonth),1+(3*nmonth) ) :
-            NArea.append(float(element[k])/1000) 
-        for k in range( 1+(3*nmonth),1+(4*nmonth) ) :
-            SArea.append(float(element[k])/1000) 
-        for k in range( 1+(4*nmonth),1+(5*nmonth) ) :
-            NExnsidc.append(float(element[k])/1000) 
-        for k in range( 1+(5*nmonth),1+(6*nmonth) ) :
-            SExnsidc.append(float(element[k])/1000) 
-    #
-    outdict = {}
-    for k in datalist:
-       exec('outdict[k] = ' + k )
-    #
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_NORTH')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_NORTH')
-    year_obs_north = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_SOUTH')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_SOUTH')
-    year_obs_south = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-
-    dataobslist = ['NORTH_ICE_EXTENT', 'NORTH_ICE_AREA', 'SOUTH_ICE_EXTENT', 'SOUTH_ICE_AREA']
-    NORTH_ICE_EXTENT = rs.readfilenc(fileobs, 'NORTH_ICE_EXTENT')
-    NORTH_ICE_AREA   = rs.readfilenc(fileobs, 'NORTH_ICE_AREA')
-    SOUTH_ICE_EXTENT = rs.readfilenc(fileobs, 'SOUTH_ICE_EXTENT')
-    SOUTH_ICE_AREA   = rs.readfilenc(fileobs, 'SOUTH_ICE_AREA')
-
-    ### This correction has already been done when we have created the data_obs_DRAKKAR.nc file
-    # Correction for pole area not seen by sensor: 1.19  before june 1987, 0.31 after ( Change of satellite SSM/R SSM/I )
-    #indN = rs.get_index(year_obs_north, 1987.45)
-    #for k in range(indN+1) :
-    #    NORTH_ICE_AREA[k] = NORTH_ICE_AREA[k] + 1.19
-    #for k in range(indN+1,len(NORTH_ICE_AREA)) :
-    #    NORTH_ICE_AREA[k] = NORTH_ICE_AREA[k] + 0.31
-
-    outdict['year_obs_north' ] = year_obs_north
-    outdict['year_obs_south' ] = year_obs_south
-    for k in dataobslist:
-       exec('outdict[k] = ' + k )
-
-    return outdict # return the dictionnary of values 
 
 #=======================================================================
 #--- Plotting the data 
@@ -176,9 +112,9 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     #
     for key in kwargs:
         exec(key+'=kwargs[key]')
-    #
-    datalist_model  = ['NExnsidc','NArea','SExnsidc','SArea']
-    datalist_obs    = ['NORTH_ICE_EXTENT','NORTH_ICE_AREA', 'SOUTH_ICE_EXTENT','SOUTH_ICE_AREA']
+    # assaigned to but not used ? 
+    #datalist_model  = ['NExnsidc','NArea','SExnsidc','SArea']
+    #datalist_obs    = ['NORTH_ICE_EXTENT','NORTH_ICE_AREA', 'SOUTH_ICE_EXTENT','SOUTH_ICE_AREA']
     #
     plt.subplot(4,1,1)
     if not(compare) :

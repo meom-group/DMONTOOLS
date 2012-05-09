@@ -77,52 +77,6 @@ def _readnc(filenc=None, argdict=myargs):
     return outdict # return the dictionnary of values 
 
 
-def _readmtl(filemtl=None, argdict=myargs):
-    #
-    lignes = rs.mtl_flush(filemtl)
-    datalist=['date','varc','vant','aarc','aant','earc','eant']
-    nmonth=12
-    #
-    for k in datalist:
-        exec(k+'=[]') # init to empty array
-    #
-    for chaine in lignes[3:] :
-        element=chaine.split()
-        if argdict['config'].find('ORCA') == 0 :
-            for k in range(1,1+nmonth) :
-                date.append(float(element[0]) + ((float(k)-0.5)/nmonth) )
-                varc.append(float(element[k]))
-            for k in range( 1+nmonth,1+(2*nmonth) ) :
-                vant.append(float(element[k]))
-            for k in range( 1+(2*nmonth),1+(3*nmonth) ) :
-                aarc.append(float(element[k]))
-            for k in range( 1+(3*nmonth),1+(4*nmonth) ) :
-                aant.append(float(element[k]))
-            for k in range( 1+(4*nmonth),1+(5*nmonth) ) :
-                earc.append(float(element[k]))
-            for k in range( 1+(5*nmonth),1+(6*nmonth) ) :
-                eant.append(float(element[k]))
-        #
-        elif argdict['config'].find('PERIANT') == 0 :
-            for k in range(1,1+nmonth) :
-                date.append(float(element[0]) + ((float(k)-0.5)/nmonth) )
-                vant.append(float(element[k]))
-            for k in range( 1+nmonth,1+(2*nmonth) ) :
-                aant.append(float(element[k]))
-            for k in range( 1+(2*nmonth),1+(3*nmonth) ) :
-                eant.append(float(element[k]))
-    
-    outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['datemodel'] = date
-    outdict['NVolume'   ] = varc
-    outdict['NArea'     ] = aarc
-    outdict['NExnsidc'  ] = earc
-    outdict['SVolume'   ] = vant
-    outdict['SArea'     ] = aant
-    outdict['SExnsidc'  ] = eant
-
-    return outdict # return the dictionnary of values 
-
 #=======================================================================
 #--- Plotting the data 
 #=======================================================================

@@ -71,62 +71,19 @@ def _readnc(filenc=None):
     outdict['smean']    = rs.readfilenc(filenc,'mean_3Dvosaline') 
     outdict['sshmean']  = rs.readfilenc(filenc,'mean_3Dsossheig') 
     outdict['levels']   = rs.readfilenc(filenc,'gdept')           
-    outdict['year']     = rs.get_years_intpart(filenc) 
+    outdict['date']     = rs.get_datetime(filenc) 
     outdict['tmodel']   = rs.readfilenc(filenc,'mean_votemper')
     outdict['smodel']   = rs.readfilenc(filenc,'mean_vosaline')  
     return outdict # return the dictionnary of values 
-
-
-def _readmtl(filesmtl=None):
-    # filesmtl : list of mtl filenames ['TMEAN','SMEAN']
-    datalist1 = ['unused1','unused2','unused3','levels'] # line 2 in TMEAN.mtl and SMEAN.mtl
-    datalist2 = ['year', 'sshmean', 'tmean', 'tmodel']   # following lines in TMEAN.mtl
-    datalist3 = ['year2', 'sshmean2','smean', 'smodel']  # following lines in SMEAN.mtl
-    mtlfile1, mtlfile2 = filesmtl
-    #- read the file
-    file1 = open(mtlfile1,'r')
-    lignes1 = [lignes1 for lignes1 in file1.readlines() if lignes1.strip() ] # remove empty lines
-    file1.close()
-    file2 = open(mtlfile2,'r')
-    lignes2 = [lignes2 for lignes2 in file2.readlines() if lignes2.strip() ] # remove empty lines
-    file2.close()
-    #- initialize arrays
-    for dat in datalist1 :
-      exec(dat + '= []')
-    for dat in datalist2 :
-      exec(dat + '= []')
-    for dat in datalist3 :
-      exec(dat + '= []')
-    #- data manipulation
-    for chaine in lignes1[2:3] :
-       element=chaine.split()
-       for k in range(datalist1.index('levels'), len(element)) : # get levels depth
-          levels.append(+1*(float(element[k])))
-    for chaine in lignes1[3:] :
-       element=chaine.split()
-       for k in range(0,datalist2.index('tmodel')) : # get single values before tmodel
-          vars()[datalist2[k]].append(float(element[k]))
-       for k in range(datalist2.index('tmodel'), len(element)) : # get tmodel in each level
-          tmodel.append(float(element[k]))
-    for chaine in lignes2[3:] :
-       element=chaine.split()
-       for k in range(0,datalist3.index('smodel')) : # get single values before smodel
-          vars()[datalist3[k]].append(float(element[k]))
-       for k in range(datalist3.index('smodel'), len(element)) : # get smodel in each level
-          smodel.append(float(element[k]))
-    tmodel = npy.reshape(tmodel,(npy.size(year),-1))
-    smodel = npy.reshape(smodel,(npy.size(year),-1))
-    lovar = ['tmean','smean','sshmean','levels','tmodel','smodel','year'] 
-    # creates the dictionnary which will contain the arrays
-    outdict = dict(zip(lovar,map(eval,lovar))) 
-    return outdict 
 
 #=======================================================================
 #--- Plotting the data 
 #=======================================================================
 
-def plot(argdict=myargs,figure=None,color='r',tmean=None,smean=None,sshmean=None,levels=None,year=None,tmodel=None,smodel=None,compare=False):
-    
+def plot(argdict=myargs,figure=None,color='r',tmean=None,smean=None,sshmean=None,levels=None,date=None,tmodel=None,smodel=None,compare=False):
+   
+    _date = ps.mdates.date2num(date) # now a numerical value
+
     if figure is None: # by default create a new figure
           figure = plt.figure()
     
@@ -135,10 +92,11 @@ def plot(argdict=myargs,figure=None,color='r',tmean=None,smean=None,sshmean=None
     nb3Dmean=len(list3Dmean)
 
     for k in range(nb3Dmean) :
-            plt.subplot(3,nb3Dmean,k+1)
-            plt.plot(year, vars()[list3Dmean[k]], color + '.-')
-            plt.grid(True)
-            plt.axis([min(year), max(year),min(vars()[list3Dmean[k]]),max(vars()[list3Dmean[k]])])
+            ax1 = figure.add_subplot(3,nb3Dmean,k+1)
+            ax1.plot(date, vars()[list3Dmean[k]], color + '.-')
+            ax1.grid(True)
+            ax1.axis([min(_date), max(_date),min(vars()[list3Dmean[k]]),max(vars()[list3Dmean[k]])])
+            ps.set_dateticks(ax1)
             if not(compare) and k == 1 :
                 plt.title(argdict['config'] + '-' + argdict['case']+'\n'+titles3Dmean[k])
             else :
@@ -162,21 +120,23 @@ def plot(argdict=myargs,figure=None,color='r',tmean=None,smean=None,sshmean=None
     plt.title('Global change in S')
 
     if not(compare):
-       plt.subplot(3,nb3Dmean,nb3Dmean+2)
-       plt.contourf(year, levels, npy.transpose(tmodel[:,:]-tmodel[0,:]),ncontour)
+       ax2 = figure.add_subplot(3,nb3Dmean,nb3Dmean+2)
+       plt.contourf(date, levels, npy.transpose(tmodel[:,:]-tmodel[0,:]),ncontour)
        plt.colorbar()
-       plt.grid(True)
+       ax2.grid(True)
        plt.yscale('log')
-       plt.axis([ min(year), max(year), max(levels),min(levels) ])
+       ax2.axis([ min(_date), max(_date), max(levels),min(levels) ])
        plt.ylabel('Temperature anomaly')
+       ps.set_dateticks(ax2)
 
-       plt.subplot(3,nb3Dmean,2*nb3Dmean+2)
-       plt.contourf(year, levels, npy.transpose(smodel[:,:]-smodel[0,:]),ncontour)
+       ax3 = figure.add_subplot(3,nb3Dmean,2*nb3Dmean+2)
+       plt.contourf(date, levels, npy.transpose(smodel[:,:]-smodel[0,:]),ncontour)
        plt.colorbar()
-       plt.grid(True)
+       ax3.grid(True)
        plt.yscale('log')
-       plt.axis([ min(year), max(year), max(levels),min(levels) ])
+       ax3.axis([ min(_date), max(_date), max(levels),min(levels) ])
        plt.ylabel('Salinity anomaly')
+       ps.set_dateticks(ax3)
     #
     return figure
 

@@ -68,7 +68,7 @@ def _get_ncname(argdict=myargs):
 def _readnc(filenc=None, argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model'] = rs.get_years_intpart(filenc)
+    outdict['date_model'] = rs.get_datetime(filenc)
     if argdict['config'].find('ORCA') == 0:
         data_list = ['maxmoc_Glo_maxmoc40N' , 'maxmoc_Glo_maxmoc30S', 'maxmoc_Atl_maxmoc40N',
                      'maxmoc_Atl_maxmoc30S', 'minmoc_Inp_minmoc30S', 'maxmoc_Aus_maxmoc50S']
@@ -84,32 +84,6 @@ def _readnc(filenc=None, argdict=myargs):
     return outdict # return the dictionnary of values 
 
 
-def _readmtl(filemtl=None, argdict=myargs):
-    #
-    if argdict['config'].find('ORCA') == 0:
-        data_list = ['year_model','maxmoc_Glo_maxmoc40N' , 'maxmoc_Glo_maxmoc30S', 'maxmoc_Atl_maxmoc40N',
-                     'maxmoc_Atl_maxmoc30S', 'minmoc_Inp_minmoc30S', 'maxmoc_Aus_maxmoc50S']
-    elif argdict['config'].find('NATL') == 0:
-        data_list = ['year_model','maxmoc_Glo_maxmoc40N' , 'maxmoc_Glo_maxmoc15S']
-    else:
-        print "config not supported"
-        sys.exit()
-    #
-    for k in data_list:
-        exec( k + '= []')
-    #
-    lignes = rs.mtl_flush(filemtl)
-    for chaine in lignes :
-        element=chaine.split()
-        for k in range(len(data_list)) :
-            vars()[data_list[k]].append(float(element[k]))
-
-    outdict={}
-    for k in data_list:
-        outdict[k] = vars()[k]
-
-    return outdict # return the dictionnary of values 
-
 #=======================================================================
 #--- Plotting the data 
 #=======================================================================
@@ -118,6 +92,8 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     #
     for key in kwargs:
         exec(key+'=kwargs[key]')
+    #
+    _date_model = ps.mdates.date2num(date_model) # now a numerical value
     #
     if argdict['config'].find('ORCA') == 0:
         data_list = ['maxmoc_Glo_maxmoc40N' , 'maxmoc_Glo_maxmoc30S', 'maxmoc_Atl_maxmoc40N',
@@ -137,11 +113,12 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         figure = plt.figure(figsize=fig_size)
     #
     for k in range(len(data_list)) :
-	plt.subplot(nbzone, nbfig, k+1)
-	plt.plot(year_model,vars()[data_list[k]], color +'.-')
-	plt.axis([min(year_model), max(year_model), 
+	ax = figure.add_subplot(nbzone, nbfig, k+1)
+	ax.plot(date_model,vars()[data_list[k]], color +'.-')
+	ax.axis([min(_date_model), max(_date_model), 
 	min(vars()[data_list[k]]), max(vars()[data_list[k]])])
 	plt.grid(True)
+        ps.set_dateticks(ax)
 
         if not(compare) and k<=1 :
 	    plt.title(argdict['config'] + '-' + argdict['case']+'\n'+titleplot[k],fontsize='small')
