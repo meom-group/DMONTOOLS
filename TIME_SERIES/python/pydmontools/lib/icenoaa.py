@@ -49,22 +49,15 @@ def read(argdict=myargs,fromfile=[]):
           dummy, file_obs = _get_ncname(argdict=argdict)
           return _readnc(fromfile[0], file_obs, argdict=argdict) 
        elif fromfile[0].endswith('.mtl'): # if mtlfile name is provided
-          if not(len(fromfile)==1):
-             print 'please provide one mlt filename'
-             sys.exit() 
-          dummy, file_obs = _get_mtlnames(argdict=argdict)
-          return _readmtl(fromfile[0], file_obs, argdict=argdict)
+          print 'mtl files are no longer supported'
+	  sys.exit()
        else:                               
           pass
     elif fromfile==[]:                    # production mode 
        file_nc, file_obs  = _get_ncname(argdict=argdict)
-       file_mtl,file_obs  = _get_mtlnames(argdict=argdict)
        # first try to open a netcdf file
        if os.path.isfile(file_nc) and os.path.isfile(file_obs):
           return _readnc(file_nc, file_obs, argdict=argdict) 
-       # or try the mlt version   
-       elif os.path.isfile(file_mtl) and os.path.isfile(file_obs):
-          return _readmtl(file_mtl, file_obs, argdict=argdict)
           
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
@@ -72,12 +65,6 @@ def _get_ncname(argdict=myargs):
     fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
     return filename, fileobs
 
-def _get_mtlnames(argdict=myargs):
-    filemtl  = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_icemonth.mtl' 
-    fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
-    return filemtl , fileobs
- 
 #=======================================================================
 
 def _readnc(filenc=None,fileobs=None,argdict=myargs):

@@ -46,21 +46,15 @@ def read(argdict=myargs,fromfile=[]):
              sys.exit() 
           return _readnc(fromfile[0], fromfile[1], argdict=argdict) 
        elif fromfile[0].endswith('.mtl'): # if mtlfile name is provided
-          if not(len(fromfile)==1):
-             print 'please provide one mlt filename'
-             sys.exit() 
-          return _readmtl(fromfile[0], argdict=argdict)
+          print 'mtl files are no longer supported'
+	  sys.exit()
        else:                               
           pass
     elif fromfile==[]:                    # production mode 
        file_nc, file_nc2  = _get_ncname(argdict=argdict)
-       file_mtl = _get_mtlnames(argdict=argdict)
        # first try to open a netcdf file
        if os.path.isfile(file_nc) and os.path.isfile(file_nc2):
           return _readnc(file_nc, file_nc2, argdict=argdict) 
-       # or try the mlt version   
-       elif os.path.isfile(file_mtl):
-          return _readmtl(file_mtl, argdict=argdict)
           
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
@@ -69,11 +63,6 @@ def _get_ncname(argdict=myargs):
              + argdict['case'] + '_HEAT.nc' 
     return filename,filename2
 
-def _get_mtlnames(argdict=myargs):
-    filemtl  = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_maxmoc.mtl' 
-    return filemtl
- 
 #=======================================================================
 
 def _readnc(filenc=None, filenc2=None, argdict=myargs):

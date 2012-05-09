@@ -46,21 +46,15 @@ def read(argdict=myargs,fromfile=[]):
              sys.exit() 
           return _readnc(fromfile[0],argdict=argdict) 
        elif fromfile[0].endswith('.mtl'): # if mtlfile name is provided
-          if not(len(fromfile)==1):
-             print 'please provide one mlt filename'
-             sys.exit() 
-          return _readmtl(fromfile[0],argdict=argdict)
+          print 'mtl files are no longer supported'
+	  sys.exit()
        else:                               
           pass
     elif fromfile==[]:                    # production mode 
        filenc = _get_ncname(argdict=argdict)
-       filemtl = _get_mtlnames(argdict=argdict)
        # first try to open a netcdf file
        if os.path.isfile(filenc):
           return _readnc(filenc,argdict=argdict) 
-       # or try the mlt version   
-       elif os.path.isfile(filemtl):
-          return _readmtl(filemtl,argdict=argdict)
           
 def _get_ncname(argdict=myargs):
     fileroot = argdict['datadir'] + osp + argdict['config'] + '-' \
@@ -68,11 +62,6 @@ def _get_ncname(argdict=myargs):
     filename = fileroot + '_TRPSIG.nc'
     return filename
 
-def _get_mtlnames(argdict=myargs):
-    fileroot = argdict['datadir'] + osp + argdict['config'] + '-' \
-            + argdict['case']  
-    file  = fileroot + '_TRPSIG.mtl'
-    return file
 
 #=======================================================================
 
@@ -80,7 +69,7 @@ def _readnc(filenc=None,argdict=myargs):
     # get the section names corresponding to the config
     (truenames, shortnames, longnames) = rs.define_trpsig(argdict)
     #
-    nsection=len(truenames)
+    nsection=len(truenames) # nsection is never used, why ? 
     outdict = {} # creates the dictionnary which will contain the arrays 
     outdict['year_model' ]  = rs.get_years_intpart(filenc)
     outdict['sigma_class']  = rs.readfilenc(filenc, 'sigma_class')[0,:]

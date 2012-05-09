@@ -48,6 +48,7 @@ def read(argdict=myargs,fromfile=[]):
           return _readnc(fromfile[0],argdict=argdict) 
        elif fromfile[0].endswith('.mtl'): # if mtlfile name is provided
           print 'mtl files are no longer supported'
+	  sys.exit()
        else:                               
           pass
     elif fromfile==[]:                    # production mode 

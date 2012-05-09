@@ -51,32 +51,21 @@ def read(argdict=myargs,fromfiles=[]):
              sys.exit() 
           return _readnc(fromfiles[0], fromfiles[1]) 
        elif fromfiles[0].endswith('.mtl'): # if mtlfile name is provided
-          if not(len(fromfiles)==1):
-             print 'please provide one mlt filenames'
-             sys.exit() 
-          return _readmtl(fromfiles[0])
+          print 'mtl files are no longer supported'
+          sys.exit() 
        else:                               
           pass
     elif fromfiles==[]:                    #  production mode...
        filenc, levitus = _get_ncname(argdict=argdict)
-       filesmtl        = _get_mtlnames(argdict=argdict)
        # first try to open a netcdf file
        if os.path.isfile(filenc) and os.path.isfile(levitus):
           return _readnc(filenc, levitus) 
-       # or try the mlt version   
-       elif os.path.isfile(filesmtl):
-          return _readmtl(filesmtl)
           
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
              + argdict['case'] + '_TSGIB.nc' 
     filelevnc = argdict['datadir'] + osp + 'LEVITUS_y0000_TSGIB.nc'
     return filename, filelevnc
-
-def _get_mtlnames(argdict=myargs):
-    filemtl = argdict['datadir'] + osp + argdict['config'] + '-' \
-            + argdict['case'] + '_gib.mtl' 
-    return filemtl
 
 #=======================================================================
  
