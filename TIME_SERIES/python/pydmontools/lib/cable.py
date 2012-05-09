@@ -49,22 +49,14 @@ def read(argdict=myargs,fromfile=[]):
           dummy, file_obs = _get_ncname(argdict=argdict)
           return _readnc(fromfile[0], file_obs, argdict=argdict) 
        elif fromfile[0].endswith('.mtl'): # if mtlfile name is provided
-          if not(len(fromfile)==1):
-             print 'please provide one mlt filename'
-             sys.exit() 
-          dummy, file_obs = _get_mtlnames(argdict=argdict)
-          return _readmtl(fromfile[0], file_obs, argdict=argdict)
+          print 'mtl files are no longer supported'
        else:                               
           pass
     elif fromfile==[]:                    # production mode 
        file_nc, file_obs   = _get_ncname(argdict=argdict)
-       file_mtl,file_obs  = _get_mtlnames(argdict=argdict)
-       # first try to open a netcdf file
+       # try to open a netcdf file
        if os.path.isfile(file_nc) and os.path.isfile(file_obs):
           return _readnc(file_nc, file_obs, argdict=argdict) 
-       # or try the mlt version   
-       elif os.path.isfile(file_mtl) and os.path.isfile(file_obs):
-          return _readmtl(file_mtl, file_obs, argdict=argdict)
           
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
@@ -72,12 +64,6 @@ def _get_ncname(argdict=myargs):
     fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
     return filename, fileobs
 
-def _get_mtlnames(argdict=myargs):
-    filemtl = argdict['datadir'] + osp + argdict['config'] + '-' \
-            + argdict['case'] + '_matrix.mtl' 
-    fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
-    return filemtl , fileobs
- 
 #=======================================================================
 
 def _readnc(filenc=None,fileobs=None,argdict=myargs):
@@ -102,39 +88,6 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
 
     return outdict # return the dictionnary of values 
 
-
-def _readmtl(filemtl=None,fileobs=None,argdict=myargs):
-    #
-    # get the section names corresponding to the config
-    (truenames, shortnames, longnames, sens) = rs.define_sections(argdict)
-    nsection=len(truenames)
-    #
-    # getting the index of the section
-    for k in range(len(truenames)):
-        if truenames[k].find('FLORIDA_BAHAMAS') >= 0:
-            indsection = k
-
-    f1=open(filemtl,'r')
-    lignes1=[lignes1 for lignes1 in f1.readlines() if lignes1.strip() ] # remove empty lines
-    f1.close()
-    # 
-    datemodel = [] ; vtrp = [] ; dateobs = [] ; trpobs = []
-    #
-    for chaine in lignes1[3:] :
-        element=chaine.split()
-        datemodel.append(float(element[0]))
-        for k in range(1,1+nsection) :
-            vtrp.append(float(element[k]))
-
-    vtrp=npy.reshape(vtrp, (-1,nsection))
-
-    outdict = {}
-    outdict['datemodel'] = datemodel
-    outdict['trpmodel']  = -1 * vtrp[:,indsection]
-    outdict['dateobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
-    outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
-
-    return outdict # return the dictionnary of values 
 
 #=======================================================================
 #--- Plotting the data 

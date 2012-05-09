@@ -29,6 +29,8 @@ osp = os.sep
 
 #=======================================================================
 
+strmth2strnum = {'JAN':'01','FEB':'02','MAR':'03','APR':'04','MAY':'05','JUN':'06','JUL':'07',\
+		'AUG':'08','SEP':'09','OCT':'10','NOV':'11','DEC':'12'}
 
 def get_datetime(ncfile,tname='time_counter'):
     """Return a datetime.datetime object built from ncfile time_counter.
@@ -38,12 +40,18 @@ def get_datetime(ncfile,tname='time_counter'):
     time_counter =  fid.variables[tname][:].squeeze()
     time_origin = fid.variables[tname].time_origin
     fid.close()
-    if time_origin=='1959-JAN-02 12:00:00':
-        date_origin = mdates.datetime.datetime(1959,1,2,12,0,0)
-	num_origin = mdates.date2num(date_origin)
-    else:
-	num_origin = 0 
-        print 'time_origin attributes has not the expected value'
+    try:
+       yrs = int(time_origin[:4])
+       mth = int(strmth2strnum(time_origin[5:8]))
+       day = int(time_origin[9:11])
+       hours = int(time_origin[12:14])
+       minutes = int(time_origin[15:17])
+       seconds = int(time_origin[18:20])
+       date_origin = mdates.datetime.datetime(yrs,mth,day,hours,minutes,seconds)
+       num_origin = mdates.date2num(date_origin)
+    except:
+       num_origin = 0 
+       print 'time_origin attribute has not the expected format'
     _dates = mdates.num2date(time_counter/mdates.SECONDS_PER_DAY + num_origin) # num are given in days
     cleandate = lambda d:d.replace(hour=0,minute=0,second=0)
     dates = map(cleandate,_dates)
