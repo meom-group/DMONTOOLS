@@ -42,7 +42,7 @@ def get_datetime(ncfile,tname='time_counter'):
     fid.close()
     try:
        yrs = int(time_origin[:4])
-       mth = int(strmth2strnum(time_origin[5:8]))
+       mth = int(strmth2strnum[time_origin[5:8]])
        day = int(time_origin[9:11])
        hours = int(time_origin[12:14])
        minutes = int(time_origin[15:17])
