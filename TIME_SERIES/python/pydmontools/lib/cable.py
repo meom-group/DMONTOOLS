@@ -32,8 +32,8 @@ osp = os.sep
 #- parameters
 
 plot_name = 'cable'
-#fig_size =  [5.,5.]
-#plt.rcParams.update({'figure.figsize': fig_size})
+fig_size =  [5.,5.] # minimum fig size
+plt.rcParams.update({'figure.figsize': fig_size})
 
 #=======================================================================
 #--- Reading the data 
@@ -95,20 +95,14 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
 
 def plot(argdict=myargs, figure=None,color='r',compare=False,datemodel=None,trpmodel=None,dateobs=None,trpobs=None):
     # deal with figure size and boundaries...
-    _datemodel = ps.mdates.date2num(datemodel) # now a numerical value (in days)
-    _dateobs = ps.mdates.date2num(dateobs)     # 
-    tmin = min(_datemodel)
-    tmax = max(max(_datemodel),max(_dateobs))
-    vmin = min(trpmodel.min(),trpobs.min())
-    vmax = max(trpmodel.max(),trpobs.max())
-    dv = abs(vmax-vmin)
-    ymin = vmin - 0.2 * dv
-    ymax = vmax + 0.2 * dv
-    asp = (0.3*(tmax-tmin)/365.) / 5. # assume time unit in days and figure height is 5.
-    fig_size = [ asp * 5. , 5. ]
+    tmin,tmax = ps.get_tminmax(datemodel)
+    ymin,ymax = ps.get_vminmax(trpmodel,trpobs,ex=0.2)
+    width,height = fig_size
+    asp = max(width/height,(0.3*(tmax-tmin)/365.) / height) # assume time unit in days and figure height is 5.
+    figsize = [ asp * height , height ]
     # proceed with the plot
     if figure is None :
-        figure = plt.figure(figsize=fig_size)
+        figure = plt.figure(figsize=figsize)
     ax = figure.add_subplot(111)
     ax.plot(datemodel,trpmodel,color + '.-',dateobs,trpobs,'b.-')
     ax.axis([tmin,tmax,ymin,ymax])

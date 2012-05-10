@@ -64,7 +64,7 @@ def set_dateticks(ax,aspect_ratio=1.):
     fig.autofmt_xdate()
     """
     # get the time interval
-    xlims = ax.get_xlim()/aspect_ratio
+    xlims = np.array(ax.get_xlim())/aspect_ratio
     datelims = mdates.num2date(xlims)
     dt = (datelims[-1] - datelims[0]) 
     dtyr = datetime.timedelta(weeks=52) # delta = 1 yr 
@@ -97,6 +97,21 @@ def set_dateticks(ax,aspect_ratio=1.):
        minorLoc   = mdates.MonthLocator(interval=mth_int)
        ax.xaxis.set_minor_locator(minorLoc)
 
+def get_vminmax(data1,data2,ex=0.1):
+    """Return min and max values for comparison plots.
+    """
+    vmin = min(data1.min(),data2.min())
+    vmax = max(data1.max(),data2.max())
+    d = abs(vmax-vmin)
+    return (vmin - ex * d, vmax + ex * d)
+
+def get_tminmax(date):
+    """Return tmin and tmax from a datetime object 
+    """
+    _date = mdates.date2num(date) # now a numerical value (in days)
+    tmin = min(_date)
+    tmax = max(_date) 
+    return tmin,tmax
 
 def plotdir_confcase_single(argdict): # could be used in individual plotting scripts...
     dirname = argdict['plotdir'] + osp + argdict['config'] + '-' + argdict['case'] 

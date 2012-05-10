@@ -62,7 +62,7 @@ def read(argdict=myargs,fromfile=[]):
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
              + argdict['case'] + '_ICEMONTH.nc' 
-    fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
+    fileobs  = argdict['dataobsdir'] + osp + 'dmondata_ice_NOAA.nc'
     return filename, fileobs
 
 #=======================================================================
@@ -70,32 +70,19 @@ def _get_ncname(argdict=myargs):
 def _readnc(filenc=None,fileobs=None,argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['date_model'] = rs.get_datetime(filenc)
+    outdict['datemodel'] = rs.get_datetime(filenc)
     outdict['NVolume'   ] = rs.readfilenc(filenc, 'NVolume' )  / 1000
     outdict['NArea'     ] = rs.readfilenc(filenc, 'NArea' )    / 1000
     outdict['NExnsidc'  ] = rs.readfilenc(filenc, 'NExnsidc' ) / 1000
     outdict['SVolume'   ] = rs.readfilenc(filenc, 'SVolume' )  / 1000
     outdict['SArea'     ] = rs.readfilenc(filenc, 'SArea' )    / 1000
     outdict['SExnsidc'  ] = rs.readfilenc(filenc, 'SExnsidc' ) / 1000
-    # The following code block should also be adapted to the new date format :
-    # waiting until RD modifies data_obs_DRAKKAR.nc file. 
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_NORTH')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_NORTH')
-    year_obs_north = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_SOUTH')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_SOUTH')
-    year_obs_south = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
     #
-    dataobslist = ['NORTH_ICE_EXTENT', 'NORTH_ICE_AREA', 'SOUTH_ICE_EXTENT', 'SOUTH_ICE_AREA']
+    outdict['dateobs' ] = rs.get_datetime(fileobs)
     outdict['NORTH_ICE_EXTENT'] = rs.readfilenc(fileobs, 'NORTH_ICE_EXTENT')
     outdict['NORTH_ICE_AREA']   = rs.readfilenc(fileobs, 'NORTH_ICE_AREA')
     outdict['SOUTH_ICE_EXTENT'] = rs.readfilenc(fileobs, 'SOUTH_ICE_EXTENT')
     outdict['SOUTH_ICE_AREA']   = rs.readfilenc(fileobs, 'SOUTH_ICE_AREA')
-    #
-    outdict['year_obs_north' ] = year_obs_north
-    outdict['year_obs_south' ] = year_obs_south
-    for k in dataobslist:
-       exec('outdict[k] = ' + k )
     # 
     return outdict # return the dictionnary of values 
 
@@ -106,48 +93,50 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
 #=======================================================================
 
 def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
-    #
+    # load outdict
+    for key in kwargs:
+        exec(key+'=kwargs[key]')
+    # get time limits
+    tmin,tmax = ps.get_tminmax(datemodel)
+    # 
     if figure is None: # by default create a new figure
         figure = plt.figure()
     #
-    for key in kwargs:
-        exec(key+'=kwargs[key]')
-    # assaigned to but not used ? 
-    #datalist_model  = ['NExnsidc','NArea','SExnsidc','SArea']
-    #datalist_obs    = ['NORTH_ICE_EXTENT','NORTH_ICE_AREA', 'SOUTH_ICE_EXTENT','SOUTH_ICE_AREA']
-    #
-    plt.subplot(4,1,1)
+    ax1 = figure.add_subplot(4,1,1)
     if not(compare) :
         plt.title(argdict['config'] + '-' + argdict['case']+'\n'+' Ice index for Northern and Southern hemisphere - Observations from NOAA/NSIDC (b) ' )
     else:
         plt.title(' Ice index for Northern and Southern hemisphere - Observations from NOAA/NSIDC (b) ' )
-    plt.plot(year_model, NExnsidc, color, year_obs_north, NORTH_ICE_EXTENT, 'b--')
-    plt.axis([min(year_model), max(year_model), 
-             min(min(NExnsidc),min(NORTH_ICE_EXTENT)), max(max(NExnsidc),max(NORTH_ICE_EXTENT))])
-    plt.grid(True)
+    ax1.plot(datemodel, NExnsidc, color, dateobs, NORTH_ICE_EXTENT, 'b--')
+    vmin,vmax = ps.get_vminmax(NExnsidc,NORTH_ICE_EXTENT)
+    ax1.axis([tmin,tmax,vmin,vmax])
+    ax1.grid(True)
     plt.ylabel('North extent',fontsize='large')
+    ps.set_dateticks(ax1)
 
-    plt.subplot(4,1,2)
-    plt.plot(year_model, NArea, color, year_obs_north, NORTH_ICE_AREA, 'b--')
-    plt.axis([min(year_model), max(year_model), 
-             min(min(NArea),min(NORTH_ICE_AREA)), max(max(NArea),max(NORTH_ICE_AREA))])
-    plt.grid(True)
+    ax2 = figure.add_subplot(4,1,2)
+    ax2.plot(datemodel, NArea, color, dateobs, NORTH_ICE_AREA, 'b--')
+    vmin,vmax = ps.get_vminmax(NArea,NORTH_ICE_AREA)
+    ax2.axis([tmin,tmax,vmin,vmax])
+    ax2.grid(True)
     plt.ylabel('North area',fontsize='large')
+    ps.set_dateticks(ax2)
 
-    plt.subplot(4,1,3)
-    plt.plot(year_model, SExnsidc, color, year_obs_south, SOUTH_ICE_EXTENT, 'b--')
-    plt.axis([min(year_model), max(year_model), 
-             min(min(SExnsidc),min(SOUTH_ICE_EXTENT)), max(max(SExnsidc),max(SOUTH_ICE_EXTENT))])
-    plt.grid(True)
+    ax3 = figure.add_subplot(4,1,3)
+    ax3.plot(datemodel, SExnsidc, color, dateobs, SOUTH_ICE_EXTENT, 'b--')
+    vmin,vmax = ps.get_vminmax(SExnsidc,SOUTH_ICE_EXTENT)
+    ax3.axis([tmin,tmax,vmin,vmax])
+    ax3.grid(True)
     plt.ylabel('South extent',fontsize='large')
+    ps.set_dateticks(ax3)
 
-    plt.subplot(4,1,4)
-    plt.plot(year_model, SArea, color, year_obs_south, SOUTH_ICE_AREA, 'b--')
-    plt.axis([min(year_model), max(year_model), 
-             min(min(SArea),min(SOUTH_ICE_AREA)), max(max(SArea),max(SOUTH_ICE_AREA))])
-    plt.grid(True)
+    ax4 = figure.add_subplot(4,1,4)
+    ax4.plot(datemodel, SArea, color, dateobs, SOUTH_ICE_AREA, 'b--')
+    vmin,vmax = ps.get_vminmax(SArea,SOUTH_ICE_AREA)
+    ax4.axis([tmin,tmax,vmin,vmax])
+    ax4.grid(True)
     plt.ylabel('South area',fontsize='large')
-
+    ps.set_dateticks(ax4)
     return figure
 
 #=======================================================================
