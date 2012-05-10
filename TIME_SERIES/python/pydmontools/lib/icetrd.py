@@ -76,26 +76,12 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     outdict['SVolume'   ] = rs.readfilenc(filenc, 'SVolume' )  / 1000
     outdict['SArea'     ] = rs.readfilenc(filenc, 'SArea' )    / 1000
     outdict['SExnsidc'  ] = rs.readfilenc(filenc, 'SExnsidc' ) / 1000
-    # The following code block should also be adapted to the new date format :
-    # waiting until RD modifies data_obs_DRAKKAR.nc file. 
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_NORTH')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_NORTH')
-    year_obs_north = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_SOUTH')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_SOUTH')
-    year_obs_south = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-
-    dataobslist = ['NORTH_ICE_EXTENT', 'NORTH_ICE_AREA', 'SOUTH_ICE_EXTENT', 'SOUTH_ICE_AREA']
+    #
+    outdict['dateobs' ] = rs.get_datetime(fileobs)
     outdict['NORTH_ICE_EXTENT'] = rs.readfilenc(fileobs, 'NORTH_ICE_EXTENT')
     outdict['NORTH_ICE_AREA']   = rs.readfilenc(fileobs, 'NORTH_ICE_AREA')
     outdict['SOUTH_ICE_EXTENT'] = rs.readfilenc(fileobs, 'SOUTH_ICE_EXTENT')
     outdict['SOUTH_ICE_AREA']   = rs.readfilenc(fileobs, 'SOUTH_ICE_AREA')
-    
-    outdict['year_obs_north' ] = year_obs_north
-    outdict['year_obs_south' ] = year_obs_south
-    for k in dataobslist:
-       exec('outdict[k] = ' + k )
-    # 
     return outdict # return the dictionnary of values 
 
 #=======================================================================
@@ -103,13 +89,15 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
 #=======================================================================
 # same than icemonth but for a particular month + data
 
-#def plot(argdict=myargs, figure=None, color='r', compare=False, month=None,**kwargs):
+#def plot(argdict=myargs, figure=None, color='r', compare=False, month=3,**kwargs):
 def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     #
     month=3
     for key in kwargs:
         exec(key+'=kwargs[key]')
-    #
+    # get time limits
+    tmin,tmax = ps.get_tminmax(datemodel)
+    # configuration dependant settings
     if argdict['config'].find('ORCA') != -1 :
         north = 1 ; south = 1
         print "icetrd.py : use default values (for global)"

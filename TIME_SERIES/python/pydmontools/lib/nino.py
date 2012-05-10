@@ -62,7 +62,7 @@ def read(argdict=myargs,fromfile=[]):
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
              + argdict['case'] + '_NINO.nc' 
-    fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
+    fileobs  = argdict['dataobsdir'] + osp + 'dmondata_ninoboxes_CPC-NOAA.nc'
     return filename, fileobs
 
  
@@ -71,25 +71,18 @@ def _get_ncname(argdict=myargs):
 def _readnc(filenc=None,fileobs=None,argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['date_model'  ]  = rs.get_datetime(filenc)
-    outdict['NINO12_model']  = rs.readfilenc(filenc, 'votemper_NINO12' )
-    outdict['NINO34_model']  = rs.readfilenc(filenc, 'votemper_NINO34' )
-    outdict['NINO3_model' ]  = rs.readfilenc(filenc, 'votemper_NINO3'  )
-    outdict['NINO4_model' ]  = rs.readfilenc(filenc, 'votemper_NINO4'  )
-    # The following code block should also be adapted to the new date format :
-    # waiting until RD modifies data_obs_DRAKKAR.nc file. 
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ELNINO')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ELNINO')
-    outdict['year_obs'    ]  = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
+    outdict['datemodel'  ]  = rs.get_datetime(filenc)
+    outdict['NINO12_model']  = rs.readfilenc(filenc, 'mean_votemper_NINO12' )
+    outdict['NINO34_model']  = rs.readfilenc(filenc, 'mean_votemper_NINO34' )
+    outdict['NINO3_model' ]  = rs.readfilenc(filenc, 'mean_votemper_NINO3'  )
+    outdict['NINO4_model' ]  = rs.readfilenc(filenc, 'mean_votemper_NINO4'  )
+    #
+    outdict['dateobs']       = rs.get_datetime(fileobs)
     outdict['NINO12_obs'  ]  = rs.readfilenc(fileobs, 'NINO1+2' )
     outdict['NINO34_obs'  ]  = rs.readfilenc(fileobs, 'NINO3.4' )
     outdict['NINO3_obs'   ]  = rs.readfilenc(fileobs, 'NINO3'   )
     outdict['NINO4_obs'   ]  = rs.readfilenc(fileobs, 'NINO4'   )
-    #
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_SOI')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_SOI')
-    outdict['year_soi'    ]  = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-    outdict['SOI'         ]  = rs.readfilenc(fileobs, 'SOI')
+    #outdict['SOI'         ]  = rs.readfilenc(fileobs, 'SOI')
     
     return outdict # return the dictionnary of values 
 
@@ -106,45 +99,52 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     for key in kwargs:
         exec(key+'=kwargs[key]')
     #
-    plt.subplot(5,1,1)
+    # get time limits
+    tmin,tmax = ps.get_tminmax(dateobs)
+    #
+    ax1 = figure.add_subplot(5,1,1)
     if not(compare) :
            plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'SST in the tropical Pacific - Observation (b)') 
     else:
            plt.title('SST in the tropical Pacific - Observation (b)') 
-    plt.plot(year_model, NINO12_model, color, year_obs, NINO12_obs, 'b')
-    plt.axis([min(year_model),                        max(max(year_model),  max(year_obs)), 
-              min(min(NINO12_model),min(NINO12_obs)), max(max(NINO12_model),max(NINO12_obs))])
-    plt.grid(True)
+    ax1.plot(datemodel, NINO12_model, color, dateobs, NINO12_obs, 'b')
+    vmin,vmax = ps.get_vminmax(NINO12_model,NINO12_obs)
+    ax1.axis([tmin,tmax,vmin,vmax])
+    ax1.grid(True)
     plt.ylabel('Nino1+2', fontsize='small')
-    
-    plt.subplot(5,1,2)
-    plt.plot(year_model, NINO3_model, color, year_obs, NINO3_obs, 'b')
-    plt.axis([min(year_model),                      max(max(year_model), max(year_obs)), 
-              min(min(NINO3_model),min(NINO3_obs)), max(max(NINO3_model),max(NINO3_obs))])
-    plt.grid(True)
-    plt.ylabel('Nino3', fontsize='small')
-    
-    plt.subplot(5,1,3)
-    plt.plot(year_model, NINO4_model, color, year_obs, NINO4_obs, 'b')
-    plt.axis([min(year_model),                      max(max(year_model), max(year_obs)), 
-              min(min(NINO4_model),min(NINO4_obs)), max(max(NINO4_model),max(NINO4_obs))])
-    plt.grid(True)
-    plt.ylabel('Nino4', fontsize='small')
-    
-    plt.subplot(5,1,4)
-    plt.plot(year_model, NINO34_model, color, year_obs, NINO34_obs, 'b')
-    plt.axis([min(year_model),                        max(max(year_model),  max(year_obs)), 
-              min(min(NINO34_model),min(NINO34_obs)), max(max(NINO34_model),max(NINO34_obs))])
-    plt.grid(True)
-    plt.ylabel('Nino3.4', fontsize='small')
-    
-    plt.subplot(5,1,5)
-    SOI[719]=0.
-    plt.plot(year_soi, SOI, 'b')
-    plt.axis([min(year_model), max(max(year_soi),max(year_model)), min(SOI), max(SOI)])
-    plt.grid(True)
-    plt.ylabel('SO Index', fontsize='small')
+    ps.set_dateticks(ax1)
 
+    ax2 = figure.add_subplot(5,1,2)
+    ax2.plot(datemodel, NINO3_model, color, dateobs, NINO3_obs, 'b')
+    vmin,vmax = ps.get_vminmax(NINO3_model,NINO3_obs)
+    ax2.axis([tmin,tmax,vmin,vmax])
+    ax2.grid(True)
+    plt.ylabel('Nino3', fontsize='small')
+    ps.set_dateticks(ax2)
+
+    ax3 = figure.add_subplot(5,1,3)
+    ax3.plot(datemodel, NINO4_model, color, dateobs, NINO4_obs, 'b')
+    vmin,vmax = ps.get_vminmax(NINO4_model,NINO4_obs)
+    ax3.axis([tmin,tmax,vmin,vmax])
+    ax3.grid(True)
+    plt.ylabel('Nino4', fontsize='small')
+    ps.set_dateticks(ax3)
+
+    ax4 = figure.add_subplot(5,1,4)
+    ax4.plot(datemodel, NINO34_model, color, dateobs, NINO34_obs, 'b')
+    vmin,vmax = ps.get_vminmax(NINO34_model,NINO34_obs)
+    ax4.axis([tmin,tmax,vmin,vmax])
+    ax4.grid(True)
+    plt.ylabel('Nino3.4', fontsize='small')
+    ps.set_dateticks(ax4)
+
+    #ax5 = figure.add_subplot(5,1,5)
+    #ax5.plot(dateobs, SOI, 'b')
+    #vmin,vmax = ps.get_vminmax(SOI,SOI) # a bit weird...
+    #ax5.axis([tmin,tmax,vmin,vmax])
+    #ax5.grid(True)
+    #plt.ylabel('SO Index', fontsize='small')
+    #ps.set_dateticks(ax5)
     #
     return figure
 
