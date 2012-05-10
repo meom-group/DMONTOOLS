@@ -22,6 +22,7 @@ import pydmontools as pydmt
 from pydmontools import CDF
 import sys,os
 import numpy
+import numpy.ma as ma
 import matplotlib.dates as mdates
 
 
@@ -63,6 +64,8 @@ def datafileroot(argdict): # could be used in individual plotting scripts...
 def readfilenc(file,varname):
     fid   = CDF.NetCDFFile(file,'r')
     value = numpy.array(fid.variables[varname][:]).squeeze()
+    if hasattr(fid.variables[varname],'missing_value'):
+        value = ma.masked_equal(value,fid.variables[varname].missing_value)
     fid.close()
     return value
 

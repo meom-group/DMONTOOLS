@@ -32,8 +32,8 @@ osp = os.sep
 #- parameters
 
 plot_name = 'cable'
-fig_size =  [5.,5.]
-plt.rcParams.update({'figure.figsize': fig_size})
+#fig_size =  [5.,5.]
+#plt.rcParams.update({'figure.figsize': fig_size})
 
 #=======================================================================
 #--- Reading the data 
@@ -61,7 +61,7 @@ def read(argdict=myargs,fromfile=[]):
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
              + argdict['case'] + '_TRANSPORTS.nc' 
-    fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
+    fileobs  = argdict['dataobsdir'] + osp + 'dmondata_cable_NOAA-AOML.nc'
     return filename, fileobs
 
 #=======================================================================
@@ -83,7 +83,7 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     outdict = {} # creates the dictionnary which will contain the arrays 
     outdict['datemodel'] = rs.get_datetime(filenc)
     outdict['trpmodel']  = -1 * rs.readfilenc(filenc, 'vtrp_floba' )
-    outdict['dateobs']   = rs.get_datetime(fileobs,tname='YEAR_CABLE')
+    outdict['dateobs']   = rs.get_datetime(fileobs)
     outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
     #
     return outdict # return the dictionnary of values 
@@ -94,16 +94,26 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
 #=======================================================================
 
 def plot(argdict=myargs, figure=None,color='r',compare=False,datemodel=None,trpmodel=None,dateobs=None,trpobs=None):
-    #
+    # deal with figure size and boundaries...
+    _datemodel = ps.mdates.date2num(datemodel) # now a numerical value (in days)
+    _dateobs = ps.mdates.date2num(dateobs)     # 
+    tmin = min(_datemodel)
+    tmax = max(max(_datemodel),max(_dateobs))
+    vmin = min(trpmodel.min(),trpobs.min())
+    vmax = max(trpmodel.max(),trpobs.max())
+    dv = abs(vmax-vmin)
+    ymin = vmin - 0.2 * dv
+    ymax = vmax + 0.2 * dv
+    asp = (0.3*(tmax-tmin)/365.) / 5. # assume time unit in days and figure height is 5.
+    fig_size = [ asp * 5. , 5. ]
+    # proceed with the plot
     if figure is None :
-        figure = plt.figure()
+        figure = plt.figure(figsize=fig_size)
     ax = figure.add_subplot(111)
     ax.plot(datemodel,trpmodel,color + '.-',dateobs,trpobs,'b.-')
-    _datemodel = ps.mdates.date2num(datemodel) # now a numerical value
-    _dateobs = ps.mdates.date2num(dateobs)     # idem
-    ax.axis([min(_datemodel),max(max(_datemodel),max(_dateobs)),min(min(trpmodel),min(trpobs)), max(max(trpmodel),max(trpobs))])
+    ax.axis([tmin,tmax,ymin,ymax])
     ax.grid(True)
-    ps.set_dateticks(ax)
+    ps.set_dateticks(ax,aspect_ratio=asp)
     figure.autofmt_xdate()
     if not(compare) :
          plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Mass Transport - Obs (b)',fontsize='small')

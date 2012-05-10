@@ -51,8 +51,9 @@ osp = os.sep
 #mFmt = mdates.AutoDateFormatter
 
 
-def set_dateticks(ax):
+def set_dateticks(ax,aspect_ratio=1.):
     """Set a pretty xtick for ax subplot.
+    aspect_ratio : aspect ratio of the plot (used for formatting dates...)
     nota bene : ax should have been created as follows : 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -63,9 +64,9 @@ def set_dateticks(ax):
     fig.autofmt_xdate()
     """
     # get the time interval
-    xlims = ax.get_xlim()
+    xlims = ax.get_xlim()/aspect_ratio
     datelims = mdates.num2date(xlims)
-    dt = datelims[-1] - datelims[0]
+    dt = (datelims[-1] - datelims[0]) 
     dtyr = datetime.timedelta(weeks=52) # delta = 1 yr 
     # set the ticks intervals
     if dt<=2*dtyr:
