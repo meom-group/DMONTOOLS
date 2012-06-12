@@ -29,6 +29,13 @@
 #            (04/2009) adapted to the new LEGI web host $
 #-------------------------------------------------------------------------------
 
+## for batch on ulam
+if [ $MACHINE = 'ulam' ] ; then
+   SDIR=$HOMEGAYA
+   module load ncar/5.2.1
+fi
+
+
 . ./config_def.ksh
 . ./function_def.ksh
 

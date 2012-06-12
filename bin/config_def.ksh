@@ -245,7 +245,7 @@ case $MACHINE in
     USER=`whoami` ;   REMOTE_USER=`whoami` ; SDIR=${SDIR}
     ### 2. Path to several tools
     ### 2.1 : CDFTOOLS executables
-    CDFTOOLS=$WORKDIR/CDFTOOLS_forge/
+    CDFTOOLS=$WORKDIR/CDFTOOLS_forge/bin
     ### 2.2 : CHART/COUPE executables
     CHARTTOOLS=$HOME/bin/
     CHART=$CHARTTOOLS/chart # name of CHART executable
@@ -261,11 +261,11 @@ case $MACHINE in
     ### 3.1 : Root of working directory for the monitor_prod 
     R_MONITOR=$WORKDIR/MONITOR_${CONFCASE}/
     ### whether we use a random TMPDIR (for R_MONITOR and P_MONITOR) or not (1/0)
-    RNDTMPDIR=0
+    RNDTMPDIR=1
     ### 3.2 : Storage directory for diags (output of monitor_prod)
-    DIAGS=$SDIR/${CONFIG}/${CONFCASE}-DIAGS/NC
+    DIAGS=${CONFIG}/${CONFCASE}-DIAGS/NC
     ### 3.3 : Storage directory for monitor (output of make_ncdf_timeseries)
-    MONITOR=$SDIR/${CONFIG}/${CONFCASE}-MONITOR
+    MONITOR=${CONFIG}/${CONFCASE}-MONITOR
     ### 3.4 : Root of working directory for plot_monitor 
     P_MONITOR=$WORKDIR/TMPDIR_PLT_${CONFCASE}
     ### 3.5 : Root of storage for timeseries plots 
