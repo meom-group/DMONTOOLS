@@ -14,7 +14,7 @@
 #
 
 ### The path to this script must be in your directory
-usage() {   echo 'usage : mkmmeans CONFIG CASE'
+usage() {   echo 'usage : mkmeans CONFIG CASE'
             echo '  or  : mkmeans -a'
             echo '        with -a CONFIG and CASE are taken from the actual directory'
             echo '        in this latter case, the command must be issued from CTL dir'

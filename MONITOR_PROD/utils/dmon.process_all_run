@@ -1,0 +1,87 @@
+#!/bin/ksh
+#	dmon.process_all_run
+#
+# This script can be used to launch a serie of means/monitoring scripts
+# if you are not up-to-date with your monitoring of for forgotten/new diags
+
+# give usage of the script
+usage ()          {
+          echo '   '
+          echo "USAGE: $(basename $0)  [ -t computation ]  [ -h ] ..."
+          echo '        ... [-s start_year ] [-e end_year ] '
+          echo '   '
+          echo '  PURPOSE: '
+          echo '       This script is used to launch a serie of means/monitoring scripts'
+          echo '       if you are not up-to-date with your monitoring of for forgotten/new diags'
+          echo '   '
+          echo '  MANDATORY ARGUMENTS: '
+          echo '   -t means/monitor/plot2d : computation to perform '
+          echo '   -s year1                : first year of the serie'
+          echo '   -e year2                : last year of the serie'
+          echo '   '
+          echo '  OPTIONS: '
+          echo '   -h             : print this message.'
+          echo '   -n             : number of cores available (MPIPROC of machine as in config_def.ksh) '
+          echo '                    useful for monitor/plot2d only, default=1.'
+          echo '   '
+                  }
+
+if [ $# == 0 ] ; then
+    usage ; exit 0
+    exit 0
+fi
+
+ MPIPROC=1
+
+ # browse command line
+ args=("$@")  # save argument list for further use
+ while  getopts :h:n:t:s:e: opt ; do
+   case $opt in
+      (h) usage ; exit 0  ;;
+      (n) MPIPROC=${OPTARG} ;;
+      (t) compute=${OPTARG} ;;
+      (s) yearstart=${OPTARG} ;;
+      (e) yearend=${OPTARG} ;;
+      (\?) echo "Invalid option: -$OPTARG " ; usage; exit 1 ;;
+      (:)  echo "Missing argument for option -$OPTARG " ; usage; exit 1 ;;
+   esac
+ done
+
+
+case $compute in 
+     means )
+             echo Computing means from $yearstart to $yearend ;
+             
+             for year in $(seq $yearstart $yearend ) ; do
+                 ./RUN_calmoy.ksh $year
+             done ;;
+
+     monitor )
+             echo Computing monitor from $yearstart to $yearend ;
+
+             n=$yearstart
+
+             while [ $n -lt $yearend ] ; do
+
+                npm=$(( $n + $MPIPROC -1 ))
+                ./RUN_metamon.ksh $n $npm
+                n=$(( $n + $MPIPROC ))
+
+             done ;;
+
+     plot2d )
+             echo Computing plot2d from $yearstart to $yearend ;
+
+             n=$yearstart
+
+             while [ $n -lt $yearend ] ; do
+
+                npm=$(( $n + $MPIPROC -1 ))
+                ./RUN_plot_monitor.ksh $n $npm
+                n=$(( $n + $MPIPROC ))
+
+             done ;;
+     * )
+             echo This computation is not available ; exit 1 ;;
+esac
+
