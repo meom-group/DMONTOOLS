@@ -59,9 +59,13 @@ def read(argdict=myargs,fromfile=[]):
           return _readnc(file_nc, file_obs, argdict=argdict) 
           
 def _get_ncname(argdict=myargs):
-    filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_TRANSPORTS.nc' 
+    if rs.check_freq_arg(argdict['monitor_frequency']):
+
+        filename = argdict['datadir'] + osp + argdict['config'] + '-' \
+                 + argdict['case'] + '_' + argdict['monitor_frequency'] + '_TRANSPORTS.nc'
+
     fileobs  = argdict['dataobsdir'] + osp + 'dmondata_cable_NOAA-AOML.nc'
+
     return filename, fileobs
 
 #=======================================================================
@@ -125,8 +129,9 @@ def save(argdict=myargs,figure=None):
     if figure is None:
        figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case']
+    monit_freq = argdict['monitor_frequency']
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_cable.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_' + monit_freq + '_cable.png')
 
 #=======================================================================
 #--- main 

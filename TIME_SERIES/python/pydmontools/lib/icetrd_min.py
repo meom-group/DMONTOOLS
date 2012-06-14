@@ -59,8 +59,8 @@ def read(argdict=myargs,fromfile=[]):
           
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_ICEMONTH.nc' 
-    fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
+             + argdict['case'] + '_1m_ICEMONTH.nc' 
+    fileobs  = argdict['dataobsdir'] + osp + 'dmondata_ice_NOAA.nc'
     return filename, fileobs
 
  
@@ -78,12 +78,12 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     outdict['SExnsidc'  ] = rs.readfilenc(filenc, 'SExnsidc' ) / 1000
     # The following code block should also be adapted to the new date format :
     # waiting until RD modifies data_obs_DRAKKAR.nc file.
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_NORTH')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_NORTH')
-    year_obs_north = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_SOUTH')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_SOUTH')
-    year_obs_south = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
+    #year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_NORTH')
+    #month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_NORTH')
+    #year_obs_north = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
+    #year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_SOUTH')
+    #month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_SOUTH')
+    #year_obs_south = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
 
     dataobslist = ['NORTH_ICE_EXTENT', 'NORTH_ICE_AREA', 'SOUTH_ICE_EXTENT', 'SOUTH_ICE_AREA']
     outdict['NORTH_ICE_EXTENT'] = rs.readfilenc(fileobs, 'NORTH_ICE_EXTENT')
@@ -258,7 +258,7 @@ def main():
 #   fig = plot(argdict=argdict,month=9,**values)
    fig = plot(argdict=argdict,**values)
    if len(args)==0:
-      save(argdict=argdict,figure=fig,suffix='icetrd_min')
+      save(argdict=argdict,figure=fig,suffix='1y_icetrd_min')
    else:
       fig.savefig('./icetrd_min.png')
 

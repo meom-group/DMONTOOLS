@@ -64,7 +64,8 @@ def _get_ncname(argdict=myargs):
         filename = argdict['datadir'] + osp + argdict['config'] + '-' \
                  + argdict['case'] + '_' + argdict['monitor_frequency'] + '_TSMEAN.nc'
 
-        filelevnc = argdict['datadir'] + osp + 'LEVITUS_y0000_' + argdict['monitor_frequency'] + '_TSMEAN.nc'
+        #filelevnc = argdict['datadir'] + osp + 'LEVITUS_y0000_' + argdict['monitor_frequency'] + '_TSMEAN.nc'
+        filelevnc = argdict['datadir'] + osp + 'LEVITUS_y0000_1y_TSMEAN.nc'
     return filename,filelevnc
 
 #=======================================================================
@@ -79,12 +80,12 @@ def _readnc(filesnc=None):
     outdict['date']     = rs.get_datetime(filenc) 
     outdict['tmodel']   = rs.readfilenc(filenc,'mean_votemper')
     outdict['smodel']   = rs.readfilenc(filenc,'mean_vosaline')  
-    if myargs['monitor_frequency'] == '1m':
-        outdict['tlev']     = rs.readfilenc(levitus,'mean_votemper')[0,:]
-        outdict['slev']     = rs.readfilenc(levitus,'mean_vosaline')[0,:]
-    else:
-        outdict['tlev']     = rs.readfilenc(levitus,'mean_votemper')
-        outdict['slev']     = rs.readfilenc(levitus,'mean_vosaline')
+#    if myargs['monitor_frequency'] == '1m':
+#        outdict['tlev']     = rs.readfilenc(levitus,'mean_votemper')[0,:]
+#        outdict['slev']     = rs.readfilenc(levitus,'mean_vosaline')[0,:]
+#    else:
+    outdict['tlev']     = rs.readfilenc(levitus,'mean_votemper')
+    outdict['slev']     = rs.readfilenc(levitus,'mean_vosaline')
 
     return outdict # return the dictionnary of values 
 

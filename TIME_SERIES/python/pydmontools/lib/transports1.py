@@ -58,9 +58,12 @@ def read(argdict=myargs,fromfile=[]):
           return _readnc(filenc,argdict=argdict) 
           
 def _get_ncname(argdict=myargs):
-    fileroot = argdict['datadir'] + osp + argdict['config'] + '-' \
-            + argdict['case'] 
-    filename = fileroot + '_TRANSPORTS.nc'
+    #
+    if rs.check_freq_arg(argdict['monitor_frequency']):
+
+        filename = argdict['datadir'] + osp + argdict['config'] + '-' \
+                 + argdict['case'] + '_' + argdict['monitor_frequency'] + '_TRANSPORTS.nc'
+
     return filename
 
 #=======================================================================
@@ -149,8 +152,9 @@ def save(argdict=myargs,figure=None):
     if figure is None:
        figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case']
+    monit_freq = argdict['monitor_frequency']
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_transports1.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_' + monit_freq + '_transports1.png')
 
 #=======================================================================
 #--- main 

@@ -61,7 +61,7 @@ def read(argdict=myargs,fromfile=[]):
           
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_ICEMONTH.nc' 
+             + argdict['case'] + '_1m_ICEMONTH.nc' 
     fileobs  = argdict['dataobsdir'] + osp + 'dmondata_ice_NOAA.nc'
     return filename, fileobs
 
@@ -148,7 +148,7 @@ def save(argdict=myargs,figure=None):
        figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case'] 
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_icenoaa.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '1m_icenoaa.png')
 
 #=======================================================================
 #--- main 

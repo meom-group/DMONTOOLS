@@ -62,8 +62,12 @@ def read(argdict=myargs,fromfiles=[]):
           return _readnc(filenc, levitus) 
           
 def _get_ncname(argdict=myargs):
-    filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_TSGIB.nc' 
+    #
+    if rs.check_freq_arg(argdict['monitor_frequency']):
+
+        filename = argdict['datadir'] + osp + argdict['config'] + '-' \
+                 + argdict['case'] + '_' + argdict['monitor_frequency'] + '_TSGIB.nc' 
+
     filelevnc = argdict['datadir'] + osp + 'LEVITUS_y0000_1y_TSGIB.nc'
     return filename, filelevnc
 
@@ -164,8 +168,9 @@ def save(argdict=myargs,figure=None):
     if figure is None:
        figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case']
+    monit_freq = argdict['monitor_frequency']
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_gib.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_' + monit_freq + '_gib.png')
 
 #=======================================================================
 #--- main 

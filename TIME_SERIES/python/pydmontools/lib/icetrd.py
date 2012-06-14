@@ -59,8 +59,8 @@ def read(argdict=myargs,fromfile=[]):
           
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_ICEMONTH.nc' 
-    fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
+             + argdict['case'] + '_1m_ICEMONTH.nc' 
+    fileobs  = argdict['dataobsdir'] + osp + 'dmondata_ice_NOAA.nc'
     return filename, fileobs
 
  
@@ -238,7 +238,7 @@ def main():
 #   fig = plot(argdict=argdict,month=3,**values)
    fig = plot(argdict=argdict,**values)
    if len(args)==0:
-      save(argdict=argdict,figure=fig,suffix='icetrd')
+      save(argdict=argdict,figure=fig,suffix='1y_icetrd')
    else:
       fig.savefig('./icetrd.png')
 

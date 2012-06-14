@@ -57,9 +57,10 @@ def read(argdict=myargs,fromfile=[]):
           return _readnc(filenc,argdict=argdict) 
           
 def _get_ncname(argdict=myargs):
-    fileroot = argdict['datadir'] + osp + argdict['config'] + '-' \
-            + argdict['case'] 
-    filename = fileroot + '_TRPSIG.nc'
+    #
+    filename = argdict['datadir'] + osp + argdict['config'] + '-' \
+             + argdict['case'] + '_1m_TRPSIG.nc'
+
     return filename
 
 
@@ -152,7 +153,7 @@ def save(argdict=myargs,figure=None):
        figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case']
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_trpsig.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_1m_trpsig.png')
 
 #=======================================================================
 #--- main 

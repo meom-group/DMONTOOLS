@@ -46,29 +46,30 @@ def read(argdict=myargs,fromfile=[]):
           if not(len(fromfile)==1):
              print 'please provide one netcdf filename'
              sys.exit() 
-          dummy, file_obs = _get_ncname(argdict=argdict)
-          return _readnc(fromfile[0], file_obs, argdict=argdict) 
+          dummy, file_obs, file_obs2 = _get_ncname(argdict=argdict)
+          return _readnc(fromfile[0], file_obs, file_obs2, argdict=argdict) 
        elif fromfile[0].endswith('.mtl'): # if mtlfile name is provided
           print 'mtl files are no longer supported'
 	  sys.exit()
        else:                               
           pass
     elif fromfile==[]:                    # production mode 
-       file_nc, file_obs  = _get_ncname(argdict=argdict)
+       file_nc, file_obs, file_obs2 = _get_ncname(argdict=argdict)
        # first try to open a netcdf file
-       if os.path.isfile(file_nc) and os.path.isfile(file_obs):
-          return _readnc(file_nc, file_obs, argdict=argdict) 
+       if os.path.isfile(file_nc) and os.path.isfile(file_obs) and os.path.isfile(file_obs2):
+          return _readnc(file_nc, file_obs, file_obs2, argdict=argdict) 
           
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_NINO.nc' 
+             + argdict['case'] + '_1m_NINO.nc' 
     fileobs  = argdict['dataobsdir'] + osp + 'dmondata_ninoboxes_CPC-NOAA.nc'
-    return filename, fileobs
+    fileobs2 = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
+    return filename, fileobs, fileobs2
 
  
 #=======================================================================
 
-def _readnc(filenc=None,fileobs=None,argdict=myargs):
+def _readnc(filenc=None,fileobs=None,fileobs2=None,argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
     outdict['datemodel'  ]  = rs.get_datetime(filenc)
@@ -82,7 +83,8 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     outdict['NINO34_obs'  ]  = rs.readfilenc(fileobs, 'NINO3.4' )
     outdict['NINO3_obs'   ]  = rs.readfilenc(fileobs, 'NINO3'   )
     outdict['NINO4_obs'   ]  = rs.readfilenc(fileobs, 'NINO4'   )
-    #outdict['SOI'         ]  = rs.readfilenc(fileobs, 'SOI')
+
+    #outdict['SOI'         ]  = rs.readfilenc(fileobs2, 'SOI')
     
     return outdict # return the dictionnary of values 
 
@@ -157,7 +159,7 @@ def save(argdict=myargs,figure=None):
        figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case']
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_nino.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_1m_nino.png')
 
 #=======================================================================
 #--- main 

@@ -57,10 +57,15 @@ def read(argdict=myargs,fromfile=[]):
           return _readnc(file_nc, file_nc2, argdict=argdict) 
           
 def _get_ncname(argdict=myargs):
-    filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_MOC.nc' 
-    filename2 = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_MHT.nc' 
+    #
+    if rs.check_freq_arg(argdict['monitor_frequency']):
+
+        filename = argdict['datadir'] + osp + argdict['config'] + '-' \
+                 + argdict['case'] + '_' + argdict['monitor_frequency'] + '_MAXMOC.nc'
+
+        filename2 = argdict['datadir'] + osp + argdict['config'] + '-' \
+                 + argdict['case'] + '_' + argdict['monitor_frequency'] + '_MHT.nc'
+
     return filename,filename2
 
 #=======================================================================
@@ -168,8 +173,9 @@ def save(argdict=myargs,figure=None):
     if figure is None:
        figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case']
+    monit_freq = argdict['monitor_frequency']
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_maxmoc.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_' + monit_freq + '_maxmoc.png')
 
 #=======================================================================
 #--- main 
