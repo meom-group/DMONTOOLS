@@ -58,9 +58,13 @@ def read(argdict=myargs,fromfiles=[]):
           return _readnc(filesnc) 
           
 def _get_ncname(argdict=myargs):
-    filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_TSMEAN.nc' 
-    filelevnc = argdict['datadir'] + osp + 'LEVITUS_y0000_1y_TSMEAN.nc'
+    #
+    if rs.check_freq_arg(argdict['monitor_frequency']):
+
+        filename = argdict['datadir'] + osp + argdict['config'] + '-' \
+                 + argdict['case'] + '_' + argdict['monitor_frequency'] + '_TSMEAN.nc'
+
+        filelevnc = argdict['datadir'] + osp + 'LEVITUS_y0000_' + argdict['monitor_frequency'] + '_TSMEAN.nc'
     return filename,filelevnc
 
 #=======================================================================
@@ -75,8 +79,13 @@ def _readnc(filesnc=None):
     outdict['date']     = rs.get_datetime(filenc) 
     outdict['tmodel']   = rs.readfilenc(filenc,'mean_votemper')
     outdict['smodel']   = rs.readfilenc(filenc,'mean_vosaline')  
-    outdict['tlev']     = rs.readfilenc(levitus,'mean_votemper')
-    outdict['slev']     = rs.readfilenc(levitus,'mean_vosaline')  
+    if myargs['monitor_frequency'] == '1m':
+        outdict['tlev']     = rs.readfilenc(levitus,'mean_votemper')[0,:]
+        outdict['slev']     = rs.readfilenc(levitus,'mean_vosaline')[0,:]
+    else:
+        outdict['tlev']     = rs.readfilenc(levitus,'mean_votemper')
+        outdict['slev']     = rs.readfilenc(levitus,'mean_vosaline')
+
     return outdict # return the dictionnary of values 
 
 #=======================================================================
@@ -152,8 +161,9 @@ def save(argdict=myargs,figure=None):
     if figure is None:
        figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case']
+    monit_freq = argdict['monitor_frequency']
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_tsmean_lev.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_' + monit_freq + '_tsmean_lev.png')
 
 #=======================================================================
 #--- main 

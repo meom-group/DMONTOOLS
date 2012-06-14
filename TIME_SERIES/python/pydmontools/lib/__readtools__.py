@@ -30,6 +30,18 @@ osp = os.sep
 
 #=======================================================================
 
+def get_list_of_freq():
+	list_of_freq = ['1m','1y'] # likely to be completed
+	return list_of_freq
+
+def check_freq_arg(freqin):
+	list_of_freq = get_list_of_freq()
+	if list_of_freq.count(freqin) == 1:
+		return True
+	else:
+		print 'Wrong input argument for frequency of monitoring' ; exit()
+	#
+
 strmth2strnum = {'JAN':'01','FEB':'02','MAR':'03','APR':'04','MAY':'05','JUN':'06','JUL':'07',\
 		'AUG':'08','SEP':'09','OCT':'10','NOV':'11','DEC':'12'}
 

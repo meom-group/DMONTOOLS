@@ -56,10 +56,16 @@ def read(argdict=myargs,fromfiles=[]):
        # first try to open a netcdf file
        if os.path.isfile(filenc):
           return _readnc(filenc) 
+       else:
+          print ' tsmean.py : No files found' ; exit()
           
 def _get_ncname(argdict=myargs):
-    filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_TSMEAN.nc' 
+    #
+    if rs.check_freq_arg(argdict['monitor_frequency']):
+
+        filename = argdict['datadir'] + osp + argdict['config'] + '-' \
+                 + argdict['case'] + '_' + argdict['monitor_frequency'] + '_TSMEAN.nc'
+
     return filename
 
 
@@ -148,8 +154,9 @@ def save(argdict=myargs,figure=None):
     if figure is None:
        figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case']
+    monit_freq = argdict['monitor_frequency']
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_tsmean.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_' + monit_freq + '_tsmean.png')
 
 #=======================================================================
 #--- main 
