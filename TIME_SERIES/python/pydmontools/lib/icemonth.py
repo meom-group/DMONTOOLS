@@ -174,7 +174,7 @@ def save(argdict=myargs,figure=None):
        figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case']
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '1m_icemonth.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_1m_icemonth.png')
 
 #=======================================================================
 #--- main 

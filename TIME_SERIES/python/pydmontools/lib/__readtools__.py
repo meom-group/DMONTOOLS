@@ -212,3 +212,17 @@ def getIndex(tab,val):
 		if tab[j]==val:
 			b=j
 	return b
+
+def get_month_indexes(tab,month):
+	list_ind = []
+	for kt in range(len(tab)):
+		if tab[kt].month == month:
+			list_ind.append( kt )
+	out = numpy.array(list_ind)
+	return out
+	
+def year_from_date(tab):
+	out = tab.copy()
+	for kt in range(len(tab)):
+		out[kt] = tab[kt].year
+	return out	

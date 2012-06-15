@@ -82,6 +82,7 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     outdict['NORTH_ICE_AREA']   = rs.readfilenc(fileobs, 'NORTH_ICE_AREA')
     outdict['SOUTH_ICE_EXTENT'] = rs.readfilenc(fileobs, 'SOUTH_ICE_EXTENT')
     outdict['SOUTH_ICE_AREA']   = rs.readfilenc(fileobs, 'SOUTH_ICE_AREA')
+
     return outdict # return the dictionnary of values 
 
 #=======================================================================
@@ -96,7 +97,7 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     for key in kwargs:
         exec(key+'=kwargs[key]')
     # get time limits
-    tmin,tmax = ps.get_tminmax(datemodel)
+    tmin,tmax = ps.get_tminmax(date_model)
     # configuration dependant settings
     if argdict['config'].find('ORCA') != -1 :
         north = 1 ; south = 1
@@ -120,91 +121,95 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     listmonth=['January','Febuary','March','April','May','June','July','August',
                'September','October','November','December']
     #
-    # looking for month index :
-    # this computation looks complicated but it allows to work with a time_counter
-    # starting any month
-    yeartmp_real = year_model[0:12]              # we look at the first year only
-    yeartmp_int  = npy.array((yeartmp_real),'i') # define the corresponding integer array
-    index_model = rs.get_index(yeartmp_real - yeartmp_int, (month - 0.5)/12 ) - 1
-    #
-    yeartmp_real = year_obs_north[0:12]          # we look at the first year only
-    yeartmp_int  = npy.array((yeartmp_real),'i') # define the corresponding integer array
-    index_obs_north = rs.get_index(yeartmp_real - yeartmp_int, (month - 0.5)/12 ) - 1
-    #
-    yeartmp_real = year_obs_south[0:12]          # we look at the first year only
-    yeartmp_int  = npy.array((yeartmp_real),'i') # define the corresponding integer array
-    month_2lookfor = (month + 6 - 0.5)/12 
-    #
-    if month_2lookfor >= 1:
-        month_2lookfor = month_2lookfor -1. 
-    index_obs_south = rs.get_index(yeartmp_real - yeartmp_int, month_2lookfor ) - 1
-    #
-    # this is a bit ugly : we take a slice of each tab
-    year_model_6m = npy.array((year_model),'f')
-    # Northern Hemisphere :
-    list_toslice = ['year_model', 'NVolume', 'NArea','NExnsidc']
-    for k in list_toslice:
-        exec(k + '=' + k + '[index_model::12]')
-    # Southern Hemisphere :
-    list_toslice = ['year_model_6m', 'SVolume', 'SArea','SExnsidc']
-    for k in list_toslice:
-        exec(k + '=' + k + '[index_model+6::12]')
-    # 
-    list_toslice = ['year_obs_north','NORTH_ICE_EXTENT','NORTH_ICE_AREA']
-    for k in list_toslice:
-        exec(k + '=' + k + '[index_obs_north::12]')
-    # 
-    list_toslice = ['year_obs_south','SOUTH_ICE_EXTENT','SOUTH_ICE_AREA']
-    for k in list_toslice:
-        exec(k + '=' + k + '[index_obs_south::12]')
+
+    zdate_model = npy.array( date_model )
+    zdate_obs   = npy.array( dateobs )
+
+    indM3 = rs.get_month_indexes(zdate_model,3) # march in model
+    # time
+    time_model_march = zdate_model[indM3]
+    year_model_march = rs.year_from_date(time_model_march)
+    # data
+    list_model_march = ['NVolume', 'NArea','NExnsidc']
+    for k in list_model_march:
+        exec(k + '_march =' + k + '[indM3]')
+    
+
+    indO3 = rs.get_month_indexes(zdate_obs,3) # march in observations
+    # time
+    time_obs_march = zdate_obs[indO3]
+    year_obs_march = rs.year_from_date(time_obs_march)
+    # data
+    list_obs_march = ['NORTH_ICE_EXTENT','NORTH_ICE_AREA']
+    for k in list_obs_march:
+        exec(k + '_march =' + k + '[indO3]')
+
+    indM9 = rs.get_month_indexes(zdate_model,9) # september in model
+    # time
+    time_model_sept = zdate_model[indM9]
+    year_model_sept = rs.year_from_date(time_model_sept)
+    # data
+    list_model_sept = ['SVolume', 'SArea','SExnsidc']
+    for k in list_model_sept:
+        exec(k + '_sept =' + k + '[indM9]')
+
+
+    indO9 = rs.get_month_indexes(zdate_obs,9) # september in observations
+    # time
+    time_obs_sept = zdate_obs[indO9]
+    year_obs_sept = rs.year_from_date(time_obs_sept)
+    # data
+    list_obs_sept = ['SOUTH_ICE_EXTENT','SOUTH_ICE_AREA']
+    for k in list_obs_sept:
+        exec(k + '_sept =' + k + '[indO9]')
 
     #
     if north == 1 :
         plt.subplot(nbzone,nbplotline,1)
-        plt.plot(year_model, NVolume, color)
-        plt.axis([min(year_model), max(year_model), 0, 60])
+        plt.plot(year_model_march, NVolume_march, color)
+        plt.axis([min(year_model_march), max(year_model_march), 0, 60])
         plt.grid(True)
         plt.title('Volume Arctic ' + listmonth[(month-1)%12],fontsize='large')
 
         plt.subplot(nbzone,nbplotline,2)
-        plt.plot(year_model, NArea, color, year_obs_north, NORTH_ICE_AREA, 'b.-')
+        plt.plot(year_model_march, NArea_march, color, year_obs_march, NORTH_ICE_AREA_march, 'b.-')
         plt.grid(True)
-        plt.axis([min(year_model), max(year_model),
-                  min(min(NArea),min(NORTH_ICE_AREA)), max(max(NArea),max(NORTH_ICE_AREA))])
+        plt.axis([min(year_model_march), max(year_model_march),
+                  min(min(NArea_march),min(NORTH_ICE_AREA_march)), max(max(NArea_march),max(NORTH_ICE_AREA_march))])
         if not(compare) : 
             plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Area Arctic ' + listmonth[(month-1)%12]+' - Obs. (b)',fontsize='large')
         else :
             plt.title('Area Arctic ' + listmonth[(month-1)%12]+' - Obs. (b)',fontsize='large')
 
         plt.subplot(nbzone,nbplotline,3)
-        plt.plot(year_model, NExnsidc, color, year_obs_north, NORTH_ICE_EXTENT, 'b.-')
+        plt.plot(year_model_march, NExnsidc_march, color, year_obs_march, NORTH_ICE_EXTENT_march, 'b.-')
         plt.grid(True)
-        plt.axis([min(year_model), max(year_model),
-                  min(min(NExnsidc),min(NORTH_ICE_EXTENT)), max(max(NExnsidc),max(NORTH_ICE_EXTENT))])
+        plt.axis([min(year_model_march), max(year_model_march),
+                  min(min(NExnsidc_march),min(NORTH_ICE_EXTENT_march)), max(max(NExnsidc_march),max(NORTH_ICE_EXTENT_march))])
         plt.title('Extent Arctic ' + listmonth[(month-1)%12]+' - Obs. (b)',fontsize='large')
     #
     if south == 1 :
         plt.subplot(nbzone,nbplotline,north*nbplotline + 1)
-        plt.plot(year_model_6m, SVolume, color)
+        plt.plot(year_model_sept, SVolume_sept, color)
         plt.grid(True)
-        plt.axis([min(year_model_6m), max(year_model_6m), 0, 20])
+        plt.axis([min(year_model_sept), max(year_model_sept), 0, 20])
         plt.title('Volume Antarctic ' + listmonth[(month+6-1)%12],fontsize='large')
 
         plt.subplot(nbzone,nbplotline,north*nbplotline + 2)
-        plt.plot(year_model_6m, SArea, color,year_obs_south, SOUTH_ICE_AREA, 'b.-')
+        plt.plot(year_model_sept, SArea_sept, color,year_obs_sept, SOUTH_ICE_AREA_sept, 'b.-')
         plt.grid(True)
-        plt.axis([min(year_model_6m), max(year_model_6m),
-                  min(min(SArea),min(SOUTH_ICE_AREA)), max(max(SArea),max(SOUTH_ICE_AREA))])
+        plt.axis([min(year_model_sept), max(year_model_sept),
+                  min(min(SArea_sept),min(SOUTH_ICE_AREA_sept)), max(max(SArea_sept),max(SOUTH_ICE_AREA_sept))])
         if not(compare) : 
             plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Area Antarctic ' + listmonth[(month+6-1)%12]+' - Obs. (b)',fontsize='large')
         else :
             plt.title('Area Antarctic ' + listmonth[(month+6-1)%12]+' - Obs. (b)',fontsize='large')
 
         plt.subplot(nbzone,nbplotline,north*nbplotline + 3)
-        plt.plot(year_model_6m, SExnsidc, color, year_obs_south, SOUTH_ICE_EXTENT, 'b.-')
+        plt.plot(year_model_sept, SExnsidc_sept, color, year_obs_sept, SOUTH_ICE_EXTENT_sept, 'b.-')
         plt.grid(True)
-        plt.axis([min(year_model_6m), max(year_model_6m),
-                  min(min(SExnsidc),min(SOUTH_ICE_EXTENT)), max(max(SExnsidc),max(SOUTH_ICE_EXTENT))])
+        plt.axis([min(year_model_sept), max(year_model_sept),
+                  min(min(SExnsidc_sept),min(SOUTH_ICE_EXTENT_sept)), max(max(SExnsidc_sept),max(SOUTH_ICE_EXTENT_sept))])
         plt.title('Extent Antarctic ' + listmonth[(month+6-1)%12]+' - Obs. (b)',fontsize='large')
 
 
