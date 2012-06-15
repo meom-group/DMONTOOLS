@@ -1,0 +1,85 @@
+#!/bin/ksh
+#	dmon.copyconfig
+#
+# This script can be used to copy config files of a previous monitoring
+
+# give usage of the script
+usage ()          {
+          echo '   '
+          echo "USAGE: $(basename $0)  [ -t config_file ]  [ -h ] ..."
+          echo '                       -c CONFIG -r CASE '
+          echo '   '
+          echo '  PURPOSE: '
+          echo '       This script can be used to copy config files of a previous monitoring'
+          echo '   '
+          echo '  MANDATORY ARGUMENTS: '
+          echo '   -t means/monitor/both   : computation to perform '
+          echo '   -c CONFIG               : name of config (e.g. ORCA025) '
+          echo '   -r CASEREF              : name of ref experiment (e.g. G70) '
+          echo '   -n CASENEW              : name of new experiment (e.g. B83) '
+          echo '   '
+          echo '  OPTIONS: '
+          echo '   -h             : print this message.'
+          echo '   '
+                  }
+
+if [ $# == 0 ] ; then
+    usage ; exit 0
+    exit 0
+fi
+
+ MPIPROC=1
+
+ # browse command line
+ args=("$@")  # save argument list for further use
+ while  getopts :h:t:c:r:n: opt ; do
+   case $opt in
+      (h) usage ; exit 0  ;;
+      (t) files=${OPTARG} ;;
+      (c) CONFIG=${OPTARG} ;;
+      (r) CASEREF=${OPTARG} ;;
+      (n) CASENEW=${OPTARG} ;;
+      (\?) echo "Invalid option: -$OPTARG " ; usage; exit 1 ;;
+      (:)  echo "Missing argument for option -$OPTARG " ; usage; exit 1 ;;
+   esac
+ done
+
+
+case $files in 
+     means )
+             
+           if [ -d $PDIR ] ; then
+             cd  $PDIR/RUN_${CONFIG}/${CONFIG}-${CASENEW}/CTL/CDF
+             cat $PDIR/RUN_${CONFIG}/${CONFIG}-${CASEREF}/CTL/CDF/config_moy.ksh | sed -e "s/${CASEREF}/${CASENEW}/g" \
+                 > ./config_moy.ksh
+           else
+             echo 'Problem with PDIR, aborting...' ; exit 1 
+           fi ;;
+
+     monitor )
+
+           if [ -d $PDIR ] ; then
+             cd  $PDIR/RUN_${CONFIG}/${CONFIG}-${CASENEW}/CTL/CDF
+             cat $PDIR/RUN_${CONFIG}/${CONFIG}-${CASEREF}/CTL/CDF/config_def.ksh | sed -e "s/${CASEREF}/${CASENEW}/g" \
+                 > ./config_def.ksh
+           else
+             echo 'Problem with PDIR, aborting...' ; exit 1 
+           fi ;;
+
+
+     both )
+
+           if [ -d $PDIR ] ; then
+             cd  $PDIR/RUN_${CONFIG}/${CONFIG}-${CASENEW}/CTL/CDF
+             cat $PDIR/RUN_${CONFIG}/${CONFIG}-${CASEREF}/CTL/CDF/config_moy.ksh | sed -e "s/${CASEREF}/${CASENEW}/g" \
+                 > ./config_moy.ksh
+             cat $PDIR/RUN_${CONFIG}/${CONFIG}-${CASEREF}/CTL/CDF/config_def.ksh | sed -e "s/${CASEREF}/${CASENEW}/g" \
+                 > ./config_def.ksh
+           else
+             echo 'Problem with PDIR, aborting...' ; exit 1 
+           fi ;;
+
+     * )
+             echo This computation is not available ; exit 1 ;;
+esac
+

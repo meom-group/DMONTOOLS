@@ -13,6 +13,9 @@ export MONPY_DATADIR=$MONITOR
 export MONPY_PLOTDIR=$PLOTDIR
 export MONPY_DATAOBSDIR=$DATAOBSDIR
 
+# ugly trick for ulam due to change in filesystem management
+if [ $MACHINE == 'ulam' ] ; then MONPY_DATADIR=$SDIR/$MONPY_DATADIR ; fi
+
 # Create the output directories tree :
 
 chkdir $PLOTDIR/$CONFIG
