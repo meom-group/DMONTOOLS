@@ -21,25 +21,25 @@ chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi  ; }
 
 CONFIG=<CONFIG>
 CASE=<CASE>
-MONITOR=
-PLOTDIR=
-DATAOBS=
+MONITOR=$SDIR/<CONFIG>/<CONFIG>-<CASE>-MONITOR
+PLOTDIR=$SDIR
+DATAOBS=$PYDMON_DATADIR
 
 WEBCOPY=true # or false
 
 ts_cable=0
 ts_gib=0
-ts_icemonth=1
-ts_icenoaa=1
-ts_icetrd=1
-ts_maxmoc=1
+ts_icemonth=0
+ts_icenoaa=0
+ts_icetrd=0
+ts_maxmoc=0
 ts_maxmoc40=0
-ts_mht1=1
+ts_mht1=0
 ts_nino=0
 ts_tao=0
-ts_transports1=1
-ts_trpsig=1
-ts_tsmean=1
+ts_transports1=0
+ts_trpsig=0
+ts_tsmean=0
 ts_tsmean_lev=0
 
 #############################################################################
@@ -55,20 +55,31 @@ chkdir $PLOTDIR/$CONFIG/PLOTS
 chkdir $PLOTDIR/$CONFIG/PLOTS/${CONFIG}-${CASE}
 chkdir $PLOTDIR/$CONFIG/PLOTS/${CONFIG}-${CASE}/TIME_SERIES
 
-if [ $ts_cable == 1 ]       ; then cable.py        ; fi
-if [ $ts_gib == 1 ]         ; then gib.py          ; fi
+## Monthly diags
 if [ $ts_icemonth == 1 ]    ; then icemonth.py     ; fi
 if [ $ts_icenoaa == 1 ]     ; then icenoaa.py      ; fi
-if [ $ts_icetrd == 1 ]      ; then icetrd.py       ; icetrd_min.py       ; fi
-if [ $ts_maxmoc == 1 ]      ; then maxmoc.py       ; fi
-if [ $ts_maxmoc40 == 1 ]    ; then maxmoc40.py     ; fi
-if [ $ts_mht1 == 1 ]        ; then mht1.py         ; fi
 if [ $ts_nino == 1 ]        ; then nino.py         ; fi
-if [ $ts_tao == 1 ]         ; then tao_profiles.py ; tao_undercurrent.py ; fi
-if [ $ts_transports1 == 1 ] ; then transports1.py  ; fi
 if [ $ts_trpsig == 1 ]      ; then trpsig.py       ; fi
-if [ $ts_tsmean == 1 ]      ; then tsmean.py       ; fi
-if [ $ts_tsmean_lev == 1 ]  ; then tsmean_lev.py   ; fi
+
+## Annual diags
+if [ $ts_icetrd == 1 ]      ; then icetrd.py       ; icetrd_min.py  ; fi
+if [ $ts_tao == 1 ]         ; then tao_profiles.py ; tao_undercurrent.py ; fi
+
+## Multi-freq diags
+list_freq='1m 1y'
+
+for freq_diags in $list_freq ; do
+
+    if [ $ts_cable == 1 ]       ; then cable.py       -f $freq_diags    ; fi
+    if [ $ts_gib == 1 ]         ; then gib.py         -f $freq_diags    ; fi
+    if [ $ts_maxmoc == 1 ]      ; then maxmoc.py      -f $freq_diags    ; fi
+    if [ $ts_maxmoc40 == 1 ]    ; then maxmoc40.py    -f $freq_diags    ; fi
+    if [ $ts_mht1 == 1 ]        ; then mht1.py        -f $freq_diags    ; fi
+    if [ $ts_transports1 == 1 ] ; then transports1.py -f $freq_diags    ; fi
+    if [ $ts_tsmean == 1 ]      ; then tsmean.py      -f $freq_diags    ; fi
+    if [ $ts_tsmean_lev == 1 ]  ; then tsmean_lev.py  -f $freq_diags    ; fi
+
+done
 
 ### copy to website
 if [ $WEBCOPY == 'true' ] ; then
