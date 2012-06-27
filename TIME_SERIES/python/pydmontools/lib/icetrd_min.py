@@ -47,41 +47,29 @@ def read(argdict=myargs,fromfile=[]):
           dummy, file_obs = _get_ncname(argdict=argdict)
           return _readnc(fromfile[0], file_obs, argdict=argdict) 
        elif fromfile[0].endswith('.mtl'): # if mtlfile name is provided
-          if not(len(fromfile)==1):
-             print 'please provide one mlt filename'
-             sys.exit() 
-          dummy, file_obs = _get_mtlnames(argdict=argdict)
-          return _readmtl(fromfile[0], file_obs, argdict=argdict)
+          print 'mtl files are no longer supported'
+	  sys.exit()
        else:                               
           pass
     elif fromfile==[]:                    # production mode 
        file_nc, file_obs = _get_ncname(argdict=argdict)
-       file_mtl,file_obs = _get_mtlnames(argdict=argdict)
        # first try to open a netcdf file
        if os.path.isfile(file_nc) and os.path.isfile(file_obs):
           return _readnc(file_nc, file_obs, argdict=argdict) 
-       # or try the mlt version   
-       elif os.path.isfile(file_mtl) and os.path.isfile(file_obs):
-          return _readmtl(file_mtl, file_obs, argdict=argdict)
           
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_ICEMONTH.nc' 
-    fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
+             + argdict['case'] + '_1m_ICEMONTH.nc' 
+    fileobs  = argdict['dataobsdir'] + osp + 'dmondata_ice_NOAA.nc'
     return filename, fileobs
 
-def _get_mtlnames(argdict=myargs):
-    filemtl  = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_icemonth.mtl' 
-    fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
-    return filemtl , fileobs
  
 #=======================================================================
 
 def _readnc(filenc=None,fileobs=None,argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model'] = rs.get_years(filenc)
+    outdict['date_model'] = rs.get_datetime(filenc)
     outdict['NVolume'   ] = rs.readfilenc(filenc, 'NVolume' )  / 1000
     outdict['NArea'     ] = rs.readfilenc(filenc, 'NArea' )    / 1000
     outdict['NExnsidc'  ] = rs.readfilenc(filenc, 'NExnsidc' ) / 1000
@@ -89,79 +77,11 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     outdict['SArea'     ] = rs.readfilenc(filenc, 'SArea' )    / 1000
     outdict['SExnsidc'  ] = rs.readfilenc(filenc, 'SExnsidc' ) / 1000
     #
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_NORTH')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_NORTH')
-    year_obs_north = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_SOUTH')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_SOUTH')
-    year_obs_south = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-
-    dataobslist = ['NORTH_ICE_EXTENT', 'NORTH_ICE_AREA', 'SOUTH_ICE_EXTENT', 'SOUTH_ICE_AREA']
-    NORTH_ICE_EXTENT = rs.readfilenc(fileobs, 'NORTH_ICE_EXTENT')
-    NORTH_ICE_AREA   = rs.readfilenc(fileobs, 'NORTH_ICE_AREA')
-    SOUTH_ICE_EXTENT = rs.readfilenc(fileobs, 'SOUTH_ICE_EXTENT')
-    SOUTH_ICE_AREA   = rs.readfilenc(fileobs, 'SOUTH_ICE_AREA')
-    
-    ### This correction has already been done when we have created the data_obs_DRAKKAR.nc file
-    # Correction for pole area not seen by sensor: 1.19  before june 1987, 0.31 after ( Change of satellite SSM/R SSM/I )
-    #indN = rs.get_index(year_obs_north, 1987.45)
-    #for k in range(indN+1) :
-    #    NORTH_ICE_AREA[k] = NORTH_ICE_AREA[k] + 1.19
-    #for k in range(indN+1,len(NORTH_ICE_AREA)) :
-    #    NORTH_ICE_AREA[k] = NORTH_ICE_AREA[k] + 0.31
-
-    outdict['year_obs_north' ] = year_obs_north
-    outdict['year_obs_south' ] = year_obs_south
-    for k in dataobslist:
-       exec('outdict[k] = ' + k )
-    # 
-    return outdict # return the dictionnary of values 
-
-
-def _readmtl(filemtl=None, fileobs=None, argdict=myargs):
-    #
-    lignes  = rs.mtl_flush(filemtl)
-    #
-    datalist  = ['year_model','NVolume','SVolume','NArea','SArea','NExnsidc','SExnsidc']
-    nmonth=12
-    #
-    for k in datalist:
-        exec(k+'=[]') # init to empty array
-    #
-    for chaine in lignes[3:] :
-        element=chaine.split()
-        for k in range(1,1+nmonth) :
-            year_model.append(float(element[0]) + ((float(k)-0.5)/nmonth) )
-            NVolume.append(float(element[k])/1000) 
-        for k in range( 1+nmonth,1+(2*nmonth) ) :
-            SVolume.append(float(element[k])/1000) 
-        for k in range( 1+(2*nmonth),1+(3*nmonth) ) :
-            NArea.append(float(element[k])/1000) 
-        for k in range( 1+(3*nmonth),1+(4*nmonth) ) :
-            SArea.append(float(element[k])/1000) 
-        for k in range( 1+(4*nmonth),1+(5*nmonth) ) :
-            NExnsidc.append(float(element[k])/1000) 
-        for k in range( 1+(5*nmonth),1+(6*nmonth) ) :
-            SExnsidc.append(float(element[k])/1000) 
-    #
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_NORTH')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_NORTH')
-    year_obs_north = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-    year_tmp  = rs.readfilenc(fileobs, 'YEAR_ICE_SOUTH')
-    month_tmp = rs.readfilenc(fileobs, 'MONTH_ICE_SOUTH')
-    year_obs_south = year_tmp + ( month_tmp - 0.5) / 12  # middle of the month
-
-    dataobslist = ['NORTH_ICE_EXTENT', 'NORTH_ICE_AREA', 'SOUTH_ICE_EXTENT', 'SOUTH_ICE_AREA']
-    NORTH_ICE_EXTENT = rs.readfilenc(fileobs, 'NORTH_ICE_EXTENT')
-    NORTH_ICE_AREA   = rs.readfilenc(fileobs, 'NORTH_ICE_AREA')
-    SOUTH_ICE_EXTENT = rs.readfilenc(fileobs, 'SOUTH_ICE_EXTENT')
-    SOUTH_ICE_AREA   = rs.readfilenc(fileobs, 'SOUTH_ICE_AREA')
-
-    outdict = {}
-    outdict['year_obs_north' ] = year_obs_north
-    outdict['year_obs_south' ] = year_obs_south
-    for k in datalist + dataobslist:
-       exec('outdict[k] = ' + k )
+    outdict['dateobs' ] = rs.get_datetime(fileobs)
+    outdict['NORTH_ICE_EXTENT'] = rs.readfilenc(fileobs, 'NORTH_ICE_EXTENT')
+    outdict['NORTH_ICE_AREA']   = rs.readfilenc(fileobs, 'NORTH_ICE_AREA')
+    outdict['SOUTH_ICE_EXTENT'] = rs.readfilenc(fileobs, 'SOUTH_ICE_EXTENT')
+    outdict['SOUTH_ICE_AREA']   = rs.readfilenc(fileobs, 'SOUTH_ICE_AREA')
 
     return outdict # return the dictionnary of values 
 
@@ -176,7 +96,9 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     month=9   # hard coded : easiest way for compare (jmm)
     for key in kwargs:
         exec(key+'=kwargs[key]')
-    #
+    # get time limits
+    tmin,tmax = ps.get_tminmax(date_model)
+    # configuration dependant settings
     if argdict['config'].find('ORCA') != -1 :
         north = 1 ; south = 1
         print "icetrd_min.py : use default values (for global)"
@@ -200,91 +122,95 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     listmonth=['January','Febuary','March','April','May','June','July','August',
                'September','October','November','December']
     #
-    # looking for month index :
-    # this computation looks complicated but it allows to work with a time_counter
-    # starting any month
-    yeartmp_real = year_model[0:12]              # we look at the first year only
-    yeartmp_int  = npy.array((yeartmp_real),'i') # define the corresponding integer array
-    index_model = rs.get_index(yeartmp_real - yeartmp_int, (month - 0.5)/12 ) - 1
-    #
-    yeartmp_real = year_obs_north[0:12]          # we look at the first year only
-    yeartmp_int  = npy.array((yeartmp_real),'i') # define the corresponding integer array
-    index_obs_north = rs.get_index(yeartmp_real - yeartmp_int, (month - 0.5)/12 ) - 1
-    #
-    yeartmp_real = year_obs_south[0:12]          # we look at the first year only
-    yeartmp_int  = npy.array((yeartmp_real),'i') # define the corresponding integer array
-    month_2lookfor = (month + 6 - 0.5)/12 
-    #
-    if month_2lookfor >= 1:
-        month_2lookfor = month_2lookfor -1. 
-    index_obs_south = rs.get_index(yeartmp_real - yeartmp_int, month_2lookfor ) - 1
-    #
-    # this is a bit ugly : we take a slice of each tab
-    year_model_6m = npy.array((year_model),'f')
-    # Northern Hemisphere :
-    list_toslice = ['year_model', 'NVolume', 'NArea','NExnsidc']
-    for k in list_toslice:
-        exec(k + '=' + k + '[index_model::12]')
-    # Southern Hemisphere :
-    list_toslice = ['year_model_6m', 'SVolume', 'SArea','SExnsidc']
-    for k in list_toslice:
-        exec(k + '=' + k + '[index_model+6::12]')
-    # 
-    list_toslice = ['year_obs_north','NORTH_ICE_EXTENT','NORTH_ICE_AREA']
-    for k in list_toslice:
-        exec(k + '=' + k + '[index_obs_north::12]')
-    # 
-    list_toslice = ['year_obs_south','SOUTH_ICE_EXTENT','SOUTH_ICE_AREA']
-    for k in list_toslice:
-        exec(k + '=' + k + '[index_obs_south::12]')
+
+    zdate_model = npy.array( date_model )
+    zdate_obs   = npy.array( dateobs )
+
+    indM3 = rs.get_month_indexes(zdate_model,3) # march in model
+    # time
+    time_model_march = zdate_model[indM3]
+    year_model_march = rs.year_from_date(time_model_march)
+    # data
+    list_model_march = ['SVolume', 'SArea','SExnsidc']
+    for k in list_model_march:
+        exec(k + '_march =' + k + '[indM3]')
+    
+
+    indO3 = rs.get_month_indexes(zdate_obs,3) # march in observations
+    # time
+    time_obs_march = zdate_obs[indO3]
+    year_obs_march = rs.year_from_date(time_obs_march)
+    # data
+    list_obs_march = ['SOUTH_ICE_EXTENT','SOUTH_ICE_AREA']
+    for k in list_obs_march:
+        exec(k + '_march =' + k + '[indO3]')
+
+    indM9 = rs.get_month_indexes(zdate_model,9) # september in model
+    # time
+    time_model_sept = zdate_model[indM9]
+    year_model_sept = rs.year_from_date(time_model_sept)
+    # data
+    list_model_sept = ['NVolume', 'NArea','NExnsidc']
+    for k in list_model_sept:
+        exec(k + '_sept =' + k + '[indM9]')
+
+
+    indO9 = rs.get_month_indexes(zdate_obs,9) # september in observations
+    # time
+    time_obs_sept = zdate_obs[indO9]
+    year_obs_sept = rs.year_from_date(time_obs_sept)
+    # data
+    list_obs_sept = ['NORTH_ICE_EXTENT','NORTH_ICE_AREA']
+    for k in list_obs_sept:
+        exec(k + '_sept =' + k + '[indO9]')
 
     #
     if north == 1 :
         plt.subplot(nbzone,nbplotline,1)
-        plt.plot(year_model, NVolume, color)
-        plt.axis([min(year_model), max(year_model), 0, 60])
+        plt.plot(year_model_sept, NVolume_sept, color)
+        plt.axis([min(year_model_sept), max(year_model_sept), 0, 60])
         plt.grid(True)
         plt.title('Volume Arctic ' + listmonth[(month-1)%12],fontsize='large')
 
         plt.subplot(nbzone,nbplotline,2)
-        plt.plot(year_model, NArea, color, year_obs_north, NORTH_ICE_AREA, 'b.-')
+        plt.plot(year_model_sept, NArea_sept, color, year_obs_sept, NORTH_ICE_AREA_sept, 'b.-')
         plt.grid(True)
-        plt.axis([min(year_model), max(year_model),
-                  min(min(NArea),min(NORTH_ICE_AREA)), max(max(NArea),max(NORTH_ICE_AREA))])
+        plt.axis([min(year_model_sept), max(year_model_sept),
+                  min(min(NArea_sept),min(NORTH_ICE_AREA_sept)), max(max(NArea_sept),max(NORTH_ICE_AREA_sept))])
         if not(compare) : 
             plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Area Arctic ' + listmonth[(month-1)%12]+' - Obs. (b)',fontsize='large')
         else :
             plt.title('Area Arctic ' + listmonth[(month-1)%12]+' - Obs. (b)',fontsize='large')
 
         plt.subplot(nbzone,nbplotline,3)
-        plt.plot(year_model, NExnsidc, color, year_obs_north, NORTH_ICE_EXTENT, 'b.-')
+        plt.plot(year_model_sept, NExnsidc_sept, color, year_obs_sept, NORTH_ICE_EXTENT_sept, 'b.-')
         plt.grid(True)
-        plt.axis([min(year_model), max(year_model),
-                  min(min(NExnsidc),min(NORTH_ICE_EXTENT)), max(max(NExnsidc),max(NORTH_ICE_EXTENT))])
+        plt.axis([min(year_model_sept), max(year_model_sept),
+                  min(min(NExnsidc_sept),min(NORTH_ICE_EXTENT_sept)), max(max(NExnsidc_sept),max(NORTH_ICE_EXTENT_sept))])
         plt.title('Extent Arctic ' + listmonth[(month-1)%12]+' - Obs. (b)',fontsize='large')
     #
     if south == 1 :
         plt.subplot(nbzone,nbplotline, 4)
-        plt.plot(year_model_6m, SVolume, color)
+        plt.plot(year_model_march, SVolume_march, color)
         plt.grid(True)
-        plt.axis([min(year_model_6m), max(year_model_6m), 0, 20])
+        plt.axis([min(year_model_march), max(year_model_march), 0, 20])
         plt.title('Volume Antarctic ' + listmonth[(month+6-1)%12],fontsize='large')
 
         plt.subplot(nbzone,nbplotline, 5)
-        plt.plot(year_model_6m, SArea, color,year_obs_south, SOUTH_ICE_AREA, 'b.-')
+        plt.plot(year_model_march, SArea_march, color,year_obs_march, SOUTH_ICE_AREA_march, 'b.-')
         plt.grid(True)
-        plt.axis([min(year_model_6m), max(year_model_6m),
-                  min(min(SArea),min(SOUTH_ICE_AREA)), max(max(SArea),max(SOUTH_ICE_AREA))])
+        plt.axis([min(year_model_march), max(year_model_march),
+                  min(min(SArea_march),min(SOUTH_ICE_AREA_march)), max(max(SArea_march),max(SOUTH_ICE_AREA_march))])
         if not(compare) : 
             plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Area Antarctic ' + listmonth[(month+6-1)%12]+' - Obs. (b)',fontsize='large')
         else :
             plt.title('Area Antarctic ' + listmonth[(month+6-1)%12]+' - Obs. (b)',fontsize='large')
 
         plt.subplot(nbzone,nbplotline, 6)
-        plt.plot(year_model_6m, SExnsidc, color, year_obs_south, SOUTH_ICE_EXTENT, 'b.-')
+        plt.plot(year_model_march, SExnsidc_march, color, year_obs_march, SOUTH_ICE_EXTENT_march, 'b.-')
         plt.grid(True)
-        plt.axis([min(year_model_6m), max(year_model_6m),
-                  min(min(SExnsidc),min(SOUTH_ICE_EXTENT)), max(max(SExnsidc),max(SOUTH_ICE_EXTENT))])
+        plt.axis([min(year_model_march), max(year_model_march),
+                  min(min(SExnsidc_march),min(SOUTH_ICE_EXTENT_march)), max(max(SExnsidc_march),max(SOUTH_ICE_EXTENT_march))])
         plt.title('Extent Antarctic ' + listmonth[(month+6-1)%12]+' - Obs. (b)',fontsize='large')
 
 
@@ -317,7 +243,7 @@ def main():
    # September
    fig = plot(argdict=argdict,**values)
    if len(args)==0:
-      save(argdict=argdict,figure=fig,suffix='icetrd_min')
+      save(argdict=argdict,figure=fig,suffix='1y_icetrd_min')
    else:
       fig.savefig('./icetrd_min.png')
 

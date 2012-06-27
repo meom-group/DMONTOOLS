@@ -22,11 +22,53 @@ import pydmontools as pydmt
 from pydmontools import CDF
 import sys,os, user
 import numpy
+import numpy.ma as ma
+import matplotlib.dates as mdates
+
 
 osp = os.sep
 
 #=======================================================================
 
+def get_list_of_freq():
+	list_of_freq = ['1m','1y'] # likely to be completed
+	return list_of_freq
+
+def check_freq_arg(freqin):
+	list_of_freq = get_list_of_freq()
+	if list_of_freq.count(freqin) == 1:
+		return True
+	else:
+		print 'Wrong input argument for frequency of monitoring' ; exit()
+	#
+
+strmth2strnum = {'JAN':'01','FEB':'02','MAR':'03','APR':'04','MAY':'05','JUN':'06','JUL':'07',\
+		'AUG':'08','SEP':'09','OCT':'10','NOV':'11','DEC':'12'}
+
+def get_datetime(ncfile,tname='time_counter'):
+    """Return a datetime.datetime object built from ncfile time_counter.
+    Assume that time_counter is given in seconds since its time_origin. 
+    """
+    fid   = CDF.NetCDFFile(ncfile,'r')
+    time_counter =  fid.variables[tname][:].squeeze()
+    time_origin = fid.variables[tname].time_origin
+    fid.close()
+    try:
+       yrs = int(time_origin[:4])
+       mth = int(strmth2strnum[time_origin[5:8]])
+       day = int(time_origin[9:11])
+       hours = int(time_origin[12:14])
+       minutes = int(time_origin[15:17])
+       seconds = int(time_origin[18:20])
+       date_origin = mdates.datetime.datetime(yrs,mth,day,hours,minutes,seconds)
+       num_origin = mdates.date2num(date_origin)
+    except:
+       num_origin = 0 
+       print 'time_origin attribute has not the expected format'
+    _dates = mdates.num2date(time_counter/mdates.SECONDS_PER_DAY + num_origin) # num are given in days
+    cleandate = lambda d:d.replace(hour=0,minute=0,second=0)
+    dates = map(cleandate,_dates)
+    return dates
 
 def datafileroot(argdict): # could be used in individual plotting scripts...
     return argdict['datadir'] + osp + argdict['config'] + '-' + argdict['case']
@@ -34,6 +76,8 @@ def datafileroot(argdict): # could be used in individual plotting scripts...
 def readfilenc(file,varname):
     fid   = CDF.NetCDFFile(file,'r')
     value = numpy.array(fid.variables[varname][:]).squeeze()
+    if hasattr(fid.variables[varname],'missing_value'):
+        value = ma.masked_equal(value,fid.variables[varname].missing_value)
     fid.close()
     return value
 
@@ -274,3 +318,17 @@ def getIndex(tab,val):
 		if tab[j]==val:
 			b=j
 	return b
+
+def get_month_indexes(tab,month):
+	list_ind = []
+	for kt in range(len(tab)):
+		if tab[kt].month == month:
+			list_ind.append( kt )
+	out = numpy.array(list_ind)
+	return out
+	
+def year_from_date(tab):
+	out = tab.copy()
+	for kt in range(len(tab)):
+		out[kt] = tab[kt].year
+	return out	

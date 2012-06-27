@@ -1,0 +1,50 @@
+#!/bin/ksh
+#
+#  mkcompare script :
+#  This script is used to create the WORKDIR/TMPDIR_PLT_CONTOURS directory for the CONTOURS tool (comparing several DRAKKAR runs)
+#
+#
+
+### The path to this script must be in your directory
+usage() {   echo 'usage : mkcompare'
+            echo '        it creates the directory WORKDIR/TMPDIR_PLT_CONTOURS with the link'
+            echo '        for mkcntplt.ksh and the contour_def.ksh definition file'
+  exit 1   ; }
+
+     
+### browse command line and look for the used syntax. Issue message error and usage  if necessary
+if [ $# != 0 ] ; then
+    echo "$* is not a valid option"
+    usage
+fi
+
+echo
+echo Create the directory WORKDIR/TMPDIR_PLT_CONTOURS 
+echo
+
+P_CNT_DIR=$WORKDIR/TMPDIR_PLT_CONTOURS
+
+# Create directories on $WORKDIR (work)
+###############################
+
+chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; else echo $1 exists ; fi ; }
+
+cd $WORKDIR
+echo CREATING on $WORKDIR '(WORKDIR)'
+echo '================================='
+
+chkdir TMPDIR_PLT_CONTOURS
+
+# Copy files for contour tool
+###############################
+
+# save existing config_def.ksh for reference
+if [ -f $P_CNT_DIR/contour_def.ksh ] ; then
+  mv $P_CNT_DIR/contour_def.ksh $P_CNT_DIR/contour_def.ksh.$$
+  echo Existing contour_def.ksh renamed $P_CNT_DIR/contour_def.ksh.$$
+fi
+ln -sf $DMONTOOLS/PLOT_2D/mkcntplt.ksh $P_CNT_DIR/.
+cp $DMONTOOLS/PLOT_2D/contour_def.ksh $P_CNT_DIR/.
+
+echo "Install for contour tool done: working directory is $WORKDIR/TMPDIR_PLT_CONTOURS "
+echo "Please fill the contour_def.ksh definition file before executing the mkcntplt.ksh script"

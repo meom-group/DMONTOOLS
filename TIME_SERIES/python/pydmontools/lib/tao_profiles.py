@@ -61,7 +61,7 @@ def read(argdict=myargs,fromfile=[]):
           
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_TAO.nc' 
+             + argdict['case'] + '_1y_TAO.nc' 
     fileobs5 = argdict['dataobsdir'] + osp + 'cur0n110w_mon.cdf'
     fileobs4 = argdict['dataobsdir'] + osp + 'cur0n140w_mon.cdf'
     fileobs3 = argdict['dataobsdir'] + osp + 'cur0n170w_mon.cdf'
@@ -228,7 +228,7 @@ def save(argdict=myargs,figure=None):
         figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case']
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_tao_profil.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_1y_tao_profil.png')
 
 
 #=======================================================================

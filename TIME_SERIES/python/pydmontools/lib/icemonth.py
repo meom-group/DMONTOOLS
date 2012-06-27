@@ -46,38 +46,27 @@ def read(argdict=myargs,fromfile=[]):
              sys.exit() 
           return _readnc(fromfile[0], argdict=argdict) 
        elif fromfile[0].endswith('.mtl'): # if mtlfile name is provided
-          if not(len(fromfile)==1):
-             print 'please provide one mlt filename'
-             sys.exit() 
-          return _readmtl(fromfile[0], argdict=argdict)
+          print 'mtl files are no longer supported'
+	  sys.exit()
        else:                               
           pass
     elif fromfile==[]:                    # production mode 
        file_nc  = _get_ncname(argdict=argdict)
-       file_mtl = _get_mtlnames(argdict=argdict)
        # first try to open a netcdf file
        if os.path.isfile(file_nc):
           return _readnc(file_nc, argdict=argdict) 
-       # or try the mlt version   
-       elif os.path.isfile(file_mtl):
-          return _readmtl(file_mtl, argdict=argdict)
           
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_ICEMONTH.nc' 
+             + argdict['case'] + '_1m_ICEMONTH.nc' 
     return filename
 
-def _get_mtlnames(argdict=myargs):
-    filemtl  = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_icemonth.mtl' 
-    return filemtl
- 
 #=======================================================================
 
 def _readnc(filenc=None, argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model'] = rs.get_years(filenc)
+    outdict['datemodel'] = rs.get_datetime(filenc)
     outdict['NVolume'   ] = rs.readfilenc(filenc, 'NVolume' )
     outdict['NArea'     ] = rs.readfilenc(filenc, 'NArea' )
     outdict['NExnsidc'  ] = rs.readfilenc(filenc, 'NExnsidc' )
@@ -87,52 +76,6 @@ def _readnc(filenc=None, argdict=myargs):
     #
     return outdict # return the dictionnary of values 
 
-
-def _readmtl(filemtl=None, argdict=myargs):
-    #
-    lignes = rs.mtl_flush(filemtl)
-    datalist=['year','varc','vant','aarc','aant','earc','eant']
-    nmonth=12
-    #
-    for k in datalist:
-        exec(k+'=[]') # init to empty array
-    #
-    for chaine in lignes[3:] :
-        element=chaine.split()
-        if argdict['config'].find('ORCA') == 0 :
-            for k in range(1,1+nmonth) :
-                year.append(float(element[0]) + ((float(k)-0.5)/nmonth) )
-                varc.append(float(element[k]))
-            for k in range( 1+nmonth,1+(2*nmonth) ) :
-                vant.append(float(element[k]))
-            for k in range( 1+(2*nmonth),1+(3*nmonth) ) :
-                aarc.append(float(element[k]))
-            for k in range( 1+(3*nmonth),1+(4*nmonth) ) :
-                aant.append(float(element[k]))
-            for k in range( 1+(4*nmonth),1+(5*nmonth) ) :
-                earc.append(float(element[k]))
-            for k in range( 1+(5*nmonth),1+(6*nmonth) ) :
-                eant.append(float(element[k]))
-        #
-        elif argdict['config'].find('PERIANT') == 0 :
-            for k in range(1,1+nmonth) :
-                year.append(float(element[0]) + ((float(k)-0.5)/nmonth) )
-                vant.append(float(element[k]))
-            for k in range( 1+nmonth,1+(2*nmonth) ) :
-                aant.append(float(element[k]))
-            for k in range( 1+(2*nmonth),1+(3*nmonth) ) :
-                eant.append(float(element[k]))
-    
-    outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['year_model'] = year
-    outdict['NVolume'   ] = varc
-    outdict['NArea'     ] = aarc
-    outdict['NExnsidc'  ] = earc
-    outdict['SVolume'   ] = vant
-    outdict['SArea'     ] = aant
-    outdict['SExnsidc'  ] = eant
-
-    return outdict # return the dictionnary of values 
 
 #=======================================================================
 #--- Plotting the data 
@@ -165,50 +108,60 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
 
     #
     if north == 1 :
-        plt.subplot(nbzone,nbplotline,1)
-        plt.plot(year_model, NVolume, color)
-        plt.axis([min(year_model), max(year_model), 0, 60000])
-        plt.grid(True)
+        ax=figure.add_subplot(nbzone,nbplotline,1)
+        ax.plot(datemodel, NVolume, color)
+        _datemodel = ps.mdates.date2num(datemodel) # now a numerical value
+        ax.axis([min(_datemodel), max(_datemodel), 0, 60000])
+        ax.grid(True)
         plt.ylabel('Northern',fontsize='large')
         plt.title('Ice Volume (10**9 m**3)',fontsize='large')
-        
-        plt.subplot(nbzone,nbplotline,2)
-        plt.plot(year_model, NArea, color)
-        plt.grid(True)
-        plt.axis([min(year_model), max(year_model), 0, 15000])
+        ps.set_dateticks(ax)
+
+        ax=figure.add_subplot(nbzone,nbplotline,2)
+        ax.plot(datemodel, NArea, color)
+        ax.grid(True)
+        ax.axis([min(_datemodel), max(_datemodel), 0, 15000])
+        ps.set_dateticks(ax)
         if not(compare) :
             plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Ice Area (10**9 m**2)',fontsize='large')
         else:
             plt.title('Ice Area (10**9 m**2)',fontsize='large')
         
-        plt.subplot(nbzone,nbplotline,3)
-        plt.plot(year_model, NExnsidc, color)
-        plt.grid(True)
-        plt.axis([min(year_model), max(year_model), 0, 20000])
+        ax=figure.add_subplot(nbzone,nbplotline,3)
+        ax.plot(datemodel, NExnsidc, color)
+        ax.grid(True)
+        ax.axis([min(_datemodel), max(_datemodel), 0, 20000])
         plt.title('Ice extent (10**9 m**2)',fontsize='large')
+        ps.set_dateticks(ax)
+        figure.autofmt_xdate()
         
     if south == 1 :  
-        plt.subplot(nbzone,nbplotline,4)
-        plt.plot(year_model, SVolume, color)
-        plt.grid(True)
-        plt.axis([min(year_model), max(year_model), 0, 20000])
+        ax=figure.add_subplot(nbzone,nbplotline,4)
+        ax.plot(datemodel, SVolume, color)
+        ax.grid(True)
+        _datemodel = ps.mdates.date2num(datemodel) # now a numerical value
+        ax.axis([min(_datemodel), max(_datemodel), 0, 20000])
         plt.ylabel('Southern',fontsize='large')
         plt.title('Ice Volume (10**9 m**3)',fontsize='large')
+        ps.set_dateticks(ax)
 
-        plt.subplot(nbzone,nbplotline,5)
-        plt.plot(year_model, SArea, color)
-        plt.grid(True)
-        plt.axis([min(year_model), max(year_model), 0, 20000])
+        ax=figure.add_subplot(nbzone,nbplotline,5)
+        ax.plot(datemodel, SArea, color)
+        ax.grid(True)
+        ax.axis([min(_datemodel), max(_datemodel), 0, 20000])
+        ps.set_dateticks(ax)
         if not(compare) :
             plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Ice Area (10**9 m**2)',fontsize='large')
         else:
             plt.title('Ice Area (10**9 m**2)',fontsize='large')
 
-        plt.subplot(nbzone,nbplotline,6)
-        plt.plot(year_model, SExnsidc, color)
-        plt.grid(True)
-        plt.axis([min(year_model), max(year_model), 0, 20000])
+        ax=figure.add_subplot(nbzone,nbplotline,6)
+        ax.plot(datemodel, SExnsidc, color)
+        ax.grid(True)
+        ax.axis([min(_datemodel), max(_datemodel), 0, 20000])
         plt.title('Ice extent (10**9 m**2)',fontsize='large')
+        ps.set_dateticks(ax)
+        figure.autofmt_xdate()
      
     return figure
 
@@ -221,7 +174,7 @@ def save(argdict=myargs,figure=None):
        figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case']
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_icemonth.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_1m_icemonth.png')
 
 #=======================================================================
 #--- main 

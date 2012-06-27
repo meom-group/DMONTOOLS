@@ -18,7 +18,7 @@ CONFIG=$1
 
 ### Transports along sections :
 
-grep -e" $CONFIG " drakkar_sections_table.txt | cat > temp.txt
+grep -e" $CONFIG " drakkar_sections_table.txt  > temp.txt
 
 linebeg=1 
 lineend=`wc -l temp.txt | awk '{print $1}' `
@@ -33,24 +33,28 @@ while (( $n <= $lineend )) ; do
   line=` sed -n ${n},${n}p temp.txt `
   section=` echo $line | awk '{print $1}' `
   indices=` echo $line | awk '{print $3 " " $4 " " $5 " " $6}' `
-  echo $section | cat >> section.dat
-  echo $indices | cat >> section.dat
+  varnam=$( grep -e "$section" drakkar_sections_table.txt | head -1 |  awk '{print $2 }' )
+  secnam=$( grep -e "$section" drakkar_sections_table.txt | head -1 | awk '{print $3 }' )
+
+  echo $section $varnam $secnam   >> section.dat
+  echo $indices  >> section.dat
 
   n=$(( n + 1 ))
 done
 
-echo 'EOF' | cat >> section.dat
+echo 'EOF'  >> section.dat
 \rm -f temp.txt
 
 ### Transports in sigma classes :
 
-grep -e " $CONFIG " drakkar_trpsig_table.txt | cat > temp.txt
+grep -e " $CONFIG " drakkar_trpsig_table.txt  > temp.txt
 
 linebeg=1
 lineend=`wc -l temp.txt | awk '{print $1}' `
 
 lines=''
 n=$linebeg
+
 
 \rm -f dens_section.dat # remove (if any)
 
@@ -59,12 +63,14 @@ while (( $n <= $lineend )) ; do
   line=` sed -n ${n},${n}p temp.txt `
   section=` echo $line | awk '{print $1}' `
   indices=` echo $line | awk '{print $3 " " $4 " " $5 " " $6}' `
-  echo $section | cat >> dens_section.dat
-  echo $indices | cat >> dens_section.dat
+  varnam=$( grep -e "$section" drakkar_trpsig_table.txt | head -1 |  awk '{print $2 }' )
+  secnam=$( grep -e "$section" drakkar_trpsig_table.txt | head -1 | awk '{print $3 }' )
+  echo $section $varnam $secnam   >> dens_section.dat
+  echo $indices  >> dens_section.dat
 
   n=$(( n + 1 ))
 done
 
-echo 'EOF' | cat >> dens_section.dat
+echo 'EOF'  >> dens_section.dat
 \rm -f temp.txt
 

@@ -32,9 +32,9 @@ rapatrie() { ln -sf $WORKDIR/$2/$1 $3 ; }
 
 # RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2 
 #               directory $2 is normally on the Storage machine
-rapatrie_5d() { for f  in $WORKDIR/$2/*_$1.nc    ; do
+rapatrie_5d() { for f  in $WORKDIR/$2/${CONFCASE}_$3*_$1.nc    ; do
                  file=`basename $f`
-                 ln -sf $WORKDIR/$2/$file . 
+                 ln -sf $WORKDIR/$2/$file .
                 done  ; }
 
 # EXPATRIE : put file $1 to directory $2 with name $3
@@ -72,9 +72,9 @@ rapatrie() { ln -sf $SDIR/$2/$1 $3 ; }
 
 # RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2 
 #               directory $2 is normally on the Storage machine
-rapatrie_5d() { for f  in $SDIR/$2/*_$1.nc    ; do
+rapatrie_5d() { for f  in $SDIR/$2/${CONFCASE}_$3*_$1.nc    ; do
                  file=`basename $f`
-                 ln -sf $SDIR/$2/$file . 
+                 ln -sf $SDIR/$2/$file .
                 done  ; }
 
 # EXPATRIE : put file $1 to directory $2 with name $3
@@ -107,9 +107,9 @@ rapatrie() { if [ ! -f $3 ] ; then mfget -u $REMOTE_USER $2/$1 $3 ; else echo $3
 
 # RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2 
 #               directory $2 is normally on the Storage machine
-rapatrie_5d() { for f  in $( rsh gaya -l $REMOTE_USER ls $2/*_$1.nc ) ; do
+rapatrie_5d() { for f  in $SDIR/$2/${CONFCASE}_$3*_$1.nc    ; do
                  file=`basename $f`
-                 mfget -u $REMOTE_USER $2/$file .
+                 ln -sf $SDIR/$2/$file .
                 done  ; }
 
 # EXPATRIE : put file $1 to directory $2 with name $3
@@ -142,7 +142,7 @@ rapatrie() { if [ ! -f $3 ] ; then mfget -u $REMOTE_USER $2/$1 $3 ; else echo $3
 
 # RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2 
 #               directory $2 is normally on the Storage machine
-rapatrie_5d() { for f  in $( rsh gaya -l $REMOTE_USER ls $2/*_$1.nc ) ; do
+rapatrie_5d() { for f  in $( rsh gaya -l $REMOTE_USER ls $2/${CONFCASE}_$3*_$1.nc ) ; do
                  file=`basename $f`
                  mfget -u $REMOTE_USER $2/$file .
                 done  ; }
@@ -173,36 +173,6 @@ chkvar()   {
    cdfinfo $2 | grep -q $1
    echo $?
            }
-
-######################################################################################
-# find_model_level : return the level corresponding to dep (m) by superior value
-
-# usage : find_model_level depth_dim_name depth file
-  find_model_level() { ncks -H -F -C -v $1 $3 | \
-           sed -e 's/(/ /' -e 's/)/ /' -e 's/=/ /' | \
-           awk '{if ( $3 > dep ) {print $2 ; nextfile }   }' dep=$2  ; }
-
-
-######################################################################################
-# interpolation_vertical depth_dim_name target_depth var_to_interpolate file
-
-  interpolation_vertical() { if [ $# != 4 ] ; then exit 1 ; fi ; \
-                             level_sup=$( find_model_level $1 $2 $4 ) ; \
-                             level_inf=$(( $level_sup - 1 )) ; \
-                             depth_sup=$( ncks -H -F -C -v $1 $4 | sed -e 's/(/ /' -e 's/)/ /' -e 's/=/ /' | \
-                                          grep " $level_sup " | awk '{print $NF}' ) ; \
-                             depth_inf=$( ncks -H -F -C -v $1 $4 | sed -e 's/(/ /' -e 's/)/ /' -e 's/=/ /' | \
-                                          grep " $level_inf " | awk '{print $NF}' ) ; \
-                             vit_sup=$( ncks -H -F -C -v $3 $4 | sed -e 's/(/ /g' -e 's/)/ /g' -e 's/=/ /g' | \
-                                        grep " $level_sup " | awk '{print $NF}' ) ; \
-                             vit_inf=$( ncks -H -F -C -v $3 $4 | sed -e 's/(/ /g' -e 's/)/ /g' -e 's/=/ /g' | \
-                                        grep " $level_inf " | awk '{print $NF}' ) ; \
-                             up=$(   echo "$2 $depth_inf"       |  awk '{print $1 - $2}' ) ; \
-                             down=$( echo "$depth_sup $depth_inf" |  awk '{print $1 - $2}' ) ; \
-                             diff=$( echo "$vit_sup $vit_inf"     |  awk '{print $1 - $2}' ) ; \
-                             interp=$(echo "$vit_inf $diff $up $down" | awk '{print $1 + ( $2 * ( $3 / $4 )) }') ; \
-                             echo $interp ; }
-
 ######################################################################################
 # copy_to_web : copy the time series figures to the DRAKKAR website
 # usage : copy_to_web file

@@ -33,33 +33,49 @@ fi
 
 ######################################################################
 ### -1- MONITOR PROD Menu :
-### (set to 1 if you want it, to anything else if you do not !)
+### for ICEMONTH, BIOPROFILE, TRACER, EL NINO, DCT: set to
+###    - 1 if you want it
+###    - anything else if you do not
+### for EKE, RMSSSH, TSMEAN, GIB, TRP, BSF, MOC, MAXMOC, TAO, MHT, MOCSIG: set to 
+###    - 1 if you want annual means
+###    - 2 if you want monthly means
+###    - 3 if you want both
+###    - anything else if you don't want anything
+### particularity for MOCSIG diagnostics, set mocsig_5d to:
+###    - 0 if you want to compute annual/monthly MOCSIG means from annual/monthly V/T means
+###    - 1 if you want to compute annual/monthly MOCSIG means from 5day V/T means
+###    - 2 if you want both
+### for MXL and LSPV: set to
+###    - 1 if you want 3 (march) and 9 (september) monthly means
+###    - 2 if you want monthly means (every months of the year)
+###    - 3 if you want monthly means and annual mean (computed from monthly mean)
+###    - anything else if you don't want anything
 ######################################################################
 
-EKE=1                    # compute EKE
-RMSSSH=1                 # compute RMS ssh and w
-TSMEAN=1                 # compute TSMEAN and ssh drift
-ICE=0                    # compute ice volume, area and extent
-ICEMONTH=0               # compute ice volume, area and extent
-GIB=1                    # compute Gibraltar diags (restoring zone)
+EKE=0                    # compute EKE
+RMSSSH=0                 # compute RMS ssh and w
+TSMEAN=0                 # compute TSMEAN and ssh drift
+ICEMONTH=0               # compute monthly ice volume, area and extent
+GIB=0                    # compute Gibraltar diags (restoring zone)
 ELNINO=0                 # compute El Nino monitoring SSTs
-TRP=1                    # compute barotropic transport accross section as given in section.dat (CTL dir)
-MHT=1                    # compute Meridional Heat Transport (advective and from surface fluxes)
-MOC=1                    # compute MOC ( need a sub basin mask file called new_maskglo.nc)
-MONTHLYMOC=1             # compute monthly MOC (need a sub basin mask file called new_maskglo.nc)
+TRP=0                    # compute barotropic transport accross section as given in section.dat (CTL dir)
+MHT=0                    # compute Meridional Heat Transport (advective and from surface fluxes)
+MOC=0                    # compute MOC ( need a sub basin mask file called new_maskglo.nc)
 MOCSIG=0                 # compute MOC in sigma coordinates
-# To be set if MOCSIG=1
-mocsig_annual=0          # compute MOC in sigma coordinates from 5-day averaged files (0) or annual files (1)
+# To be set if MOCSIG=1/2/3
+mocsig_5d=0              # compute MOC in sigma coordinates from:
+                         #   5-day averaged files (1); or annual files (0); or both (2)
 DREF=2000                # potential density referenced at $DREF m is the sigma coordinate used
 #
-MAXMOC=1                 # diagnose the min and max of MOC
-BSF=1                    # compute the BSF (psi) from U and V
-DCT=1                    # compute density class transports for section given in dens_section.dat (CTL dir)
-MXL=1                    # compute mixed layer depth from 3 criteria for month 03 and 09
+MAXMOC=0                 # diagnose the min and max of MOC
+BSF=0                    # compute the BSF (psi) from U and V
+DCT=0                    # compute density class transports for section given in dens_section.dat (CTL dir)
+MXL=0                    # compute mixed layer depth from 3 criteria for month 03 and 09
 TRACER=0                 # compute passive Tracer statistics
 LSPV=0                   # compute large scale potential vorticity
 TAO=0                    # compute profiles at TAO moorings location
-BIO_PROFILE=1            # compute PISCES mean vertical profiles
+BIO_PROFILE=0            # compute PISCES mean vertical profiles
+PISCES_INT=0             # compute PISCES vertical integration
 
 ######################################################################
 ### -2- PLOT 2D Menu :
@@ -99,6 +115,7 @@ mxls_clim=1              # 18. MXL comparison to Boyer-Montegut climatology
 pisces_coupes_aus=1      # 19. PISCES coupes australes
 pisces_coupes_clim=1     # 20. PISCES coupes australes compared to climatologies
 pisces_fluxes=1          # 21. PISCES fluxes 
+contour=1                # 22. CONTOUR tool
 
 ######################################################################
 ### -3- TIME SERIES Menu :

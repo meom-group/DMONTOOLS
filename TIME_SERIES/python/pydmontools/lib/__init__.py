@@ -78,6 +78,7 @@ class _default_arguments(_core_arguments): # defined as a subclass of the previo
              shellvarname = _shellvarname_for[argument]
              loaded_value =  _try_and_load_from_shell(shellvarname)
              exec("self." + argument + " = loaded_value")
+       self.monitor_frequency = '1y'
  
 default_arguments = _default_arguments()         # create a class holding the default values of the standard scripts argument 
 default_argdict = _class2dic(default_arguments)  # create a dictionnary holding the default values of the std scripts arg.
@@ -101,6 +102,8 @@ def standard_pydmt_script_parser():
                   help="observations database directory", default=myargs['dataobsdir'])
    parser.add_option("-p", "--plotdir", dest="plotdir",
                   help="config-case monitoring plots directory", default=myargs['plotdir'])
+   parser.add_option("-f", "--frequency", dest="monitor_frequency",
+                  help="config-case monitoring database frequency", default=myargs['monitor_frequency'])
    return parser
 
 # Check the availability of a netcdf interface

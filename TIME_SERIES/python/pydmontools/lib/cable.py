@@ -32,7 +32,7 @@ osp = os.sep
 #- parameters
 
 plot_name = 'cable'
-fig_size =  [5.,5.]
+fig_size =  [5.,5.] # minimum fig size
 plt.rcParams.update({'figure.figsize': fig_size})
 
 #=======================================================================
@@ -49,51 +49,30 @@ def read(argdict=myargs,fromfile=[]):
           dummy, file_obs = _get_ncname(argdict=argdict)
           return _readnc(fromfile[0], file_obs, argdict=argdict) 
        elif fromfile[0].endswith('.mtl'): # if mtlfile name is provided
-          if not(len(fromfile)==1):
-             print 'please provide one mlt filename'
-             sys.exit() 
-          dummy, file_obs = _get_mtlnames(argdict=argdict)
-          return _readmtl(fromfile[0], file_obs, argdict=argdict)
+          print 'mtl files are no longer supported'
        else:                               
           pass
     elif fromfile==[]:                    # production mode 
        file_nc, file_obs   = _get_ncname(argdict=argdict)
-       file_mtl,file_obs  = _get_mtlnames(argdict=argdict)
-       # first try to open a netcdf file
+       # try to open a netcdf file
        if os.path.isfile(file_nc) and os.path.isfile(file_obs):
           return _readnc(file_nc, file_obs, argdict=argdict) 
-       # or try the mlt version   
-       elif os.path.isfile(file_mtl) and os.path.isfile(file_obs):
-          return _readmtl(file_mtl, file_obs, argdict=argdict)
           
 def _get_ncname(argdict=myargs):
-    filename = argdict['datadir'] + osp + argdict['config'] + '-' \
-             + argdict['case'] + '_TRANSPORTS.nc' 
-    fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
+    if rs.check_freq_arg(argdict['monitor_frequency']):
+
+        filename = argdict['datadir'] + osp + argdict['config'] + '-' \
+                 + argdict['case'] + '_' + argdict['monitor_frequency'] + '_TRANSPORTS.nc'
+
+    fileobs  = argdict['dataobsdir'] + osp + 'dmondata_cable_NOAA-AOML.nc'
+
     return filename, fileobs
 
-def _get_mtlnames(argdict=myargs):
-    filemtl = argdict['datadir'] + osp + argdict['config'] + '-' \
-            + argdict['case'] + '_matrix.mtl' 
-    fileobs  = argdict['dataobsdir'] + osp + 'data_obs_DRAKKAR.nc'
-    return filemtl , fileobs
- 
 #=======================================================================
 
 def _readnc(filenc=None,fileobs=None,argdict=myargs):
     # get the section names corresponding to the config
-
-    if argdict.has_key('compared_configs'):
-       compare = True
-    else:
-       argdict['compared_configs'] = [ argdict['config'] ]
-       compare = False
-    # get the section names corresponding to the config
-    section_dict = rs.define_all_sections(argdict,compare)
-
-    truenames = section_dict.keys()
-    truenames.sort()
-
+    (truenames, shortnames, longnames, sens) = rs.define_sections(argdict)
     # test on existence of florida bahamas section in list
     found = None
     for k in range(len(truenames)):
@@ -106,66 +85,34 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
         pass
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
-    outdict['yearmodel'] = rs.get_years_intpart(filenc)
-    try:
-       outdict['trpmodel']  = -1 * rs.readfilenc(filenc, 'vtrp_floba' )
-       outdict['yearobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
-       outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
-    except:
-       outdict['trpmodel']  = npy.zeros((len(outdict['yearmodel'])))
-       outdict['yearobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
-       outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
-
-
-    return outdict # return the dictionnary of values 
-
-
-def _readmtl(filemtl=None,fileobs=None,argdict=myargs):
-    #
-    # get the section names corresponding to the config
-    (truenames, shortnames, longnames, sens) = rs.define_sections_old(argdict)
-    nsection=len(truenames)
-    #
-    # getting the index of the section
-    for k in range(len(truenames)):
-        if truenames[k].find('FLORIDA_BAHAMAS') >= 0:
-            indsection = k
-
-    f1=open(filemtl,'r')
-    lignes1=[lignes1 for lignes1 in f1.readlines() if lignes1.strip() ] # remove empty lines
-    f1.close()
-    # 
-    yearmodel = [] ; vtrp = [] ; yearobs = [] ; trpobs = []
-    #
-    for chaine in lignes1[3:] :
-        element=chaine.split()
-        yearmodel.append(float(element[0]))
-        for k in range(1,1+nsection) :
-            vtrp.append(float(element[k]))
-
-    vtrp=npy.reshape(vtrp, (-1,nsection))
-
-    outdict = {}
-    outdict['yearmodel'] = yearmodel
-    outdict['trpmodel']  = -1 * vtrp[:,indsection]
-    outdict['yearobs']   = rs.readfilenc(fileobs, 'YEAR_CABLE')
+    outdict['datemodel'] = rs.get_datetime(filenc)
+    outdict['trpmodel']  = -1 * rs.readfilenc(filenc, 'vtrp_floba' )
+    outdict['dateobs']   = rs.get_datetime(fileobs)
     outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
-
+    #
     return outdict # return the dictionnary of values 
+
 
 #=======================================================================
 #--- Plotting the data 
 #=======================================================================
 
-def plot(argdict=myargs, figure=None,color='r',yearmodel=None,trpmodel=None,yearobs=None,trpobs=None,compare=False):
-    #
+def plot(argdict=myargs, figure=None,color='r',compare=False,datemodel=None,trpmodel=None,dateobs=None,trpobs=None):
+    # deal with figure size and boundaries...
+    tmin,tmax = ps.get_tminmax(datemodel)
+    ymin,ymax = ps.get_vminmax(trpmodel,trpobs,ex=0.2)
+    width,height = fig_size
+    asp = max(width/height,(0.3*(tmax-tmin)/365.) / height) # assume time unit in days and figure height is 5.
+    figsize = [ asp * height , height ]
+    # proceed with the plot
     if figure is None :
-        figure = plt.figure()
-    if trpmodel.mean() != 0.:
-        plt.plot(yearmodel,trpmodel,color + '.-',yearobs,trpobs,'b.-')
-        plt.axis([min(yearmodel),max(max(yearmodel),max(yearobs)),min(min(trpmodel),min(trpobs)), 
-                  max(max(trpmodel),max(trpobs))])
-    plt.grid(True)
+        figure = plt.figure(figsize=figsize)
+    ax = figure.add_subplot(111)
+    ax.plot(datemodel,trpmodel,color + '.-',dateobs,trpobs,'b.-')
+    ax.axis([tmin,tmax,ymin,ymax])
+    ax.grid(True)
+    ps.set_dateticks(ax,aspect_ratio=asp)
+    figure.autofmt_xdate()
     if not(compare) :
          plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Mass Transport - Obs (b)',fontsize='small')
     else:
@@ -182,8 +129,9 @@ def save(argdict=myargs,figure=None):
     if figure is None:
        figure = plt.gcf()
     plotdir, config, case = argdict['plotdir'], argdict['config'], argdict['case']
+    monit_freq = argdict['monitor_frequency']
     plotdir_confcase = plotdir + '/' + config + '/PLOTS/' + config + '-' + case + '/TIME_SERIES/'
-    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_cable.png')
+    figure.savefig(plotdir_confcase + '/' + config + '-' + case + '_' + monit_freq + '_cable.png')
 
 #=======================================================================
 #--- main 
