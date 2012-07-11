@@ -67,17 +67,30 @@ def _get_ncname(argdict=myargs):
 #=======================================================================
 
 def _readnc(filenc=None,argdict=myargs):
+    if argdict.has_key('compared_configs'):
+       compare = True
+    else:
+       argdict['compared_configs'] = [ argdict['config'] ]
+       compare = False
     # get the section names corresponding to the config
-    (truenames, shortnames, longnames) = rs.define_trpsig(argdict)
+    section_dict = rs.define_all_sections(argdict,compare,'drakkar_trpsig_table.txt')
     #
-    nsection=len(truenames) # nsection is never used, why ? 
     outdict = {} # creates the dictionnary which will contain the arrays 
     outdict['date' ]  = rs.get_datetime(filenc)
     outdict['sigma_class']  = rs.readfilenc(filenc, 'sigma_class')[0,:]
 
-    for kk in shortnames:
-        vartmp='sigtrp_' + kk
-        outdict[vartmp] = rs.readfilenc(filenc, 'sigtrp_' + kk) 
+
+    list_truenames = section_dict.keys()
+    list_truenames.sort()
+
+    for section in list_truenames:
+
+       shortname = section_dict[section]['shortname']  # temporary
+
+       try:
+           outdict['sigtrp_' + shortname] = rs.readfilenc(filenc, 'sigtrp' + '_' + shortname)
+       except:
+           outdict['sigtrp_' + shortname] = npy.zeros(( len(outdict['date']), len(outdict['sigma_class']) ))
 
     return outdict # return the dictionnary of values 
 
@@ -91,10 +104,13 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
     for key in kwargs:
         exec(key+'=kwargs[key]')
      
-    (truenames, shortnames, longnames) = rs.define_trpsig(argdict)
-    nsection = len(truenames)
+    section_dict = rs.define_sections(argdict,compare,'drakkar_trpsig_table.txt')
+    nsection=len(section_dict.keys())
     fig_size = [15., float(nsection) * 5.]
     
+    list_truenames = section_dict.keys()
+    list_truenames.sort()
+
     if figure is None: # by default create a new figure
           figure = plt.figure(figsize=fig_size)
     
@@ -103,17 +119,27 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
     ncontour=70
     sigmadens = rs.get_index(sigma,27.8)
 
-    for k in range(len(shortnames)):
-        exec('trpsig=sigtrp_' + shortnames[k])
-        exec('titleplot=longnames[k]')
-        titleplot=titleplot.replace('_',' ')
+    pltline = 0 # counter for plot line
+
+    nonsense = 9e15 # the greatest trick : for compare mode set min and max
+                    # default values to non-sense so that they will be replaced by following plot
+
+
+    for section in list_truenames:
+
+        shortname = section_dict[section]['shortname']
+        longname  = section_dict[section]['longname']
+
+        exec('trpsig = ' + 'sigtrp_' + shortname)
+        titleplot = longname
+        titleplot = titleplot.replace('_',' ')
 
         trpdense = trpsig.copy()
         trpdense[:,0:sigmadens-1] = 0.
         transport_total = sum(npy.transpose(trpdense))
         trpsig = ma.masked_equal(trpsig,0.)
         if not(compare):
-           ax1 = figure.add_subplot(nsection,2,2*k+1)
+           ax1 = figure.add_subplot(nsection,2,2*pltline+1)
            plt.contourf(date, sigma,npy.transpose(trpsig),ncontour,cmap=cm.jet_r)
            plt.colorbar(format='%.1f')
            plt.contour(date, sigma,npy.transpose(trpsig),[0],colors='white')
@@ -126,22 +152,26 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
         # when comparison is done only next plot is done
         # and we want it on the left of the screen
         if not(compare) :
-           ax2 = figure.add_subplot(nsection,2,2*k+2)
+           ax2 = figure.add_subplot(nsection,2,2*pltline+2)
         else :
-           ax2 = figure.add_subplot(nsection,2,2*k+1)
+           ax2 = figure.add_subplot(nsection,2,2*pltline+1)
 
         titleplot=titleplot.replace('transport in sigma classes',' ')
-        if not(compare) and k == 0 :
+        if not(compare) and pltline == 0 :
            plt.title(argdict['config'] + '-' + argdict['case']+'\n'+titleplot , fontsize='large')
         else:
            plt.title(titleplot , fontsize='large')
 
-        ax2.plot(date, transport_total, color)
-        ax2.grid(True)
-        ax2.axis([min(_date), max(_date),
-        min(transport_total),max(transport_total)])
+        ax2.axis([min(_date),max(_date),nonsense,-nonsense])
+        if transport_total.mean() !=0:
+           ax2.plot(date, transport_total, color)
+           ax2.grid(True)
+           ax2.axis([min(_date), max(_date),
+           min(transport_total),max(transport_total)])
         plt.ylabel('Dense waters trp.(> 27.8) (Sv) ', fontsize='large')
         ps.set_dateticks(ax2)
+        pltline = pltline + 1
+
     return figure
 
 #=======================================================================

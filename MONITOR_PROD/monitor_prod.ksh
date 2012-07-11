@@ -621,7 +621,7 @@ if [        $GIB  !=  0    ] ; then
     ftsgib_nc=${fbase}_TSGIB.nc
     tmplst=''
     for f in $file_lst ; do
-      tmplst="$tmplst $(echo $f | grep $fbase )"
+      tmplst="$tmplst $(echo $f | grep $fbase | grep nc )"
     done
     merge_files $ftsgib_nc $tmplst
     if [ -f $ftsgib_nc ] ; then

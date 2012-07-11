@@ -56,6 +56,9 @@ def read(argdict=myargs,fromfiles=[]):
        # first try to open a netcdf file
        if os.path.isfile(filesnc[0]) and os.path.isfile(filesnc[1]):
           return _readnc(filesnc) 
+       else:
+          print '>>> tsmean_lev.py : No files found for frequency : ' + argdict['monitor_frequency'] ; exit()
+
           
 def _get_ncname(argdict=myargs):
     #

@@ -109,6 +109,7 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         north = 1 ; south = 0
         print "icetrd.py : use custom values for NATL configs"
     else :
+        north = 1 ; south = 1
         print "icetrd.py : Your config is not supported..."
         print "The monitoring will try to use default values from Global Configuration"
     #

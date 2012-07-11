@@ -57,6 +57,9 @@ def read(argdict=myargs,fromfile=[]):
        # try to open a netcdf file
        if os.path.isfile(file_nc) and os.path.isfile(file_obs):
           return _readnc(file_nc, file_obs, argdict=argdict) 
+       else:
+          print '>>> cable.py : No files found for frequency : ' + argdict['monitor_frequency'] ; exit()
+
           
 def _get_ncname(argdict=myargs):
     if rs.check_freq_arg(argdict['monitor_frequency']):
@@ -72,7 +75,18 @@ def _get_ncname(argdict=myargs):
 
 def _readnc(filenc=None,fileobs=None,argdict=myargs):
     # get the section names corresponding to the config
-    (truenames, shortnames, longnames, sens) = rs.define_sections(argdict)
+
+    if argdict.has_key('compared_configs'):
+       compare = True
+    else:
+       argdict['compared_configs'] = [ argdict['config'] ]
+       compare = False
+    # get the section names corresponding to the config
+    section_dict = rs.define_all_sections(argdict,compare)
+
+    truenames = section_dict.keys()
+    truenames.sort()
+
     # test on existence of florida bahamas section in list
     found = None
     for k in range(len(truenames)):
@@ -86,12 +100,15 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
     outdict['datemodel'] = rs.get_datetime(filenc)
-    outdict['trpmodel']  = -1 * rs.readfilenc(filenc, 'vtrp_floba' )
+    try:
+       outdict['trpmodel']  = -1 * rs.readfilenc(filenc, 'vtrp_floba' )
+    except:
+       outdict['trpmodel']  = npy.zeros((len(outdict['datemodel'])))
+
     outdict['dateobs']   = rs.get_datetime(fileobs)
     outdict['trpobs']    = rs.readfilenc(fileobs, 'CABLE')
     #
     return outdict # return the dictionnary of values 
-
 
 #=======================================================================
 #--- Plotting the data 

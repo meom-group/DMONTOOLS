@@ -56,6 +56,9 @@ def read(argdict=myargs,fromfile=[]):
        # try to open the netcdf file
        if os.path.isfile(filenc):
           return _readnc(filenc,argdict=argdict) 
+       else:
+          print '>>> transports1.py : No files found for frequency : ' + argdict['monitor_frequency'] ; exit()
+
           
 def _get_ncname(argdict=myargs):
     #
@@ -70,78 +73,114 @@ def _get_ncname(argdict=myargs):
 
 def _readnc(filenc=None,argdict=myargs):
     if argdict.has_key('compared_configs'):
-       compare_different_configs = (len(argdict['compared_configs'])>1)
+       compare = True
     else: 
-       compare_different_configs = False # assigned to but never used, why ?  
+       argdict['compared_configs'] = [ argdict['config'] ]
+       compare = False
     # get the section names corresponding to the config
-    (truenames, shortnames, longnames, sens) = rs.define_sections(argdict)
+    section_dict = rs.define_all_sections(argdict,compare)
     #
-    nsection=len(truenames)
     outdict = {} # creates the dictionnary which will contain the arrays 
     date = rs.get_datetime(filenc)
-    mass =[] ; heat=[] ; salt = []
-    for kk in range(nsection):
-        mass.append(rs.readfilenc(filenc, 'vtrp' + '_' + shortnames[kk]))
-        heat.append(rs.readfilenc(filenc, 'htrp' + '_' + shortnames[kk]))
-        salt.append(rs.readfilenc(filenc, 'strp' + '_' + shortnames[kk]))
-
-    mass = npy.reshape(mass, [nsection, len(date)])
-    heat = npy.reshape(heat, [nsection, len(date)])
-    salt = npy.reshape(salt, [nsection, len(date)])
-
-    bigsens = npy.transpose(sens * npy.ones((len(date),nsection)))
-
     outdict['date']    = date
-    outdict['massplt'] = mass * bigsens
-    outdict['heatplt'] = heat * bigsens
-    outdict['saltplt'] = salt * bigsens
+
+    list_truenames = section_dict.keys()
+    list_truenames.sort()
+
+    for section in list_truenames:
+
+       shortname = section_dict[section]['shortname']  # temporary
+       sens      = section_dict[section]['sens']       # variables
+
+       try:
+           outdict['mass_' + shortname] = npy.array((sens),'f') * rs.readfilenc(filenc, 'vtrp' + '_' + shortname)
+           outdict['heat_' + shortname] = npy.array((sens),'f') * rs.readfilenc(filenc, 'htrp' + '_' + shortname)
+           outdict['salt_' + shortname] = npy.array((sens),'f') * rs.readfilenc(filenc, 'strp' + '_' + shortname)
+       except:
+           outdict['mass_' + shortname] = npy.zeros(( len(outdict['date']) ))
+           outdict['heat_' + shortname] = npy.zeros(( len(outdict['date']) ))
+           outdict['salt_' + shortname] = npy.zeros(( len(outdict['date']) ))
 
     return outdict # return the dictionnary of values 
+
+
+
 
 
 #=======================================================================
 #--- Plotting the data 
 #=======================================================================
 
-def plot(argdict=myargs, figure=None,color='r',massplt=None,heatplt=None,saltplt=None,date=None,compare=False):
-    
+def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
+
+    for key in kwargs:
+        exec(key + '=kwargs[key]')
+
     # adjust the figure size 
-    (truenames, shortnames, longnames, sens) = rs.define_sections(argdict)
-    nsection=len(truenames)
+    section_dict = rs.define_sections(argdict,compare)
+    nsection=len(section_dict.keys())
     fig_size = [18., float(nsection) * 5.]
 
     if figure is None: # by default create a new figure
           figure = plt.figure(figsize=fig_size)
 
     _date = ps.mdates.date2num(date) # now a numerical value
-    for k in range(1,nsection+1) :
-          ax1 = figure.add_subplot(nsection,3,3*(k-1)+1)
-          ax1.plot(date, massplt[k-1,:], color + '.-')
-          ax1.axis([min(_date),max(_date),min(massplt[k-1,:]),max(massplt[k-1,:])])
+    list_truenames = section_dict.keys()
+    list_truenames.sort()
+
+    pltline = 0 # counter for plot line
+
+    nonsense = 9e15 # the greatest trick : for compare mode set min and max
+                    # default values to non-sense so that they will be replaced by following plot
+
+    for section in list_truenames:
+
+          shortname = section_dict[section]['shortname']
+          longname  = section_dict[section]['longname']
+
+          exec('massplt =' + 'mass_' + shortname )
+          exec('heatplt =' + 'heat_' + shortname )
+          exec('saltplt =' + 'salt_' + shortname )
+
+          ### mass transport
+          ax1 = figure.add_subplot(nsection, 3, 3*pltline + 1)
+          ax1.axis([min(_date),max(_date),nonsense,-nonsense])
+          if massplt.mean() != 0.:
+              ax1.plot(date, massplt, color + '.-')
+              ax1.axis([min(_date),max(_date),min(massplt),max(massplt)])
           ax1.grid(True)
-          plt.ylabel(longnames[k-1].replace('_',' '),fontsize='small')
+          plt.ylabel(longname.replace('_',' '),fontsize='small')
           ps.set_dateticks(ax1)
-          if k==1 :
+          if pltline==0 :
                 plt.title('Mass Transport',fontsize='large')
-          ax2 = figure.add_subplot(nsection,3,3*(k-1)+2)
-          ax2.plot(date, heatplt[k-1,:], color + '.-')
-          ax2.axis([min(date),max(date),min(heatplt[k-1,:]),max(heatplt[k-1,:])])
+
+          ### heat transport
+          ax2 = figure.add_subplot(nsection, 3, 3*pltline + 2)
+          ax2.axis([min(_date),max(_date),nonsense,-nonsense])
+          if heatplt.mean() != 0.:
+              ax2.plot(date, heatplt, color + '.-')
+              ax2.axis([min(_date),max(_date),min(heatplt),max(heatplt)])
           ax2.grid(True)
           ps.set_dateticks(ax2)
-          if not(compare) and k==1 :
+
+          if not(compare) and pltline==0:
                 plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Heat Transport',fontsize='large')
-          elif k==1 :
+          elif pltline==0 :
                 plt.title('Heat Transport',fontsize='large')
 
-          ax3 = figure.add_subplot(nsection,3,3*(k-1)+3)
-          ax3.plot(date, saltplt[k-1,:], color + '.-')
-          ax3.axis([min(date),max(date),min(saltplt[k-1,:]),max(saltplt[k-1,:])])
-          plt.grid(True)
+          ### salt transport
+          ax3 = figure.add_subplot(nsection, 3, 3*pltline + 3)
+          ax3.axis([min(_date),max(_date),nonsense,-nonsense])
+          if saltplt.mean() != 0.:
+              ax3.plot(date, saltplt, color + '.-')
+              ax3.axis([min(_date),max(_date),min(saltplt),max(saltplt)])
+          ax3.grid(True)
           ps.set_dateticks(ax3)
-          if k==1 :
+          if pltline==0 :
                 plt.title('Salt Transport',fontsize='large')
           #figure.autofmt_xdate() # should be adapted a bit more...
-  
+          pltline = pltline + 1
+
     return figure
 
 #=======================================================================

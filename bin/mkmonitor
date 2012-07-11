@@ -91,7 +91,7 @@ fi
 cat $SRCDIR/config_def.ksh | sed -e "s/<CONFIG>/${CONFIG}/" -e "s/<CASE>/${CASE}/" \
     -e "s/<MACHINE>/$HOSTNAME/" > $P_CDF_DIR/config_def.ksh
 
-cat $SRCDIR/run_monitor_py_standalone.ksh | sed -e "s/<CONFIG>/${CONFIG}/g" -e "s/<CASE>/${CASE}/" \
+cat $SRCDIR/run_monitor_py_standalone.ksh | sed -e "s/<CONFIG>/${CONFIG}/g" -e "s/<CASE>/${CASE}/g" \
     > $P_CDF_DIR/run_monitor_py_standalone.ksh
 
 chmod +x $P_CDF_DIR/run_monitor_py_standalone.ksh

@@ -217,6 +217,8 @@ class plot_and_send_all_pages:
             self.plotnames = rc.plotnames
         else:
            self.plotnames = plotnames
+        # 
+        self.monitor_frequency = rc.monitor_frequency
 
     def proceed(self):
         if self.remote_send:
@@ -358,6 +360,7 @@ class plot_one_page:
           self.argdict = {'dataobsdir':rc.dataobsdir} # will be appended later
           self.compare = (self.len>1) # test whether there will be multiple layers in the plot
 	  self.argdict['compared_configs'] = list(set(self.configs))
+          self.argdict['monitor_frequency'] = rc.monitor_frequency 
 
       def _update_argdict(self,config=None,case=None):
           self.argdict['config'] = config
@@ -460,6 +463,8 @@ def myparser():
             help="username on the remote machine", default=None)
     parser.add_option("-b", "--remote_basedir", dest="remote_basedir",\
             help="root monitoring plot directory on the remote machine", default=None)    
+    parser.add_option("-f", "--frequency", dest="monitor_frequency",
+            help="config-case monitoring database frequency", default=myargs['monitor_frequency'])
     parser.add_option("-v", "--verbose", dest="verbose",\
             help="print the comments : False/True ", default=None)
     return parser

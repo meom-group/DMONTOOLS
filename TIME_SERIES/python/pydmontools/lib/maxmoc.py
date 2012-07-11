@@ -55,6 +55,9 @@ def read(argdict=myargs,fromfile=[]):
        # first try to open a netcdf file
        if os.path.isfile(file_nc) and os.path.isfile(file_nc2):
           return _readnc(file_nc, file_nc2, argdict=argdict) 
+       else:
+          print '>>> maxmoc.py : No files found for frequency : ' + argdict['monitor_frequency'] ; exit()
+
           
 def _get_ncname(argdict=myargs):
     #

@@ -57,7 +57,7 @@ def read(argdict=myargs,fromfiles=[]):
        if os.path.isfile(filenc):
           return _readnc(filenc) 
        else:
-          print ' tsmean.py : No files found' ; exit()
+          print '>>> tsmean.py : No files found for frequency : ' + argdict['monitor_frequency'] ; exit()
           
 def _get_ncname(argdict=myargs):
     #

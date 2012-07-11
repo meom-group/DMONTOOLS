@@ -113,7 +113,7 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         print "icetrd_min.py : Your config is not supported..."
         print "The monitoring will try to use default values from Global Configuration"
     #
-    nbzone = 2 
+    nbzone = north + south
     nbplotline = 3
     fig_size = [float(nbplotline) * 6., float(nbzone) * 5.]
     if figure is None: # by default create a new figure
@@ -190,13 +190,13 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         plt.title('Extent Arctic ' + listmonth[(month-1)%12]+' - Obs. (b)',fontsize='large')
     #
     if south == 1 :
-        plt.subplot(nbzone,nbplotline, 4)
+        plt.subplot(nbzone,nbplotline,north*nbplotline + 1)
         plt.plot(year_model_march, SVolume_march, color)
         plt.grid(True)
         plt.axis([min(year_model_march), max(year_model_march), 0, 20])
         plt.title('Volume Antarctic ' + listmonth[(month+6-1)%12],fontsize='large')
 
-        plt.subplot(nbzone,nbplotline, 5)
+        plt.subplot(nbzone,nbplotline,north*nbplotline + 2)
         plt.plot(year_model_march, SArea_march, color,year_obs_march, SOUTH_ICE_AREA_march, 'b.-')
         plt.grid(True)
         plt.axis([min(year_model_march), max(year_model_march),
@@ -206,7 +206,7 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         else :
             plt.title('Area Antarctic ' + listmonth[(month+6-1)%12]+' - Obs. (b)',fontsize='large')
 
-        plt.subplot(nbzone,nbplotline, 6)
+        plt.subplot(nbzone,nbplotline,north*nbplotline + 3)
         plt.plot(year_model_march, SExnsidc_march, color, year_obs_march, SOUTH_ICE_EXTENT_march, 'b.-')
         plt.grid(True)
         plt.axis([min(year_model_march), max(year_model_march),
@@ -241,6 +241,7 @@ def main():
    # read, plot and save   
    values = read(argdict=argdict,fromfile=infiles)
    # September
+#   fig = plot(argdict=argdict,month=9,**values)
    fig = plot(argdict=argdict,**values)
    if len(args)==0:
       save(argdict=argdict,figure=fig,suffix='1y_icetrd_min')

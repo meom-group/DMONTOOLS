@@ -141,7 +141,7 @@ fi
 
 # set DIAGS and MONITOR from MACHINE name if necessary
 if [ ! $DIAGS   ] ; then DIAGS=$rootdir/$CONFIG/$CONFCASE-DIAGS/NC ; fi
-if [ ! $MONITOR ] ; then MONITOR=$rootdir/$CONFIG/$CONFCASE-MONITOR/NC ; fi
+if [ ! $MONITOR ] ; then MONITOR=$rootdir/$CONFIG/$CONFCASE-MONITOR ; fi
 
 # Security tests
 PARENT_DIR=$(dirname $MONITOR )
@@ -186,7 +186,7 @@ chkanswer()     {
    echo ''
    echo 'Please verify...'
    echo 'Run starts the 1st of January' $yearbeg
-   echo 'Model outputs are every' $freqindays 'days'
+   echo 'Model outputs are every' $freqinday 'days'
    echo "Calendar is  $calendar "
    echo 'are you OK with that ? (y/n)'
 

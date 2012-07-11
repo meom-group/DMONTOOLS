@@ -60,6 +60,9 @@ def read(argdict=myargs,fromfiles=[]):
        # first try to open a netcdf file
        if os.path.isfile(filenc) and os.path.isfile(levitus):
           return _readnc(filenc, levitus) 
+       else:
+          print '>>> gib.py : No files found for frequency : ' + argdict['monitor_frequency'] ; exit()
+
           
 def _get_ncname(argdict=myargs):
     #
