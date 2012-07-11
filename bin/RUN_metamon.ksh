@@ -33,7 +33,8 @@ fi
   cp $PRODTOOLS/make_ncdf_timeseries.ksh   .
   cp $PRODTOOLS/drakkar_sections_table.txt .
   cp $PRODTOOLS/drakkar_trpsig_table.txt   .
-  cp $TIMESERIES/scripts/run_monitor_py.ksh        .
+  cp $TIMESERIES/python/pydmontools/scripts/run_monitor_py.ksh        .
+exit
 
   JOBTYPE=serial # this is the default (only for LoadLeveler)
   TASKTRICK='#'
