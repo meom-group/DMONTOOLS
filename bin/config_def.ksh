@@ -11,13 +11,13 @@
 CONFIG=<CONFIG>
 CASE=<CASE>
 MACHINE=<MACHINE>
-MAIL=user@machine   ## to be edited ##
+MAIL=Aurelie.Albert@legi.grenoble-inp.fr   ## to be edited ##
 
 # parallel monitoring (1: yes / 0: no)
-useMPI=1 
+useMPI=0 
 
 CONFCASE=${CONFIG}-${CASE}
-MESH_MASK_ID=$CONFCASE   # root part of the mesh-mask files (likely  to be edited !!)
+MESH_MASK_ID=$CONFIG   # root part of the mesh-mask files (likely  to be edited !!)
                          # (they must be in the -I directory ( $CONFIG/${CONFIG}-I)
                          #  Standard name is thus : ${MESH_MASK_ID}_byte_mask.nc
                          #                          ${MESH_MASK_ID}_mesh_hgr.nc
@@ -57,6 +57,8 @@ RMSSSH=0                 # compute RMS ssh and w
 TSMEAN=0                 # compute TSMEAN and ssh drift
 ICEMONTH=0               # compute monthly ice volume, area and extent
 GIB=0                    # compute Gibraltar diags (restoring zone)
+KERG=2                   # compute Kerguelen diags (restoring zone)
+KERGb=2                  # compute Kerguelen diags for PISCES (restoring zone)
 ELNINO=0                 # compute El Nino monitoring SSTs
 TRP=0                    # compute barotropic transport accross section as given in section.dat (CTL dir)
 MHT=0                    # compute Meridional Heat Transport (advective and from surface fluxes)
@@ -70,7 +72,7 @@ DREF=2000                # potential density referenced at $DREF m is the sigma 
 MAXMOC=0                 # diagnose the min and max of MOC
 BSF=0                    # compute the BSF (psi) from U and V
 DCT=0                    # compute density class transports for section given in dens_section.dat (CTL dir)
-MXL=0                    # compute mixed layer depth from 3 criteria for month 03 and 09
+MXL=2                    # compute mixed layer depth from 3 criteria for month 03 and 09
 TRACER=0                 # compute passive Tracer statistics
 LSPV=0                   # compute large scale potential vorticity
 TAO=0                    # compute profiles at TAO moorings location
@@ -82,40 +84,50 @@ PISCES_INT=0             # compute PISCES vertical integration
 ### (set to 1 if you want it, to anything else if you do not !)
 ######################################################################
 
-create_gif=0             #    Create gif (1) or not (0)
+create_gif=1             #    Create gif (1) or not (0)
 
-moc=1                    # 1. Meridional Overturning Circulation
-global=1                 # 2. Global maps
+moc=0                    # 1. Meridional Overturning Circulation
+global=0                 # 2. Global maps
 glodifmap=0              # 3. Plot of differences with reynolds and Levitus
 fluxes=0                 # 4. Air Sea fluxes
-atlTS=1                  # 5.1.1 Details in North and South Atlantic TS
-atlUV=1                  # 5.1.2 Details in North and South Atlantic UV (PSI)
-botsig4atl=1             # 5.1.3 Details on bottom sigma4 in the North atlantic
-zoomTS=1                 # 5.2.1 Details on Drake, Kerguelen, Campbell plateau TS
-zoomUV=1                 # 5.2.2 Details on Drake, Kerguelen, Campbell plateau UV (PSI)
-coupes=1                 # 6.1 Sections the global ocean
+atlTS=0                  # 5.1.1 Details in North and South Atlantic TS
+atlUV=0                  # 5.1.2 Details in North and South Atlantic UV (PSI)
+botsig4atl=0             # 5.1.3 Details on bottom sigma4 in the North atlantic
+zoomTS=0                 # 5.2.1 Details on Drake, Kerguelen, Campbell plateau TS
+zoomUV=0                 # 5.2.2 Details on Drake, Kerguelen, Campbell plateau UV (PSI)
+zoomFLX=3                # 5.2.3 Details on Drake(2), Kerguelen(3), Campbell(4) or all (1) plateau atmospheric fluxes
+zoomMXL=3                # 5.2.4 Details on Drake(2), Kerguelen(3), Campbell(4) or all (1) plateau MXL
+zoomICE=0                # 5.2.5 Details on Drake(2), Kerguelen(3), Campbell(4) or all (1) plateau ice thickness and concentration
+zoomEKE=0                # 5.2.6 Details on Drake(2), Kerguelen(3), Campbell(4) or all (1) plateau EKE
+coupes=0                 # 6.1 Sections the global ocean
 ar7w=0                   # 6.2 AR7W in the Labrador sea in march and october + Ovide
-coupes_aus=1             # 6.3 Sections in the Southern Oceans
+coupes_aus=0             # 6.3 Sections in the Southern Oceans
 coupes_aus_sigma=0       # 6.4 Sections of density in the Southern Ocean (WOCE like)
-circum=1                 # 6.5 Sections along the ACC
+circum=0                 # 6.5 Sections along the ACC
 circum_sigma=0           # 6.6 Density Sections along the ACC
-iceplt=1                 # 7.  Polar plots of ice thickness and concentration
-dwbc=1                   # 8.1 Deep Western Boundary Current
+iceplt=0                 # 7.  Polar plots of ice thickness and concentration
+dwbc=0                   # 8.1 Deep Western Boundary Current
 dwbc_aus=0               # 8.2 Deep Western Boundary Current at 31 S
-ekes=1                   # 9. Plot of EKE
-mxls=1                   # 10. Mixed Layer depth
-mxlatl=1                 # 11.  Mixed Layer in the Atlantic
-flxatl=1                 # 12. Air Sea fluxes on the Atlantic
+ekes=0                   # 9. Plot of EKE
+mxls=0                   # 10. Mixed Layer depth
+mxlatl=0                 # 11.  Mixed Layer in the Atlantic
+flxatl=0                 # 12. Air Sea fluxes on the Atlantic
 tracer=0                 # 13. Passive tracers
 mocsig=0                 # 14. Meridional Overturning Circulation in sigma coordinates
 cfc=0                    # 15. CFC plots
-pisces_global=0          # 16. PISCES global plots
-pisces_clim=0            # 17. PISCES comparison to climatologies plots
-mxls_clim=1              # 18. MXL comparison to Boyer-Montegut climatology
-pisces_coupes_aus=1      # 19. PISCES coupes australes
-pisces_coupes_clim=1     # 20. PISCES coupes australes compared to climatologies
-pisces_fluxes=1          # 21. PISCES fluxes 
-contour=1                # 22. CONTOUR tool
+pisces_global=0          # 16.1.1 PISCES global plots of surface and at 150m depth concentrations
+pisces_diags=0           # 16.1.2 PISCES global plots of diagnostics variables 
+pisces_global_int=0      # 16.1.3 PISCES global plots of concentrations integrated between surface and 150m
+pisces_diags_int=0       # 16.1.4 PISCES global plots of diagnostics integrated between surface and 150m
+pisces_global_clim=0     # 16.1.5 PISCES global plots of comparison to climatologies plots
+pisces_zooms=0           # 16.2.1 PISCES Details on Drake(2), Kerguelen(3), Campbell(4) or all(1) plots of surface and at 150m depth concentrations
+pisces_diags_zooms=0     # 16.2.2 PISCES Details on Drake(2), Kerguelen(3), Campbell(4) or all(1) plots of diagnostics
+pisces_zooms_int=0       # 16.2.3 PISCES Details on Drake(2), Kerguelen(3), Campbell(4) or all(1) plots of concentrations integrated between surface and 150m
+pisces_zooms_diags_int=0 # 16.2.4 PISCES Details on Drake(2), Kerguelen(3), Campbell(4) or all(1) plots of concentrations integrated between surface and 150m
+pisces_coupes_aus=0      # 16.3.1 PISCES coupes australes
+pisces_coupes_clim=0     # 16.3.2 PISCES coupes australes compared to climatologies
+mxls_clim=0              # 17. MXL comparison to Boyer-Montegut climatology
+contour=0                # 18. CONTOUR tool
 
 ######################################################################
 ### -3- TIME SERIES Menu :
@@ -125,7 +137,7 @@ contour=1                # 22. CONTOUR tool
 ts_cable=0               #  1. timeserie for cable transport (needs TRP = 1)
 ts_gib=0                 #  2. timeserie for gibraltar (needs GIB =1)
 ts_icemonth=0            #  3. timeserie for ice monthly area, volume, extent (needs ICEMONTH = 1)
-ts_icenoaa=1             #  4. timeserie for ice compared with NOAA data (needs ICEMONTH = 1)
+ts_icenoaa=0             #  4. timeserie for ice compared with NOAA data (needs ICEMONTH = 1)
 ts_icetrd=0              #  5. timeserie for ice trends (needs ICEMONTH = 1)
 ts_maxmoc=0              #  6. timeserie for maximum and minimum MOC (needs MAXMOC = 1 and MHT = 1)
 ts_maxmoc40=0            #  7. timeserie for maximum and minimum MOC at 40 N (needs MAXMOC = 1)
@@ -136,6 +148,11 @@ ts_transports1=0         # 11. timeserie for transports (needs TRP = 1)
 ts_trpsig=0              # 12. timeserie for transports in sigma classes (needs DCT = 1)
 ts_tsmean=0              # 13. timeserie for T-S drifts (needs TSMEAN = 1)
 ts_tsmean_lev=0          # 14. timeserie for T-S drifts compared with Levitus (needs TSMEAN = 1)
+ts_mld_kerg=0            # 15. timeserie for MXL in Kerfix, Plume and SINDIAN boxes (needs KERG = 1)
+ts_ice_kerg=1            # 16. timeserie for Ice in SINDIAN boxes (needs KERG = 1)
+ts_hov_kerg=0            # 17. hovmullers of temperature, salinity and density in Kerfix and Plume  (needs KERG = 1)
+ts_bio_kerg=0            # 18. timeserie for nutrients, primary production, delta CO2 and chlorophyll concentration in Kerfix and Plume (needs KERGb = 1)
+
 
 ######################################################################
 ### Definition for El nino and Gibraltar boxes
@@ -176,6 +193,34 @@ else
   echo GIBWIN and NINO boxes not defined for config $CONFIG
   GIB=0    ; ts_gib=0  # reset to suitable value
   ELNINO=0 ; ts_nino=0 
+fi
+
+# define the I-J window for KERG diags 
+if [ $CONFIG = 'SINDIAN05' ] ; then
+  KERGWIN1='97 100 82 85' # Kerfix (68-69E 50-51S)
+  KERGWIN2='3 6 46 50' # West frontier (21-22E 60-61S)
+  KERGWIN3='121 126 79 85' # Plume3 (80-82E 50-52S)
+  KERGBOX1='1 202 1 50' # Ice Box (20-120E 60-60S)
+  KERGBOX2='1 202 50 79' # Summer max MLD Box (20-120E 52-60S) 
+  KERGBOX3='1 202 91 114' # Winter mx MLD Box (20-120E 40-48S)
+elif [ $CONFIG = 'ORCA05' ] ; then
+  KERGWIN1='711 714 131 134'
+  KERGWIN2='617 620 95 99'
+  KERGWIN3='15 20 128 134'
+  KERGBOX1='615 96 51 99'
+  KERGBOX2='615 96 99 128'
+  KERGBOX3='615 96 140 163'
+elif [ $CONFIG = 'PERIANT05' -o $CONFIG = 'BIOPERIANT05' ] ; then
+  KERGWIN1='711 714 145 148'
+  KERGWIN2='617 620 109 113'
+  KERGWIN3='15 20 141 148'
+  KERGBOX1='615 96 65 113'
+  KERGBOX2='615 96 113 141'
+  KERGBOX3='615 96 154 177'
+else
+  echo KERGUELEN box not defined for config $CONFIG
+  KERG=0
+  KERGb=0
 fi
 
 
@@ -296,18 +341,18 @@ case $MACHINE in
 
     'meolkerg') 
     ### 1. User informations
-    USER=`whoami` ;   REMOTE_USER=`whoami` ; SDIR=$WORKDIR/SDIR
+    USER=`whoami` ;   REMOTE_USER=`whoami` ; SDIR=$WORKDIR
     ### 2. Path to several tools
     ### 2.1 : CDFTOOLS executables
     CDFTOOLS=$HOME/CDFTOOLS_3.0/bin/
     ### 2.2 : CHART/COUPE executables
-    CHARTTOOLS=$HOME/CHART_7.0/
-    CHART=chart25 # name of CHART executable
-    COUPE=coupe25 # name of COUPE executable
+    CHARTTOOLS=$HOME/bin/
+    CHART=chart # name of CHART executable
+    COUPE=coupe # name of COUPE executable
     ### 2.3 : Directory of the DMONTOOLS scripts
-    PRODTOOLS=$HOME/DMONTOOLS/MONITOR_PROD    # MONITOR PROD
-    PLOTTOOLS=$HOME/DMONTOOLS/PLOT_2D         # PLOT 2D
-    TIMESERIES=$HOME/DMONTOOLS/TIME_SERIES    # TIME SERIES
+    PRODTOOLS=$HOME/DMONTOOLS_new/MONITOR_PROD    # MONITOR PROD
+    PLOTTOOLS=$HOME/DMONTOOLS_new/PLOT_2D         # PLOT 2D
+    TIMESERIES=$HOME/DMONTOOLS_new/TIME_SERIES    # TIME SERIES
     DATAOBSDIR=$TIMESERIES/data/NC
     ### 2.4 : Directory of the MPI_TOOLS executables
     MPITOOLS=$WORKDIR/bin/

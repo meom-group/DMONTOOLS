@@ -41,6 +41,10 @@ ts_transports1=0
 ts_trpsig=0
 ts_tsmean=0
 ts_tsmean_lev=0
+ts_mld_kerg=1
+ts_ice_kerg=0 
+ts_hov_kerg=1 
+ts_bio_kerg=1
 
 #############################################################################
 
@@ -60,6 +64,10 @@ if [ $ts_icemonth == 1 ]    ; then icemonth.py     ; fi
 if [ $ts_icenoaa == 1 ]     ; then icenoaa.py      ; fi
 if [ $ts_nino == 1 ]        ; then nino.py         ; fi
 if [ $ts_trpsig == 1 ]      ; then trpsig.py       ; fi
+if [ $ts_mld_kerg == 1 ]    ; then mldkerg.py      ; fi
+if [ $ts_ice_kerg == 1 ]    ; then icekerg.py      ; fi
+if [ $ts_hov_kerg == 1 ]    ; then hovkerg.py      ; fi
+if [ $ts_bio_kerg == 1 ]    ; then chlkerg.py; co2kerg.py; nutkerg.py; ppkerg.py; fi
 
 ## Annual diags
 if [ $ts_icetrd == 1 ]      ; then icetrd.py       ; icetrd_min.py  ; fi

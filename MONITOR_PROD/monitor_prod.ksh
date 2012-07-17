@@ -638,7 +638,239 @@ if [        $GIB  !=  0    ] ; then
        mkmonthlylevitusgib ;;
   esac
 fi
-  
+
+# KERG dynamical diagnostics : temperature, salinity and density surface and profile, ice concentration and thickness, various mxl depths and solar radiation, input files : gridT icemod and MXL, mesh masks
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+if [        $KERG  !=  0    ] ; then
+  file_lst=''
+
+  for TAG in $(mktaglist $KERG) ; do
+   # get gridT file
+   rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY ${CONFCASE}_${TAG}_gridT.nc
+   rapatrie ${CONFCASE}_${TAG}_icemod.nc $MEANY ${CONFCASE}_${TAG}_icemod.nc
+   rapatrie ${CONFCASE}_${TAG}_MXL.nc $MEANY ${CONFCASE}_${TAG}_MXL.nc
+
+   # get mesh mask files
+   rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+   rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
+   rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
+
+   #
+   suf=$( getsuffix $TAG )
+   fbase=${CONFCASE}_y${YEAR}${suf}
+
+   for k in $(seq 1 6); do
+
+   case $k in
+     1) KERGWIN=$KERGWIN1 ;;
+     2) KERGWIN=$KERGWIN2 ;;
+     3) KERGWIN=$KERGWIN3 ;;
+     4) KERGWIN=$KERGBOX1 ;;
+     5) KERGWIN=$KERGBOX2 ;;
+     6) KERGWIN=$KERGBOX3 ;;
+   esac
+
+   for var in votemper vosaline ileadfra iicethic somxl010 somxl030 somxlt02 soshfldo vosigma0; do
+
+     case $var in
+       votemper|vosaline|soshfldo) file=${CONFCASE}_${TAG}_gridT.nc;;
+       ileadfra|iicethic) file=${CONFCASE}_${TAG}_icemod.nc;;
+       somxl010|somxl030|somxlt02) file=${CONFCASE}_${TAG}_MXL.nc;;
+       vosigma0) cdfsig0 ${CONFCASE}_${TAG}_gridT.nc
+                 file=sig0.nc;;
+     esac
+
+     fkerg_nc=${fbase}_${var}_KERG$k.nc
+     file_lst="$file_lst $fkerg_nc"
+
+     MONTH=`echo ${TAG} | awk -Fm '{print $2}'`
+
+   case $k in
+     1|2|3)
+     rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+     rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
+     rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
+     cdfmean ${file} ${var} T $KERGWIN 0 0
+     ncrename -h -v mean_${var},mean_${var}_KERG$k cdfmean.nc
+     ncrename -h -v mean_3D${var},mean_3D${var}_KERG$k cdfmean.nc
+     concat_file ${TAG} cdfmean.nc $fkerg_nc;;
+
+     4|5|6)
+
+     case $CONFIG in
+
+       'ORCA05'|'PERIANT05'|'BIOPERIANT05')
+         rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+         rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
+         rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
+
+         latwin=$( echo $KERGWIN | awk  '{ print $3 }' )
+         latwin1=`expr $latwin - 1`
+         latwin=$( echo $KERGWIN | awk  '{ print $4 }' )
+         latwin2=`expr $latwin - 1`
+
+         cdfclip -f mask.nc -zoom $KERGWIN
+         mv cdfclip.nc mask.nc
+         ncks -O -a -d x,2,721 mesh_hgr.nc mesh_hgrz.nc
+         ncks -O -a -d x,612,93 -d y,$latwin1,$latwin2 mesh_hgrz.nc mesh_hgr.nc
+         ncks -O -a -d x,2,721 mesh_zgr.nc mesh_zgrz.nc
+         ncks -O -a -d x,612,93 -d y,$latwin1,$latwin2 mesh_zgrz.nc mesh_zgr.nc
+
+         cdfclip -f ${file} -zoom $KERGWIN
+         filez=${CONFCASE}_${TAG}_tmpZ.nc
+         mv cdfclip.nc $filez
+
+         cdfmean $filez $var T
+         ncrename -h -v mean_$var,mean_${var}_KERG$k cdfmean.nc
+         ncrename -h -v mean_3D$var,mean_3D${var}_KERG$k cdfmean.nc
+         concat_file ${TAG} cdfmean.nc $fkerg_nc;;
+
+       'SINDIAN05'|'BIOSINDIAN05')
+         rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+         rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
+         rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
+
+         cdfmean ${file} $var T $KERGWIN 0 0
+         ncrename -h -v mean_${var},mean_${var}_KERG$k cdfmean.nc
+         ncrename -h -v mean_3D${var},mean_3D${var}_KERG$k cdfmean.nc
+         concat_file ${TAG} cdfmean.nc $fkerg_nc;;
+
+   esac
+
+
+  esac
+  done
+done
+
+  for suf in _1m _1y ; do
+    fbase=${CONFCASE}_y${YEAR}${suf}
+    fkerg_nc=${fbase}_KERG.nc
+    tmplst=''
+    for f in $file_lst ; do
+      tmplst="$tmplst $(echo $f | grep $fbase )"
+    done
+    merge_files $fkerg_nc $tmplst
+    if [ -f $fkerg_nc ] ; then
+      define_diags_dir $fkerg_nc
+      expatrie  $fkerg_nc $DIAGSOUT $fkerg_nc
+    fi
+  done
+ done
+fi
+
+# KERG biogeochemical diagnostics : nutrients, chlorophyll and pp profiles and co2 fluxes, input files : ptrcT diadT, mesh masks
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+if [        $KERGb  !=  0    ] ; then
+  file_lst=''
+  for TAG in $(mktaglist $KERG) ; do
+   # get gridT file
+   rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
+   rapatrie ${CONFCASE}_${TAG}_diadT.nc $MEANY ${CONFCASE}_${TAG}_diadT.nc
+
+   # get mesh mask files
+   rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+   rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
+   rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
+
+   #
+   suf=$( getsuffix $TAG )
+   fbase=${CONFCASE}_y${YEAR}${suf}
+
+   for k in $(seq 1 6); do
+
+   case $k in
+     1) KERGWIN=$KERGWIN1 ;;
+     2) KERGWIN=$KERGWIN2 ;;
+     3) KERGWIN=$KERGWIN3 ;;
+     4) KERGWIN=$KERGBOX1 ;;
+     5) KERGWIN=$KERGBOX2 ;;
+     6) KERGWIN=$KERGBOX3 ;;
+   esac
+
+   for var in NO3 DCHL NCHL Fer Si PO4 PPPHY PPPHY2 Delc; do
+
+      case $var in
+        NO3|DCHL|NCHL|Fer|Si|PO4) file=${CONFCASE}_${TAG}_ptrcT.nc;;
+        PPPHY|PPPHY2|Delc)        file=${CONFCASE}_${TAG}_diadT.nc;;
+      esac
+
+      fkerg_nc=${fbase}_${var}_KERG$k.nc
+      file_lst="$file_lst $fkerg_nc"
+
+      MONTH=`echo ${TAG} | awk -Fm '{print $2}'`
+
+      case $k in
+        1|2|3)
+        rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+        rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
+        rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
+        cdfmean ${file} $var T $KERGWIN 0 0
+        ncrename -h -v mean_$var,mean_${var}_KERG$k cdfmean.nc
+        ncrename -h -v mean_3D$var,mean_3D${var}_KERG$k cdfmean.nc
+        concat_file ${TAG} cdfmean.nc $fkerg_nc ;;
+
+        4|5|6)
+
+        case $CONFIG in
+
+          'ORCA05'|'PERIANT05'|'BIOPERIANT05')
+           rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+           rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
+           rapatrie  ${MESH_MASK_ID}__mesh_zgr.nc $IDIR mesh_zgr.nc
+
+           latwin=$( echo $KERGWIN | awk  '{ print $3 }' )
+           latwin1=`expr $latwin - 1`
+           latwin=$( echo $KERGWIN | awk  '{ print $4 }' )
+           latwin2=`expr $latwin - 1`
+           cdfclip -f mask.nc -zoom $KERGWIN
+           mv cdfclip.nc mask.nc
+           ncks -O -a -d x,2,721 mesh_hgr.nc mesh_hgrz.nc
+           ncks -O -a -d x,612,93 -d y,$latwin1,$latwin2 mesh_hgrz.nc mesh_hgr.nc
+           ncks -O -a -d x,2,721 mesh_zgr.nc mesh_zgrz.nc
+           ncks -O -a -d x,612,93 -d y,$latwin1,$latwin2 mesh_zgrz.nc mesh_zgr.nc
+
+           cdfclip -f ${file} -zoom $KERGWIN
+           filez=${CONFCASE}_${TAG}_tmpZ.nc
+           mv cdfclip.nc $filez
+
+           cdfmean $filez $var T
+           ncrename -h -v mean_$var,mean_${var}_KERG$k cdfmean.nc
+           ncrename -h -v mean_3D$var,mean_3D${var}_KERG$k cdfmean.nc
+           concat_file ${TAG} cdfmean.nc $fkerg_nc;;
+
+          'SINDIAN05'|'BIOSINDIAN05')
+           rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+           rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
+           rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
+
+           cdfmean ${file} $var T $KERGWIN 0 0
+           ncrename -h -v mean_${var},mean_${var}_KERG$k cdfmean.nc
+           ncrename -h -v mean_3D${var},mean_3D${var}_KERG$k cdfmean.nc
+           concat_file ${TAG} cdfmean.nc $fkerg_nc;;
+       esac
+     esac
+   done
+   done
+
+  for suf in _1m _1y ; do
+    fbase=${CONFCASE}_y${YEAR}${suf}
+    fkerg_nc=${fbase}_KERGb.nc
+    tmplst=''
+    for f in $file_lst ; do
+      tmplst="$tmplst $(echo $f | grep $fbase )"
+    done
+    merge_files $fkerg_nc $tmplst
+    if [ -f $fkerg_nc ] ; then
+      define_diags_dir $fkerg_nc
+      expatrie  $fkerg_nc $DIAGSOUT $fkerg_nc
+    fi
+  done
+ done
+fi
+
+ 
 # Ice Volume area and extent for all months: input file : icemod, and mesh_mask
 #  keyword : ICEMONTH file_id :  icemonth
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

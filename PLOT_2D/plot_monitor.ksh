@@ -748,6 +748,281 @@ eof
   done
   rm *.cgm *.jpg
                         fi
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
+# 5.2.3 : Atmospheric fluxes
+#------------------------------------
+                       if [ $zoomFLX != 0 ] ; then
+ if [ $zoomFLX == 1 ]; then list_bas='DRAKE KERGUELEN CAMPBELL'; fi
+ if [ $zoomFLX == 2 ]; then list_bas='DRAKE'; fi
+ if [ $zoomFLX == 3 ]; then list_bas='KERGUELEN'; fi
+ if [ $zoomFLX == 4 ]; then list_bas='CAMPBELL'; fi
+
+
+  # get files  gridT
+  t=${CONFCASE}_y${YEAR}_gridT.nc
+
+  for BASIN in $list_bas ; do
+    case $BASIN in
+          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+    esac
+
+  # reset the list of plots that are produced ( list is updated in mkplt )
+  listplt=' '
+
+  # plot the heat flux (w/m2) and fresh water flux (mm/day) (scaled by 86400 from kg/m2/s)
+  OPTIONS=""
+  MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED3" ; CNTICE="" ; FORMAT='-format PALETTE I4'
+    for var in HeatFlx WaterFlx WaterDmp CDWaterFlx ; do
+      STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}_DEPTH=@CLR_DEPTH@"
+      filout=${CONFIG}_${var}_${YEAR}-${CASE}
+      if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
+         rapatrie $t    $MEANY $t
+         case $var in
+           HeatFlx)    clrvar=sohefldo ; CLRDATA=" -clrdata $t"              ; min=-140 ; max=140  ; pas=15 ;;
+           WaterFlx)   clrvar=sowaflup ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+           WaterDmp)   clrvar=sowafldp ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+           CDWaterFlx) clrvar=sowaflcd ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+         esac
+         CLRLIM="-clrmin $min -clrmax $max -clrmet 1"
+         basplt  ; mkplt $filout
+      fi
+    done
+
+    # dispose to gaya all plots in the listplt
+    puttogaya  $BASIN
+done
+                         fi
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
+# 5.2.4 : MXL 
+#------------------------------------
+                          if [ $zoomMXL != 0 ] ; then
+if [ $zoomMXL == 1 ]; then list_bas='DRAKE KERGUELEN CAMPBELL'; fi
+if [ $zoomMXL == 2 ]; then list_bas='DRAKE'; fi
+if [ $zoomMXL == 3 ]; then list_bas='KERGUELEN'; fi
+if [ $zoomMXL == 4 ]; then list_bas='CAMPBELL'; fi
+
+ basmxlplt(){ $CHART $STRING $zoom -proj ME -xstep 10 -ystep 5 \
+              $CLRDATA -noint -p $PAL2 -english $clrvar -clrmark zclrmark -forcexy -xyplot $POS -o $1 $FORMAT ;}
+
+
+  # get files  for MXL in m03 and m09
+  mxl3=${CONFCASE}_y${YEAR}m03_MXL.nc
+  mxl9=${CONFCASE}_y${YEAR}m09_MXL.nc
+
+
+  # this plot have 2 frames on the panel up= march, down=september
+  up='.1 .9 .57 .9'
+  down=' .1 .9 .2 .53'
+
+  for BASIN in $list_bas ; do
+    case $BASIN in
+          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+    esac
+  listplt=' '
+
+    for crit in rho0.01 rho0.03 tem0.20 ; do
+      var=MLD$crit
+      filout=${CONFIG}_${var}_${bas}_${DATE}-${CASE}
+      if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent  ] ; then
+        rapatrie $mxl3 $MEANY $mxl3
+        rapatrie $mxl9 $MEANY $mxl9
+         case $crit in
+          rho0.01 ) clrvar="-clrvar somxl010" ;;
+          rho0.03 ) clrvar="-clrvar somxl030" ;;
+          tem0.20 ) clrvar="-clrvar somxlt02" ;;
+        esac
+        # march
+        filout1=gm1 ; POS=$up  ; CLRDATA="-clrdata $mxl3" ; STRING="-string 0.5 0.97 1.0 0 ${CONFCASE}_${var} -string 0.5 0.94 1.0 0 m03-m09_${bas}_${DATE}"
+        basmxlplt $filout1
+        # september
+        filout2=gm2 ; POS=$down  ; CLRDATA="-clrdata $mxl9"; STRING=""
+        basmxlplt $filout2
+        # merge frame
+        \rm -f gmeta
+        med -e 'r gm1' -e 'r gm2' -e '1,2 merge' -e '1 w gmeta'
+
+        mkplt $filout
+      fi
+    done
+    puttogaya  $BASIN
+  done
+  rm gm* *.cgm *.jpg
+                        fi
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
+# 5.2.5 : Ice
+#------------------------------------
+                        if [ $zoomICE != 0 ] ; then
+if [ $zoomICE == 1 ]; then list_bas='DRAKE KERGUELEN CAMPBELL'; fi
+if [ $zoomICE == 2 ]; then list_bas='DRAKE'; fi
+if [ $zoomICE == 3 ]; then list_bas='KERGUELEN'; fi
+if [ $zoomICE == 4 ]; then list_bas='CAMPBELL'; fi
+
+  # plot ice thickness for march and september
+    cat << eof > S_thick.lim
+0
+0.15
+0.30
+0.45
+0.60
+0.75
+0.90
+1.05
+1.20
+1.35
+1.50
+1.65
+1.80
+1.95
+2.10
+2.50
+3.00
+3.50
+4.50
+eof
+   cat << eof > thick.lim
+0
+0.5
+1
+1.5
+2
+2.5
+3
+3.5
+4
+4.5
+5
+5.5
+6
+6.5
+7
+7.5
+8
+8.5
+9
+eof
+  for mm in 3 9 ; do
+    m=$( printf "%02d" $mm )
+    ice=${CONFCASE}_y${YEAR}m${m}_icemod.nc
+
+    tmp=${ice#${CONFCASE}_y} ; tag=${tmp%_*}
+    year=$( echo $tag | awk -Fm '{print $1}' )
+    month=$( echo $tag | awk -Fm '{print $2}' )
+    icetxt=${CONFCASE}_y${YEAR}_icemonth.txt
+    rapatrie $icetxt $DIAGS/TXT $icetxt
+    case $month in
+      01 ) month_name=Jan ;;
+      02 ) month_name=Feb ;;
+      03 ) month_name=Mar ;;
+      04 ) month_name=Apr ;;
+      05 ) month_name=May ;;
+      06 ) month_name=Jun ;;
+      07 ) month_name=Jul ;;
+      08 ) month_name=Aug ;;
+      09 ) month_name=Sep ;;
+      10 ) month_name=Oct ;;
+      11 ) month_name=Nov ;;
+      12 ) month_name=Dec ;;
+    esac
+
+    for BASIN in $list_bas ; do
+      case $BASIN in
+          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+      esac
+      listplt=' '
+      surf=$( grep -A 12 -e "$YEAR $m" $icetxt | grep SExtend  | awk '{printf "%5.1f",  $NF/1000}' )
+      volu=$( grep -A 12 -e "$YEAR $m" $icetxt | grep SVolume  | awk '{printf "%5.1f",  $NF/1000}' )
+      filout=${CONFIG}_S_ithic_${bas}_${month}_${YEAR}-${CASE}
+      if [ $( chkfile $PLOTDIR/ICE/$filout.cgm ) == absent ] ; then
+        rapatrie $ice $MEANY $ice
+        $CHART -forcexy -clrdata $ice -clrvar iicethic -clrlim S_thick.lim -p $PALBLUE2RED4 \
+        -proj ME -vertpal $zoom  -spval 0  -xstep 10 -xgrid -ystep 5 -ygrid \
+        -clrexp -2 -format PALETTE I3  \
+        -clrxypal 0.9 1 0.1 0.9 \
+        -xyplot 0.01 0.8 0.1 0.9 \
+        -string 0 0.97 1.1 -1 " Sea Ice Thickness $bas " -font SIMPLEX_ROMAN -noteam \
+        -string 0 0.94 1.1 -1 " $month_name $year " \
+        -string 0.5 0.97 1.2 -1 " $CONFCASE "  \
+        -string 0.3 0.05 1.1 -1 " Total area = $surf million sq km" \
+        -string 0.3 0.02 1.1 -1 " Volume = $volu cubic km" \
+        -string 0.93 0.07 1.1 1 " (cm)    "
+         mkplt  $filout
+      fi
+      filout=${CONFIG}_S_iconc_${bas}_${month}_${YEAR}-${CASE}
+      if [ $( chkfile $PLOTDIR/ICE/$filout.cgm ) == absent ] ; then
+        rapatrie $ice $MEANY $ice
+        $CHART -forcexy -clrdata $ice -clrvar ileadfra -clrlim ice_noaa.lim -p $PALNOAA \
+        -proj ME -vertpal $zoom  -spval -1 -xstep 10 -xgrid -ystep 5 -ygrid \
+        -clrexp -2 -format PALETTE I3  \
+        -clrxypal 0.9 1 0.1 0.9 \
+        -xyplot 0.01 0.8 0.1 0.9 \
+        -string 0 0.97 1.1 -1 " Sea Ice Concentration $bas" -font SIMPLEX_ROMAN -noteam \
+        -string 0 0.94 1.1 -1 " $month_name $year " \
+        -string 0.5 0.97 1.2 -1 " $CONFCASE "  \
+        -string 0.3 0.03 1.1 -1 " Total area = $surf million sq km" \
+        -string 0.93 0.07 1.1 1 " %    "
+        mkplt  $filout
+      fi
+      puttogaya  $BASIN
+
+     done
+
+   done
+
+
+
+                        fi
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
+# 5.2.6 : EKE
+#------------------------------------
+                        if [ $zoomEKE != 0 ] ; then
+if [ $zoomEKE == 1 ]; then list_bas='DRAKE KERGUELEN CAMPBELL'; fi
+if [ $zoomEKE == 2 ]; then list_bas='DRAKE'; fi
+if [ $zoomEKE == 3 ]; then list_bas='KERGUELEN'; fi
+if [ $zoomEKE == 4 ]; then list_bas='CAMPBELL'; fi
+
+
+  ekeplt() { $CHART $ZOOM -forcexy $STRING $CLRDATA $XYPLOT -p $PAL1 \
+             -clrvar voeke $dep $CLRXYPAL -clrmark zclrmark \
+             $OPTIONS -english -scale 1.e4 ; }
+#-----------
+
+  # get files  EKE
+  eke=${CONFCASE}_y${DATE}_EKE.nc
+
+  min=0 ; max=1000 ; pas=250
+  mklim $min $max $pas > zclrmark
+  CLRDATA=" -clrdata $eke"
+
+  for BASIN in $list_bas ; do
+    listplt=' '
+    case $BASIN in
+         DRAKE)  var=EKEdrak ; ZOOM='-zoom -100 -20 -70 -30' ;;
+     KERGUELEN)  var=EKEkerg ; ZOOM='-zoom 30 110 -70 -30' ;;
+      CAMPBELL)  var=EKEcamp ; ZOOM='-zoom 100 180 -70 -30' ;;
+    esac
+    OPTIONS='-proj ME -xstep 10 -ystep 5'
+    STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${DATE}_${CASE}_DEPTH=@CLR_DEPTH@ "
+    filout=${CONFIG}_${var}_${DATE}-${CASE}
+    XYPLOT='-xyplot 0.1 0.95 0.2 0.9'
+    CLRXYPAL='-clrxypal 0.1 0.95 0.05 0.15'
+    if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
+     rapatrie $eke $MEANY $eke
+     ekeplt ; mkplt $filout
+    fi
+
+    puttogaya  $BASIN
+  done
+                        fi
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 6. Sections in the ocean
 #^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2447,13 +2722,22 @@ eof
 #------------------------------------------------------------------------------
 # 16. PISCES = PISCES plots on the website
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# 16.1 : Global Plots
+#--------------------
 
-                             if [ $pisces_global == 1 ] ; then
+  # generic function for PISCES global plot
 
-  # generic function for moc plot
   glopiplt() { set -x ; $CHART -forcexy $CLRDATA -scale $scale   \
                -clrvar $clrvar -english  \
                $LEV $DEP $PAL $STRING $CLRLIM  $MEAN $FORMAT; }
+  add_var() { ncap -O -s "$4=$2+$3" $1 $5 ;}
+
+#------------------------------------------------------------------
+# 16.1.1 : Global Plots of surface and at 150m depth concentrations
+#------------------------------------------------------------------
+
+
+                             if [ $pisces_global == 1 ] ; then
 
   # get files
   t=${CONFCASE}_y${YEAR}_ptrcT.nc
@@ -2465,73 +2749,384 @@ eof
   PAL="-p $PAL1"
   CLRLIM="-clrmark zclrmark"
   MEAN=""
-  CLRDATA="-clrdata $t"
 
   # Set options
-  for var in DIC TALK O2 PO4 Si NO3 Fer DOC ; do
+  for var in DIC TALK O2 PO4 Si NO3 Fer DOC CHL NCHL DCHL POC PHY PHYnano PHYdiatoms ZOO ZOOmeso ZOOmicro GOC SFe; do
     for dep in 0 150  ; do
-      DEP="-dep $dep"
+      if [ $dep == 0 ]; then
+        DEP=""
+        LEV="-lev 1"
+      else
+        DEP="-dep $dep"
+        LEV=""
+      fi
       filout=${CONFIG}_${var}_${dep}_${YEAR}-${CASE}
       case $var in
-        DIC) clrvar=DIC ; unit="mol-C/L"
+        DIC) clrvar=DIC ; unit="mol-C/L"; CLRDATA="-clrdata $t"
           case $dep in
-            0)  min=2000 ; max=2200  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
-          150)  min=2000 ; max=2200  ; pas=50 ; scale=1.e6 ;;
+            0)  min=2000 ; max=2200  ; pas=50 ; scale=1.e6 ;;
+          150)  min=2000 ; max=2300  ; pas=50 ; scale=1.e6 ;;
           esac ;;
-       TALK) clrvar=Alkalini ; unit="mol-Alk/L"
+       TALK) clrvar=Alkalini ; unit="mol-Alk/L"; CLRDATA="-clrdata $t"
           case $dep in
-            0)  min=2250 ; max=2400  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
-          150)  min=2250 ; max=2400  ; pas=50 ; scale=1.e6 ;;
+            0)  min=2300 ; max=2400  ; pas=50 ; scale=1.e6 ;;
+          150)  min=2300 ; max=2400  ; pas=50 ; scale=1.e6 ;;
           esac ;;
-         O2) clrvar=O2 ; unit="mol-O2/L"
+         O2) clrvar=O2 ; unit="mol-O2/L"; CLRDATA="-clrdata $t"
           case $dep in
-            0)  min=200 ; max=350  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
-          150)  min=0 ; max=300  ; pas=100 ; scale=1.e6 ;;
+            0)  min=200 ; max=350  ; pas=50 ; scale=1.e6 ;;
+          150)  min=200 ; max=300  ; pas=50 ; scale=1.e6 ;;
           esac ;;
-        PO4) clrvar=PO4 ; unit="mol-C/L"
+        PO4) clrvar=PO4 ; unit="mol-C/L"; CLRDATA="-clrdata $t"
           case $dep in
-            0)  min=0 ; max=250  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+            0)  min=0 ; max=050  ; pas=50 ; scale=1.e6 ;;
           150)  min=0 ; max=250  ; pas=50 ; scale=1.e6 ;;
           esac ;;
-         Si) clrvar=Si ; unit="mol-Si/L"
+         Si) clrvar=Si ; unit="mol-Si/L"; CLRDATA="-clrdata $t"
           case $dep in
-            0)  min=0 ; max=50  ; pas=10 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+            0)  min=0 ; max=70  ; pas=10 ; scale=1.e6 ;;
           150)  min=0 ; max=100  ; pas=10 ; scale=1.e6 ;;
           esac ;;
-        NO3) clrvar=NO3 ; unit="mol-C/L"
+        NO3) clrvar=NO3 ; unit="mol-C/L"; CLRDATA="-clrdata $t"
           case $dep in
-            0)  min=0 ; max=220  ; pas=100 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
-          150)  min=0 ; max=260  ; pas=100 ; scale=1.e6 ;;
+            0)  min=0 ; max=150  ; pas=50 ; scale=1.e6 ;;
+          150)  min=0 ; max=200  ; pas=50 ; scale=1.e6 ;;
           esac ;;
-        Fer) clrvar=Fer ; unit="mol-Fe/L"
+        Fer) clrvar=Fer ; unit="mol-Fe/L"; CLRDATA="-clrdata $t"
           case $dep in
-            0)  min=0 ; max=5  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e10 ;;
+            0)  min=0 ; max=5  ; pas=1 ; scale=1.e10 ;;
           150)  min=0 ; max=5  ; pas=1 ; scale=1.e10 ;;
           esac ;;
-        DOC) clrvar=DOC ; unit="mol-C/L"
+        DOC) clrvar=DOC ; unit="mol-C/L"; CLRDATA="-clrdata $t"
           case $dep in
-            0)  min=4 ; max=30  ; pas=2 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
-          150)  min=4 ; max=26  ; pas=2 ; scale=1.e6 ;;
+            0)  min=6 ; max=26  ; pas=2 ; scale=1.e6 ;;
+          150)  min=4 ; max=22  ; pas=2 ; scale=1.e6 ;;
+          esac ;;
+        CHL) clrvar=CHL ; unit="mgCHL/m3*10" ; CLRDATA="-clrdata CHL2.nc"
+          case $dep in
+            0)  min=0 ; max=9  ; pas=1 ; scale=1.e7 ;;
+          150)  min=0 ; max=1  ; pas=0.5 ; scale=1.e7 ;;
+          esac ;;
+       NCHL) clrvar=NCHL ; unit="mgCHL/m3*10"  ; CLRDATA="-clrdata $t"
+          case $dep in
+            0)  min=0 ; max=9  ; pas=1 ; scale=1.e7 ;;
+          150)  min=0 ; max=1  ; pas=0.5 ; scale=1.e7 ;;
+          esac ;;
+       DCHL) clrvar=DCHL ; unit="mgCHL/m3*10"  ; CLRDATA="-clrdata $t"
+          case $dep in
+            0)  min=0 ; max=9  ; pas=1 ; scale=1.e7 ;;
+          150)  min=0 ; max=1  ; pas=0.5 ; scale=1.e7 ;;
+          esac ;;
+        POC) clrvar=POC; unit="mol-C/L" ; CLRDATA="-clrdata $t"
+          case $dep in
+            0)  min=0 ; max=2 ; pas=0.5 ; scale=1.e6 ;;
+          150)  min=0 ; max=1 ; pas=0.5 ; scale=1.e6 ;;
+          esac ;;
+        PHY) clrvar=PHY; unit="mol-C/L" ; CLRDATA="-clrdata PHY2.nc"
+          case $dep in
+            0)  min=0 ; max=4 ; pas=1 ; scale=1.e6 ;;
+          150)  min=0 ; max=1 ; pas=0.5 ; scale=1.e6 ;;
+          esac ;;
+    PHYnano) clrvar=PHY; unit="mol-C/L" ; CLRDATA="-clrdata $t"
+          case $dep in
+            0)  min=0 ; max=4 ; pas=1 ; scale=1.e6 ;;
+          150)  min=0 ; max=1 ; pas=0.5 ; scale=1.e6 ;;
+          esac ;;
+ PHYdiatoms) clrvar=PHY2; unit="mol-C/L" ; CLRDATA="-clrdata $t"
+          case $dep in
+            0)  min=0 ; max=4 ; pas=1 ; scale=1.e6 ;;
+          150)  min=0 ; max=1 ; pas=0.5 ; scale=1.e6 ;;
+          esac ;;
+        ZOO) clrvar=ZOO; unit="mol-C/L" ; CLRDATA="-clrdata ZOO2.nc"
+          case $dep in
+            0)  min=0 ; max=2  ; pas=0.5 ; scale=1.e6 ;;
+          150)  min=0 ; max=5  ; pas=1 ; scale=1.e7 ;;
+          esac ;;
+    ZOOmeso) clrvar=ZOO2; unit="mol-C/L" ; CLRDATA="-clrdata $t"
+          case $dep in
+            0)  min=0 ; max=2  ; pas=0.5 ; scale=1.e6 ;;
+          150)  min=0 ; max=5  ; pas=1 ; scale=1.e7 ;;
+          esac ;;
+   ZOOmicro) clrvar=ZOO; unit="mol-C/L" ; CLRDATA="-clrdata $t"
+          case $dep in
+            0)  min=0 ; max=2  ; pas=0.5 ; scale=1.e6 ;;
+          150)  min=0 ; max=5  ; pas=1 ; scale=1.e7 ;;
+          esac ;;
+        GOC) clrvar=GOC; unit="mol-C/L"  ; CLRDATA="-clrdata $t"
+          case $dep in
+            0)  min=0 ; max=3  ; pas=0.5 ; scale=1.e7 ;;
+          150)  min=0 ; max=2  ; pas=0.5 ; scale=1.e7 ;;
+          esac ;;
+        SFe) clrvar=SFe; unit="mol-Fe/L"  ; CLRDATA="-clrdata $t"
+          case $dep in
+            0)  min=0 ; max=2  ; pas=0.5 ; scale=1.e11 ;;
+          150)  min=0 ; max=2  ; pas=0.5 ; scale=1.e11 ;;
           esac ;;
       esac
       if [ $( chkfile $PLOTDIR/PISCES/GLOBAL/$filout.cgm) == absent ] ; then
         rapatrie $t $MEANY $t
-        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${YEAR}_DEPTH=@CLR_DEPTH@"
+        # Compute total CHL if necessary
+        case $var in
+          CHL) add_var $t NCHL DCHL CHL CHL2.nc ;;
+          PHY) add_var $t PHY PHY2 PHY PHY2.nc ;;
+          ZOO) add_var $t ZOO ZOO2 ZOO ZOO2.nc ;;
+           * ) skip=1 ;;
+        esac
+        STRING1=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}"
+        STRING2=" -string 0.5 0.80 1.0 0 ${unit}*${scale}_DEPTH=@CLR_DEPTH@"
         mklim $min $max $pas > zclrmark
         glopiplt  ; mkplt $filout
       fi
     done
   done
 
-  puttogaya PISCES/GLOBAL
+  puttogayatrc PISCES GLOBAL
 
                              fi
 
-#------------------------------------------------------------------------------
-# 17. PISCES_OBS = PISCES comparison to climatologies on the website
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#----------------------------------------------
+# 16.1.2 : Global Plots of diagnostics variable
+#----------------------------------------------
 
-                             if [ $pisces_clim == 1 ] ; then
+
+                             if [ $pisces_diags == 1 ] ; then
+
+  # get files
+  t=${CONFCASE}_y${YEAR}_diadT.nc
+
+  # reset the list of plots that are produced ( list is updated in mkplt )
+  listplt=' '
+
+  # Common values for this group of plots
+  PAL="-p $PAL1"
+  CLRLIM="-clrmark zclrmark"
+  MEAN=""
+
+  # Set options
+  for var in PPdiatoms PPnano PPtot PNEWnano PNEWdiatoms PNEW  PH PAR ; do
+    for dep in 0 150  ; do
+      if [ $dep == 0 ]; then
+        DEP=""
+        LEV="-lev 1"
+      else
+        DEP="-dep $dep"
+        LEV=""
+      fi
+      filout=${CONFIG}_${var}_${dep}_${YEAR}-${CASE}
+      case $var in
+        PPdiatoms) clrvar=PPPHY2 ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
+          case $dep in
+            0) scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+          150) scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+          esac ;;
+     PPnano) clrvar=PPPHY ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
+          case $dep in
+            0) scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+          150) scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+          esac ;;
+      PPtot) clrvar=PPPHY ; unit="molC/m3/s" ;CLRDATA="-clrdata PPPHY2.nc" ;
+          case $dep in
+            0) scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+          150) scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+          esac ;;
+ PNEWnano) clrvar=PPNEWN ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
+          case $dep in
+            0) scale=1.e9   ; min=0 ; max=10  ; pas=1 ;;
+          150) scale=1.e9   ; min=0 ; max=10  ; pas=1 ;;
+          esac ;;
+PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
+          case $dep in
+            0) scale=1.e9   ; min=0 ; max=10  ; pas=1 ;;
+          150) scale=1.e9   ; min=0 ; max=10  ; pas=1 ;;
+          esac ;;
+       PNEW) clrvar=PPNEWN ; unit="molC/m3/s" ;CLRDATA="-clrdata PPNEW2.nc" ;
+          case $dep in
+            0) scale=1.e9   ; min=0 ; max=10  ; pas=1 ;;
+          150) scale=1.e9   ; min=0 ; max=10  ; pas=1 ;;
+          esac ;;
+         PH) clrvar=PH ; unit="" ;CLRDATA="-clrdata $t";
+          case $dep in
+            0) scale=1.e9   ; min=6 ; max=8  ; pas=1 ;;
+          150) scale=1.e9   ; min=6 ; max=8  ; pas=1 ;;
+          esac ;;
+        PAR) clrvar=PAR ; unit="W/m2" ;CLRDATA="-clrdata $t";
+          case $dep in
+             0) scale=1   ; min=0 ; max=50  ; pas=10 ;;
+           150) scale=1   ; min=0 ; max=50  ; pas=10 ;;
+           esac ;;
+#        EXPsmall) clrvar=PMO ; unit="molC/m2/s" ;CLRDATA="-clrdata $t";
+#                  case $dep in  
+#                   0) scale=   ; min= ; max=  ; pas= ;;
+#                 150) scale=   ; min= ; max=  ; pas= ;;
+#                  esac ;;
+#          EXPbig) clrvar=PMO2 ; unit="molC/m2/s" ;CLRDATA="-clrdata $t";
+#                  case $dep in  
+#                   0) scale=   ; min= ; max=  ; pas= ;;
+#                 150) scale=   ; min= ; max=  ; pas= ;;
+#                  esac ;;
+#          EXPtot) clrvar=PMO ; unit="molC/m2/s" ; CLRDATA="-clrdata PMO2.nc" ;
+#                  case $dep in  
+#                   0) scale=   ; min= ; max=  ; pas= ;;
+#                 150) scale=   ; min= ; max=  ; pas= ;;
+#                  esac ;;
+      esac
+      if [ $( chkfile $PLOTDIR/PISCES/GLOBAL/$filout.cgm) == absent ] ; then
+        rapatrie $t $MEANY $t
+        # Compute total CHL if necessary
+        case $var in
+        PPtot) add_var $s PPPHY2 PPPHY PPPHY PPPHY2.nc ;;
+         PNEW) add_var $s PPNEWN PPNEWD PPNEW PPNEW2.nc ;;
+#       EXPtot) add_var $t PMO PMO2 PMO PMO2.nc ;;
+           * ) skip=1 ;;
+        esac
+        STRING1=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}"
+        STRING2=" -string 0.5 0.80 1.0 0 ${unit}*${scale}_DEPTH=@CLR_DEPTH@"
+        mklim $min $max $pas > zclrmark
+        glopiplt  ; mkplt $filout
+      fi
+    done
+  done
+
+  for var in DICFlx O2Flx DeltaCO2 Fedep; do
+      filout=${CONFIG}_${var}_${DATE}-${CASE}
+      case $var in
+          DICFlx) clrvar=Cflx ; unit="molC/m2/s" ;
+                  scale=1.e8 ; min=-7 ; max=6  ; pas=1 ; PAL="-p $PALBLUE2RED3" ;;
+           O2Flx) clrvar=Oflx ; unit="molC/m2/s" ;
+                  scale=1.e8 ; min=-24 ; max=22  ; pas=2 ; PAL="-p $PALBLUE2RED3" ;;
+        DeltaCO2) clrvar=Delc ; unit="uatm" ;
+                  scale=1    ; min=-50 ; max=45  ; pas=5 ; PAL="-p $PALBLUE2RED3" ;;
+           Fedep) clrvar=Fedep ; unit="molFe/m2/s" ;
+                  scale=1.e14   ; min=0 ; max=16  ; pas=2 ; PAL="-p $PAL2";;
+        esac
+      if [ $( chkfile $PLOTDIR/PISCES/GLOBAL/$filout.cgm) == absent ] ; then
+        rapatrie $t $MEANY $t
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${DATE}"
+        mklim $min $max $pas > zclrmark
+        glopiplt  ; mkplt $filout
+      fi
+  done
+
+  puttogayatrc PISCES GLOBAL
+
+                             fi
+#----------------------------------------------------------------------------
+# 16.1.3 : Global Plots of concentrations integrated between surface and 150m
+#----------------------------------------------------------------------------
+
+                             if [ $pisces_global_int == 1 ] ; then
+
+  # get files
+  t=${CONFCASE}_y${YEAR}_biovertmean.nc
+
+  # reset the list of plots that are produced ( list is updated in mkplt )
+  listplt=' '
+
+  # Common values for this group of plots
+  PAL="-p $PAL1"
+  CLRLIM="-clrmark zclrmark"
+  MEAN=""
+
+  # Set options
+  for var in DIC TALK O2 PO4 Si NO3 Fer DOC CHL NCHL DCHL POC PHY PHYnano PHYdiatoms ZOO ZOOmeso ZOOmicro GOC SFe; do
+      CLRDATA="-clrdata $t"
+      filout=${CONFIG}_${var}_int0-150m_${DATE}-${CASE}
+      case $var in
+        DIC) clrvar=vertmean_DIC ; unit="mol-C/L";CLRDATA="-clrdata $t";  min=2000 ; max=2200  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+       TALK) clrvar=vertmean_Alkalini ; unit="mol-Alk/L" ;CLRDATA="-clrdata $t";  min=2300 ; max=2400  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+         O2) clrvar=vertmean_O2 ; unit="mol-O2/L" ;CLRDATA="-clrdata $t";  min=200 ; max=300  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        PO4) clrvar=vertmean_PO4 ; unit="mol-C/L" ;CLRDATA="-clrdata $t";  min=0 ; max=250  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+         Si) clrvar=vertmean_Si ; unit="mol-Si/L" ;CLRDATA="-clrdata $t";  min=0 ; max=80  ; pas=20 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        NO3) clrvar=vertmean_NO3 ; unit="mol-C/L" ;CLRDATA="-clrdata $t";  min=0 ; max=250  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        Fer) clrvar=vertmean_Fer ; unit="mol-Fe/L" ;CLRDATA="-clrdata $t";  min=0 ; max=5  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e10 ;;
+        DOC) clrvar=vertmean_DOC ; unit="mol-C/L" ;CLRDATA="-clrdata $t";  min=4 ; max=26  ; pas=2 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        CHL) clrvar=vertmean_CHL ; unit="mgCHL/m3*10" ; CLRDATA="-clrdata CHL2.nc"; min=0 ; max=9  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e7 ;;
+       NCHL) clrvar=vertmean_NCHL ; unit="mgCHL/m3*10"  ;CLRDATA="-clrdata $t";  min=0 ; max=9  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e7 ;;
+       DCHL) clrvar=vertmean_DCHL ; unit="mgCHL/m3*10"  ;CLRDATA="-clrdata $t";  min=0 ; max=9  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e7 ;;
+        POC) clrvar=vertmean_POC; unit="mol-C/L" ;CLRDATA="-clrdata $t";  min=0 ; max=2 ; pas=0.5 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        PHY) clrvar=vertmean_PHY; unit="mol-C/L" ; CLRDATA="-clrdata PHY2.nc"; min=0 ; max=4 ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+    PHYnano) clrvar=vertmean_PHY; unit="mol-C/L" ;CLRDATA="-clrdata $t";  min=0 ; max=2 ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+ PHYdiatoms) clrvar=vertmean_PHY2 unit="mol-C/L" ;CLRDATA="-clrdata $t";  min=0 ; max=2 ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        ZOO) clrvar=vertmean_ZOO; unit="mol-C/L" ; CLRDATA="-clrdata ZOO2.nc"; min=0 ; max=3  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+   ZOOmicro) clrvar=vertmean_ZOO; unit="mol-C/L" ;CLRDATA="-clrdata $t";  min=0 ; max=3  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+    ZOOmeso) clrvar=vertmean_ZOO2 unit="mol-C/L" ;CLRDATA="-clrdata $t";  min=0 ; max=3  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        GOC) clrvar=vertmean_GOC; unit="mol-C/L"  ;CLRDATA="-clrdata $t";  min=0 ; max=3  ; pas=0.5 ; LEV="-lev 1" ; DEP="" ; scale=1.e7 ;;
+        SFe) clrvar=vertmean_SFe; unit="mol-Fe/L"  ;CLRDATA="-clrdata $t";  min=0 ; max=0.5  ; pas=0.25 ; LEV="-lev 1" ; DEP="" ; scale=1.e10 ;;
+      esac
+      if [ $( chkfile $PLOTDIR/PISCES/GLOBAL/$filout.cgm) == absent ] ; then
+        rapatrie $t $DIAGS $t
+        # Compute total CHL if necessary
+        case $var in
+          CHL) add_var $t vertmean_NCHL vertmean_DCHL vertmean_CHL CHL2.nc ;;
+          PHY) add_var $t vertmean_PHY vertmean_PHY2 vertmean_PHY PHY2.nc ;;
+          ZOO) add_var $t vertmean_ZOO vertmean_ZOO2 vertmean_ZOO ZOO2.nc ;;
+           * ) skip=1 ;;
+        esac
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${DATE}_int0-150m"
+        mklim $min $max $pas > zclrmark
+        glopiplt  ; mkplt $filout
+      fi
+  done
+  puttogayatrc PISCES GLOBAL
+
+                             fi
+#----------------------------------------------------------------------------
+# 16.1.4 : Global Plots of diagnostics integrated between surface and 150m
+#----------------------------------------------------------------------------
+
+                             if [ $pisces_diags_int == 1 ] ; then
+  # get files
+  t=${CONFCASE}_y${YEAR}_biovertmean.nc
+
+  # reset the list of plots that are produced ( list is updated in mkplt )
+  listplt=' '
+
+  # Common values for this group of plots
+  PAL="-p $PAL1"
+  CLRLIM="-clrmark zclrmark"
+  MEAN=""
+
+  # Set options
+  for var in PPdiatoms PPnano PPtot PNEWnano PNEWdiatoms PNEW  PH PAR; do
+      CLRDATA="-clrdata $t"
+      filout=${CONFIG}_${var}_int0-150m_${DATE}-${CASE}
+      case $var in
+  PPdiatoms) clrvar=vertmean_PPPHY2 ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+     PPnano) clrvar=vertmean_PPPHY ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+   PNEWnano) clrvar=vertmean_PPNEWN ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  scale=1.e9   ; min=0 ; max=1  ; pas=0.25 ;;
+PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  scale=1.e9   ; min=0 ; max=1  ; pas=0.25 ;;
+       PNEW) clrvar=vertmean_PPNEWN ; unit="molC/m3/s" ;CLRDATA="-clrdata PPNEW2.nc" ; scale=1.e9   ; min=0 ; max=1  ; pas=0.25 ;;
+         PH) clrvar=vertmean_PH ; unit="" ;CLRDATA="-clrdata $t";  scale=1.e9   ; min=6 ; max=7  ; pas=0.25 ;;
+        PAR) clrvar=vertmean_PAR ;CLRDATA="-clrdata $t"; unit="W/m2" ; scale=1   ; min=0 ; max=10  ; pas=1 ;;
+#  EXPsmall) clrvar=vertmean_PMO ; unit="molC/m2/s" ; scale=   ; min= ; max=  ; pas= ;;
+#    EXPbig) clrvar=vertmean_PMO2 ; unit="molC/m2/s" ; scale=   ; min= ; max=  ; pas= ;;
+#    EXPtot) clrvar=vertmean_PMO ; unit="molC/m2/s" ; CLRDATA="-clrdata PMO2.nc" ; scale=   ; min= ; max=  ; pas= ;;
+      esac
+      if [ $( chkfile $PLOTDIR/PISCES/GLOBAL/$filout.cgm) == absent ] ; then
+        rapatrie $t $MEANY $t
+        # Compute total CHL if necessary
+        case $var in
+        PPtot) add_var $t vertmean_PPPHY2 vertmean_PPPHY vertmean_PPPHY PPPHY2.nc ;;
+         PNEW) add_var $t vertmean_PPNEWN vertmean_PPNEWD vertmean_PPNEW PPNEW2.nc ;;
+#          EXPtot) add_var $t vertmean_PMO vertmean_PMO2 vertmean_PMO PMO2.nc ;;
+           * ) skip=1 ;;
+        esac
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${DATE}_int0-150m"
+        mklim $min $max $pas > zclrmark
+        glopiplt  ; mkplt $filout
+      fi
+  done
+
+  puttogayatrc PISCES GLOBAL
+
+                             fi
+
+
+#----------------------------------------------------------------
+# 16.1.5 PISCES global comparison to climatologies on the website
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+                             if [ $pisces_global_clim == 1 ] ; then
 
   # generic function for moc plot
   gloclimplt() { set -x ; $CHART -forcexy $CLRDATA -scale $scale   \
@@ -2590,62 +3185,420 @@ eof
 
                            fi
 
-#------------------------------------------------------------------------------
-# 18. MXL_OBS = MXL comparison to Boyer-Montegut climatology on the website
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-                             if [ $mxls_clim == 1 ] ; then
+#-------------------
+# 16.2  PISCES zooms 
+#-------------------
 
-  # generic function for moc plot
-  mxlplt() { $CHART -string 0.5 0.97 1.0 0 ${CONFCASE}_${var}_${month}_${YEAR} \
-             $CLRDATA -noint -ijgrid -noproj -p $PAL2 -english $CLRXYPAL \
-             -clrvar $clrvar -clrmark zclrmark  -xyplot $POS -o $1 $FORMAT ;}
+  # generic function for PISCES zooms plot
+  baspiplt() { set -x ; $CHART -forcexy $zoom $CLRDATA -scale $scale   \
+               -clrvar $clrvar -english  \
+               $LEV $DEP $PAL $STRING $CLRLIM  $MEAN $FORMAT; }
 
+  add_var() { ncap -O -s "$4=$2+$3" $1 $5 ;}
 
-  # reset the list of plots that are produced ( list is updated in mkplt )
-  listplt=' '
+#-------------------------------------------------------------------------------------------------------------------------
+# 16.2.1 PISCES Details on Drake(2), Kerguelen(3), Campbell(4) or all(1) plots of surface and at 150m depth concentrations
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+                            if [ $pisces_zooms == 1 ] ; then
+  # get files
+  t=${CONFCASE}_y${YEAR}_ptrcT.nc
   # Common values for this group of plots
-  up='.1 .95 .58 .95'
-  down=' .1 .95 .20 .57'
-  CLRXYPAL='-clrxypal 0.1 0.95 0.05 0.15'
+  PAL="-p $PAL1"
+  CLRLIM="-clrmark zclrmark"
+  MEAN=""
 
   # Set options
-  for mm in 03 09  ; do
-    mxl_run=${CONFCASE}_y${YEAR}m${mm}_MXL.nc
-    mxl_obs=somxlt02_BM-${CONFIG}_m${mm}_masked.nc
-    var=MLDtem0.20
-    filout=${CONFIG}_dif${var}_m${mm}_${YEAR}-${CASE}
-    clrvar=somxlt02
-    case $mm in
-      03) min=0 ; max=500 ; pas=100 ; month='March' ;;
-      09) min=0 ; max=800 ; pas=100 ; month='September' ;;
+  for BASIN in KERGUELEN ; do
+    case $BASIN in
+          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
     esac
-    if [ $( chkfile $PLOTDIR/MXL/$filout.cgm) == absent ] ; then
-      rapatrie $mxl_run $MEANY $mxl_run
-      rapatrie $mxl_obs $CLIMY $mxl_obs
-      mklim $min $max $pas > zclrmark
-      # obs
-      filout1=gm1 ; POS=$up  ; CLRDATA="-clrdata $mxl_obs"
-      mxlplt $filout1
-      # run
-      filout2=gm2 ; POS=$down  ; CLRDATA="-clrdata $mxl_run"
-      mxlplt $filout2
-      # merge frame
-      \rm -f gmeta
-      med -e 'r gm1' -e 'r gm2' -e '1,2 merge' -e '1 w gmeta'
-      mkplt $filout
-    fi
-   done
+  listplt=' '
+  for var in DIC TALK O2 PO4 Si NO3 Fer DOC CHL NCHL DCHL POC PHY PHYnano PHYdiatoms ZOO ZOOmeso ZOOmicro GOC SFe; do
+    CLRDATA="-clrdata $t"
+    for dep in 0 150  ; do
+      if [ $dep == 0 ]; then
+        DEP=""
+        LEV="-lev 1"
+      else
+        DEP="-dep $dep"
+        LEV=""
+      fi
+      filout=${CONFIG}_${var}_${dep}_${bas}_${DATE}-${CASE}
+      case $var in
+        DIC) clrvar=DIC ; unit="mol-C/L"
+          case $dep in
+            0)  min=2000 ; max=2200  ; pas=50 ; scale=1.e6 ;;
+          150)  min=2050 ; max=2250  ; pas=100 ; scale=1.e6 ;;
+          esac ;;
+       TALK) clrvar=Alkalini ; unit="mol-Alk/L"
+          case $dep in
+            0)  min=2300 ; max=2400  ; pas=50 ; scale=1.e6 ;;
+          150)  min=2300 ; max=2400  ; pas=50 ; scale=1.e6 ;;
+          esac ;;
+         O2) clrvar=O2 ; unit="mol-O2/L"
+          case $dep in
+            0)  min=200 ; max=400  ; pas=50 ; scale=1.e6 ;;
+          150)  min=200 ; max=300  ; pas=50 ; scale=1.e6 ;;
+          esac ;;
+        PO4) clrvar=PO4 ; unit="mol-C/L"
+          case $dep in
+            0)  min=0 ; max=200  ; pas=50 ; scale=1.e6 ;;
+          150)  min=0 ; max=300  ; pas=50 ; scale=1.e6 ;;
+          esac ;;
+         Si) clrvar=Si ; unit="mol-Si/L"
+          case $dep in
+            0)  min=0 ; max=50  ; pas=10 ; scale=1.e6 ;;
+          150)  min=0 ; max=100  ; pas=10 ; scale=1.e6 ;;
+          esac ;;
+        NO3) clrvar=NO3 ; unit="mol-C/L"
+          case $dep in
+            0)  min=0 ; max=150  ; pas=50 ; scale=1.e6 ;;
+          150)  min=0 ; max=200  ; pas=50 ; scale=1.e6 ;;
+          esac ;;
+        Fer) clrvar=Fer ; unit="mol-Fe/L"
+          case $dep in
+            0)  min=0 ; max=5  ; pas=1 ; scale=1.e10 ;;
+          150)  min=0 ; max=5  ; pas=1 ; scale=1.e10 ;;
+          esac ;;
+        DOC) clrvar=DOC ; unit="mol-C/L"
+          case $dep in
+            0)  min=6 ; max=26  ; pas=2 ; scale=1.e6 ;;
+          150)  min=6 ; max=18  ; pas=2 ; scale=1.e6 ;;
+          esac ;;
+        CHL) clrvar=CHL ; unit="mgCHL/m3*10" ; CLRDATA="-clrdata CHL2.nc"
+          case $dep in
+            0)  min=0 ; max=9  ; pas=1 ; scale=1.e7 ;;
+          150)  min=0 ; max=2  ; pas=0.5 ; scale=1.e7 ;;
+          esac ;;
+       NCHL) clrvar=NCHL ; unit="mgCHL/m3*10"
+          case $dep in
+            0)  min=0 ; max=4 ; pas=1 ; scale=1.e7 ;;
+          150)  min=0 ; max=1  ; pas=0.5 ; scale=1.e7 ;;
+          esac ;;
+       DCHL) clrvar=DCHL ; unit="mgCHL/m3*10"
+          case $dep in
+            0)  min=0 ; max=4  ; pas=1 ; scale=1.e7 ;;
+          150)  min=0 ; max=1  ; pas=0.5 ; scale=1.e7 ;;
+          esac ;;
+        POC) clrvar=POC; unit="mol-C/L"
+          case $dep in
+            0)  min=0 ; max=1 ; pas=0.5 ; scale=1.e6 ;;
+          150)  min=0 ; max=1 ; pas=0.5 ; scale=1.e6 ;;
+          esac ;;
+    PHYnano) clrvar=PHY; unit="mol-C/L"
+          case $dep in
+            0)  min=0 ; max=4 ; pas=1 ; scale=1.e6 ;;
+          150)  min=0 ; max=0.5 ; pas=0.25 ; scale=1.e6 ;;
+          esac ;;
+ PHYdiatoms) clrvar=PHY2; unit="mol-C/L"
+          case $dep in
+            0)  min=0 ; max=4 ; pas=1 ; scale=1.e6 ;;
+          150)  min=0 ; max=0.5 ; pas=0.25 ; scale=1.e6 ;;
+          esac ;;
+        PHY) clrvar=PHY; unit="mol-C/L" ; CLRDATA="-clrdata PHY2.nc"
+          case $dep in
+            0)  min=0 ; max=5 ; pas=1 ; scale=1.e6 ;;
+          150)  min=0 ; max=1 ; pas=0.5 ; scale=1.e6 ;;
+          esac ;;
+        ZOO) clrvar=ZOO; unit="mol-C/L" ; CLRDATA="-clrdata ZOO2.nc"
+          case $dep in
+            0)  min=0 ; max=2  ; pas=0.5 ; scale=1.e6 ;;
+          150)  min=0 ; max=5  ; pas=1 ; scale=1.e7 ;;
+          esac ;;
+    ZOOmeso) clrvar=ZOO2; unit="mol-C/L"
+          case $dep in
+            0)  min=0 ; max=2  ; pas=0.5 ; scale=1.e6 ;;
+          150)  min=0 ; max=5  ; pas=1 ; scale=1.e7 ;;
+          esac ;;
+   ZOOmicro) clrvar=ZOO; unit="mol-C/L"
+          case $dep in
+            0)  min=0 ; max=2  ; pas=0.5 ; scale=1.e6 ;;
+          150)  min=0 ; max=5  ; pas=1 ; scale=1.e7 ;;
+          esac ;;
+        GOC) clrvar=GOC; unit="mol-C/L"
+          case $dep in
+            0)  min=0 ; max=1  ; pas=0.5 ; scale=1.e7 ;;
+          150)  min=0 ; max=1  ; pas=0.5 ; scale=1.e7 ;;
+          esac ;;
+        SFe) clrvar=SFe; unit="mol-Fe/L"
+          case $dep in
+            0)  min=0 ; max=1  ; pas=0.25 ; scale=1.e11 ;;
+          150)  min=0 ; max=1  ; pas=0.25 ; scale=1.e11 ;;
+          esac ;;
+      esac
+      if [ $( chkfile $PLOTDIR/PISCES/GLOBAL/$filout.cgm) == absent ] ; then
+        rapatrie $t $MEANY $t
+        # Compute total CHL if necessary
+        case $var in
+          CHL) add_var $t NCHL DCHL CHL CHL2.nc ;;
+          PHY) add_var $t PHY PHY2 PHY PHY2.nc ;;
+          ZOO) add_var $t ZOO ZOO2 ZOO ZOO2.nc ;;
+           * ) skip=1 ;;
+        esac
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${bas}_${DATE}_DEPTH=@CLR_DEPTH@"
+        mklim $min $max $pas > zclrmark
+        baspiplt  ; mkplt $filout
+      fi
+    done
+  done
 
-   puttogaya MXL
+  puttogayatrc PISCES $BASIN
+
+done
+
+                             fi
+#--------------------------------------------------------------------------------------------
+# 16.2.2 PISCES Details on Drake(2), Kerguelen(3), Campbell(4) or all(1) plots of diagnostics
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+                             if [ $pisces_diags_zooms == 1 ] ; then
+  # get files
+  t=${CONFCASE}_y${YEAR}_diadT.nc
+ # Common values for this group of plots
+  PAL="-p $PAL1"
+  CLRLIM="-clrmark zclrmark"
+  MEAN=""
+
+  # Set options
+  for BASIN in KERGUELEN ; do
+    case $BASIN in
+          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+    esac
+  listplt=' '
+
+  for var in PPdiatoms PPnano PPtot PNEWnano PNEWdiatoms PNEW  PH PAR; do
+    CLRDATA="-clrdata $t"
+    for dep in 0 150  ; do
+      if [ $dep == 0 ]; then
+        DEP=""
+        LEV="-lev 1"
+      else
+        DEP="-dep $dep"
+        LEV=""
+      fi
+      filout=${CONFIG}_${var}_${dep}_${bas}_${DATE}-${CASE}
+      case $var in
+  PPdiatoms) clrvar=PPPHY2 ; unit="molC/m3/s" ;CLRDATA="-clrdata $s";
+          case $dep in
+            0) scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+          150) scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+          esac ;;
+     PPnano) clrvar=PPPHY ; unit="molC/m3/s" ;CLRDATA="-clrdata $s";
+          case $dep in
+            0) scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+          150) scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+          esac ;;
+      PPtot) clrvar=PPPHY ; unit="molC/m3/s" ;CLRDATA="-clrdata PPPHY2.nc" ;
+          case $dep in
+            0) scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+          150) scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
+          esac ;;
+   PNEWnano) clrvar=PPNEWN ; unit="molC/m3/s" ;CLRDATA="-clrdata $s";
+          case $dep in
+            0) scale=1.e9   ; min=0 ; max=10  ; pas=1 ;;
+          150) scale=1.e9   ; min=0 ; max=10  ; pas=1 ;;
+          esac ;;
+PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $s";
+          case $dep in
+            0) scale=1.e9   ; min=0 ; max=10  ; pas=1 ;;
+          150) scale=1.e9   ; min=0 ; max=10  ; pas=1 ;;
+          esac ;;
+       PNEW) clrvar=PPNEWN ; unit="molC/m3/s" ;CLRDATA="-clrdata PPNEW2.nc" ;
+          case $dep in
+            0) scale=1.e9   ; min=0 ; max=10  ; pas=1 ;;
+          150) scale=1.e9   ; min=0 ; max=10  ; pas=1 ;;
+          esac ;;
+         PH) clrvar=PH ; unit="" ;CLRDATA="-clrdata $s";
+          case $dep in
+            0) scale=1.e9   ; min=6 ; max=8  ; pas=1 ;;
+          150) scale=1.e9   ; min=6 ; max=8  ; pas=1 ;;
+          esac ;;
+        PAR) clrvar=PAR ; unit="W/m2" ;CLRDATA="-clrdata $s";
+          case $dep in
+             0) scale=1   ; min=0 ; max=50  ; pas=10 ;;
+           150) scale=1   ; min=0 ; max=50  ; pas=10 ;;
+           esac ;;
+#        EXPsmall) clrvar=PMO ; unit="molC/m2/s" ;CLRDATA="-clrdata $s";
+#                  case $dep in  
+#                   0) scale=   ; min= ; max=  ; pas= ;;
+#                 150) scale=   ; min= ; max=  ; pas= ;;
+#                  esac ;;
+#          EXPbig) clrvar=PMO2 ; unit="molC/m2/s" ;CLRDATA="-clrdata $s";
+#                  case $dep in  
+#                   0) scale=   ; min= ; max=  ; pas= ;;
+#                 150) scale=   ; min= ; max=  ; pas= ;;
+#                  esac ;;
+#          EXPtot) clrvar=PMO ; unit="molC/m2/s" ; CLRDATA="-clrdata PMO2.nc" ;
+#                  case $dep in  
+#                   0) scale=   ; min= ; max=  ; pas= ;;
+#                 150) scale=   ; min= ; max=  ; pas= ;;
+#                  esac ;;
+
+      esac
+      if [ $( chkfile $PLOTDIR/PISCES/GLOBAL/$filout.cgm) == absent ] ; then
+        rapatrie $t $MEANY $t
+        # Compute total CHL if necessary
+        case $var in
+        PPtot) add_var $s PPPHY2 PPPHY PPPHY PPPHY2.nc ;;
+         PNEW) add_var $s PPNEWN PPNEWD PPNEW PPNEW2.nc ;;
+#          EXPtot) add_var $s PMO PMO2 PMO PMO2.nc ;;
+           * ) skip=1 ;;
+        esac
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${bas}_${DATE}_DEPTH=@CLR_DEPTH@"
+        mklim $min $max $pas > zclrmark
+        baspiplt  ; mkplt $filout
+      fi
+    done
+  done
+
+  puttogayatrc PISCES $BASIN
+
+done
+
+                             fi
+
+#--------------------------------------------------------------------------------------------------------------------------------
+# 16.2.3 PISCES Details on Drake(2), Kerguelen(3), Campbell(4) or all(1) plots concentrations integrated between surface and 150m
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              if [ $pisces_zooms_int == 1 ] ; then
+  # get files
+  t=${CONFCASE}_y${YEAR}_biovertmean.nc
+
+
+  # Common values for this group of plots
+  PAL="-p $PAL1"
+  CLRLIM="-clrmark zclrmark"
+  MEAN=""
+
+  # Set options
+  for BASIN in KERGUELEN ; do
+    case $BASIN in
+          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+    esac
+  listplt=' '
+
+  for var in DIC TALK O2 PO4 Si NO3 Fer DOC CHL NCHL DCHL POC PHY ZOO GOC SFe; do
+      CLRDATA="-clrdata $t"
+      filout=${CONFIG}_${var}_int0-150m_${bas}_${DATE}-${CASE}
+      case $var in
+        DIC) clrvar=vertmean_DIC ; unit="mol-C/L";CLRDATA="-clrdata $t"; min=2000 ; max=2300  ; pas=100 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+       TALK) clrvar=vertmean_Alkalini ; unit="mol-Alk/L";CLRDATA="-clrdata $t";  min=2300 ; max=2350  ; pas=25 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+         O2) clrvar=vertmean_O2 ; unit="mol-O2/L";CLRDATA="-clrdata $t";  min=200 ; max=300  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        PO4) clrvar=vertmean_PO4 ; unit="mol-C/L";CLRDATA="-clrdata $t";  min=0 ; max=250  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+         Si) clrvar=vertmean_Si ; unit="mol-Si/L";CLRDATA="-clrdata $t";  min=0 ; max=50  ; pas=10 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        NO3) clrvar=vertmean_NO3 ; unit="mol-C/L";CLRDATA="-clrdata $t";  min=0 ; max=250  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        Fer) clrvar=vertmean_Fer ; unit="mol-Fe/L";CLRDATA="-clrdata $t";   min=0 ; max=10  ; pas=2 ; LEV="-lev 1" ; DEP="" ; scale=1.e10 ;;
+        DOC) clrvar=vertmean_DOC ; unit="mol-C/L";CLRDATA="-clrdata $t";  min=4 ; max=20  ; pas=2 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        CHL) clrvar=vertmean_CHL ; unit="mgCHL/m3*10" ; CLRDATA="-clrdata CHL2.nc"; min=0 ; max=9  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e7 ;;
+       NCHL) clrvar=vertmean_NCHL ; unit="mgCHL/m3*10";CLRDATA="-clrdata $t";  min=0 ; max=5  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e7 ;;
+       DCHL) clrvar=vertmean_DCHL ; unit="mgCHL/m3*10";CLRDATA="-clrdata $t";  min=0 ; max=5  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e7 ;;
+        POC) clrvar=vertmean_POC; unit="mol-C/L";CLRDATA="-clrdata $t";  min=0 ; max=1 ; pas=0.5 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        PHY) clrvar=vertmean_PHY; unit="mol-C/L" ; CLRDATA="-clrdata PHY2.nc"; min=0 ; max=2 ; pas=0.5 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+    PHYnano) clrvar=vertmean_PHY; unit="mol-C/L" ;CLRDATA="-clrdata $t";   min=0 ; max=10 ; pas=2 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+ PHYdiatoms) clrvar=vertmean_PHY2; unit="mol-C/L" ;CLRDATA="-clrdata $t";   min=0 ; max=10 ; pas=2 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        ZOO) clrvar=vertmean_ZOO; unit="mol-C/L" ; CLRDATA="-clrdata ZOO2.nc"; min=0 ; max=2  ; pas=0.5 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+    ZOOmeso) clrvar=vertmean_ZOO2; unit="mol-C/L" ;CLRDATA="-clrdata $t";   min=0 ; max=5  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+   ZOOmicro) clrvar=vertmean_ZOO; unit="mol-C/L" ;CLRDATA="-clrdata $t";   min=0 ; max=5  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
+        GOC) clrvar=vertmean_GOC; unit="mol-C/L";CLRDATA="-clrdata $t";  min=0 ; max=3  ; pas=1 ; LEV="-lev 1" ; DEP="" ; scale=1.e7 ;;
+        SFe) clrvar=vertmean_SFe; unit="mol-Fe/L";CLRDATA="-clrdata $t";  min=0 ; max=1  ; pas=0.25 ; LEV="-lev 1" ; DEP="" ; scale=1.e11 ;;
+      esac
+      if [ $( chkfile $PLOTDIR/PISCES/GLOBAL/$filout.cgm) == absent ] ; then
+        rapatrie $t $MEANY $t
+        ##ncks -a -d x,1,721 $t $t
+        # Compute total CHL if necessary
+        case $var in
+          CHL) add_var $t vertmean_NCHL vertmean_DCHL vertmean_CHL CHL2.nc ;;
+          PHY) add_var $t vertmean_PHY vertmean_PHY2 vertmean_PHY PHY2.nc ;;
+          ZOO) add_var $t vertmean_ZOO vertmean_ZOO2 vertmean_ZOO ZOO2.nc ;;
+           * ) skip=1 ;;
+        esac
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${bas}_${DATE}_int0-150m"
+        mklim $min $max $pas > zclrmark
+        baspiplt  ; mkplt $filout
+      fi
+  done
+
+  puttogayatrc PISCES $BASIN
+
+done
+
+                             fi
+#--------------------------------------------------------------------------------------------------------------------------------
+# 16.2.4 PISCES Details on Drake(2), Kerguelen(3), Campbell(4) or all(1) plots diagnostics integrated between surface and 150m
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              if [ $pisces_zooms_diags_int == 1 ] ; then
+  # get files
+  t=${CONFCASE}_y${YEAR}_biovertmean.nc
+
+
+  # Common values for this group of plots
+  PAL="-p $PAL1"
+  CLRLIM="-clrmark zclrmark"
+  MEAN=""
+
+  # Set options
+  for BASIN in KERGUELEN ; do
+    case $BASIN in
+          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+    esac
+  listplt=' '
+
+  for var in PPdiatoms PPnano PPtot PNEWnano PNEWdiatoms PNEW  PH PAR; do
+      CLRDATA="-clrdata $t"
+      filout=${CONFIG}_${var}_int0-150m_${bas}_${DATE}-${CASE}
+      case $var in
+  PPdiatoms) clrvar=vertmean_PPPHY2 ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  scale=1.e10   ; min=0 ; max=20  ; pas=10 ;;
+     PPnano) clrvar=vertmean_PPPHY ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  scale=1.e10   ; min=0 ; max=20  ; pas=10 ;;
+      PPtot) clrvar=vertmean_PPPHY ; unit="molC/m3/s" ;CLRDATA="-clrdata PPPHY2.nc" ; scale=1.e10   ; min=0 ; max=30  ; pas=10 ;;
+   PNEWnano) clrvar=vertmean_PPNEWN ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  scale=1.e9   ; min=0 ; max=1  ; pas=0.5 ;;
+PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  scale=1.e9   ; min=0 ; max=1  ; pas=0.5 ;;
+       PNEW) clrvar=vertmean_PPNEWN ; unit="molC/m3/s" ;CLRDATA="-clrdata PPNEW2.nc" ; scale=1.e9   ; min=0 ; max=3  ; pas=1 ;;
+         PH) clrvar=vertmean_PH ; unit="" ;CLRDATA="-clrdata $t";  scale=1.e9   ; min=6 ; max=7  ; pas=0.25 ;;
+        PAR) clrvar=vertmean_PAR ; unit="W/m2" ;CLRDATA="-clrdata $t";  scale=1   ; min=0 ; max=10  ; pas=1 ;;
+#        EXPsmall) clrvar=vertmean_PMO ; unit="molC/m2/s" ; scale=   ; min= ; max=  ; pas= ;;
+#          EXPbig) clrvar=vertmean_PMO2 ; unit="molC/m2/s" ; scale=   ; min= ; max=  ; pas= ;;
+#          EXPtot) clrvar=vertmean_PMO ; unit="molC/m2/s" ; CLRDATA="-clrdata PMO2.nc" ; scale=   ; min= ; max=  ; pas= ;;
+#        
+      esac
+      if [ $( chkfile $PLOTDIR/PISCES/GLOBAL/$filout.cgm) == absent ] ; then
+        rapatrie $t $MEANY $t
+        ##ncks -a -d x,1,721 $t $t
+        # Compute total CHL if necessary
+        case $var in
+        PPtot) add_var $t vertmean_PPPHY2 vertmean_PPPHY vertmean_PPPHY PPPHY2.nc ;;
+         PNEW) add_var $t vertmean_PPNEWN vertmean_PPNEWD vertmean_PPNEW PPNEW2.nc ;;
+#          EXPtot) add_var $s vertmean_PMO vertmean_PMO2 vertmean_PMO PMO2.nc ;;
+           * ) skip=1 ;;
+        esac
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${bas}_${DATE}_int0-150m"
+        mklim $min $max $pas > zclrmark
+        baspiplt  ; mkplt $filout
+      fi
+  done
+
+  puttogayatrc PISCES $BASIN
+
+done
 
                              fi
 
 
-#------------------------------------------------------------------------------
-# 19. PISCES coupes australes on the website
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#--------------------
+# 16.3  PISCES coupes 
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# 16.3.1 PISCES coupes australes 
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
                              if [ $pisces_coupes_aus == 1 ] ; then
 
@@ -2823,9 +3776,9 @@ eof
 
                              fi
 
-#------------------------------------------------------------------------------
-# 20. PISCES coupes australes compared to climatologies on the website
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#---------------------------------------------------------
+# 16.3.2 PISCES coupes australes compared to climatologies 
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
                              if [ $pisces_coupes_clim == 1 ] ; then
 
@@ -3025,9 +3978,58 @@ eof
   puttogaya PISCES/GLOBAL
 
                              fi
-
 #------------------------------------------------------------------------------
-# 22. Contour tool
+# 17. MXL_OBS = MXL comparison to Boyer-Montegut climatology on the website
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             if [ $mxls_clim == 1 ] ; then
+
+  # generic function for moc plot
+  mxlplt() { $CHART -string 0.5 0.97 1.0 0 ${CONFCASE}_${var}_${month}_${YEAR} \
+             $CLRDATA -noint -ijgrid -noproj -p $PAL2 -english $CLRXYPAL \
+             -clrvar $clrvar -clrmark zclrmark  -xyplot $POS -o $1 $FORMAT ;}
+
+
+  # reset the list of plots that are produced ( list is updated in mkplt )
+  listplt=' '
+
+  # Common values for this group of plots
+  up='.1 .95 .58 .95'
+  down=' .1 .95 .20 .57'
+  CLRXYPAL='-clrxypal 0.1 0.95 0.05 0.15'
+
+  # Set options
+  for mm in 03 09  ; do
+    mxl_run=${CONFCASE}_y${YEAR}m${mm}_MXL.nc
+    mxl_obs=somxlt02_BM-${CONFIG}_m${mm}_masked.nc
+    var=MLDtem0.20
+    filout=${CONFIG}_dif${var}_m${mm}_${YEAR}-${CASE}
+    clrvar=somxlt02
+    case $mm in
+      03) min=0 ; max=500 ; pas=100 ; month='March' ;;
+      09) min=0 ; max=800 ; pas=100 ; month='September' ;;
+    esac
+    if [ $( chkfile $PLOTDIR/MXL/$filout.cgm) == absent ] ; then
+      rapatrie $mxl_run $MEANY $mxl_run
+      rapatrie $mxl_obs $CLIMY $mxl_obs
+      mklim $min $max $pas > zclrmark
+      # obs
+      filout1=gm1 ; POS=$up  ; CLRDATA="-clrdata $mxl_obs"
+      mxlplt $filout1
+      # run
+      filout2=gm2 ; POS=$down  ; CLRDATA="-clrdata $mxl_run"
+      mxlplt $filout2
+      # merge frame
+      \rm -f gmeta
+      med -e 'r gm1' -e 'r gm2' -e '1,2 merge' -e '1 w gmeta'
+      mkplt $filout
+    fi
+   done
+
+   puttogaya MXL
+
+                             fi
+#------------------------------------------------------------------------------
+# 18. Contour tool
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
                   if [ $contour == 1 ] ; then
