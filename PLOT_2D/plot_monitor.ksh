@@ -776,7 +776,7 @@ eof
   OPTIONS=""
   MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED3" ; CNTICE="" ; FORMAT='-format PALETTE I4'
     for var in HeatFlx WaterFlx WaterDmp CDWaterFlx ; do
-      STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}_DEPTH=@CLR_DEPTH@"
+      STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${YEAR}_DEPTH=@CLR_DEPTH@"
       filout=${CONFIG}_${var}_${YEAR}-${CASE}
       if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
          rapatrie $t    $MEANY $t
@@ -828,7 +828,7 @@ if [ $zoomMXL == 4 ]; then list_bas='CAMPBELL'; fi
 
     for crit in rho0.01 rho0.03 tem0.20 ; do
       var=MLD$crit
-      filout=${CONFIG}_${var}_${bas}_${DATE}-${CASE}
+      filout=${CONFIG}_${var}_${bas}_${YEAR}-${CASE}
       if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent  ] ; then
         rapatrie $mxl3 $MEANY $mxl3
         rapatrie $mxl9 $MEANY $mxl9
@@ -838,7 +838,7 @@ if [ $zoomMXL == 4 ]; then list_bas='CAMPBELL'; fi
           tem0.20 ) clrvar="-clrvar somxlt02" ;;
         esac
         # march
-        filout1=gm1 ; POS=$up  ; CLRDATA="-clrdata $mxl3" ; STRING="-string 0.5 0.97 1.0 0 ${CONFCASE}_${var} -string 0.5 0.94 1.0 0 m03-m09_${bas}_${DATE}"
+        filout1=gm1 ; POS=$up  ; CLRDATA="-clrdata $mxl3" ; STRING="-string 0.5 0.97 1.0 0 ${CONFCASE}_${var} -string 0.5 0.94 1.0 0 m03-m09_${bas}_${YEAR}"
         basmxlplt $filout1
         # september
         filout2=gm2 ; POS=$down  ; CLRDATA="-clrdata $mxl9"; STRING=""
@@ -996,7 +996,7 @@ if [ $zoomEKE == 4 ]; then list_bas='CAMPBELL'; fi
 #-----------
 
   # get files  EKE
-  eke=${CONFCASE}_y${DATE}_EKE.nc
+  eke=${CONFCASE}_y${YEAR}_EKE.nc
 
   min=0 ; max=1000 ; pas=250
   mklim $min $max $pas > zclrmark
@@ -1010,8 +1010,8 @@ if [ $zoomEKE == 4 ]; then list_bas='CAMPBELL'; fi
       CAMPBELL)  var=EKEcamp ; ZOOM='-zoom 100 180 -70 -30' ;;
     esac
     OPTIONS='-proj ME -xstep 10 -ystep 5'
-    STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${DATE}_${CASE}_DEPTH=@CLR_DEPTH@ "
-    filout=${CONFIG}_${var}_${DATE}-${CASE}
+    STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${YEAR}_${CASE}_DEPTH=@CLR_DEPTH@ "
+    filout=${CONFIG}_${var}_${YEAR}-${CASE}
     XYPLOT='-xyplot 0.1 0.95 0.2 0.9'
     CLRXYPAL='-clrxypal 0.1 0.95 0.05 0.15'
     if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
@@ -2872,7 +2872,7 @@ eof
           ZOO) add_var $t ZOO ZOO2 ZOO ZOO2.nc ;;
            * ) skip=1 ;;
         esac
-        STRING1=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}"
+        STRING1=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${YEAR}"
         STRING2=" -string 0.5 0.80 1.0 0 ${unit}*${scale}_DEPTH=@CLR_DEPTH@"
         mklim $min $max $pas > zclrmark
         glopiplt  ; mkplt $filout
@@ -2979,7 +2979,7 @@ PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
 #       EXPtot) add_var $t PMO PMO2 PMO PMO2.nc ;;
            * ) skip=1 ;;
         esac
-        STRING1=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${DATE}"
+        STRING1=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${YEAR}"
         STRING2=" -string 0.5 0.80 1.0 0 ${unit}*${scale}_DEPTH=@CLR_DEPTH@"
         mklim $min $max $pas > zclrmark
         glopiplt  ; mkplt $filout
@@ -2988,7 +2988,7 @@ PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
   done
 
   for var in DICFlx O2Flx DeltaCO2 Fedep; do
-      filout=${CONFIG}_${var}_${DATE}-${CASE}
+      filout=${CONFIG}_${var}_${YEAR}-${CASE}
       case $var in
           DICFlx) clrvar=Cflx ; unit="molC/m2/s" ;
                   scale=1.e8 ; min=-7 ; max=6  ; pas=1 ; PAL="-p $PALBLUE2RED3" ;;
@@ -3001,7 +3001,7 @@ PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
         esac
       if [ $( chkfile $PLOTDIR/PISCES/GLOBAL/$filout.cgm) == absent ] ; then
         rapatrie $t $MEANY $t
-        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${DATE}"
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${YEAR}"
         mklim $min $max $pas > zclrmark
         glopiplt  ; mkplt $filout
       fi
@@ -3030,7 +3030,7 @@ PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
   # Set options
   for var in DIC TALK O2 PO4 Si NO3 Fer DOC CHL NCHL DCHL POC PHY PHYnano PHYdiatoms ZOO ZOOmeso ZOOmicro GOC SFe; do
       CLRDATA="-clrdata $t"
-      filout=${CONFIG}_${var}_int0-150m_${DATE}-${CASE}
+      filout=${CONFIG}_${var}_int0-150m_${YEAR}-${CASE}
       case $var in
         DIC) clrvar=vertmean_DIC ; unit="mol-C/L";CLRDATA="-clrdata $t";  min=2000 ; max=2200  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
        TALK) clrvar=vertmean_Alkalini ; unit="mol-Alk/L" ;CLRDATA="-clrdata $t";  min=2300 ; max=2400  ; pas=50 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
@@ -3062,7 +3062,7 @@ PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
           ZOO) add_var $t vertmean_ZOO vertmean_ZOO2 vertmean_ZOO ZOO2.nc ;;
            * ) skip=1 ;;
         esac
-        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${DATE}_int0-150m"
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${YEAR}_int0-150m"
         mklim $min $max $pas > zclrmark
         glopiplt  ; mkplt $filout
       fi
@@ -3089,7 +3089,7 @@ PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
   # Set options
   for var in PPdiatoms PPnano PPtot PNEWnano PNEWdiatoms PNEW  PH PAR; do
       CLRDATA="-clrdata $t"
-      filout=${CONFIG}_${var}_int0-150m_${DATE}-${CASE}
+      filout=${CONFIG}_${var}_int0-150m_${YEAR}-${CASE}
       case $var in
   PPdiatoms) clrvar=vertmean_PPPHY2 ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
      PPnano) clrvar=vertmean_PPPHY ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  scale=1.e10   ; min=0 ; max=40  ; pas=10 ;;
@@ -3111,7 +3111,7 @@ PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  
 #          EXPtot) add_var $t vertmean_PMO vertmean_PMO2 vertmean_PMO PMO2.nc ;;
            * ) skip=1 ;;
         esac
-        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${DATE}_int0-150m"
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${YEAR}_int0-150m"
         mklim $min $max $pas > zclrmark
         glopiplt  ; mkplt $filout
       fi
@@ -3227,7 +3227,7 @@ PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  
         DEP="-dep $dep"
         LEV=""
       fi
-      filout=${CONFIG}_${var}_${dep}_${bas}_${DATE}-${CASE}
+      filout=${CONFIG}_${var}_${dep}_${bas}_${YEAR}-${CASE}
       case $var in
         DIC) clrvar=DIC ; unit="mol-C/L"
           case $dep in
@@ -3339,7 +3339,7 @@ PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  
           ZOO) add_var $t ZOO ZOO2 ZOO ZOO2.nc ;;
            * ) skip=1 ;;
         esac
-        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${bas}_${DATE}_DEPTH=@CLR_DEPTH@"
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${bas}_${YEAR}_DEPTH=@CLR_DEPTH@"
         mklim $min $max $pas > zclrmark
         baspiplt  ; mkplt $filout
       fi
@@ -3382,7 +3382,7 @@ done
         DEP="-dep $dep"
         LEV=""
       fi
-      filout=${CONFIG}_${var}_${dep}_${bas}_${DATE}-${CASE}
+      filout=${CONFIG}_${var}_${dep}_${bas}_${YEAR}-${CASE}
       case $var in
   PPdiatoms) clrvar=PPPHY2 ; unit="molC/m3/s" ;CLRDATA="-clrdata $s";
           case $dep in
@@ -3450,7 +3450,7 @@ PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $s";
 #          EXPtot) add_var $s PMO PMO2 PMO PMO2.nc ;;
            * ) skip=1 ;;
         esac
-        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${bas}_${DATE}_DEPTH=@CLR_DEPTH@"
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${bas}_${YEAR}_DEPTH=@CLR_DEPTH@"
         mklim $min $max $pas > zclrmark
         baspiplt  ; mkplt $filout
       fi
@@ -3487,7 +3487,7 @@ done
 
   for var in DIC TALK O2 PO4 Si NO3 Fer DOC CHL NCHL DCHL POC PHY ZOO GOC SFe; do
       CLRDATA="-clrdata $t"
-      filout=${CONFIG}_${var}_int0-150m_${bas}_${DATE}-${CASE}
+      filout=${CONFIG}_${var}_int0-150m_${bas}_${YEAR}-${CASE}
       case $var in
         DIC) clrvar=vertmean_DIC ; unit="mol-C/L";CLRDATA="-clrdata $t"; min=2000 ; max=2300  ; pas=100 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
        TALK) clrvar=vertmean_Alkalini ; unit="mol-Alk/L";CLRDATA="-clrdata $t";  min=2300 ; max=2350  ; pas=25 ; LEV="-lev 1" ; DEP="" ; scale=1.e6 ;;
@@ -3520,7 +3520,7 @@ done
           ZOO) add_var $t vertmean_ZOO vertmean_ZOO2 vertmean_ZOO ZOO2.nc ;;
            * ) skip=1 ;;
         esac
-        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${bas}_${DATE}_int0-150m"
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${bas}_${YEAR}_int0-150m"
         mklim $min $max $pas > zclrmark
         baspiplt  ; mkplt $filout
       fi
@@ -3555,7 +3555,7 @@ done
 
   for var in PPdiatoms PPnano PPtot PNEWnano PNEWdiatoms PNEW  PH PAR; do
       CLRDATA="-clrdata $t"
-      filout=${CONFIG}_${var}_int0-150m_${bas}_${DATE}-${CASE}
+      filout=${CONFIG}_${var}_int0-150m_${bas}_${YEAR}-${CASE}
       case $var in
   PPdiatoms) clrvar=vertmean_PPPHY2 ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  scale=1.e10   ; min=0 ; max=20  ; pas=10 ;;
      PPnano) clrvar=vertmean_PPPHY ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  scale=1.e10   ; min=0 ; max=20  ; pas=10 ;;
@@ -3580,7 +3580,7 @@ PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  
 #          EXPtot) add_var $s vertmean_PMO vertmean_PMO2 vertmean_PMO PMO2.nc ;;
            * ) skip=1 ;;
         esac
-        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${bas}_${DATE}_int0-150m"
+        STRING=" -string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${unit}*${scale}_${bas}_${YEAR}_int0-150m"
         mklim $min $max $pas > zclrmark
         baspiplt  ; mkplt $filout
       fi
