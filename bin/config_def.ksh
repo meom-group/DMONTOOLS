@@ -11,7 +11,7 @@
 CONFIG=<CONFIG>
 CASE=<CASE>
 MACHINE=<MACHINE>
-MAIL=Aurelie.Albert@legi.grenoble-inp.fr   ## to be edited ##
+MAIL=<MAILTO>   ## to be edited ##
 
 # parallel monitoring (1: yes / 0: no)
 useMPI=0 
