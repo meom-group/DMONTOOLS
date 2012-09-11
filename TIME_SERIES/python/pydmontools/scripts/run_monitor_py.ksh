@@ -29,7 +29,6 @@ chkdir $PLOTDIR/$CONFIG/PLOTS/${CONFIG}-${CASE}/TIME_SERIES
 if [ $ts_icemonth == 1 ]    ; then icemonth.py     ; fi
 if [ $ts_icenoaa == 1 ]     ; then icenoaa.py      ; fi
 if [ $ts_nino == 1 ]        ; then nino.py         ; fi
-if [ $ts_trpsig == 1 ]      ; then trpsig.py       ; fi
 if [ $ts_mld_kerg == 1 ]    ; then mldkerg.py      ; fi
 if [ $ts_ice_kerg == 1 ]    ; then icekerg.py      ; fi
 if [ $ts_hov_kerg == 1 ]    ; then hovkerg.py      ; fi
@@ -52,6 +51,7 @@ for freq_diags in $list_freq ; do
     if [ $ts_transports1 == 1 ] ; then transports1.py -f $freq_diags    ; fi
     if [ $ts_tsmean == 1 ]      ; then tsmean.py      -f $freq_diags    ; fi
     if [ $ts_tsmean_lev == 1 ]  ; then tsmean_lev.py  -f $freq_diags    ; fi
+    if [ $ts_trpsig == 1 ]      ; then trpsig.py      -f $freq_diags    ; fi
 
 done
 
