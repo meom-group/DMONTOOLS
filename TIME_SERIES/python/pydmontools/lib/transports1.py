@@ -34,6 +34,8 @@ plot_name = 'transports1'
 fig_size =  [17.,25.]
 plt.rcParams.update({'figure.figsize': fig_size})
 
+# reference salinity for freshwater transport
+Sref = 35.0
 
 #=======================================================================
 #--- Reading the data 
@@ -168,16 +170,17 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
           elif pltline==0 :
                 plt.title('Heat Transport',fontsize='large')
 
-          ### salt transport
+          ### freshwater transport
           ax3 = figure.add_subplot(nsection, 3, 3*pltline + 3)
           ax3.axis([min(_date),max(_date),nonsense,-nonsense])
           if saltplt.mean() != 0.:
-              ax3.plot(date, saltplt, color + '.-')
-              ax3.axis([min(_date),max(_date),min(saltplt),max(saltplt)])
+              freshwaterplt = (saltplt - (Sref * massplt)) / Sref
+              ax3.plot(date, freshwaterplt, color + '.-')
+              ax3.axis([min(_date),max(_date),min(freshwaterplt),max(freshwaterplt)])
           ax3.grid(True)
           ps.set_dateticks(ax3)
           if pltline==0 :
-                plt.title('Salt Transport',fontsize='large')
+                plt.title('Freshwater Transport - ref salinity = ' + str(Sref) + ' PSU',fontsize='large')
           #figure.autofmt_xdate() # should be adapted a bit more...
           pltline = pltline + 1
 
