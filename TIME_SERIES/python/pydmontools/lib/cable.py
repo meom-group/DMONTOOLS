@@ -67,7 +67,7 @@ def _get_ncname(argdict=myargs):
         filename = argdict['datadir'] + osp + argdict['config'] + '-' \
                  + argdict['case'] + '_' + argdict['monitor_frequency'] + '_TRANSPORTS.nc'
 
-    fileobs  = argdict['dataobsdir'] + osp + 'dmondata_cable_NOAA-AOML.nc'
+    fileobs  = argdict['dataobsdir'] + osp + 'dmondata_cable_' + argdict['monitor_frequency'] + '_NOAA-AOML.nc'
 
     return filename, fileobs
 

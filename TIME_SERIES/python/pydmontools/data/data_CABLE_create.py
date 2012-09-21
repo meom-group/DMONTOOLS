@@ -116,6 +116,25 @@ def integrate_to_monthly(year_array,month_array,day_array,transport_array,years_
 			ct = ct + 1
 	return year_out, month_out, transport_out
 	
+def integrate_to_annual(year_array,month_array,transport_array,years_to_perform):
+        st = years_to_perform.shape[0] ; ct = 0
+        year_out = npy.zeros((st),'i') ;
+        transport_out = npy.zeros(st)
+        for kt in years_to_perform:
+                # we spot the indices for which kt=year and mm=month
+                indyymm = npy.where( (year_array == kt) )
+                tmp_tr = transport_array[indyymm]
+
+                # fill arrays for this step
+                year_out[ct]      = int(kt)
+                # if one monthly value is masked -> mask the whole year
+                if tmp_tr.min() == -9999.:
+			transport_out[ct] = -9999.
+		else:
+			transport_out[ct] = tmp_tr.mean()
+                ct = ct + 1
+        return year_out, transport_out
+
 
 ################################################################################################
 ####################################### Time conversion ########################################
@@ -125,6 +144,15 @@ def yearmonth_to_seconds(yearX,monthX):
 	timeX = npy.zeros(len(yearX))
 	for kt in range(len(yearX)):
 		datestr = str(yearX[kt]) + '-' + str(monthX[kt]).zfill(2) + '-15'
+		days_since_year1 = mdates.datestr2num(datestr)
+		seconds_since_year1 = 86400 * days_since_year1
+		timeX[kt] = seconds_since_year1
+	return timeX
+
+def year_to_seconds(yearX):
+	timeX = npy.zeros(len(yearX))
+	for kt in range(len(yearX)):
+		datestr = str(yearX[kt]) + '-' + str(6).zfill(2) + '-30'
 		days_since_year1 = mdates.datestr2num(datestr)
 		seconds_since_year1 = 86400 * days_since_year1
 		timeX[kt] = seconds_since_year1
@@ -177,10 +205,19 @@ def main():
 	# 4. Setup of time axis
 	time_cable = yearmonth_to_seconds(year_integ,month_integ)
 	
-	# 4. Write data to netcdf file
-	write_1d_timeserie_cable('./NC/dmondata_cable_NOAA-AOML.nc',time_cable,transport_integ)
+	# 5. Write data to netcdf file
+	write_1d_timeserie_cable('./NC/dmondata_cable_1m_NOAA-AOML.nc',time_cable,transport_integ)
 	
-	# 5. Clean the txt files
+	# 6. compute the annual mean values
+	year_integ_annual, transport_integ_annual = integrate_to_annual(year_integ,month_integ,transport_integ,years)
+
+        # 7. Setup of annual time axis
+	time_cable_annual = year_to_seconds(year_integ_annual)
+
+	# 8. Write data to netcdf file
+	write_1d_timeserie_cable('./NC/dmondata_cable_1y_NOAA-AOML.nc',time_cable_annual,transport_integ_annual)
+
+	# 9. Clean the txt files
 	subprocess.call("rm FC_cable_transport_????.dat", shell=True)
 
 	return None
