@@ -102,7 +102,7 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         exec(key+'=kwargs[key]')
     #
     # get time limits
-    tmin,tmax = ps.get_tminmax(dateobs)
+    tmin,tmax = ps.get_tminmax(datemodel)
     #
     ax1 = figure.add_subplot(5,1,1)
     if not(compare) :
