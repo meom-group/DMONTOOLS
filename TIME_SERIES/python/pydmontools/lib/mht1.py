@@ -82,6 +82,17 @@ def _readnc(filenc=None,argdict=myargs):
     outdict['lat']       = rs.readfilenc(filenc, 'nav_lat')
     for field in list_field:
         temp           = rs.readfilenc(filenc,field)
+	## remove spurious areas
+	if field.find('atl') != -1:
+		ymax = npy.abs( outdict['lat'] - 70 ).argmin() # find index of 70N
+		ymin = npy.abs( outdict['lat'] + 30 ).argmin() # find index of 30S
+		temp[:,ymax:] = 0.
+		temp[:,:ymin] = 0.
+
+	if field.find('inp') != -1:
+		ymin = npy.abs( outdict['lat'] + 30 ).argmin() # find index of 30S
+		temp[:,:ymin] = 0.
+
         outdict[field] = rs.remove_spval(temp, 9999, 0) 
     return outdict # return the dictionnary of values 
 
@@ -115,18 +126,36 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
     #
     variable      = ['Southward Accumulated Qnet', 'Advective MHT']
     #
+    # setup the color range
+    limits_1 = [ -1.0, 1.0 ] ; step_1 = 0.05
+    limits_2 = [ -2.0, 2.0 ] ; step_2 = 0.1
+    contours_1=npy.arange(limits_1[0],limits_1[1]+step_1,step_1)
+    contours_2=npy.arange(limits_2[0],limits_2[1]+step_2,step_2)
+
     for k in range(1,nbzone+1) :
+	# what variable to plot
+	varplt = npy.transpose(vars()[list_field[2*k-2]])
+	# mask spval
+	varplt = rs.nc_add_spval(varplt, 0.)
+	#
         ax1 = figure.add_subplot(nbzone,nbvar+1,3*(k-1)+1)
-        plt.contourf(date, lat, npy.transpose(vars()[list_field[2*k-2]]))
+        plt.contourf(date, lat, varplt,contours_2)
         plt.colorbar(format='%.3f')
+        #plt.contour(date, lat, varplt,[0.],linewith=2)
         ax1.grid(True)
         ax1.axis([min(_date), max(_date), min(lat), max(lat)])
         plt.ylabel(zone[k-1],fontsize='x-large')
         ps.set_dateticks(ax1)
         if k==1 :
             plt.title(variable[0],fontsize='large')
+
+	# what variable to plot
+	varplt = npy.transpose(vars()[list_field[2*k-1]])
+	# mask spval
+	varplt = rs.nc_add_spval(varplt, 0.)
+	#
         ax2 = figure.add_subplot(nbzone,nbvar+1,3*(k-1)+2)
-        plt.contourf(date, lat, npy.transpose(vars()[list_field[2*k-1]]))
+        plt.contourf(date, lat, varplt,contours_2)
         plt.colorbar(format='%.3f')
         ax2.grid(True)
         plt.axis([min(_date), max(_date), min(lat), max(lat)])
@@ -136,8 +165,13 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
                 plt.title(argdict['config'] + '-' + argdict['case']+'\n'+variable[1],fontsize='large')
             else:
                 plt.title(variable[1],fontsize='large')
+	# what variable to plot
+	varplt = npy.transpose(vars()[list_field[2*k-2]] - vars()[list_field[2*k-1]])
+	# mask spval
+	varplt = rs.nc_add_spval(varplt, 0.)
+	#
         ax3 = figure.add_subplot(nbzone,nbvar+1,3*(k-1)+3)
-        plt.contourf(date, lat, npy.transpose(vars()[list_field[2*k-2]] - vars()[list_field[2*k-1]]))
+        plt.contourf(date, lat, varplt,contours_1)
         plt.colorbar(format='%.3f')
         ax3.grid(True)
         ax3.axis([min(_date), max(_date), min(lat), max(lat)])
