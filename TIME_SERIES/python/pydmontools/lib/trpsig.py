@@ -34,6 +34,9 @@ osp = os.sep
 #- parameters
 plot_name = 'trpsig'
 
+# size of the density bin
+dsigma = 0.05
+
 #=======================================================================
 #--- Reading the data 
 #=======================================================================
@@ -140,14 +143,18 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
         trpsig = ma.masked_equal(trpsig,0.)
         if not(compare):
            ax1 = figure.add_subplot(nsection,2,2*pltline+1)
-           plt.contourf(date, sigma,npy.transpose(trpsig),ncontour,cmap=cm.jet_r)
+           # colorbar centered
+           maxvalue = npy.ceil((trpsig/dsigma).max())
+           step = 2 * maxvalue / ncontour
+           contours = npy.arange(-maxvalue,maxvalue+step,step)
+           plt.contourf(date, sigma,npy.transpose(trpsig/dsigma),contours,cmap=cm.jet_r)
            plt.colorbar(format='%.1f')
-           plt.contour(date, sigma,npy.transpose(trpsig),[0],colors='white')
+           plt.contour(date, sigma,npy.transpose(trpsig/dsigma),[0],colors='white')
            plt.plot(date, 27.8 * npy.ones(_date.shape),'w-.')
            ax1.grid(True)
            ax1.axis([min(_date), max(_date), 29.2, 25.3])
            plt.ylabel('Sigma classes',fontsize='large')
-           plt.title(titleplot + ' (Sv)',fontsize='large')
+           plt.title(titleplot + ' (Sv.kg-1.m3)',fontsize='large')
 	   ps.set_dateticks(ax1)
         # when comparison is done only next plot is done
         # and we want it on the left of the screen
