@@ -37,7 +37,6 @@ plt.rcParams.update({'figure.figsize': fig_size})
 depthanom = 1200.
 maxdepth  = 5000. # for plots
 smin      = 34.5  # for plots
-ncontour  = 75
 
 #=======================================================================
 #--- Reading the data 
@@ -141,11 +140,21 @@ def plot(argdict=myargs,figure=None,color='r',levels=None,date=None,tmodel=None,
     plt.title('Salinity Anomaly around ' +str(depthanom)+' m')
     ps.set_dateticks(ax2)
 
+
+    ### setup of colorbars
+    limits_temper=[-1., 1.] ; step_temper = 0.02 ; step_tticks = step_temper * 10
+    contours_temper=npy.arange(limits_temper[0],limits_temper[1]+step_temper,step_temper)
+    ticks_temper=npy.arange(limits_temper[0],limits_temper[1]+step_tticks,step_tticks)
+
+    limits_salin=[-0.4, 0.4] ; step_salin = 0.01 ; step_sticks = step_salin * 10
+    contours_salin=npy.arange(limits_salin[0],limits_salin[1]+step_salin,step_salin)
+    ticks_salin=npy.arange(limits_salin[0],limits_salin[1]+step_sticks,step_sticks)
+
     if not(compare) :
         # 2D hovmuller
         ax3 = figure.add_subplot(3,2,2)
-        plt.contourf(date, levels, npy.transpose(tmodel-tlev2D),ncontour)
-        plt.colorbar()
+        plt.contourf(date, levels, npy.transpose(tmodel-tlev2D),contours_temper)
+        plt.colorbar(ticks=ticks_temper)
         ax3.grid(True)
         ax3.axis([min(_date), max(_date),maxdepth,min(levels)])
         plt.title(argdict['config'] + '-' + argdict['case'])
@@ -154,8 +163,8 @@ def plot(argdict=myargs,figure=None,color='r',levels=None,date=None,tmodel=None,
 
         # 2D hovmuller
         ax4 = figure.add_subplot(3,2,4)
-        plt.contourf(date, levels, npy.transpose(smodel-slev2D),ncontour)
-        plt.colorbar()
+        plt.contourf(date, levels, npy.transpose(smodel-slev2D),contours_salin)
+        plt.colorbar(ticks=ticks_salin)
         ax4.grid(True)
         ax4.axis([min(_date), max(_date),maxdepth,min(levels)])
         plt.ylabel('Salinity anomaly')

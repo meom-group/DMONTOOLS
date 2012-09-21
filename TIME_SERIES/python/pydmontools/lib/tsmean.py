@@ -109,7 +109,13 @@ def plot(argdict=myargs,figure=None,color='r',tmean=None,smean=None,sshmean=None
                 plt.title(titles3Dmean[k])
 
     ### 2) 2D PLOTS
-    ncontour=75
+    limits_temper=[-0.4, 0.4] ; step_temper = 0.005 ; step_tticks = step_temper * 10
+    contours_temper=npy.arange(limits_temper[0],limits_temper[1]+step_temper,step_temper)
+    ticks_temper=npy.arange(limits_temper[0],limits_temper[1]+step_tticks,step_tticks)
+
+    limits_salin=[-0.07, 0.07] ; step_salin = 0.001 ; step_sticks = step_salin * 10
+    contours_salin=npy.arange(limits_salin[0],limits_salin[1]+step_salin,step_salin)
+    ticks_salin=npy.arange(limits_salin[0],limits_salin[1]+step_sticks,step_sticks)
     
     plt.subplot(3,nb3Dmean,nb3Dmean+1)
     plt.semilogy((tmodel[-1,:]-tmodel[0,:]),levels,color)
@@ -127,8 +133,8 @@ def plot(argdict=myargs,figure=None,color='r',tmean=None,smean=None,sshmean=None
 
     if not(compare):
        ax2 = figure.add_subplot(3,nb3Dmean,nb3Dmean+2)
-       plt.contourf(date, levels, npy.transpose(tmodel[:,:]-tmodel[0,:]),ncontour)
-       plt.colorbar()
+       plt.contourf(date, levels, npy.transpose(tmodel[:,:]-tmodel[0,:]),contours_temper)
+       plt.colorbar(ticks=ticks_temper)
        ax2.grid(True)
        plt.yscale('log')
        ax2.axis([ min(_date), max(_date), max(levels),min(levels) ])
@@ -136,8 +142,8 @@ def plot(argdict=myargs,figure=None,color='r',tmean=None,smean=None,sshmean=None
        ps.set_dateticks(ax2)
 
        ax3 = figure.add_subplot(3,nb3Dmean,2*nb3Dmean+2)
-       plt.contourf(date, levels, npy.transpose(smodel[:,:]-smodel[0,:]),ncontour)
-       plt.colorbar()
+       plt.contourf(date, levels, npy.transpose(smodel[:,:]-smodel[0,:]),contours_salin)
+       plt.colorbar(ticks=ticks_salin)
        ax3.grid(True)
        plt.yscale('log')
        ax3.axis([ min(_date), max(_date), max(levels),min(levels) ])
