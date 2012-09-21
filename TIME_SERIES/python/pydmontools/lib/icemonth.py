@@ -100,9 +100,9 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         print "icemonth.py : Your config is not supported..."
         print "The monitoring will try to use default values from Global Configuration"
     #
-    nbzone = 2
-    nbplotline = 3
-    fig_size = [float(nbplotline) * 6., float(nbzone) * 5.]
+    nbzone = 6
+    nbplotline = 1
+    fig_size = [18., float(nbzone) * 5.]
     if figure is None: # by default create a new figure
           figure = plt.figure(figsize=fig_size)
 
@@ -113,27 +113,29 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         _datemodel = ps.mdates.date2num(datemodel) # now a numerical value
         ax.axis([min(_datemodel), max(_datemodel), 0, 60000])
         ax.grid(True)
-        plt.ylabel('Northern',fontsize='large')
-        plt.title('Ice Volume (10**9 m**3)',fontsize='large')
         ps.set_dateticks(ax)
+        plt.ylabel('Northern',fontsize='large')
+        if not(compare) :
+            plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Ice Volume (10**9 m**3)',fontsize='large')
+	else:
+	    plt.title('Ice Volume (10**9 m**3)',fontsize='large')
 
         ax=figure.add_subplot(nbzone,nbplotline,2)
         ax.plot(datemodel, NArea, color)
         ax.grid(True)
         ax.axis([min(_datemodel), max(_datemodel), 0, 15000])
         ps.set_dateticks(ax)
-        if not(compare) :
-            plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Ice Area (10**9 m**2)',fontsize='large')
-        else:
-            plt.title('Ice Area (10**9 m**2)',fontsize='large')
+        plt.ylabel('Northern',fontsize='large')
+        plt.title('Ice Area (10**9 m**2)',fontsize='large')
         
         ax=figure.add_subplot(nbzone,nbplotline,3)
         ax.plot(datemodel, NExnsidc, color)
         ax.grid(True)
         ax.axis([min(_datemodel), max(_datemodel), 0, 20000])
-        plt.title('Ice extent (10**9 m**2)',fontsize='large')
         ps.set_dateticks(ax)
-        figure.autofmt_xdate()
+        plt.ylabel('Northern',fontsize='large')
+        plt.title('Ice extent (10**9 m**2)',fontsize='large')
+        #figure.autofmt_xdate()
         
     if south == 1 :  
         ax=figure.add_subplot(nbzone,nbplotline,4)
@@ -141,27 +143,29 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
         ax.grid(True)
         _datemodel = ps.mdates.date2num(datemodel) # now a numerical value
         ax.axis([min(_datemodel), max(_datemodel), 0, 20000])
-        plt.ylabel('Southern',fontsize='large')
-        plt.title('Ice Volume (10**9 m**3)',fontsize='large')
         ps.set_dateticks(ax)
+        plt.ylabel('Southern',fontsize='large')
+        if (not(compare) and north == 0) :
+            plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Ice Volume (10**9 m**3)',fontsize='large')
+	else:
+	    plt.title('Ice Volume (10**9 m**3)',fontsize='large')
 
         ax=figure.add_subplot(nbzone,nbplotline,5)
         ax.plot(datemodel, SArea, color)
         ax.grid(True)
         ax.axis([min(_datemodel), max(_datemodel), 0, 20000])
         ps.set_dateticks(ax)
-        if not(compare) :
-            plt.title(argdict['config'] + '-' + argdict['case']+'\n'+'Ice Area (10**9 m**2)',fontsize='large')
-        else:
-            plt.title('Ice Area (10**9 m**2)',fontsize='large')
+        plt.ylabel('Southern',fontsize='large')
+        plt.title('Ice Area (10**9 m**2)',fontsize='large')
 
         ax=figure.add_subplot(nbzone,nbplotline,6)
         ax.plot(datemodel, SExnsidc, color)
         ax.grid(True)
         ax.axis([min(_datemodel), max(_datemodel), 0, 20000])
-        plt.title('Ice extent (10**9 m**2)',fontsize='large')
         ps.set_dateticks(ax)
-        figure.autofmt_xdate()
+        plt.ylabel('Southern',fontsize='large')
+        plt.title('Ice extent (10**9 m**2)',fontsize='large')
+        #figure.autofmt_xdate()
      
     return figure
 
