@@ -45,130 +45,78 @@ def read(argdict=myargs,fromfile=[]):
           if not(len(fromfile)==1):
              print 'please provide one netcdf filename'
              sys.exit() 
-          dummy, file_obs1, file_obs2, file_obs3, file_obs4, file_obs5 = _get_ncname(argdict=argdict)
-          return _readnc(fromfile[0], file_obs1, file_obs2, file_obs3, file_obs4, file_obs5, argdict=argdict)
+          dummy, file_obs, = _get_ncname(argdict=argdict)
+          return _readnc(fromfile[0], file_obs, argdict=argdict)
        elif fromfile[0].endswith('.mtl'): # if mtlfile name is provided
              print 'mlt not supported'
              sys.exit()
        else:                    
           pass
     elif fromfile==[]:                    # production mode
-       file_nc, file_obs1, file_obs2, file_obs3, file_obs4, file_obs5 = _get_ncname(argdict=argdict)
+       file_nc, file_obs = _get_ncname(argdict=argdict)
        # first try to open a netcdf file
-       if os.path.isfile(file_nc) and os.path.isfile(file_obs1) and os.path.isfile(file_obs2) \
-       and os.path.isfile(file_obs3) and os.path.isfile(file_obs4) and os.path.isfile(file_obs5):
-          return _readnc(file_nc, file_obs1, file_obs2, file_obs3, file_obs4, file_obs5, argdict=argdict) 
+       if os.path.isfile(file_nc) and os.path.isfile(file_obs):
+          return _readnc(file_nc, file_obs, argdict=argdict) 
           
 def _get_ncname(argdict=myargs):
     filename = argdict['datadir'] + osp + argdict['config'] + '-' \
              + argdict['case'] + '_1y_TAO.nc' 
-    fileobs5 = argdict['dataobsdir'] + osp + 'cur0n110w_mon.cdf'
-    fileobs4 = argdict['dataobsdir'] + osp + 'cur0n140w_mon.cdf'
-    fileobs3 = argdict['dataobsdir'] + osp + 'cur0n170w_mon.cdf'
-    fileobs2 = argdict['dataobsdir'] + osp + 'cur0n165e_mon.cdf'
-    fileobs1 = argdict['dataobsdir'] + osp + 'cur0n156e_mon.cdf'
-    return filename, fileobs1, fileobs2, fileobs3, fileobs4, fileobs5
+    fileobs  = argdict['dataobsdir'] + osp + 'dmondata_tao-equator_clim_PMEL-NOAA.nc'
+    return filename, fileobs
 
 #=======================================================================
 
-def _readnc(filenc=None,fileobs1=None,fileobs2=None,fileobs3=None,fileobs4=None,fileobs5=None,argdict=myargs):
+def _readnc(filenc=None,fileobs=None,argdict=myargs):
 
     import matplotlib.pylab as plt
     from numpy import nan
     outdict = {} # creates the dictionnary which will contain the arrays
-    coord=['0n156e','0n165e','0n170w','0n140w','0n110w']
 
-    ##### Donnees d'observation ######
+    lon_obs = rs.readfilenc(fileobs,'nav_lon')
+    lat_obs = rs.readfilenc(fileobs,'nav_lat')
+    dep_obs = rs.readfilenc(fileobs,'depthu')
+    uzo_obs = rs.readfilenc(fileobs,'vozocrtx')
 
-    for j in range(1,6):
-        #Profondeur
-        outdict['o_Profondeur'+str(j)] = rs.readfilenc(vars()['fileobs'+str(j)],'depth')
-        depth_obs = rs.readfilenc(vars()['fileobs'+str(j)],'depth')
-        #Vitesse
-        vars()['Uzonale_obs'+str(j)]=rs.readfilenc(vars()['fileobs'+str(j)],'U_320')
-        vars()['tabmoy'+str(j)]=[]
+    ### rebuild a dictionary
 
-        for i in range(0,len(vars()['Uzonale_obs'+str(j)][0]),1):
-            profil=vars()['Uzonale_obs'+str(j)][:,i]
-            vars()['val_nul'+str(j)+'_'+str(i)]=[]
+    ## 1. define moorings name
+    ##    this is a bit heavy but it is necessary to split 
+    ##    the data from 4d arrays of NC file
 
-            for k in range(0,len(profil),1):
-                if profil[k]>1e35:
-                   vars()['val_nul'+str(j)+'_'+str(i)].append(k)
-                   profil[k]=0
+    lon_moor = lon_obs[0,:] ; moor_name = []
+    ind_swap_EW = npy.where( lon_moor > 180. )
+    lon_moor[ind_swap_EW] = 360. - lon_moor[ind_swap_EW]
 
-            vars()['tabmoy'+str(j)].append(rs.mean_0(profil))
+    for km in range(len(lon_moor)):
+        moor_name.append(str(int(lon_moor[km])) + 'e') # default lon is towards east
 
-        outdict['o_Vitesse'+str(j)] = vars()['tabmoy'+str(j)]
+    for km in list(ind_swap_EW[0].data):
+        moor_name[km] = moor_name[km].replace('e','w') # correct for western moorings 
 
-        ##Serie
-        vars()['Indice_profondeur_serie'+str(j)]=rs.getIndex(vars()['tabmoy'+str(j)],max(vars()['tabmoy'+str(j)]))
-        outdict['o_serie_Profondeur'+str(j)] = depth_obs[vars()['Indice_profondeur_serie'+str(j)]]
-        vars()['Variation_serie_obs'+str(j)]=vars()['Uzonale_obs'+str(j)][:,vars()['Indice_profondeur_serie'+str(j)]]
-        #Calendrier
-        time=rs.readfilenc(vars()['fileobs'+str(j)],'time')
-        vars()['temps_annee_obs'+str(j)]=time/365
-        Origine_temps=[1991,1986,2002,1983,1980]
-        vars()['Calendrier_obs'+str(j)]=Origine_temps[j-1]+vars()['temps_annee_obs'+str(j)]
-        #Annee premiere observation
-        vars()['Origine_o'+str(j)]=vars()['Calendrier_obs'+str(j)][0]
-        #Annee derniere observation
-        vars()[('shape_o'+str(j))]=plt.shape(vars()['Calendrier_obs'+str(j)])
-        vars()['Fin_o'+str(j)]=int(vars()['Calendrier_obs'+str(j)][vars()['shape_o'+str(j)][0]-1])
-        vars()['Duree_o'+str(j)]=vars()['Fin_o'+str(j)]-int(vars()['Origine_o'+str(j)])+1
-        a=vars()['Origine_o'+str(j)]
-        #Moyennes annuelles des observations
-        vars()['Variation_moyenne_annuelle'+str(j)]=[]
-        vars()['Annees'+str(j)]=[]
+    outdict['coord'] = moor_name
 
-        for i in range(0,vars()['Duree_o'+str(j)]):
-            vars()['Variation_sur_une_annee'+str(j)+'_'+str(i)]=[]
-            vars()['Annees'+str(j)].append(a+i)
-            for k in range(0,plt.shape(vars()['Calendrier_obs'+str(j)])[0]):
-                if a+i<=vars()['Calendrier_obs'+str(j)][k]<=a+i+1:
-                    vars()['Variation_sur_une_annee'+str(j)+'_'+str(i)].append(vars()['Variation_serie_obs'+str(j)][k])
+    ## 2. fill with observations data
+    for km in range(len(moor_name)):
+        outdict['u_'    + moor_name[km] + '_obs' ] = uzo_obs[:,km]
+        outdict['dept_' + moor_name[km] + '_obs' ] = dep_obs[:,km]
 
-            vars()['Moyenne_annuelle_obs'+str(j)+'_'+str(i)]=rs.mean_0(vars()['Variation_sur_une_annee'+str(j)+'_'+str(i)])
-            vars()['Variation_moyenne_annuelle'+str(j)].append(vars()['Moyenne_annuelle_obs'+str(j)+'_'+str(i)])
+    ## 3. model outputs
+    outdict['dept_mod'] = rs.readfilenc(filenc,'depth')
+    outdict['time_mod'] = rs.get_datetime(filenc)
 
-        outdict['o_serie_Annees'+str(j)] = vars()['Annees'+str(j)]
+    km = 0
+    for moor in moor_name:
+	try:
+		temp = rs.readfilenc(filenc,'u_' + moor)
+		if len(temp.shape) == 1:
+			outdict['u_' + moor_name[km] + '_mod' ] = temp
+		else:
+			outdict['u_' + moor_name[km] + '_mod' ] = temp.mean(0)
+	except:
+		print 'fail to read mooring ', moor
+		pass
+	km = km + 1
 
-        for i in range(0,plt.shape(vars()['Variation_moyenne_annuelle'+str(j)])[0]):
-            if vars()['Variation_moyenne_annuelle'+str(j)][i]==0:
-                vars()['Variation_moyenne_annuelle'+str(j)][i]=nan
-
-        outdict['o_serie_Variation_moyenne_annuelle'+str(j)] = vars()['Variation_moyenne_annuelle'+str(j)]
-
-    ###### Donnees Modele ######
-    coordonnees = ['156e','165e','170w','140w','110w']
-    outdict['m_Profondeur'] = rs.readfilenc(filenc,'depth')
-    outdict['m_Temps_serie'] = rs.readfilenc(filenc,'time_counter')
-
-    for j in range(1,6):
-        temp = rs.readfilenc(filenc,'u_'+coordonnees[j-1])
-        if len(temp.shape) == 1:
-            outdict['m_Vitesse'+str(j)] = temp
-        else:
-            #outdict['m_Vitesse'+str(j)] = temp[-1,:]
-            outdict['m_Vitesse'+str(j)] = temp.mean(0)
-        outdict['m_Valeur_sous_courant'+str(j)] = rs.readfilenc0d(filenc,'u_'+coordonnees[j-1]+'_UC')
-        #longitude
-        #lon=rs.readfilenc(filenc,'nav_lon')
-        #vars()['long_model'+str(j)]=''
-        #if lon<0:
-        #    vars()['long_model'+str(j)] = `int(-lon)`+'W'
-        #else :
-        #    vars()['long_model'+str(j)] = `int(lon)`+'E'
-        #outdict['m_Longitude'+str(j)] = vars()['long_model'+str(j)]
-        outdict['m_Longitude'+str(j)] = coordonnees[j-1].upper()
-        #latitude
-        #lat=rs.readfilenc(filenc,'nav_lat')
-        lat=0.
-        vars()['lati_model'+str(j)] = `int(lat)`+'N'
-        if lat<0:
-            vars()['lati_model'+str(j)]=`int(lat)`+'S'
-        outdict['m_Latitude'+str(j)] = vars()['lati_model'+str(j)]
-    #
     return outdict   #return the dictionnary of values
 
 
@@ -177,13 +125,6 @@ def _readnc(filenc=None,fileobs1=None,fileobs2=None,fileobs3=None,fileobs4=None,
 #=======================================================================
 
 def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
-    plt.rcParams['figure.subplot.right']=0.96
-    plt.rcParams['figure.subplot.left']=0.08
-    plt.rcParams['figure.subplot.top']=0.79
-    plt.rcParams['figure.subplot.bottom']=0.12
-    plt.rcParams['figure.subplot.wspace']=0.31
-    plt.rcParams['legend.numpoints']=2
-    #plt.rcParams['legend.borderaxespad']=-0.2
     #
     if figure is None: # by default create a new figure
         figure = plt.figure(figsize=fig_size)
@@ -191,30 +132,31 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     for key in kwargs:
         exec(key+'=kwargs[key]')
     #
-    for j in range(1,6):
-        plt.subplot(1,5,j)
-        #
-        plt.plot(100*vars()['m_Vitesse'+str(j)],-m_Profondeur,color+'-',linewidth=1,label='Model')
-        plt.plot(vars()['o_Vitesse'+str(j)],-vars()['o_Profondeur'+str(j)],'bx',label='Data from buoy')
-#        if j==3:
-#            plt.legend(loc=8) # set to bottom center
-        if j==1:
-            plt.ylabel('Depth (m)')
-        if j!=3:
-            plt.title(' ' + '\n' + vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)])
-        if j==3:
-            if compare :
-	            plt.title('Mean profile of zonal currents\n ' + vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)] )
-            else :
-	            plt.title(argdict['config'] + '-' + argdict['case'] +';'+'\n\nMean profile of zonal currents' + \
-                    ' (model from year ' + str(int(m_Temps_serie[0])) + ' to ' + str(int(m_Temps_serie[-1])) + ') \n\n ' \
-                    + vars()['m_Longitude'+str(j)]+vars()['m_Latitude'+str(j)] \
-                    )
 
-            plt.xlabel('Velocity (cm/s)')
-        plt.setp(plt.gca().get_xticklabels(),rotation=60,fontsize=8)
+    nbplots = len(coord)
+
+    for kp in range(nbplots):
+	plt.subplot(1,nbplots,kp+1)
+	uzon_mod = 100. * vars()['u_'    + coord[kp] + '_mod'] # in cm/s
+	uzon_obs = 100. * vars()['u_'    + coord[kp] + '_obs'] # in cm/s
+	dept_obs =        vars()['dept_' + coord[kp] + '_obs']
+
+	plt.plot(uzon_mod,-dept_mod,color,uzon_obs,-dept_obs,'bx')
         plt.axis([-40,120,-320,0])
         plt.grid(linestyle='-',linewidth=0.1)
+
+	if not(compare) and kp==int(nbplots / 2.):
+                plt.title('Mean profile of zonal currents ( model : ' 
+                           + str( time_mod[0].year ) + '-' + str( time_mod[-1].year ) +  ' ) - ' 
+                           + argdict['config'] + '-' + argdict['case']+'\n'+ coord[kp])
+        else :
+                plt.title(coord[kp])
+
+	if kp==int(nbplots / 2.):
+        	plt.xlabel('Velocity (cm/s)')
+	if kp==0:
+        	plt.ylabel('Depth (m)')
+
     #
     return figure
 
