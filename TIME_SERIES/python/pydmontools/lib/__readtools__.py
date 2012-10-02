@@ -29,6 +29,7 @@ import matplotlib.dates as mdates
 osp = os.sep
 
 #=======================================================================
+# Parser related
 
 def get_list_of_freq():
 	list_of_freq = ['1m','1y'] # likely to be completed
@@ -41,6 +42,9 @@ def check_freq_arg(freqin):
 	else:
 		print 'Wrong input argument for frequency of monitoring' ; exit()
 	#
+
+#=======================================================================
+# Date/Calendar functions
 
 strmth2strnum = {'JAN':'01','FEB':'02','MAR':'03','APR':'04','MAY':'05','JUN':'06','JUL':'07',\
 		'AUG':'08','SEP':'09','OCT':'10','NOV':'11','DEC':'12'}
@@ -68,7 +72,99 @@ def get_datetime(ncfile,tname='time_counter'):
     _dates = mdates.num2date(time_counter/mdates.SECONDS_PER_DAY + num_origin) # num are given in days
     cleandate = lambda d:d.replace(hour=0,minute=0,second=0)
     dates = map(cleandate,_dates)
+    # correct to gregorian calendar
+    dates = correct_dates_calendar(ncfile,dates,date_origin,tname)
     return dates
+
+def correct_dates_calendar(ncfile,dates,date_origin,tname='time_counter'):
+	fid   = CDF.NetCDFFile(ncfile,'r')
+	try:
+		calendar = fid.variables[tname].calendar
+		if calendar == 'gregorian':
+			corrected_dates = dates
+			pass # no correction is needed
+		elif calendar == 'noleap':
+			# add the 'lost' leap days
+			corrected_dates = []
+			for date in dates:
+				nld    = how_many_leapdays(date,date_origin)
+				#print ' adding leap days : ', nld
+				deltat = mdates.datetime.timedelta(days=nld)
+				#print 'old date =', date
+				date   = date + deltat
+				corrected_dates.append(date)
+				#print 'new date =', date
+		elif calendar == '360d':
+			# RD: not even tested cos no run available...
+			# add the 'lost' leap days + 5 days each year
+			corrected_dates = []
+			for date in dates:
+				nld    = how_many_leapdays(date,date_origin)
+				n5d    = (date.year - date_origin.year) * 5
+				ntot   = nld + n5d
+				#print ' adding leap days : ', nld
+				deltat = mdates.datetime.timedelta(days=ntot)
+				#print 'old date =', date
+				date   = date + deltat
+				corrected_dates.append(date)
+				#print 'new date =', date
+		else:
+			print 'Unknown calendar' ; exit()
+	except:
+		print 'Calendar attribute not found'
+	fid.close()
+	return corrected_dates
+	
+def how_many_leapdays(date,date_origin):
+	ct = 0 # number of leap days
+	# if our origin is after the 29/02 there is
+	# no need to add the leap day of the first year (if any)
+	if date_origin.month >= 3:
+		fyear = date_origin.year + 1
+	else:
+		fyear = date_origin.year
+	# if current date after the 29/02, we have to add
+	# the leap day of current year
+	if date.month >= 3:
+		lyear = date.year + 1
+	else:
+		lyear = date.year
+
+	for year in numpy.arange(fyear,lyear):
+		if _is_leap_year(year):
+			ct = ct + 1
+		else:
+			pass
+	return ct
+
+def _is_leap_year(year):
+   """Return True if year is a leap year
+   """
+   if year % 400 == 0:
+      return True
+   elif year % 100 == 0:
+      return False
+   elif year % 4 == 0:
+      return True
+   else:
+      return False
+
+
+## Obsolete functions
+def get_years(file,offset=0):
+    fid   = CDF.NetCDFFile(file,'r')
+    years = numpy.array(fid.variables['time_counter'][:]) 
+    years = years + offset
+    return years 
+
+def get_years_intpart(file,offset=0):
+    fid   = CDF.NetCDFFile(file,'r')
+    years = numpy.array(fid.variables['time_counter'][:]) 
+    years = numpy.floor(years) + offset
+    return years 
+
+#=======================================================================
+# NetCDF I/O
 
 def datafileroot(argdict): # could be used in individual plotting scripts...
     return argdict['datadir'] + osp + argdict['config'] + '-' + argdict['case']
@@ -87,17 +183,6 @@ def readfilenc0d(file,varname):
     fid.close()
     return value
 
-def get_years(file,offset=0):
-    fid   = CDF.NetCDFFile(file,'r')
-    years = numpy.array(fid.variables['time_counter'][:]) 
-    years = years + offset
-    return years 
-
-def get_years_intpart(file,offset=0):
-    fid   = CDF.NetCDFFile(file,'r')
-    years = numpy.array(fid.variables['time_counter'][:]) 
-    years = numpy.floor(years) + offset
-    return years 
 
 def define_all_sections(argdict,compare,file_section='drakkar_sections_table.txt'):
     #
