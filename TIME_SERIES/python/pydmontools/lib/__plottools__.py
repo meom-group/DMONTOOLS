@@ -88,8 +88,13 @@ def set_dateticks(ax,aspect_ratio=1.):
        yr_int = 10
        mth_int= None 
     # set the ticks locators and formatters
-    majorLoc   = mdates.YearLocator(base=yr_int)
-    majorFmt = mdates.DateFormatter('%Y')
+    # the if loop is a fix because YearLocator can fail in case yrdeb is smaller than yr_int
+    if datelims[0].year>yr_int: # change the Locator only if the condition is met
+       majorLoc   = mdates.YearLocator(base=yr_int)
+       majorFmt = mdates.DateFormatter('%Y')
+    else:                       # reapply the same Locator and Formatter
+       majorLoc =  ax.xaxis.get_major_locator()
+       majorFmt =  ax.xaxis.get_major_formatter()
     # format the ticks
     ax.xaxis.set_major_locator(majorLoc)
     ax.xaxis.set_major_formatter(majorFmt)
