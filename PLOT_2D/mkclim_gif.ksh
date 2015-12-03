@@ -9,7 +9,7 @@ if [ $# = 0 ] ; then
 fi
 
 mkgif() {
-   ctrans -d sun -res 1024x1024 $1 > ztmp.sun
+   ctrans -device sun -res 1024x1024 $1 > ztmp.sun
    convert ztmp.sun $2
    \rm ztmp.sun
         }

@@ -1,5 +1,15 @@
 #!/bin/ksh
-# This is a wrapper for submitting metamon.sub from the CDF directory
+## =====================================================================
+##     ***  script  RUN_metamon.ksh  ***
+## This is a wrapper for submitting metamon.sub from the CDF directory
+## =====================================================================
+## History : 1.0  !  2008     J.M. Molines      Original code
+## ----------------------------------------------------------------------
+##  DMONTOOLS_2.0 , MEOM 2012
+##  $Id: RUN_metamon.ksh 636 2015-08-19 08:50:48Z molines $
+##  Copyright (c) 2012, J.-M. Molines
+##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
+## ----------------------------------------------------------------------
 #
 if [ $# != 2 ] ; then
    echo USAGE: RUN_metamon.ksh year-init year-end
@@ -8,6 +18,9 @@ fi
 
   year1=$1
   year2=$2
+
+ # if only one year ...
+  year2=${year2:=$year1}
 
   . ./config_def.ksh
   . ./function_def.ksh
@@ -52,14 +65,18 @@ fi
 
      echo This job is asking for $NB_NODES nodes and $NB_NPROC cores
   fi
+  year1=$( printf "%04d" $year1)
+  year2=$( printf "%04d" $year2)
 
   # submit the monitoring mpi
-  cat $PRODTOOLS/metamon.skel.sub | sed -e "s/<year1>/$year1/" -e "s/<year2>/$year2/" \
+  cat $PRODTOOLS/metamon.skel.sub | sed -e "s/key_$MACHINE/PBS/" \
+      -e "s/<year1>/$year1/" -e "s/<year2>/$year2/" \
       -e "s@<R_MONITOR>@$R_MONITOR@" -e "s/<NB_NODES>/$NB_NODES/" -e "s/<MAIL>/$MAIL/" \
+      -e "s@<QUEUE>@$QUEUE@" -e "s/<ACCOUNT>/$ACCOUNT/"  \
       -e "s/<JOBTYPE>/$JOBTYPE/" -e "s/<NB_NPROC>/$NB_NPROC/g" -e "s/<MPIPROC>/$MPIPROC/g" \
       -e "s/ifloadlev#/$TASKTRICK/g" -e "s/<RNDTMPDIR>/$RNDTMPDIR/" \
       -e "s/<WALLTIME>/$WALLTIME/" -e "s/<WALL_CLOCK_LIMIT>/$WALL_CLOCK_LIMIT/" > metamon.sub
   chmod +x metamon.sub
-  $SUB ./metamon.sub
+  submit  ./metamon.sub
   \rm  metamon.sub
 

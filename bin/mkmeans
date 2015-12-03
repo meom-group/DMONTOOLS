@@ -1,23 +1,29 @@
 #!/bin/ksh
+## =====================================================================
+##     ***  script  mkmeans  ***
+##  This script is used to install MOY_PROD tools in CTL/CDF of a given
+##  CONFIG-CASE of a DRAKKAR run.
+## =====================================================================
+## History : 1.0  !  2010    J.M. Molines      Original code
+## ----------------------------------------------------------------------
+##  DMONTOOLS_2.0 , MEOM 2012
+##  $Id: mkmeans 637 2015-12-03 11:12:28Z molines $
+##  Copyright (c) 2012, J.-M. Molines
+##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
+## ----------------------------------------------------------------------
 #
-#  mkmeans script :
-#  This script is used to create the CTL/CDF directory for the means of a DRAKKAR run
-#
-#  For CONFIG xxx and CASE yyy
-#  It creates (if necessary) directories in 
-#  ${PDIR} : Production directory where monitor scripts will be. 
-#            PDIR has to be defined in environment. 
-#            RUN_xxx
-#            RUN_xxx/xxx-yyy
-#            RUN_xxx/xxx-yyy/CTL
-#            RUN_xxx/xxx-yyy/CTL/CDF
-#
-
 ### The path to this script must be in your directory
 usage() {   echo 'usage : mkmeans CONFIG CASE'
             echo '  or  : mkmeans -a'
-            echo '        with -a CONFIG and CASE are taken from the actual directory'
+            echo '        With -a CONFIG and CASE are taken from the actual directory'
             echo '        in this latter case, the command must be issued from CTL dir'
+            echo '  '
+            echo '   Action :'
+            echo '      Install all MOY_PROD tools into the CTL/CDF directory of '
+            echo '      CONFIG-CASE DRAKKAR configuration. Create missing directory '
+            echo '      if necessary.'
+            echo '         After installation, some scripts requires customization for'
+            echo '      choice, sub dir path etc... ( config_moy.ksh )'
   exit 1   ; }
 
      
@@ -74,13 +80,23 @@ chkdir RUN_${CONFIG}/${CONFIG}-${CASE}/CTL/CDF
 P_CDF_DIR=$PDIR/RUN_${CONFIG}/${CONFIG}-${CASE}/CTL/CDF
 
 # find the DMONTOOLS directory 
-SRCDIR=$( which mkmeans | sed -e "s/mkmeans//" )
+SRCDIR=$DMON_ROOTDIR/TEMPLATES
 
 cp $SRCDIR/function_moy.ksh         $P_CDF_DIR/.
+
 cp $SRCDIR/RUN_calmoy.ksh           $P_CDF_DIR/.
+cp $SRCDIR/RUN_calmoy_ADA.ksh       $P_CDF_DIR/.
 cp $SRCDIR/RUN_calmoy_LoadLev.ksh   $P_CDF_DIR/.
+cp $SRCDIR/RUN_calmoy_OCCIGEN.ksh   $P_CDF_DIR/.
 cp $SRCDIR/RUN_calmoy_PBS.ksh       $P_CDF_DIR/.
-cp $SRCDIR/RUN_calinter_PBS.ksh       $P_CDF_DIR/.
+cp $SRCDIR/RUN_calmoy_SLURM.ksh     $P_CDF_DIR/.
+
+cp $SRCDIR/RUN_calinter_ADA.ksh     $P_CDF_DIR/.
+cp $SRCDIR/RUN_calinter_OCCIGEN.ksh $P_CDF_DIR/.
+cp $SRCDIR/RUN_calinter_PBS.ksh     $P_CDF_DIR/.
+cp $SRCDIR/RUN_calinter_SLURM.ksh   $P_CDF_DIR/.
+
+cp $SRCDIR/RUN_mk*.ksh              $P_CDF_DIR/.
 
 chmod +x $P_CDF_DIR/RUN_calmoy*.ksh
 chmod +x $P_CDF_DIR/RUN_calinter*.ksh

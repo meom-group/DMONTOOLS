@@ -20,7 +20,7 @@ fi
 
 if  (( $# < 2 )) || (( $# > 3 )) ; then
     echo '*** USAGE: links_annual_files.ksh CONFIG CASE (optional : REMOTE_MACHINE)'
-    echo '*** EXAMPLE : links_annual_files.ksh NATL025 GRD81 gaya'
+    echo '*** EXAMPLE : links_annual_files.ksh NATL025 GRD81 ergon'
     exit 0
 fi
 

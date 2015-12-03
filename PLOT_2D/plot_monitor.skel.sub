@@ -1,12 +1,30 @@
 #!/bin/ksh
 ### PBS is valid on JADE
-#PBS -N zplotmonitor
-#PBS -l select=<NB_NODES>:ncpus=<MPIPROC>:mpiprocs=<MPIPROC>
-#PBS -l walltime=04:00:00
-#PBS -l cluster=hpt
-#PBS -M <MAIL>
-#PBS -mb -me
-#PBS -v NB_NODES=<NB_NODES>
+#jade -N zplotmonitor
+#jade -l select=<NB_NODES>:ncpus=<MPIPROC>:mpiprocs=<MPIPROC>
+#jade -l walltime=<PLOT_WALLTIME>
+#jade -l cluster=hpt
+#jade -M <MAIL>
+#jade -mb -me
+#jade -v NB_NODES=<NB_NODES>
+
+#vayu -N zplotmonitor
+#vayu -l select=<NB_NODES>:ncpus=<MPIPROC>:mpiprocs=<MPIPROC>
+#vayu -l walltime=<PLOT_WALLTIME>
+#vayu -l cluster=hpt
+#vayu -M <MAIL>
+#vayu -mb -me
+#vayu -v NB_NODES=<NB_NODES>
+
+#SBATCH --nodes=<NB_NODES>
+#SBATCH --ntasks=<NB_NPROC>
+#SBATCH --ntasks-per-node=<MPIPROC>
+#SBATCH --threads-per-core=1
+#SBATCH -J zplotmonitor
+#SBATCH -e zplotmonitor.e%j
+#SBATCH -o zplotmonitor.o%j
+#SBATCH --time=<PLOT_WALLTIME>
+#SBATCH --exclusive
 
 ### LoadLeveler on ULAM and VARGAS
 ## title of the run
@@ -15,13 +33,24 @@
 # @ output = $(job_name).$(jobid)
 # @ error  = $(output)
 # @ job_type = <JOBTYPE>
+# specifique Adapp
+# @ requirements = (Feature == "prepost")
 #ifloadlev# @ total_tasks = <NB_NPROC>
-# @ wall_clock_limit = 72000
-# @ data_limit = 3.2gb
+# @ wall_clock_limit = <PLOT_WALLTIME>
+# @ as_limit = 3.2gb
 # @ queue
 
+### SLURM is valid on CURIE
+#MSUB -r zplotmonitor
+#MSUB -n   <NB_NPROC>              # Number of tasks to run            
+#MSUB -N   <NB_NODES>              # Number of nodes to use          
+#MSUB -q <QUEUE>
+#MSUB -o zplotmonitor.%I
+#MSUB -e zplotmonitor.%I
+#MSUB -T <PLOT_WALLTIME>
+#MSUB -A <ACCOUNT>
 
-#set -x
+set -x
 RNDTMPDIR=<RNDTMPDIR>
 
 if [ $RNDTMPDIR == 1 ] ; then
@@ -40,6 +69,9 @@ cp     $PLOTTOOLS/plot_monitor.ksh    $TMPDIR
 if [ $useMPI == 1 ] ; then cp $MPITOOLS/mpi_plot_monitor $TMPDIR ; fi
 
 else
+
+TMPDIR=$WORKDIR/GKSTMPDIR
+mkdir -p $TMPDIR
 
 cd <P_MONITOR>
 
@@ -64,19 +96,54 @@ fi
 if [ $useMPI = 1 ] ; then
 # MPI execution
 
-  if [ $MACHINE = 'jade' ] ; then
+  case $MACHINE in 
+  ( jade )
     # mpi_plot_monitor $YEARS 
     #  Then each proc is expecting a command such as plot_monitor.ksh  $year
     if [ $single = 0 ] ; then
-    mpiexec_mpt -n <NB_NPROC> ./mpi_plot_monitor $YEARS
+       mpiexec_mpt -n <NB_NPROC> ./mpi_plot_monitor $YEARS
     else
-     ./plot_monitor.ksh $YEARS
-    fi
+      ./plot_monitor.ksh $YEARS
+    fi   ;;
 
-   else
-   #ulam
-    ./mpi_plot_monitor $YEARS
-   fi
+  ( occigen )
+    # mpi_plot_monitor $YEARS 
+    #  Then each proc is expecting a command such as plot_monitor.ksh  $year
+    if [ $single = 0 ] ; then
+       srun --mpi=pmi2  -n <NB_NPROC> ./mpi_plot_monitor $YEARS
+    else
+      ./plot_monitor.ksh $YEARS
+    fi   ;;
+
+
+  ( vayu )
+    # mpi_plot_monitor $YEARS
+    #  Then each proc is expecting a command such as plot_monitor.ksh  $year
+    if [ $single = 0 ] ; then
+    mpirun  -n <NB_NPROC> ./mpi_plot_monitor $YEARS
+    fi   ;;
+
+  ( ada )
+    if [ $single = 0 ] ; then
+       poe ./mpi_plot_monitor $YEARS 
+    else
+      ./plot_monitor.ksh $YEARS
+    fi   ;;
+
+  ( ulam )
+    ./mpi_plot_monitor $YEARS  ;;
+
+  ( curie )
+    if [ $single = 0 ] ; then
+       ccc_mprun -E '-m cyclic ' -n <NB_NPROC>  ./mpi_plot_monitor $YEARS 
+    else
+      ./plot_monitor.ksh $YEARS
+    fi   ;;
+
+
+  ( * )
+    echo No support for machine $MACHINE ;;
+   esac
 
 else
 

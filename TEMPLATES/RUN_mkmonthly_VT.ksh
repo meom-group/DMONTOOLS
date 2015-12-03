@@ -1,0 +1,94 @@
+#!/bin/ksh
+#-----------------------------------------------------------------------
+# $Id: mkmonthly_VT.ksh 20 2015-05-22 09:44:31Z molines $  mkmonthly_VT.ksh : compute monthly VT files from monthly U V T 
+#-----------------------------------------------------------------------
+. ./config_moy.ksh
+
+usage() {
+    echo "  USAGE : $(basename $0 ) Y1 [Y2]"
+    echo 
+    echo "  Purpose:"
+    echo "      This script is a wrapper to submit the computation of "
+    echo "      monthly VT from NEMO monthly mean "
+    echo "      This script must be run from CTL/CDF dir"
+    echo 
+    echo " Arguments:"
+    echo "   Y1 : first year to compute annual mean. "
+    echo "   Y2 : last year to comput annual mean. If missing only work with Y1."
+    exit
+       }
+HERE=$(pwd)
+if [ $( basename $HERE ) != CDF ] ; then usage ; fi
+if [ $# = 0 ] ; then usage ; fi
+
+tmp=$(dirname `dirname $HERE` ) 
+CONFCASE=$(basename $tmp)
+CONFIG=$( echo $CONFCASE | awk -F- '{print $1}' )
+CASE=$(   echo $CONFCASE | awk -F- '{print $2}' )
+freq=$XIOS
+
+y1=$1
+y2=$2
+
+y2=${y2:=$y1}
+
+# eventually set -nc4 option for cdftools 
+if [ $NC4 = 1 ] ; then NC4='-nc4' ; else NC4="" ; fi
+
+case $MACHINE in
+   ( curie )
+submit=ccc_msub
+cat << eof > zmkmontlyVT.ksh
+#!/bin/ksh
+#MSUB -r monthlyVT
+#MSUB -n  12
+#MSUB -T 7200
+#MSUB -q standard
+#MSUB -o zmonthlyVT.o%I
+#MSUB -e zmonthlyVT.e%I
+
+#MSUB -A gen0727
+cd \${BRIDGE_MSUB_PWD}
+eof
+echo " " ;;
+    ( * )
+  echo " add support for $MACHINE  "
+  exit 1 ;;
+esac
+
+#
+cat << eof >> zmkmontlyVT.ksh
+DTADIR=$REMDIR/${CONFIG}/${CONFCASE}-S/$freq
+
+# goto MEAN directory
+mkdir -p $DDIR/${CONFIG}/${CONFCASE}-MEAN/$freq/
+cd $DDIR/${CONFIG}/${CONFCASE}-MEAN/$freq/
+
+# loop on years
+for y in \$(seq $y1 $y2 ) ; do
+  mkdir -p \$y
+  cd \$y
+  # link already computed montly files from DTADIR
+  ln -sf \$DTADIR/\$y/${CONFCASE}_y\${y}m??.${freq}_grid[UVT].nc ./
+
+  # set up mpirun commmand to process 12 month in parallel
+  cmd=" mpirun  "
+  for m in \$(seq -f "%02g" 1 12 ) ; do
+     tag=y\${y}m\${m}.$freq
+     cmd="\$cmd -np 1 cdfvT $CONFCASE $NC4 -o ${CONFCASE}_\${tag}_VT.nc \$tag  :"
+  done
+  
+  # launch mpirun command (skip trailing : )
+  cmd=\${cmd%:}
+  \$cmd
+
+  # touch VT_DONE locally to tell annual mean script that it is OK
+  touch VT_DONE
+
+  # back to -MEAN
+  cd ../
+done
+eof
+
+
+$submit  ./zmkmontlyVT.ksh

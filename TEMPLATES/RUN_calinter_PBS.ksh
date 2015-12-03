@@ -10,11 +10,7 @@ fi
 . ./function_moy.ksh
 
 # set additional variables
-WPDIR=/work/$USER/RUN_${CONFIG}/${CONFIG}-${CASE}/CTL/CDF
-chkdir /work/$USER/RUN_${CONFIG}/
-chkdir /work/$USER/RUN_${CONFIG}/${CONFIG}-${CASE}/
-chkdir /work/$USER/RUN_${CONFIG}/${CONFIG}-${CASE}/CTL/
-chkdir $WPDIR
+mkdir -p  $WPDIR
 
 
 # copy required scripts there:
@@ -33,7 +29,7 @@ cat << eof > zcalinter_${year1}-${year2}
 #PBS -l walltime=1:30:00
 #PBS -l cluster=hpt
 
-CTL_DIR=${HOME}/RUN_${CONFIG}/${CONFCASE}/CTL/CDF
+CTL_DIR=$WPDIR
 cd \$CTL_DIR
 . ./config_moy.ksh
 . ./function_moy.ksh

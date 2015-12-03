@@ -144,12 +144,13 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
         if not(compare):
            ax1 = figure.add_subplot(nsection,2,2*pltline+1)
            # colorbar centered
-           maxvalue = npy.ceil((trpsig/dsigma).max())
+           maxvalue = npy.ceil((abs(trpsig/dsigma)).max())
            step = 2 * maxvalue / ncontour
            contours = npy.arange(-maxvalue,maxvalue+step,step)
-           plt.contourf(date, sigma,npy.transpose(trpsig/dsigma),contours,cmap=cm.jet_r)
+           zval=npy.transpose(trpsig/dsigma)
+           plt.contourf(date, sigma,zval,contours,cmap=cm.jet_r, extend='both')
            plt.colorbar(format='%.1f')
-           plt.contour(date, sigma,npy.transpose(trpsig/dsigma),[0],colors='white')
+           plt.contour(date, sigma,zval,[0],colors='white')
            plt.plot(date, 27.8 * npy.ones(_date.shape),'w-.')
            ax1.grid(True)
            ax1.axis([min(_date), max(_date), 29.2, 25.3])

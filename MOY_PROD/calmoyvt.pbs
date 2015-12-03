@@ -1,19 +1,23 @@
 #!/bin/ksh
-#PBS -N zmvt_<year>
-#PBS -l select=2:ncpus=8:mpiprocs=6
-#PBS -l walltime=0:30:00
-#PBS -l cluster=hpt
-##PBS -mb -me
-#PBS -v NB_NODES=2,NB_NPROC=12
+#jade -N zmvt_<year>
+#jade -l select=2:ncpus=8:mpiprocs=6
+#jade -l walltime=0:30:00
+#jade -l cluster=hpt
+#jade -v NB_NODES=2,NB_NPROC=12
+
+#vayu -N zmvt_<year>
+#vayu -l ncpus=16
+#vayu -l walltime=0:30:00
+#vayu -v NB_NODES=2,NB_NPROC=12
 
 set -x
 CONFIG=<CONFIG>
 CASE=<CASE>
 
 CONFCASE=${CONFIG}-${CASE}
-CTL_DIR=${HOME}/RUN_${CONFIG}/${CONFCASE}/CTL/CDF
+CTL_DIR=<WPDIR>
 
-. $HOME/.profile
+#. $HOME/.profile
 cd $CTL_DIR
 . ./config_moy.ksh
 
@@ -26,6 +30,6 @@ done
 #
 module load netcdf
 
-mpiexec_mpt -n $NB_NPROC $WORKDIR/bin/mpi_shell $liste
+runcode  $NB_NPROC <MPITOOLS>/mpi_shell $liste
 
 

@@ -26,7 +26,7 @@ here=$(pwd)
 cd $PDIR/RUN_$CONFIG/$CONFCASE/CTL/CDF
 
 . ./config_def.ksh   # source the correct config_def.ksh dir
-cd $SDIR/$CONFIG/${CONFCASE}-MEAN
+cd $SDIR/$CONFIG/${CONFCASE}-MEAN/$XIOS
 # look for the years to be looked for:
 tmp=$( ls -d  [0-9]??? )
 
@@ -34,36 +34,33 @@ years=''
 for f in $tmp ; do
   if [ -d $f ] ; then years="$years $f" ; fi
 done
+############## JMM ADD ##############################
+#  years=$( seq 1958 1969 )
+############## JMM ADD ##############################
 
 cd $here
 
 if [ $# !=   0 ] ; then
-list=$*
+  list=$*
 else
-list=*
+  list=$(ls -1d * | grep -v TIME_SERIES)
 fi
+echo $list
 
 
 for d in $list ; do
-if [ -d $d ] ; then
- cd $d
- echo IN $d
- echo '+++++++++++++++++++++++++++++++++++++++++++++++'
-\rm -f zzzz
-for f in ${CONFIG}*-${CASE}.cgm ; do
- echo ${f%_????-*.cgm} >> zzzz
-done
-for typ in $( cat zzzz | sort -u ) ; do
-  for y in $years ; do
-   if [ ! -f ${typ}_${y}-${CASE}.cgm ] ; then
-     echo ${typ}_${y}-${CASE}.cgm missing
-  fi
- done
- echo "================================================"
-done
- \rm -f zzzz
- cd ../
-fi
+   if [ -d $d ] ; then
+     cd $d
+
+     for typ in $( for f in *.cgm ; do tmp=${f%-${CASE}.cgm}; echo ${tmp%_*} ;  done | sort -u) ; do
+        for y in $years ; do
+          if [ ! -f ${typ}_${y}-${CASE}.cgm ] ; then
+             printf "%12s : %s missing\n" $d ${typ}_${y}-${CASE}.cgm 
+          fi
+        done
+     done
+     cd ../
+   fi
 done ;;
 
 esac

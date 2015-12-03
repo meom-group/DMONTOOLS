@@ -1,0 +1,31 @@
+#!/bin/ksh
+#PBS -N zyrly_<year>
+#PBS -l select=1:ncpus=8:mpiprocs=8
+#PBS -l walltime=1:30:00
+#PBS -l cluster=hpt
+#PBS -W depend=afterok:<JOBIDMOY>:<JOBIDVT>
+##PBS -mb -me
+#PBS -v NB_NODES=1,NB_NPROC=12
+
+#$ -N zyrly_<year>
+#$ -cwd
+#$ -j y
+#$ -S /bin/bash
+#$ -pe one 1
+#$ -hold_jid <JOBIDMOY>,<JOBIDVT>
+#$ -v NB_NODES=2,NB_NPROC=12
+
+
+set -x
+CONFIG=<CONFIG>
+CASE=<CASE>
+
+source $HOME/.bashrc
+
+CONFCASE=${CONFIG}-${CASE}
+CTL_DIR=${WORKDIR}/RUN_${CONFIG}/${CONFCASE}/CTL/CDF
+
+cd $CTL_DIR
+. ./config_moy.ksh
+#
+./mvcalmoy.ksh <year>

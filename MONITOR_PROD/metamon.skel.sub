@@ -1,14 +1,47 @@
 #!/bin/ksh
-### PBS is valid on JADE
-#PBS -N zmetamon
-#PBS -l select=<NB_NODES>:ncpus=<MPIPROC>:mpiprocs=<MPIPROC>
-#PBS -l walltime=<WALLTIME>
-#PBS -l cluster=hpt
-##PBS -l place=scatter:excl
-#PBS -M <MAIL>
-#PBS -mb -me
-##PBS -v R_MONITOR=<R_MONITOR>,NB_NODES=<NB_NODES>
-#PBS -v NB_NODES=<NB_NODES>
+#key_jade -N zmetamon
+#key_jade -l select=<NB_NODES>:ncpus=<MPIPROC>:mpiprocs=<MPIPROC>
+#key_jade -l walltime=<WALLTIME>
+#key_jade -l cluster=hpt
+#key_jade -M <MAIL>
+#key_jade -mb -me
+#key_jade -v NB_NODES=<NB_NODES>
+
+#key_vayu -N zmetamon
+#key_vayu -l ncpus=<MPIPROC>
+#key_vayu -l walltime=<WALLTIME>
+#key_vayu -M <MAIL>
+#key_vayu -mb -me
+#key_vayu -Wgroup_list=v45
+#key_vayu -P x77
+#key_vayu -q normal
+#key_vayu -v NB_NODES=<NB_NODES>
+
+#SBATCH --nodes=<NB_NODES>
+#SBATCH --ntasks=<NB_NPROC>
+#SBATCH --ntasks-per-node=<MPIPROC>
+#SBATCH --threads-per-core=1
+#SBATCH -J zmetamon
+#SBATCH -e zmetamon.e%j
+#SBATCH -o zmetamon.o%j
+#SBATCH --time=<WALLTIME>
+#SBATCH --exclusive
+
+#MSUB -r zmetamon
+#MSUB -n  <NB_NPROC>
+#MSUB -N  <NB_NODES>
+#MSUB -T <WALLTIME>
+#MSUB -q <QUEUE>
+#MSUB -o zmetamon.%I
+#MSUB -e zmetamon.%I
+#MSUB -A <ACCOUNT>
+
+#$ -N zmetamon 
+#$ -cwd
+#$ -j y
+#$ -S /bin/bash
+#$ -pe one <NB_NPROC>
+#$ -v NB_NODES=<NB_NODES>
 
 ### LoadLeveler on ULAM and VARGAS
 ## title of the run
@@ -19,8 +52,10 @@
 # @ job_type = <JOBTYPE>
 ### DO NEVER ERASE THE FOLLOWING LINE
 #ifloadlev# @ total_tasks = <NB_NPROC>
-# @ wall_clock_limit = <WALL_CLOCK_LIMIT>
-# @ data_limit = 3.2gb
+# specifique Adapp
+# @ requirements = (Feature == "prepost")
+# @ wall_clock_limit = <WALLTIME>
+# @ as_limit = 3.2gb
 # @ queue
 
 ## If R_MONITOR is a TMPDIR created by the job manager :
@@ -67,10 +102,24 @@ if [ $useMPI = 1 ] ; then
 ### Yeah baby it is parallel !!!
 
 if [ $MACHINE = 'jade' ] ; then
-mpiexec_mpt -n <NB_NPROC> ./mpi_metamon $YEARS
-else
-# ulam
-./mpi_metamon $YEARS
+   mpiexec_mpt -n <NB_NPROC> ./mpi_metamon $YEARS
+elif [ $MACHINE = 'occigen' ] ; then
+   ulimit -s unlimited
+   srun --mpi=pmi2 -n <NB_NPROC>  ./mpi_metamon $YEARS
+elif [ $MACHINE = 'curie' ] ; then
+#  module unload netcdf
+#   module unload hdf5
+#   module load nco
+   ccc_mprun -E '-m cyclic ' -n <NB_NPROC>  ./mpi_metamon $YEARS
+elif [ $MACHINE = 'vayu' ] ; then
+   mpirun -n <NB_NPROC>  ./mpi_metamon $YEARS
+elif [ $MACHINE = 'gaia' ] ; then
+   source $HOME/.bashrc
+   mpirun -mca btl_tcp_if_include eth0 -np <NB_NPROC>  ./mpi_metamon $YEARS
+elif [ $MACHINE = 'ulam' ] ; then
+   ./mpi_metamon $YEARS
+elif [ $MACHINE = 'ada' ] ; then
+   poe ./mpi_metamon $YEARS
 fi
 
 else

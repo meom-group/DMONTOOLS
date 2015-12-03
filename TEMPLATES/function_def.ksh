@@ -1,21 +1,74 @@
 #!/bin/ksh
-
-######################################################################################
-######################################################################################
-###
-### 1) machine dependant functions : each machine has its own functions
-###
-######################################################################################
-######################################################################################
+##     ***  script  function_def.ksh  ***
+##  define functions for DMONTOOLS/MONITOR_PROD scripts
+## =====================================================================
+## History : 1.0  !  2008     J.M. Molines      Original  code
+##           2.0  !  2012     all contrib       Rationalization
+## ----------------------------------------------------------------------
+##  DMONTOOLS_2.0 , MEOM 2012
+##  $Id: function_def.ksh 540 2012-12-19 14:08:40Z molines $
+##  Copyright (c) 2012, J.-M. Molines
+##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
+## ----------------------------------------------------------------------
+##
+## machine dependent functions : each machine has its own set of functions
+##          supported machine : jade, ada, ulam, meolkerg, vargas, desktop
+## generic script functions : valid on any unix system
+##
+##########################################################################
+# (1) Machine dependent functions
 
 case $MACHINE in
 
-##############################################################################
+##########################################################################
 
-    'jade' | meolkerg )
+    ( jade | occigen | curie | meolkerg )
 
 # jade version: all is supposed to be in WORKDIR
  
+# CHKDIRG : check the existence of a directory on the Storage machine.
+chkdirg() { if [ ! -d $DDIR/$1 ] ; then mkdir $DDIR/$1 ; fi ; }
+
+# CHKFILE : check if a file exists on the storage machine, return present or absent.
+chkfile() {  if [ -f $DDIR/$1 ] ; then echo present ;\
+                       else echo absent ; fi  ; }
+
+# CHKDIR  : check the existence of a directory. Create it if not present
+chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi  ; }
+
+# RAPATRIE : get file $1 from directory $2   to local dir, and name it $3
+#            directory $2 is normally on the Storage machine
+rapatrie() { ln -sf $DDIR/$2/$1 $3 ; }
+
+# RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2 
+#               directory $2 is normally on the Storage machine
+rapatrie_5d() { for f  in $DDIR/$2/${CONFCASE}_$3*_$1.nc    ; do
+                 file=`basename $f`
+                 ln -sf $DDIR/$2/$file .
+                done  ; }
+
+# EXPATRIE : put file $1 to directory $2 with name $3
+expatrie() { cp $1 $DDIR/$2/$3 ; }
+
+
+# CHKDIRW : check the existence of a dir. on the web site. Create it if not present
+chkdirw() { ssh drakkar@meolipc.hmg.inpg.fr " if [ ! -d DRAKKAR/$1 ] ; \
+            then mkdir DRAKKAR/$1 ; fi " ; }
+
+submit() {
+     if [ $MACHINE = jade      ] ; then  qsub     $1 ; fi
+     if [ $MACHINE = occigen   ] ; then  sbatch   $1 ; fi
+     if [ $MACHINE = curie     ] ; then  ccc_msub $1 ; fi
+     if [ $MACHINE = meolkerg  ] ; then  ./$1 ; fi
+         }
+
+
+echo "functions for machine $MACHINE successfully loaded" ;;
+
+    ada  )
+
+# ada version: all is supposed to be in WORKDIR
+
 # CHKDIRG : check the existence of a directory on the Storage machine.
 chkdirg() { if [ ! -d $WORKDIR/$1 ] ; then mkdir $WORKDIR/$1 ; fi ; }
 
@@ -30,7 +83,7 @@ chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi  ; }
 #            directory $2 is normally on the Storage machine
 rapatrie() { ln -sf $WORKDIR/$2/$1 $3 ; }
 
-# RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2 
+# RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2
 #               directory $2 is normally on the Storage machine
 rapatrie_5d() { for f  in $WORKDIR/$2/${CONFCASE}_$3*_$1.nc    ; do
                  file=`basename $f`
@@ -40,15 +93,17 @@ rapatrie_5d() { for f  in $WORKDIR/$2/${CONFCASE}_$3*_$1.nc    ; do
 # EXPATRIE : put file $1 to directory $2 with name $3
 expatrie() { cp $1 $WORKDIR/$2/$3 ; }
 
-# additional functions used in the pre/post job launch
-cp_remote2local () { scp $USER@${login_node}:$2/$1 ./$3 ; }
-cp_local2remote () { scp ./$1  $USER@${login_node}:$2/$3 ; }
 
 # CHKDIRW : check the existence of a dir. on the web site. Create it if not present
 chkdirw() { ssh drakkar@meolipc.hmg.inpg.fr " if [ ! -d DRAKKAR/$1 ] ; \
             then mkdir DRAKKAR/$1 ; fi " ; }
 
+
+submit() {  llsubmit $1 ;}
+
+
 echo "functions for machine $MACHINE successfully loaded" ;;
+
 
 ##############################################################################
 
@@ -84,6 +139,8 @@ expatrie() { cp $1 $SDIR/$2/$3 ; }
 chkdirw() { ssh drakkar@meolipc.hmg.inpg.fr " if [ ! -d DRAKKAR/$1 ] ; \
             then mkdir DRAKKAR/$1 ; fi " ; }
 
+submit() {  ./$1 ;}
+
 echo "functions for machine $MACHINE successfully loaded" ;;
 
 ##############################################################################
@@ -107,7 +164,7 @@ rapatrie() { if [ ! -f $3 ] ; then mfget -u $REMOTE_USER $2/$1 $3 ; else echo $3
 
 # RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2 
 #               directory $2 is normally on the Storage machine
-rapatrie_5d() { for f  in $( rsh gaya -l $REMOTE_USER ls $2/*_$1.nc ) ; do
+rapatrie_5d() { for f  in $( rsh ergon -l $REMOTE_USER ls $2/*_$1.nc ) ; do
                  file=`basename $f`
                  mfget -u $REMOTE_USER $2/$file .
                 done  ; }
@@ -119,6 +176,8 @@ expatrie() { mfput -u $REMOTE_USER $1 $2/$3 ; }
 chkdirw() { ssh drakkar@meolipc.hmg.inpg.fr " if [ ! -d DRAKKAR/$1 ] ; \
             then mkdir DRAKKAR/$1 ; fi " ; }
 
+submit() {  llsubmit $1 ;}
+
 echo "functions for machine $MACHINE successfully loaded" ;;
 
 ##############################################################################
@@ -126,10 +185,10 @@ echo "functions for machine $MACHINE successfully loaded" ;;
     'vargas')
 
 # CHKDIRG : check the existence of a directory on the Storage machine.
-chkdirg() { rsh gaya -l $REMOTE_USER " if [ ! -d $1 ] ; then mkdir $1 ; fi " ; }
+chkdirg() { rsh ergon -l $REMOTE_USER " if [ ! -d $1 ] ; then mkdir $1 ; fi " ; }
 
 # CHKFILE : check if a file exists on the storage machine, return present or absent.
-chkfile() { rsh gaya -l $REMOTE_USER " if [ -f $1 ] ; then echo present ;\
+chkfile() { rsh ergon -l $REMOTE_USER " if [ -f $1 ] ; then echo present ;\
                        else echo absent ; fi " ; }
 
 # CHKDIR  : check the existence of a directory. Create it if not present
@@ -142,7 +201,7 @@ rapatrie() { if [ ! -f $3 ] ; then mfget -u $REMOTE_USER $2/$1 $3 ; else echo $3
 
 # RAPATRIE_5d : get 5-day averaged file for a given grid $1 from directory $2 
 #               directory $2 is normally on the Storage machine
-rapatrie_5d() { for f  in $( rsh gaya -l $REMOTE_USER ls $2/${CONFCASE}_$3*_$1.nc ) ; do
+rapatrie_5d() { for f  in $( rsh ergon -l $REMOTE_USER ls $2/${CONFCASE}_$3*_$1.nc ) ; do
                  file=`basename $f`
                  mfget -u $REMOTE_USER $2/$file .
                 done  ; }
@@ -154,19 +213,17 @@ expatrie() { mfput -u $REMOTE_USER $1 $2/$3 ; }
 chkdirw() { ssh drakkar@meolipc.hmg.inpg.fr " if [ ! -d DRAKKAR/$1 ] ; \
             then mkdir DRAKKAR/$1 ; fi " ; }
 
+submit() {  llsubmit $1 ;}
+
 echo "functions for machine $MACHINE successfully loaded" ;;
 
     *)
-    echo available machines are jade meolkerg desktop ulam vargas ; exit 1 ;;
+    echo available machines are jade ada meolkerg desktop ulam vargas ; exit 1 ;;
 esac
 
 ######################################################################################
-######################################################################################
-###
 ### 2) common functions : only shell functions indep of machine
-###
-######################################################################################
-######################################################################################
+
 # check if a variable is available within a cdf file :chkvar var file
 #  return 0 if available, 1 if not available
 chkvar()   {
@@ -177,10 +234,7 @@ chkvar()   {
 # copy_to_web : copy the time series figures to the DRAKKAR website
 # usage : copy_to_web file
 copy_to_web() {
-          ssh meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
           ssh meolipc.hmg.inpg.fr -l drakkar \
-         " if [ ! -d DRAKKAR/$CONFIG/${CONFIG}-${CASE} ] ; then mkdir DRAKKAR/$CONFIG/${CONFIG}-${CASE} ; fi "
-          ssh meolipc.hmg.inpg.fr -l drakkar \
-         " if [ ! -d DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES ] ; then mkdir DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES ; fi "
-          scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES/$1 ;}
+         " if [ ! -d DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES ] ; then mkdir -p  DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES ; fi "
+          scp $@ drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES/ ;}
 

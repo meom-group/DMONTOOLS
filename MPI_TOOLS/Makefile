@@ -1,8 +1,13 @@
 # Makefile for MPI_TOOLS 
+## ----------------------------------------------------------------------
+##  DMONTOOLS_2.0 , MEOM 2012
+##  $Id$
+##  Copyright (c) 2012, J.-M. Molines
+##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
+## ----------------------------------------------------------------------
 
 # ( make.macro is a link that points to the file macro.xxx where 
 #   xxx is representative of your machine )
-
 
 include make.macro
 
@@ -18,6 +23,8 @@ tpar4: tpar4.f
 mpi_shell: mpi_shell.f90
 	$(FC)  mpi_shell.f90 -o mpi_shell $(FFLAGS)
 
+mpi_hostname: mpi_hostname.f90
+	$(FC)  mpi_hostname.f90 -o mpi_hostname $(FFLAGS)
 
 mpi_metamon: mpi_metamon.f90
 	$(FC)  mpi_metamon.f90 -o mpi_metamon $(FFLAGS)

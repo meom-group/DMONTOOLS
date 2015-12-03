@@ -1,0 +1,25 @@
+#!/bin/ksh
+#SBATCH --nodes=1
+#SBATCH --ntasks=12
+#SBATCH --ntasks-per-node=24
+#SBATCH --threads-per-core=1
+#SBATCH -J zyrly_<year>
+#SBATCH -e zyrly_<year>.e%j
+#SBATCH -o zyrly_<year>.o%j
+#SBATCH --time=4:00:00
+#SBATCH --dependency=afterok:<JOBIDMOY>:<JOBIDVT>
+#SBATCH --exclusive
+
+set -x
+ulimit -s unlimited
+CONFIG=<CONFIG>
+CASE=<CASE>
+
+CONFCASE=${CONFIG}-${CASE}
+CTL_DIR=<WPDIR>
+
+#. $HOME/.profile
+cd $CTL_DIR
+. ./config_moy.ksh
+#
+./mvcalmoy.ksh <year>

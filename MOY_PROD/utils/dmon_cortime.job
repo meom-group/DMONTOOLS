@@ -1,0 +1,26 @@
+#!/bin/ksh
+# @ job_type = serial
+# @ requirements = (Feature == "prepost")
+# @ wall_clock_limit=10:30:00
+# @ job_name = cortime
+# @ output   = $(job_name).$(jobid)
+# @ error    = $(job_name).$(jobid)
+# @ queue
+
+CONFIG=ORCA025.L75
+CASE=GRD88f
+y1=1959
+y2=1967
+
+#-------------------------------------------------
+CONFCASE=${CONFIG}=${CASE}
+DDIR=${DDIR:=$CDIR}
+cd  $DDIR/$CONFIG/${CONFCASE}-MEAN
+
+for y in $(seq $y1 $y2 ) ; do
+  cd $y
+     for f in *.nc ; do
+       ../cortime $f
+     done
+  cd ../
+done

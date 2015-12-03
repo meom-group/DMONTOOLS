@@ -1,19 +1,23 @@
 #!/bin/bash
+##     ***  script  dmon_install  ***
+##  Installer for DMONTOOLS
+## =====================================================================
+## History : 1.0  !  2012     R. Dussin      Original code
+## ----------------------------------------------------------------------
+## ----------------------------------------------------------------------
+##  DMONTOOLS_2.0 , MEOM 2012
+##  $Id$
+##  Copyright (c) 2012, J.-M. Molines
+##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
+## ----------------------------------------------------------------------
 
-#############################################################
-###                                                       ###
-###                Installer for DMONTOOLS                ###
-###                                                       ###
-#############################################################
-# $Id$
-#############################################################
 ### functions
 
-edit_env() { echo "$1" | cat >> $env_file ; }
+edit_env()  { echo $1  >> $env_file ; }
+ 
+edit_rc()   { echo $1  >> $rcfile ; }
 
-edit_rc() { echo "$1" | cat >> $rcfile ; }
-
-create_rc() { echo $1 | cat > $rcfile ; }
+create_rc() { echo $1  > $rcfile ; }
 
 chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi ; }
 
@@ -22,6 +26,8 @@ install_pydmon() { cd $PYDMON_SRCDIR ; python setup.py install --install-lib=$PY
 fill_rc() {
 
 create_rc ''
+case $wkshell in
+( BASHKSH )
 edit_rc '#######################################################'
 edit_rc '### DMONTOOLS Ressources Configuration'
 edit_rc '#######################################################'
@@ -40,7 +46,30 @@ edit_rc 'export PYTHONPATH=$PYTHONPATH:$PYDMON_LIBDIR'
 edit_rc 'export PYTHONPATH=$PYTHONPATH:$HOME/.dmontools'
 edit_rc ''
 edit_rc '## function for reinstall python stuff '
-edit_rc 'reinstall_pydmon() { cd $PYDMON_SRCDIR ; python setup.py install --install-lib=$PYDMON_LIBDIR --install-scripts=$PYDMON_BINDIR ; cd - ; }' ; }
+edit_rc 'reinstall_pydmon() { cd $PYDMON_SRCDIR ; python setup.py install --install-lib=$PYDMON_LIBDIR --install-scripts=$PYDMON_BINDIR ; cd - ; }' ;;
+
+(   CSH ) 
+edit_rc '#######################################################'
+edit_rc '### DMONTOOLS Ressources Configuration'
+edit_rc '#######################################################'
+edit_rc ''
+edit_rc '## set path for mkmeans and mkmonitor'
+edit_rc "setenv  DMON_ROOTDIR $DMON_ROOTDIR    "
+edit_rc 'set  path = (  $ path $DMON_ROOTDIR/bin )  '
+edit_rc ''
+edit_rc '## set path for python stuff         '
+edit_rc "setenv  PYDMON_BINDIR $PYDMON_BINDIR  "
+edit_rc "setenv  PYDMON_LIBDIR $PYDMON_LIBDIR  "
+edit_rc "setenv  PYDMON_SRCDIR $PYDMON_SRCDIR  "
+edit_rc "setenv  PYDMON_DATADIR $PYDMON_SRCDIR/data/NC  "
+edit_rc 'set  path =  ( $path $PYDMON_BINDIR )     '
+edit_rc 'setenv  PYTHONPATH ${PYTHONPATH:$PYDMON_LIBDIR:$HOME/.dmontools'
+edit_rc ''
+edit_rc '## function for reinstall python stuff '
+edit_rc '###reinstall_pydmon() { cd $PYDMON_SRCDIR ; python setup.py install --install-lib=$PYDMON_LIBDIR --install-scripts=$PYDMON_BINDIR ; cd - ; }' ;;
+esac
+
+  }
 
 #############################################################
 ### choose install or uninstall
@@ -98,7 +127,7 @@ if [ $1 == '-i' ] ; then
       echo ''
       echo '-------------------------------------------------------'
       echo '>> What is your custom environnement shell ?           '
-      echo '>> for example .profile or .bashrc etc ( no C-shell )  '
+      echo '>> for example .profile or .bashrc  or .cshrc   '
 
       good_ans=0
 
@@ -113,6 +142,11 @@ if [ $1 == '-i' ] ; then
 	 fi
 
       done
+      wkshell=BASHKSH   # default 
+      case $answer in
+      ( .bashrc | .profile )  wkshell=BASHKSH ;;
+      ( .cshrc             )  wkshell=CSH     ;;
+      esac
 
       env_file=$HOME/$answer
 
@@ -122,7 +156,7 @@ if [ $1 == '-i' ] ; then
       echo ''
       echo '-------------------------------------------------------'
       echo '>> please choose where python binaries should be put   '
-      echo '>> for example /home/user/bin                          '
+      echo '>> for example /home/user/bin (absolute path)          '
 
       good_ans=0
 
@@ -131,7 +165,7 @@ if [ $1 == '-i' ] ; then
 	 read answer
 
 	 if [ ! -d $answer ] ; then
-	    echo ">> $answer does not exists... try again, please" ; good_ans=0
+	    echo ">> $answer does not exists... It will be created " ; good_ans=1
 	 else
 	    good_ans=1
 	 fi
@@ -139,7 +173,6 @@ if [ $1 == '-i' ] ; then
       done
 
       PYDMON_BINDIR=$answer/pydmontools
-      chkdir $PYDMON_BINDIR
        
 
       echo ''
@@ -154,7 +187,7 @@ if [ $1 == '-i' ] ; then
 	 read answer
 
 	 if [ ! -d $answer ] ; then
-	    echo ">> $answer does not exists... try again, please" ; good_ans=0
+	    echo ">> $answer does not exists... It will be created " ; good_ans=1
 	 else
 	    good_ans=1
 	 fi
@@ -162,7 +195,6 @@ if [ $1 == '-i' ] ; then
       done
 
       PYDMON_LIBDIR=$answer
-      chkdir $PYDMON_LIBDIR
 
       if [ $PYDMON_LIBDIR == $PYDMON_BINDIR ] ; then
 	 echo "!!! Warning : python bin and lib are set to the same directory !!! "
@@ -191,11 +223,17 @@ if [ $1 == '-i' ] ; then
 	    echo '>> Oh ! Too bad' ; good_ans=1
 	 else
 	    echo '>> sorry ?!' ; good_ans=0
+            exit
 	 fi
 
       done
 
+      mkdir -p $PYDMON_BINDIR
+      mkdir -p $PYDMON_LIBDIR
+
       install_pydmon
+      case $wkshell in
+      ( BASHKSH ) 
 
       edit_env ''
       edit_env '####################################################### # DMON_STUFF_DO_NOT_ERASE'
@@ -205,7 +243,19 @@ if [ $1 == '-i' ] ; then
       edit_env ' if [ -f $HOME/.dmontools/dmontoolsrc ] ; then          # DMON_STUFF_DO_NOT_ERASE'
       edit_env '    . $HOME/.dmontools/dmontoolsrc                      # DMON_STUFF_DO_NOT_ERASE'
       edit_env ' fi                                                     # DMON_STUFF_DO_NOT_ERASE'
+      edit_env ''  ;;
+      (  CSH ) 
+
       edit_env ''
+      edit_env '####################################################### # DMON_STUFF_DO_NOT_ERASE'
+      edit_env '### DMONTOOLS : source specific RC file                 # DMON_STUFF_DO_NOT_ERASE'
+      edit_env '####################################################### # DMON_STUFF_DO_NOT_ERASE'
+      edit_env '                                                        # DMON_STUFF_DO_NOT_ERASE'
+      edit_env ' if ( -f $HOME/.dmontools/dmontoolsrc )  then           # DMON_STUFF_DO_NOT_ERASE'
+      edit_env '    source  $HOME/.dmontools/dmontoolsrc                # DMON_STUFF_DO_NOT_ERASE'
+      edit_env ' endif                                                  # DMON_STUFF_DO_NOT_ERASE'
+      edit_env ''  ;;
+      esac
 
       fill_rc
 
@@ -249,7 +299,7 @@ elif [ $1 == '-r' ] ; then
       echo ''
       echo '----------------------------------------------------------'
       echo '>> Which custom environment shell was used for install ?'
-      echo '>> for example .profile or .bashrc etc                 '
+      echo '>> for example .profile or .bashrc .cshrc'
 
       good_ans=0
 
@@ -301,7 +351,7 @@ elif [ $1 == '-u' ] ; then
      svn update
      install_pydmon
 
-     fill_rc
+#    fill_rc
 
 #############################################################
 ####################### ERROR MODE ##########################

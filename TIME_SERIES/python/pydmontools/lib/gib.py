@@ -153,7 +153,7 @@ def plot(argdict=myargs,figure=None,color='r',levels=None,date=None,tmodel=None,
     if not(compare) :
         # 2D hovmuller
         ax3 = figure.add_subplot(3,2,2)
-        plt.contourf(date, levels, npy.transpose(tmodel-tlev2D),contours_temper)
+        plt.contourf(date, levels, npy.transpose(tmodel-tlev2D),contours_temper, extend='both')
         plt.colorbar(ticks=ticks_temper)
         ax3.grid(True)
         ax3.axis([min(_date), max(_date),maxdepth,min(levels)])
@@ -163,7 +163,7 @@ def plot(argdict=myargs,figure=None,color='r',levels=None,date=None,tmodel=None,
 
         # 2D hovmuller
         ax4 = figure.add_subplot(3,2,4)
-        plt.contourf(date, levels, npy.transpose(smodel-slev2D),contours_salin)
+        plt.contourf(date, levels, npy.transpose(smodel-slev2D),contours_salin, extend='both')
         plt.colorbar(ticks=ticks_salin)
         ax4.grid(True)
         ax4.axis([min(_date), max(_date),maxdepth,min(levels)])

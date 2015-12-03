@@ -24,7 +24,7 @@ if [ $# = 0 ] ; then
 fi
 
 # take YEAR as the argument to this script
-YEAR=$1
+YEAR=$( printf "%04d" $1)
 
 #define a variable for new_maskglo.nc for easy change later on
 fbasinmask=new_maskglo.nc
@@ -32,8 +32,11 @@ fbasinmask=new_maskglo.nc
 # define some config dependent variable 
 . ./config_def.ksh    # can be a link
 
-#  Define some functions to get/put file from/to gaya (can be easily customized)
+#  Define some functions to get/put file from/to ergon (can be easily customized)
 . ./function_def.ksh  # can be a link
+
+NC4=${NC4:=0}
+if [ $NC4 = 1 ] ; then NCOPT='-nc4' ; fi
 
 # monitor_prod shoud be run in individual directory for each year to
 # allow parallel processing
@@ -46,15 +49,15 @@ chkdir $YEAR
 mktaglist(){
    taglist=''
    case $1 in
-      1) taglist="${taglist} y${YEAR}" ;;
+      1) taglist="${taglist} y${YEAR}${xiosid}" ;;
       2) for m in $(seq 1 12); do
             mm=$( printf "%02d" $m )
-            taglist="${taglist} y${YEAR}m${mm}"
+            taglist="${taglist} y${YEAR}m${mm}${xiosid}"
          done ;;
-      3) taglist="${taglist} y${YEAR}"
+      3) taglist="${taglist} y${YEAR}${xiosid}"
          for m in $(seq 1 12); do
             mm=$( printf "%02d" $m )
-            taglist="${taglist} y${YEAR}m${mm}"
+            taglist="${taglist} y${YEAR}m${mm}${xiosid}"
          done ;;
    esac
    echo "$taglist"
@@ -63,10 +66,10 @@ mktaglist(){
 # Function getsuffix returns _1m or eventually _1y or '' according to case in use. Argument is TAG
 getsuffix() {
    monthly=$( echo $1 | awk '{ print index($1,"m") }' )
-   if [ $monthly == 0 ] ; then
-      echo '_1y'
-   else
+   if [ $monthly == 6 ] ; then
       echo '_1m'
+   else
+      echo '_1y'
    fi
             }
 
@@ -85,7 +88,7 @@ define_diags_dir() {
 #  eg : concat_file $TAG cdftool_file  target_file
 concat_file() {
    # look for month
-   month=$( echo $1 | awk -Fm '{ print $2 }' )
+   month=$( echo ${1%.*} | awk -Fm '{ print $2 }' )
    if [ $month ] ; then  # monthly diags
      case $month in
      01) cp $2 $3 ;;     # first month initialize output file
@@ -120,8 +123,8 @@ cd $YEAR
 # directory name frequently used:
 #------------------------------------------------------------------------------
   # on the storage machine : path relative to the root of S-machine
-  MEANY=$CONFIG/${CONFCASE}-MEAN/$YEAR
-  SDIRY=$CONFIG/${CONFCASE}-S/$YEAR
+  MEANY=$CONFIG/${CONFCASE}-MEAN/$XIOS/$YEAR
+  SDIRY=$CONFIG/${CONFCASE}-S/$XIOS/$YEAR
   DIAGS=${CONFIG}/${CONFCASE}-DIAGS
   IDIR=$CONFIG/${CONFIG}-I
 
@@ -129,7 +132,7 @@ cd $YEAR
   P_CTL=$HOME/RUN_${CONFIG}/${CONFCASE}/CTL
 
   # check existence of some required directories
-  # ... on gaya
+  # ... on ergon
   chkdirg $CONFIG
   chkdirg $DIAGS
   chkdirg $DIAGS/NC     # for NetCdf diag files
@@ -179,7 +182,7 @@ cd $YEAR
      ${CONFCASE}_${TAG}_gridU2.nc \
      ${CONFCASE}_${TAG}_gridV.nc \
      ${CONFCASE}_${TAG}_gridV2.nc \
-     ${CONFCASE}_${TAG}_gridT2.nc
+     ${CONFCASE}_${TAG}_gridT2.nc $NCOPT
 
    # dispose file on the MEAN directory
    expatrie eke.nc $MEANY  ${CONFCASE}_${TAG}_EKE.nc
@@ -194,7 +197,7 @@ cd $YEAR
    # RMSSSH :get gridT gridT2
    rapatrie  ${CONFCASE}_${TAG}_gridT.nc $MEANY  ${CONFCASE}_${TAG}_gridT.nc
    rapatrie  ${CONFCASE}_${TAG}_gridT2.nc $MEANY  ${CONFCASE}_${TAG}_gridT2.nc
-   cdfrmsssh  ${CONFCASE}_${TAG}_gridT.nc ${CONFCASE}_${TAG}_gridT2.nc
+   cdfrmsssh  ${CONFCASE}_${TAG}_gridT.nc ${CONFCASE}_${TAG}_gridT2.nc $NCOPT
 
    # dispose file on the MEAN directory
    expatrie rms.nc $MEANY  ${CONFCASE}_${TAG}_RMSSSH.nc
@@ -204,7 +207,7 @@ cd $YEAR
    rapatrie ${CONFCASE}_${TAG}_gridW.nc $MEANY ${CONFCASE}_${TAG}_gridW.nc
    rapatrie ${CONFCASE}_${TAG}_gridW2.nc $MEANY ${CONFCASE}_${TAG}_gridW2.nc
 
-   cdfstdevw  ${CONFCASE}_${TAG}_gridW.nc ${CONFCASE}_${TAG}_gridW2.nc
+   cdfstdevw  ${CONFCASE}_${TAG}_gridW.nc ${CONFCASE}_${TAG}_gridW2.nc $NCOPT
 
    # dispose file on the MEAN directory
    expatrie rmsw.nc $MEANY ${CONFCASE}_${TAG}_STDEVW.nc
@@ -225,7 +228,7 @@ cd $YEAR
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc  $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
  
-   cdfpsi ${CONFCASE}_${TAG}_gridU.nc ${CONFCASE}_${TAG}_gridV.nc 
+   cdfpsi ${CONFCASE}_${TAG}_gridU.nc ${CONFCASE}_${TAG}_gridV.nc  $NCOPT
  
    # dispose and rename on the MEAN directory
    expatrie psi.nc  $MEANY ${CONFCASE}_${TAG}_PSI.nc
@@ -247,7 +250,7 @@ cd $YEAR
  
    cdfmoc ${CONFCASE}_${TAG}_gridV.nc
  
-   # dispose on gaya MEAN/YEAR directory
+   # dispose on ergon MEAN/YEAR directory
    expatrie moc.nc $MEANY ${CONFCASE}_${TAG}_MOC.nc
    \rm moc.nc
   done
@@ -268,13 +271,13 @@ mkmocsig5d(){
      # get 5-day averaged gridV and gridT files
      rapatrie_5d gridV $SDIRY $TAG
      rapatrie_5d gridT $SDIRY $TAG
-     for fileV in ${CONFCASE}_y${YEAR}m${MONTH}*d??_gridV.nc ; do
+     for fileV in ${CONFCASE}_y${YEAR}m${MONTH}*d??${xiosid}_gridV.nc ; do
        fileT=$( echo $fileV | sed -e 's/gridV/gridT/'  )
        fileM=$( echo $fileV | sed -e 's/gridV/MOCSIG/'  )
        cdfmocsig $fileV $fileT $DREF
        mv mocsig.nc $fileM
      done
-     cdfmoy ${CONFCASE}_y${YEAR}m${MONTH}*d??_MOCSIG.nc
+     cdfmoy ${CONFCASE}_y${YEAR}m${MONTH}*d??${xiosid}_MOCSIG.nc
      mv cdfmoy.nc mocsig.nc
      expatrie mocsig.nc $MEANY ${CONFCASE}_${TAG}_MOCSIG_5d_${NREF}.nc
              }
@@ -312,11 +315,11 @@ mkmxl(){
    listfiles=''
    for m in $*  ; do
      mm=$(printf "%02d" $m)
-     f=${CONFCASE}_y${YEAR}m${mm}_gridT.nc
+     f=${CONFCASE}_y${YEAR}m${mm}${xiosid}_gridT.nc
      g=$(echo $f | sed -e 's/gridT/MXL/')
      rapatrie $f $MEANY $f
-     cdfmxl  $f
-     # dispose on gaya, MEAN/YEAR directory
+     cdfmxl  $f $NCOPT
+     # dispose on ergon, MEAN/YEAR directory
      mv mxl.nc $g
      expatrie $g $MEANY $g
      listfiles="$listfiles $g"
@@ -328,7 +331,7 @@ mkmxl(){
      2) taglist=$(seq 1 12) ; mkmxl $taglist ;;
      3) taglist=$(seq 1 12) ; mkmxl $taglist
         cdfmoy_weighted $listfiles
-        h=${CONFCASE}_y${YEAR}_MXL.nc
+        h=${CONFCASE}_y${YEAR}${xiosid}_MXL.nc
         expatrie cdfmoy_weighted.nc $MEANY $h ;;
   esac
 
@@ -344,12 +347,12 @@ mklspv(){
    listfiles=''
    for m in $* ; do
      mm=$(printf "%02d" $m)
-     f=${CONFCASE}_y${YEAR}m${mm}_gridT.nc
+     f=${CONFCASE}_y${YEAR}m${mm}${xiosid}_gridT.nc
      g=$(echo $f | sed -e 's/gridT/LSPV/')
      rapatrie $f $MEANY $f
      # compute LSPV
-     cdfpvor  $f -lspv
-     # dispose on gaya, MEAN/YEAR directory
+     cdfpvor  $f -lspv $NCOPT
+     # dispose on ergon, MEAN/YEAR directory
      mv lspv.nc $g
      expatrie $g $MEANY $g
      listfiles="$listfiles $g"
@@ -361,7 +364,7 @@ mklspv(){
      2) taglist=$(seq 1 12) ; mklspv $taglist ;;
      3) taglist=$(seq 1 12) ; mklspv $taglist
         cdfmoy_weighted $listfiles
-        h=${CONFCASE}_y${YEAR}_LSPV.nc
+        h=${CONFCASE}_y${YEAR}${xiosid}_LSPV.nc
         expatrie cdfmoy_weighted.nc $MEANY $h ;;
    esac
 
@@ -411,8 +414,8 @@ if [   $TSMEAN != 0 ] ; then
       # Contrary to ANNUAL means, for MONTHLY means we must have two distinct files (T and S): file size issue
       #  !!! NEW !!!
       # get non-masked levitus then mask it with the same mask as the model
-      tlevitus=${TSCLIM:=Levitus_p2.1}_1m_01_12_T_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
-      slevitus=${TSCLIM:=Levitus_p2.1}_1m_01_12_S_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
+      tlevitus=${TSCLIM:=Levitus_p2.1}_1m_T_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
+      slevitus=${TSCLIM:=Levitus_p2.1}_1m_S_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
       rapatrie $tlevitus $IDIR $tlevitus
       rapatrie $slevitus $IDIR $slevitus
       for m in $(seq 1 12 ) ; do 
@@ -454,10 +457,9 @@ if [   $TSMEAN != 0 ] ; then
    # get gridT files
    rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY ${CONFCASE}_${TAG}_gridT.nc
 
-
    # output file name ascii and nc
    suf=$( getsuffix $TAG )
-   fbase=${CONFCASE}_y${YEAR}${suf}
+   fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
    fsshmean=${fbase}_SSHMEAN.txt  ; fsshmean_nc=${fbase}_SSHMEAN.nc
    ftmean=${fbase}_TMEAN.txt      ; ftmean_nc=${fbase}_TMEAN.nc
    fsmean=${fbase}_SMEAN.txt      ; fsmean_nc=${fbase}_SMEAN.nc
@@ -467,7 +469,7 @@ if [   $TSMEAN != 0 ] ; then
    file_lst=$( filter_list $file_lst $fsshmean_nc $ftmean_nc $fsmean_nc )
 
    # set header on the output file (ASCII)
-   MONTH=`echo ${TAG} | awk -Fm '{print $2}'`
+   MONTH=`echo ${TAG%$xiosid} | awk -Fm '{print $2}'`
    echo $YEAR $MONTH >>  $fsshmean ; echo $YEAR $MONTH >>  $ftmean ;  echo $YEAR $MONTH >>  $fsmean
 
    # 3D means
@@ -484,7 +486,7 @@ if [   $TSMEAN != 0 ] ; then
 
   # merge matching nc files
   for suf in _1m _1y ; do 
-    fbase=${CONFCASE}_y${YEAR}${suf}
+    fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
     ftsmean_nc=${fbase}_TSMEAN.nc
     tmplst=''
     for f in $file_lst ; do
@@ -503,6 +505,210 @@ if [   $TSMEAN != 0 ] ; then
      3) mkannuallevitus
         mkmonthlylevitus ;;
   esac
+fi
+
+# Latitude-bands MEANS: T S SSH Input files: gridT , mesh_hgr, mesh_zgr, mask
+#  keyword : TSLAT  file_id :  TLAT / SLAT / SSHLAT ==> TSLAT
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+if [   $TSLAT != 0 ] ; then
+  LATS=-60
+  LATN=60
+
+  mkannuallevituslat(){
+   if [ $(chkfile $DIAGS/NC/LEVITUS_y0000_1y_TSLATN.nc ) == absent ] ; then
+    # first time : Create header with Levitus equivalent
+    # requires  LEVITUS 'same' diags (from the ANNUAL mean )
+    #  !!! NEW !!!
+    # get non-masked levitus then mask it with the same mask as the model
+    levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
+    rapatrie $levitus $IDIR $levitus
+    cdfmltmask $levitus  mask.nc votemper T             # votemper --> $levitus_masked
+    cdfmltmask ${levitus}_masked  mask.nc vosaline T    # vosaline --> $levitus_masked_masked
+    mv ${levitus}_masked_masked ${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
+    levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
+    #  
+    cdfmean $levitus votemper T 0 0 $JN1 $JMAX 0 0 ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATN.nc
+    cdfmean $levitus votemper T 0 0 $JS0 $JN0 0 0  ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATEQ.nc
+    cdfmean $levitus votemper T 0 0 1 $JS1 0 0     ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATS.nc
+    cdfmean $levitus vosaline T 0 0 $JN1 $JMAX 0 0 ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATN.nc
+    cdfmean $levitus vosaline T 0 0 $JS0 $JN0 0 0  ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATEQ.nc
+    cdfmean $levitus vosaline T 0 0 1 $JS1 0 0     ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATS.nc
+
+    merge_files LEVITUS_y0000_1y_TSLATN.nc LEVITUS_y0000_1y_TLATN.nc LEVITUS_y0000_1y_SLATN.nc
+    define_diags_dir LEVITUS_y0000_1y_TSLATN.nc
+    expatrie  LEVITUS_y0000_1y_TSLATN.nc $DIAGSOUT  LEVITUS_y0000_1y_TSLATN.nc
+    merge_files LEVITUS_y0000_1y_TSLATEQ.nc LEVITUS_y0000_1y_TLATEQ.nc LEVITUS_y0000_1y_SLATEQ.nc
+    define_diags_dir LEVITUS_y0000_1y_TSLATEQ.nc
+    expatrie  LEVITUS_y0000_1y_TSLATEQ.nc $DIAGSOUT  LEVITUS_y0000_1y_TSLATEQ.nc
+    merge_files LEVITUS_y0000_1y_TSLATS.nc LEVITUS_y0000_1y_TLATS.nc LEVITUS_y0000_1y_SLATS.nc
+    define_diags_dir LEVITUS_y0000_1y_TSLATS.nc
+    expatrie  LEVITUS_y0000_1y_TSLATS.nc $DIAGSOUT  LEVITUS_y0000_1y_TSLATS.nc
+   fi
+                    }
+
+  mkmonthlylevituslat(){
+    if [ $(chkfile $DIAGS/NC/LEVITUS_y0000_1m_TSLATN.nc ) == absent ] ; then
+      # first time : Create header with Levitus equivalent
+      # requires  LEVITUS 'same' diags (from the MONTHLY mean )
+      # Contrary to ANNUAL means, for MONTHLY means we must have two distinct files (T and S): file size issue
+      #  !!! NEW !!!
+      # get non-masked levitus then mask it with the same mask as the model
+      tlevitus=${TSCLIM:=Levitus_p2.1}_1m_T_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
+      slevitus=${TSCLIM:=Levitus_p2.1}_1m_S_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
+      rapatrie $tlevitus $IDIR $tlevitus
+      rapatrie $slevitus $IDIR $slevitus
+      for m in $(seq 1 12 ) ; do
+         MONTH=$(printf "%02d" $m )
+         tmlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
+         smlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
+
+         ncks -h -F -d time_counter,${MONTH},${MONTH} $tlevitus $tmlevitus
+         ncks -h -F -d time_counter,${MONTH},${MONTH} $slevitus $smlevitus
+         cdfmltmask $tmlevitus  mask.nc votemper T      # votemper --> $levitus_masked
+         cdfmltmask $smlevitus  mask.nc vosaline T      # vosaline --> $levitus_masked
+         mv ${tmlevitus}_masked ${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
+         mv ${smlevitus}_masked ${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
+         tmlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
+         smlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
+         #  
+         cdfmean $tmlevitus votemper T 0 0 $JN1 $JMAX 0 0 ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TLATN.nc
+         cdfmean $tmlevitus votemper T 0 0 $JS0 $JN0 0 0  ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TLATEQ.nc
+         cdfmean $tmlevitus votemper T 0 0 1 $JS1 0 0     ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TLATS.nc
+         cdfmean $smlevitus vosaline T 0 0 $JN1 $JMAX 0 0 ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SLATN.nc
+         cdfmean $smlevitus vosaline T 0 0 $JS0 $JN0 0 0  ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SLATEQ.nc
+         cdfmean $smlevitus vosaline T 0 0 1 $JS1 0 0     ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SLATS.nc
+      done
+
+      merge_files LEVITUS_y0000_1m_TSLATN.nc LEVITUS_y0000_1m_TLATN.nc LEVITUS_y0000_1m_SLATN.nc
+      define_diags_dir LEVITUS_y0000_1m_TSLATN.nc
+      expatrie  LEVITUS_y0000_1m_TSLATN.nc $DIAGSOUT  LEVITUS_y0000_1m_TSLATN.nc
+      merge_files LEVITUS_y0000_1m_TSLATEQ.nc LEVITUS_y0000_1m_TLATEQ.nc LEVITUS_y0000_1m_SLATEQ.nc
+      define_diags_dir LEVITUS_y0000_1m_TSLATEQ.nc
+      expatrie  LEVITUS_y0000_1m_TSLATEQ.nc $DIAGSOUT  LEVITUS_y0000_1m_TSLATEQ.nc
+      merge_files LEVITUS_y0000_1m_TSLATS.nc LEVITUS_y0000_1m_TLATS.nc LEVITUS_y0000_1m_SLATS.nc
+      define_diags_dir LEVITUS_y0000_1m_TSLATS.nc
+      expatrie  LEVITUS_y0000_1m_TSLATS.nc $DIAGSOUT  LEVITUS_y0000_1m_TSLATS.nc
+     fi
+                    }
+
+   # get mesh mask files
+   rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
+   rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
+   rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
+
+  # JN1
+  # --- LATN=60 (60N)
+  # JN0
+  #
+  #
+  #
+  # JS0
+  # --- LATS=-60 (60S)
+  # JS1
+
+  # Find JN0 JN1 as J-index around latitude LATN
+  tmp=`cdffindij 0 0 $LATN $LATN -p T -c mesh_hgr.nc | tail -1 | awk '{print $3}'`
+  result=$(echo "$tmp $LATN" | awk '{print $1 - $2}' );
+  if [[ $result > 0 ]] ; then
+   JN1=`cdffindij 0 0 $LATN $LATN -p T -c mesh_hgr.nc | tail -2 | head -1 | awk '{print $3}'`
+   JN0=$((JN1-1))
+  else
+   JN0=`cdffindij 0 0 $LATN $LATN -p T -c mesh_hgr.nc | tail -2 | head -1 | awk '{print $3}'`
+   JN1=$((JN0+1))
+  fi
+  # Same fpr JS0 JS1, with LATS
+  tmp=`cdffindij 0 0 $LATS $LATS -p T -c mesh_hgr.nc | tail -1 | awk '{print $3}'`
+  result=$(echo "$tmp $LATS" | awk '{print $1 - $2}' );
+  if [[ $result > 0 ]] ; then
+   JS0=`cdffindij 0 0 $LATS $LATS -p T -c mesh_hgr.nc | tail -2 | head -1 | awk '{print $3}'`
+   JS1=$((JS0-1))
+  else
+   JS1=`cdffindij 0 0 $LATS $LATS -p T -c mesh_hgr.nc | tail -2 | head -1 | awk '{print $3}'`
+   JS0=$((JS1+1))
+  fi
+  JMAX=`cdfinfo mesh_hgr.nc | grep npjglo | awk '{print $3}'`
+
+  file_lstn=''
+  file_lsteq=''
+  file_lsts=''
+  for TAG in $(mktaglist $TSLAT) ; do
+
+   # get gridT files
+   rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY ${CONFCASE}_${TAG}_gridT.nc
+
+   # output file name ascii and nc
+   suf=$( getsuffix $TAG )
+   fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
+   fsshlatn_nc=${fbase}_SSHLATN.nc
+   fsshlateq_nc=${fbase}_SSHLATEQ.nc
+   fsshlats_nc=${fbase}_SSHLATS.nc
+   ftlatn_nc=${fbase}_TLATN.nc
+   ftlateq_nc=${fbase}_TLATEQ.nc
+   ftlats_nc=${fbase}_TLATS.nc
+   fslatn_nc=${fbase}_SLATN.nc
+   fslateq_nc=${fbase}_SLATEQ.nc
+   fslats_nc=${fbase}_SLATS.nc
+
+   # save file list ( to be sorted later to eliminate duplicate entries )
+   file_lstn=$( filter_list $file_lstn $fsshlatn_nc $ftlatn_nc $fslatn_nc )
+   file_lsteq=$( filter_list $file_lsteq $fsshlateq_nc $ftlateq_nc $fslateq_nc )
+   file_lsts=$( filter_list $file_lsts $fsshlats_nc $ftlats_nc $fslats_nc )
+
+   # 3D Latitude-bands means
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T 0 0 $JN1 $JMAX 0 0  ; concat_file $TAG cdfmean.nc $fsshlatn_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T 0 0 $JS0 $JN0 0 0 ; concat_file $TAG cdfmean.nc $fsshlateq_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T 0 0 1 $JS1 0 0  ; concat_file $TAG cdfmean.nc $fsshlats_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T 0 0 $JN1 $JMAX 0 0  ; concat_file $TAG cdfmean.nc $ftlatn_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T 0 0 $JS0 $JN0 0 0 ; concat_file $TAG cdfmean.nc $ftlateq_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T 0 0 1 $JS1 0 0  ; concat_file $TAG cdfmean.nc $ftlats_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T 0 0 $JN1 $JMAX 0 0  ; concat_file $TAG cdfmean.nc $fslatn_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T 0 0 $JS0 $JN0 0 0 ; concat_file $TAG cdfmean.nc $fslateq_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T 0 0 1 $JS1 0 0  ; concat_file $TAG cdfmean.nc $fslats_nc
+  done
+
+  # merge matching nc files
+  for suf in _1m _1y ; do
+    fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
+    ftslatn_nc=${fbase}_TSLATN.nc
+    ftslateq_nc=${fbase}_TSLATEQ.nc
+    ftslats_nc=${fbase}_TSLATS.nc
+    tmplstn=''
+    tmplsteq=''
+    tmplsts=''
+    for f in $file_lstn ; do
+      tmplstn="$tmplstn $(echo $f | grep $fbase )"
+    done
+    for f in $file_lsteq ; do
+      tmplsteq="$tmplsteq $(echo $f | grep $fbase )"
+    done
+    for f in $file_lsts ; do
+      tmplsts="$tmplsts $(echo $f | grep $fbase )"
+    done
+    merge_files $ftslatn_nc $tmplstn
+    merge_files $ftslateq_nc $tmplsteq
+    merge_files $ftslats_nc $tmplsts
+    if [ -f $ftslatn_nc ] ; then
+      define_diags_dir $ftslatn_nc
+      expatrie  $ftslatn_nc $DIAGSOUT $ftslatn_nc
+    fi
+    if [ -f $ftslateq_nc ] ; then
+      define_diags_dir $ftslateq_nc
+      expatrie  $ftslateq_nc $DIAGSOUT $ftslateq_nc
+    fi
+    if [ -f $ftslats_nc ] ; then
+      define_diags_dir $ftslats_nc
+      expatrie  $ftslats_nc $DIAGSOUT $ftslats_nc
+    fi
+  done
+
+  case $TSLAT in
+     1) mkannuallevituslat  ;;
+     2) mkmonthlylevituslat ;;
+     3) mkannuallevituslat
+        mkmonthlylevituslat ;;
+  esac
+
 fi
 
 # Vertical T-S profiles off the coast of Portugal for Gib monitoring: input file: gridT, mesh_mask
@@ -546,8 +752,8 @@ if [        $GIB  !=  0    ] ; then
          tmlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  
          smlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc 
          if [ ! -f $tmlevitus -o ! -f $smlevitus ] ; then
-           tlevitus=${TSCLIM:=Levitus_p2.1}_1m_01_12_T_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
-           slevitus=${TSCLIM:=Levitus_p2.1}_1m_01_12_S_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
+           tlevitus=${TSCLIM:=Levitus_p2.1}_1m_T_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
+           slevitus=${TSCLIM:=Levitus_p2.1}_1m_S_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
            rapatrie $tlevitus $IDIR $tlevitus
            rapatrie $slevitus $IDIR $slevitus
       
@@ -589,7 +795,7 @@ if [        $GIB  !=  0    ] ; then
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
    #
    suf=$( getsuffix $TAG )
-   fbase=${CONFCASE}_y${YEAR}${suf}
+   fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
    
    #  output files:
    ftgib=${fbase}_TGIB.txt
@@ -617,7 +823,7 @@ if [        $GIB  !=  0    ] ; then
 
   # merge matching nc files
   for suf in _1m _1y ; do
-    fbase=${CONFCASE}_y${YEAR}${suf}
+    fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
     ftsgib_nc=${fbase}_TSGIB.nc
     tmplst=''
     for f in $file_lst ; do
@@ -658,7 +864,7 @@ if [        $KERG  !=  0    ] ; then
 
    #
    suf=$( getsuffix $TAG )
-   fbase=${CONFCASE}_y${YEAR}${suf}
+   fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
 
    for k in $(seq 1 6); do
 
@@ -744,7 +950,7 @@ if [        $KERG  !=  0    ] ; then
 done
 
   for suf in _1m _1y ; do
-    fbase=${CONFCASE}_y${YEAR}${suf}
+    fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
     fkerg_nc=${fbase}_KERG.nc
     tmplst=''
     for f in $file_lst ; do
@@ -776,7 +982,7 @@ if [        $KERGb  !=  0    ] ; then
 
    #
    suf=$( getsuffix $TAG )
-   fbase=${CONFCASE}_y${YEAR}${suf}
+   fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
 
    for k in $(seq 1 6); do
 
@@ -855,7 +1061,7 @@ if [        $KERGb  !=  0    ] ; then
    done
 
   for suf in _1m _1y ; do
-    fbase=${CONFCASE}_y${YEAR}${suf}
+    fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
     fkerg_nc=${fbase}_KERGb.nc
     tmplst=''
     for f in $file_lst ; do
@@ -880,7 +1086,7 @@ if [    $ICEMONTH != 0    ] ; then
    file_lst=''
    for m in $(seq 1 12) ; do
     mm=$( printf "%02d" $m )
-    rapatrie  ${CONFCASE}_${TAG}m${mm}_icemod.nc $MEANY ${CONFCASE}_${TAG}m${mm}_icemod.nc
+    rapatrie  ${CONFCASE}_${TAG}m${mm}${xiosid}_icemod.nc $MEANY ${CONFCASE}_${TAG}m${mm}${xiosid}_icemod.nc
    done
  
    # get mesh mask files
@@ -889,7 +1095,7 @@ if [    $ICEMONTH != 0    ] ; then
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
  
    # output files:
-   fbase=${CONFCASE}_${TAG}_1m
+   fbase=${CONFCASE}_${TAG}${xiosid}_1m
    fice=${fbase}_icemonth.txt
    fice_nc=${fbase}_ICEMONTH.nc
 
@@ -901,8 +1107,8 @@ if [    $ICEMONTH != 0    ] ; then
     *)  echo '###' $YEAR $mm >> $fice ;;
     esac
 
-    cdficediags ${CONFCASE}_${TAG}m${mm}_icemod.nc  >> $fice 
-    concat_file ${TAG}m${mm} icediags.nc $fice_nc
+    cdficediags ${CONFCASE}_${TAG}m${mm}${xiosid}_icemod.nc  >> $fice 
+    concat_file ${TAG}m${mm}${xiosid} icediags.nc $fice_nc
 
    done
  
@@ -921,7 +1127,7 @@ if [    $ELNINO != 0    ] ; then  # always monthly diags
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
  
    # outputfile
-   fbase=${CONFCASE}_${TAG}_1m
+   fbase=${CONFCASE}_${TAG}${xiosid}_1m
    fnino=${fbase}_NINO.txt
 
    fnino12_nc=${fbase}_NINO12.nc
@@ -934,7 +1140,7 @@ if [    $ELNINO != 0    ] ; then  # always monthly diags
    \rm $fnino
    for m in $(seq 1 12) ; do
      mm=$(printf "%02d" $m)
-     f=${CONFCASE}_${TAG}m${mm}_gridT.nc 
+     f=${CONFCASE}_${TAG}m${mm}${xiosid}_gridT.nc 
 
      rapatrie $f $MEANY  $f
  
@@ -944,22 +1150,22 @@ if [    $ELNINO != 0    ] ; then  # always monthly diags
     # nino 1+2   [ -90 W -- -80 W, -10 S -- 10 N ]
     cdfmean  $f votemper T $NINO12 1 1 | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino 
     ncrename -h -v mean_votemper,mean_votemper_NINO12 cdfmean.nc
-    concat_file ${TAG}m${mm} cdfmean.nc $fnino12_nc
+    concat_file ${TAG}m${mm}${xiosid} cdfmean.nc $fnino12_nc
 
     # nino 3     [ -150 W -- -90 W, -5 S -- 5 N ]
     cdfmean  $f votemper T $NINO3 1 1  | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino 
     ncrename -h -v mean_votemper,mean_votemper_NINO3 cdfmean.nc
-    concat_file ${TAG}m${mm} cdfmean.nc $fnino3_nc
+    concat_file ${TAG}m${mm}${xiosid} cdfmean.nc $fnino3_nc
 
     # nino 4     [ -200 W -- -150 W, -5 S -- 5 N ]
     cdfmean  $f votemper T $NINO4 1 1 | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino  
     ncrename -h -v mean_votemper,mean_votemper_NINO4 cdfmean.nc
-    concat_file ${TAG}m${mm} cdfmean.nc $fnino4_nc
+    concat_file ${TAG}m${mm}${xiosid} cdfmean.nc $fnino4_nc
 
     # nino 3.4   [ -170 W -- -120 W, -% S -- % N ]
     cdfmean  $f votemper T $NINO34 1 1 | tail -1 | awk '{ printf " %8.5f 0.00\n", $6 }'  >> $fnino 
     ncrename -h -v mean_votemper,mean_votemper_NINO34 cdfmean.nc
-    concat_file ${TAG}m${mm} cdfmean.nc $fnino34_nc
+    concat_file ${TAG}m${mm}${xiosid} cdfmean.nc $fnino34_nc
  
    done
  
@@ -994,7 +1200,7 @@ if [            $TRP != 0    ] ; then
  
    # Ascii output file:
    suf=$( getsuffix $TAG )
-   fbase=${CONFCASE}_y${YEAR}${suf}
+   fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
    fsection=${fbase}_section_monitor.txt
  
    MONTH=`echo ${TAG} | awk -Fm '{print $2}'`
@@ -1027,7 +1233,7 @@ if [            $TRP != 0    ] ; then
 
   # merge matching nc files
   for suf in _1m _1y ; do
-    fbase=${CONFCASE}_y${YEAR}${suf}
+    fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
     ftrp_nc=${fbase}_TRANSPORTS.nc
     tmplst=''
     for f in $file_lst ; do
@@ -1073,14 +1279,14 @@ if [ $DCT != 0 ] ; then
   file_lst=''
   for m in $(seq 1 12) ; do
     mm=$(printf "%02d" $m)
-    suf=$( getsuffix ${TAG}m${mm} )
-    fbase=${CONFCASE}_${TAG}${suf}
+    suf=$( getsuffix ${TAG}m${mm}${xiosid} )
+    fbase=${CONFCASE}_${TAG}${xiosid}${suf}
 
-    tfich=${CONFCASE}_${TAG}m${mm}_gridT.nc 
+    tfich=${CONFCASE}_${TAG}m${mm}${xiosid}_gridT.nc 
     ufich=$(echo  $tfich | sed -e 's/gridT/gridU/' )
     vfich=$(echo  $tfich | sed -e 's/gridT/gridV/' )
 
-    #get files on gaya
+    #get files on ergon
     rapatrie  $tfich $MEANY  $tfich
     rapatrie  $ufich $MEANY  $ufich
     rapatrie  $vfich $MEANY  $vfich
@@ -1095,7 +1301,7 @@ if [ $DCT != 0 ] ; then
     listfiles=$( ls | grep -e "^[0-9]" | grep trpsig.nc  )
 
     for file in $listfiles ; do
-       concat_file ${TAG}m${mm} $file ${fbase}_$file  # this is one monthly file to be archived
+       concat_file ${TAG}m${mm}${xiosid} $file ${fbase}_$file  # this is one monthly file to be archived
        file_lst=$( filter_list $file_lst ${fbase}_$file )
        mv $file $TRPSIGY/${CONFCASE}_${tag}_$file     # we need individual monthly file for cdfmoyweighted
     done
@@ -1103,7 +1309,7 @@ if [ $DCT != 0 ] ; then
   done  # month loop
 
   # merge matching nc files
-    fbase=${CONFCASE}_y${YEAR}_1m
+    fbase=${CONFCASE}_y${YEAR}${xiosid}_1m
     ftrpsig_nc=${fbase}_TRPSIG.nc
     tmplst=''
     for f in $file_lst ; do
@@ -1122,21 +1328,21 @@ if [ $DCT != 0 ] ; then
   # isolate sections from m01 files whose name is similar to 
   #  NATL025-GRD83_y1999m01_01_Denmark_strait_trpsig.nc
   section_list=''
-  for f in *m01_*trpsig.nc ; do
-   section=${f%_trpsig.nc} ; section=${section#*m01_}
+  for f in *m01${xiosid}_*trpsig.nc ; do
+   section=${f%_trpsig.nc} ; section=${section#*m01${xiosid}_}
    section_list="$section_list $section"
   done
 
   for section in $section_list ; do
-   cdfmoy_weighted ${CONFCASE}_${TAG}m??_${section}_trpsig.nc 
-   froot=${CONFCASE}_${TAG}_1y_${section}_trpsig
+   cdfmoy_weighted ${CONFCASE}_${TAG}m??${xiosid}_${section}_trpsig.nc 
+   froot=${CONFCASE}_${TAG}${xiosid}_1y_${section}_trpsig
    concat_file ${TAG} cdfmoy_weighted.nc  $froot.nc
    file_lst=$( filter_list $file_lst $froot.nc )
   done
   
   # save yearly files
   # merge matching nc files
-  fbase=${CONFCASE}_y${YEAR}_1y
+  fbase=${CONFCASE}_y${YEAR}${xiosid}_1y
   ftrpsig_nc=${fbase}_TRPSIG.nc
   tmplst=''
   for f in $file_lst ; do
@@ -1173,7 +1379,7 @@ if [            $MHT  !=  0   ] ; then
  
    # output files:
    suf=$( getsuffix $TAG )
-   fbase=${CONFCASE}_y${YEAR}${suf}
+   fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
    fmhst=${fbase}_mhst.nc
    
    # Netcdf output files: (both head and salt in 2 separated variables)
@@ -1187,7 +1393,17 @@ if [            $MHT  !=  0   ] ; then
 #-----------------------------
    fhflx=${fbase}_hflx.nc
    rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY  ${CONFCASE}_${TAG}_gridT.nc
-   cdfhflx  ${CONFCASE}_${TAG}_gridT.nc
+   # check if sohefldo in gridT file :
+   ncdump -h ORCA025.L75-GJM189_y1976_gridT.nc | grep -q sohefldo
+
+   if [ $? = 0 ] ; then
+     zflxfil=${CONFCASE}_${TAG}_gridT.nc
+   else
+     rapatrie ${CONFCASE}_${TAG}_flxT.nc $MEANY  ${CONFCASE}_${TAG}_flxT.nc
+     zflxfil=${CONFCASE}_${TAG}_flxT.nc
+   fi
+
+   cdfhflx  $zflxfil
    concat_file $TAG cdfhflx.nc $fhflx
    file_lst=$( filter_list $file_lst $fhflx )
  
@@ -1197,7 +1413,7 @@ if [            $MHT  !=  0   ] ; then
   # dispose files in the ad-hoc -DIAGS/xxx directory
   # merge matching nc files
   for suf in _1m _1y ; do
-    fbase=${CONFCASE}_y${YEAR}${suf}
+    fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
     fmht_nc=${fbase}_MHT.nc
     tmplst=''
     for f in $file_lst ; do
@@ -1238,7 +1454,7 @@ rename_maxmoc()   {
    MONTH=`echo ${TAG} | awk -Fm '{print $2}'`
    suf=$( getsuffix $TAG )
 
-   fbase=${CONFCASE}_y${YEAR}${suf}
+   fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
    fmaxmoc=${fbase}_minmaxmoc.txt
    echo $YEAR $MONTH > $fmaxmoc
    fmaxmoc40=${fbase}_maxmoc40.txt
@@ -1403,7 +1619,7 @@ rename_maxmoc()   {
   fileout_lst=''
   for f in $file_lst ; do
     suf=$( echo $f | awk -F_ '{ print $3 }' )  # suf is then 1m or 1y
-    fmaxmocall=${CONFCASE}_y${YEAR}_${suf}_MAXMOC.nc
+    fmaxmocall=${CONFCASE}_y${YEAR}${xiosid}_${suf}_MAXMOC.nc
     ncks -h -A $f $fmaxmocall
     fileout_lst=$( filter_list $fileout_lst $fmaxmocall )
     # clean temporary files
@@ -1426,7 +1642,7 @@ if [             $TAO !=  0   ] ; then
   for TAG in $(mktaglist $TAO) ; do
     
      suf=$( getsuffix $TAG )
-     fbase=${CONFCASE}_y${YEAR}${suf}_VELOCITY
+     fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}_VELOCITY
 
      LAT=0
      u=${CONFCASE}_${TAG}_gridU.nc
@@ -1466,7 +1682,7 @@ if [             $TAO !=  0   ] ; then
   # under current time series, from vertical profiles files  ( only based on nco tools)
   file_lst_uc=''  # reset file list for UC files
   for suf in _1m _1y ; do   	
-     fbase=${CONFCASE}_y${YEAR}${suf}_VELOCITY
+     fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}_VELOCITY
      if [ -f ${fbase}_0n110w.nc ] ; then  # assume that if the 1rst file exist for this suffix, all exist
        # 110W  depth = 80 m
        fvel=${fbase}_0n110w ; dep=80
@@ -1514,7 +1730,7 @@ if [             $TAO !=  0   ] ; then
   # merge matching nc files
   file_lst="$file_lst $file_lst_uc"
   for suf in _1m _1y ; do
-    fbase=${CONFCASE}_y${YEAR}${suf}
+    fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
     ftao_nc=${fbase}_TAO.nc
     tmplst=''
     for f in $file_lst ; do
@@ -1543,14 +1759,14 @@ if [ $TRACER != 0 ] ; then
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
    if (( $orca != 0 )) ; then rapatrie  $fbasinmask $IDIR $fbasinmask ; fi
  
-   # get tracer file from gaya: note that this is from -S dir (5 day average ... to discuss ...)
+   # get tracer file from ergon: note that this is from -S dir (5 day average ... to discuss ...)
    rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
    rapatrie ${CONFCASE}_${TAG}_diadT.nc $MEANY ${CONFCASE}_${TAG}_diadT.nc
    rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
  
    # output files:
    suf=$(getsuffix $TAG )
-   fbase=${CONFCASE}_y${YEAR}${suf}
+   fbase=${CONFCASE}_y${YEAR}${xiosid}${suf}
    ftrc=${fbase}_TRCmean.txt
    ftrc_zomean=${fbase}_TRCzonalmean_flx.txt
    ftrc_zosum=${fbase}_TRCzonalsum_flx.txt
@@ -1637,7 +1853,7 @@ if [ $BIO_PROFILE != 0 ] ; then
      rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
      rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
 
-     # get tracer file from gaya: 
+     # get tracer file from ergon: 
      rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
 
      # Parameters for integration
@@ -1645,7 +1861,7 @@ if [ $BIO_PROFILE != 0 ] ; then
    
      # compute vertical profiles
      suf=$(getsuffix $TAG )
-     fbioprofile=${CONFCASE}_y${YEAR}${suf}_bioprofile.nc
+     fbioprofile=${CONFCASE}_y${YEAR}${xiosid}${suf}_bioprofile.nc
 
      jc=0
      for var in DIC Alkalini O2 PO4 Si NO3 Fer DOC ; do 
@@ -1680,13 +1896,13 @@ if [ $PISCES_INT != 0 ] ; then
      rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
      rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
 
-     # get tracer file from gaya:
+     # get tracer file from ergon:
      rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
      rapatrie ${CONFCASE}_${TAG}_diadT.nc $MEANY ${CONFCASE}_${TAG}_diadT.nc
    
      # output files
      suf=$(getsuffix $TAG )
-     fbiovert=${CONFCASE}_y${YEAR}${suf}_biovertmean.nc
+     fbiovert=${CONFCASE}_y${YEAR}${xiosid}${suf}_biovertmean.nc
 
      jc=0
      # compute vertically integrated mean

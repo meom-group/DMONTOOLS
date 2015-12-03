@@ -1,4 +1,16 @@
 #!/bin/ksh
+## =====================================================================
+##     ***  script RUN_calmoy.ksh  ***
+##  Wrapper script for launching monthly and annual mean computations
+##  Relay on definitions in config_moy.ksh, and uses function_moy.ksh
+## =====================================================================
+## History : 1.0  !  2009     J.M. Molines     Original code
+## ----------------------------------------------------------------------
+##  DMONTOOLS_2.0 , MEOM 2012
+##  $Id: RUN_calmoy.ksh 541 2012-12-22 16:10:05Z molines $
+##  Copyright (c) 2012, J.-M. Molines
+##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
+## ----------------------------------------------------------------------
 
 usage() {
       echo USAGE: $(basename $0) [-h ] [-a agrif_grid] [-i year1-year2 ] year

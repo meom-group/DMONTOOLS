@@ -15,27 +15,27 @@ CLIM=$1
 . ./function_def.ksh
 
 copy() {
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+          ssh drakkar@meolipc.legi.grenoble-inp.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
+          ssh drakkar@meolipc.legi.grenoble-inp.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE ; fi "
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+          ssh drakkar@meolipc.legi.grenoble-inp.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/CLIM_${CLIM} ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/CLIM_${CLIM} ; fi "
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+          ssh drakkar@meolipc.legi.grenoble-inp.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/CLIM_${CLIM}/${dir} ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/CLIM_${CLIM}/${dir} ; fi "
-          scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${CLIM}/${dir}/$(basename $1) ;
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+          scp $1 drakkar@meolipc.legi.grenoble-inp.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${CLIM}/${dir}/$(basename $1) ;
+          ssh drakkar@meolipc.legi.grenoble-inp.fr -l drakkar \
          " chmod a+r DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${CLIM}/${dir}/$(basename $1) "
         }
 
 mkgif() {
-   ctrans -d sun -res 1024x1024 $1 > ztmp.sun
+   ctrans -device sun -res 1024x1024 $1 > ztmp.sun
    convert ztmp.sun $2
    \rm ztmp.sun
         }
 
-cd $PLOTDIR/$CONFIG/CLIM_PLOTS/$CONFCASE                             # work on gaya directly
+cd $PLOTDIR/$CONFIG/CLIM_PLOTS/$CONFCASE                             # work on ergon directly
 
-for dir in OVT GLOBAL DRAKE CAMPBELL KERGUELEN SECTIONS SECTIONS1 CIRCUM ICE DWBC MXL ATLN ATLS CONTOURS ; do
+for dir in OVT GLOBAL DRAKE CAMPBELL KERGUELEN MEDSEA SECTIONS SECTIONS1 CIRCUM ICE DWBC MXL ATLN ATLS CONTOURS ; do
   if [ -d $dir ] ; then 
     cd $dir
     chkdir GIFS  # this directory should exist but who knows ...?

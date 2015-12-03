@@ -1,0 +1,39 @@
+#!/bin/ksh
+#!/bin/ksh
+#SBATCH --nodes=1
+#SBATCH --ntasks=12
+#SBATCH --ntasks-per-node=24
+#SBATCH --threads-per-core=1
+#SBATCH -J zmvt_<year>
+#SBATCH -e zmvt_<year>.e%j
+#SBATCH -o zmvt_<year>.o%j
+#SBATCH --time=4:00:00
+#SBATCH --exclusive
+
+
+ulimit -s unlimited
+NB_NPROC=$SLURM_NTASKS
+
+set -x
+CONFIG=<CONFIG>
+CASE=<CASE>
+
+CONFCASE=${CONFIG}-${CASE}
+CTL_DIR=<WPDIR>
+
+#. $HOME/.profile
+cd $CTL_DIR
+. ./config_moy.ksh
+
+liste=''
+for m in $(seq 1 12 ) ; do
+   mm=$(printf "%02d" $m )
+   liste="$liste ./zz_calmoyvt_${mm}_<year>.ksh"
+done
+
+#
+module load netcdf
+
+runcode  $NB_NPROC <MPITOOLS>/mpi_shell $liste
+
+

@@ -1,76 +1,99 @@
 #!/bin/ksh
-
-######################################################################################
-######################################################################################
-###
-### machine dependant functions : each machine has its own functions
-###
-######################################################################################
-######################################################################################
+##     ***  script  function_moy.ksh  ***
+##  define functions for DMONTOOLS/MOY_PROD scripts
+## =====================================================================
+## History : 1.0  !  2008     J.M. Molines      Original  code
+##           2.0  !  2012     all contrib       Rationalization
+## ----------------------------------------------------------------------
+##  DMONTOOLS_2.0 , MEOM 2012
+##  $Id: function_moy.ksh 540 2012-12-19 14:08:40Z molines $
+##  Copyright (c) 2012, J.-M. Molines
+##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
+## ----------------------------------------------------------------------
+##
+## machine dependent functions : each machine has its own set of functions
+## supported machine : jade, ada, ulam, vargas
+##
+##############################################################################
+# all machines: use : TYP_LIST=$(get_typ_list)
+get_typ_list() {
+       for f in *.nc ; do echo ${f%.nc} | awk -F_ '{print $NF}' ; done | sort -u
+               }
 
 case $MACHINE in
 
 ##############################################################################
 
-    'jade')
+    ( jade | ada | vayu | curie | occigen )
 
-    chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi ;}
+    chkdir() {  mkdir -p $1 ;}
+
+    submit() {
+       if [ $MACHINE = jade    ] ; then  qsub     $1 ; fi
+       if [ $MACHINE = vayu    ] ; then  qsub     $1 ; fi
+       if [ $MACHINE = ada     ] ; then  llsubmit $1 ; fi
+       if [ $MACHINE = curie   ] ; then  ccc_msub $@ ; fi
+       if [ $MACHINE = occigen ] ; then  sbatch   $@ ; fi
+             }
 
     monthly() { m=$1  ; mm=$(printf "%02d" $m )
        cd $MOYTMPDIR/$year
        chkdir $MOYTMPDIR/$year/$mm
        cd $MOYTMPDIR/$year/$mm
-       ln -s $P_S_DIR/$year/*y${year}m${mm}d??*.nc .
+       ln -s $P_S_DIR/$year/*y${year}m${mm}d??${xiosid}*.nc .
        for typ in $TYP_LIST ; do
-         $CDFTOOLS/cdfmoy ${CONFCASE}_y${year}m${mm}d??_${typ}.nc 
-         mv cdfmoy.nc ${CONFCASE}_y${year}m${mm}_${typ}.nc
+         echo TYP : $typ
+         echo  $CDFTOOLS/cdfmoy ${CONFCASE}_y${year}m${mm}d??${xiosid}_${typ}.nc
+         $CDFTOOLS/cdfmoy ${CONFCASE}_y${year}m${mm}d??${xiosid}_${typ}.nc 
+         mv cdfmoy.nc ${CONFCASE}_y${year}m${mm}${xiosid}_${typ}.nc
          case $typ in 
           gridT | gridU | gridV | gridW  ) 
-             mv cdfmoy2.nc ${CONFCASE}_y${year}m${mm}_${typ}2.nc ;;
+             mv cdfmoy2.nc ${CONFCASE}_y${year}m${mm}${xiosid}_${typ}2.nc ;;
          esac
-         \rm ${CONFCASE}_y${year}m${mm}d??_${typ}.nc
+         \rm ${CONFCASE}_y${year}m${mm}d??${xiosid}_${typ}.nc
        done ;}
 
     monthlyvt() { m=$1  ; mm=$(printf "%02d" $m )
        cd $VTTMPDIR/$year
        chkdir $VTTMPDIR/$year/$mm
        cd $VTTMPDIR/$year/$mm
-       ln -s $P_S_DIR/$year/${CONFCASE}_y${year}m${mm}d??_grid[UVT].nc .
+       ln -s $P_S_DIR/$year/${CONFCASE}_y${year}m${mm}d??${xiosid}_grid[UVT].nc .
        taglist=''
-       for f in ${CONFCASE}_y${year}m${mm}d??_gridT.nc ; do
+       for f in ${CONFCASE}_y${year}m${mm}d??${xiosid}_gridT.nc ; do
          tag=$(echo ${f%_gridT.nc} | awk -F_ '{ print $2 }' ) ; taglist="$taglist $tag"
        done
          $CDFTOOLS/cdfvT ${CONFCASE} $taglist
-         mv vt.nc ${CONFCASE}_y${year}m${mm}_VT.nc
-         \rm ${CONFCASE}_y${year}m${mm}d??_grid[UVT].nc ; }
+         mv vt.nc ${CONFCASE}_y${year}m${mm}${xiosid}_VT.nc
+         \rm ${CONFCASE}_y${year}m${mm}d??${xiosid}_grid[UVT].nc ; }
 
     annual() { cd $MOYTMPDIR/$year
+       TYP_LIST=$(get_typ_list)
        for typ in $TYP_LIST ; do
         for m in $(seq 1 12 ) ; do
           mm=$(printf "%02d" $m )
-          ln -sf $mm/${CONFCASE}_y${year}m${mm}_${typ}.nc .
-          ln -sf $mm/${CONFCASE}_y${year}m${mm}_${typ}2.nc .
+          ln -sf $mm/${CONFCASE}_y${year}m${mm}${xiosid}_${typ}.nc .
+          ln -sf $mm/${CONFCASE}_y${year}m${mm}${xiosid}_${typ}2.nc .
         done
-        $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y${year}m??_${typ}.nc
-        mv cdfmoy_weighted.nc ${CONFCASE}_y${year}_${typ}.nc
+        $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y${year}m??${xiosid}_${typ}.nc
+        mv cdfmoy_weighted.nc ${CONFCASE}_y${year}${xiosid}_${typ}.nc
         case $typ in 
          gridT | gridU | gridV | gridW  ) 
-           $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y${year}m??_${typ}2.nc
-           mv cdfmoy_weighted.nc ${CONFCASE}_y${year}_${typ}2.nc ;;
+           $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y${year}m??${xiosid}_${typ}2.nc
+           mv cdfmoy_weighted.nc ${CONFCASE}_y${year}${xiosid}_${typ}2.nc ;;
         esac
-        \rm -f ${CONFCASE}_y${year}m??_${typ}.nc
-        \rm -f ${CONFCASE}_y${year}m??_${typ}2.nc
+        \rm -f ${CONFCASE}_y${year}m??${xiosid}_${typ}.nc
+        \rm -f ${CONFCASE}_y${year}m??${xiosid}_${typ}2.nc
        done ; }
 
     annualvt() { cd $VTTMPDIR/$year
         typ=VT
         for m in $(seq 1 12 ) ; do
           mm=$(printf "%02d" $m )
-          ln -sf $mm/${CONFCASE}_y${year}m${mm}_${typ}.nc .
+          ln -sf $mm/${CONFCASE}_y${year}m${mm}${xiosid}_${typ}.nc .
         done
-        $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y${year}m??_${typ}.nc
-        mv cdfmoy_weighted.nc ${CONFCASE}_y${year}_${typ}.nc
-        \rm -f ${CONFCASE}_y${year}m??_${typ}.nc ; }
+        $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y${year}m??${xiosid}_${typ}.nc
+        mv cdfmoy_weighted.nc ${CONFCASE}_y${year}${xiosid}_${typ}.nc
+        \rm -f ${CONFCASE}_y${year}m??${xiosid}_${typ}.nc ; }
 
     interannual() {  set -x ; chkdir $MOYTMPDIR
         chkdir $MOYTMPDIR/$1-$2
@@ -83,20 +106,20 @@ case $MACHINE in
           for m in $( seq 1 12 ) ; do
              mm=$( printf "%02d" $m )
              for year in $( seq $1 $2 ) ; do
-                ln -sf $MEANDIR/$year/${CONFCASE}_y${year}m${mm}_${typ}.nc .
+                ln -sf $MEANDIR/$year/${CONFCASE}_y${year}m${mm}${xiosid}_${typ}.nc .
              done
-             $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????m${mm}_${typ}.nc
-             mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}m${mm}_${typ}.nc
-             rm ${CONFCASE}_y????m${mm}_${typ}.nc
+             $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????m${mm}${xiosid}_${typ}.nc
+             mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}m${mm}${xiosid}_${typ}.nc
+             rm ${CONFCASE}_y????m${mm}${xiosid}_${typ}.nc
 
              case $typ in
              gridT | gridU | gridV | gridW  )
                 for year in $( seq $1 $2 ) ; do
-                   ln -sf $MEANDIR/$year/${CONFCASE}_y${year}m${mm}_${typ}2.nc .
+                   ln -sf $MEANDIR/$year/${CONFCASE}_y${year}m${mm}${xiosid}_${typ}2.nc .
                 done
-                $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????m${mm}_${typ}2.nc
-                mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}m${mm}_${typ}2.nc
-                rm ${CONFCASE}_y????m${mm}_${typ}2.nc ;;
+                $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????m${mm}${xiosid}_${typ}2.nc
+                mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}m${mm}${xiosid}_${typ}2.nc
+                rm ${CONFCASE}_y????m${mm}${xiosid}_${typ}2.nc ;;
              esac
           done
         done
@@ -104,20 +127,20 @@ case $MACHINE in
         # inter annual climatology
         for typ in $TYP_LIST MOC EKE PSI ; do
            for year in $( seq $1 $2 ) ; do
-              ln -sf $MEANDIR/$year/${CONFCASE}_y${year}_${typ}.nc .
+              ln -sf $MEANDIR/$year/${CONFCASE}_y${year}${xiosid}_${typ}.nc .
            done
    
-           $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????_${typ}.nc
-           mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}_${typ}.nc
+           $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????${xiosid}_${typ}.nc
+           mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}${xiosid}_${typ}.nc
    
            case $typ in
            gridT | gridU | gridV | gridW  )
                for year in $( seq $1 $2 ) ; do
-                  ln -sf $MEANDIR/$year/${CONFCASE}_y${year}_${typ}2.nc .
+                  ln -sf $MEANDIR/$year/${CONFCASE}_y${year}${xiosid}_${typ}2.nc .
                done
-               $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????_${typ}2.nc
-               mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}_${typ}2.nc
-               rm ${CONFCASE}_y????_${typ}2.nc ;;
+               $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????${xiosid}_${typ}2.nc
+               mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}${xiosid}_${typ}2.nc
+               rm ${CONFCASE}_y????${xiosid}_${typ}2.nc ;;
            esac
         done
         # extra variables only existing for m03 and m09
@@ -126,23 +149,36 @@ case $MACHINE in
           for m in 3  9 ; do
              mm=$( printf "%02d" $m )
              for year in $( seq $1 $2 ) ; do
-                ln -sf $MEANDIR/$year/${CONFCASE}_y${year}m${mm}_${typ}.nc .
+                ln -sf $MEANDIR/$year/${CONFCASE}_y${year}m${mm}${xiosid}_${typ}.nc .
              done
-             $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????m${mm}_${typ}.nc
-             mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}m${mm}_${typ}.nc
-             rm ${CONFCASE}_y????m${mm}_${typ}.nc
+             $CDFTOOLS/cdfmoy_weighted ${CONFCASE}_y????m${mm}${xiosid}_${typ}.nc
+             mv cdfmoy_weighted.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}m${mm}${xiosid}_${typ}.nc
+             rm ${CONFCASE}_y????m${mm}${xiosid}_${typ}.nc
 
           done
         done
         # compute standard deviation for gridT (useful for contour diagnostics)
         typ=gridT
         for year in $( seq $1 $2 ) ; do
-          ln -sf $MEANDIR/$year/${CONFCASE}_y${year}_${typ}.nc .
+          ln -sf $MEANDIR/$year/${CONFCASE}_y${year}${xiosid}_${typ}.nc .
         done
-        $CDFTOOLS/cdfstd ${CONFCASE}_y????_${typ}.nc
-        mv cdfstd.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}_${typ}_STD.nc 
-        rm ${CONFCASE}_y????_${typ}.nc 
+        $CDFTOOLS/cdfstd ${CONFCASE}_y????${xiosid}_${typ}.nc
+        mv cdfstd.nc $MEANDIR/$1-$2/${CONFCASE}_y$1-${2}${xiosid}_${typ}_STD.nc 
+        rm ${CONFCASE}_y????${xiosid}_${typ}.nc 
                    }
+
+    save_nc() {
+       case $MACHINE in 
+       ( ada | adapp ) 
+           rsh ergon "mkdir -p $1"
+           for f in *.nc ; do
+               mfput $f $1
+           done ;;
+
+       ( * )
+          echo save_nc empty function for $MACHINE ;;
+       esac
+              }
 
     echo "functions for $MACHINE successfully loaded" ;;
 
@@ -150,8 +186,12 @@ case $MACHINE in
 
     chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi ;}
 
+    submit() {
+        llsubmit $1
+             }
+
     # chkdirg  path : check existence of directory path  on (remote) archiving machine. If it does not exist, create it.
-    chkdirg() { rsh gaya -l $REMOTE_USER " if [ ! -d $1 ] ; then mkdir $1 ; fi " ; }
+    chkdirg() { rsh ergon -l $REMOTE_USER " if [ ! -d $1 ] ; then mkdir $1 ; fi " ; }
 
     # getmonth  mm type : retrieve all 5 days average files for month mm and grid type 'type', 
     # corresponding to current year, current confcase.A
@@ -232,7 +272,7 @@ case $MACHINE in
     echo "functions for $MACHINE successfully loaded" ;;
 
     *)
-    echo available machines are jade desktop ulam vargas ; exit 1 ;;
+    echo available machines are jade ada ulam vargas ; exit 1 ;;
 
 esac
 

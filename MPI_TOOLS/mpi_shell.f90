@@ -1,24 +1,28 @@
 PROGRAM mpi_shell
-  !!=================================================================
-  !!         ***  PROGRAM mpi_shell  ***
+  !!======================================================================
+  !!                     ***  PROGRAM  mpi_shell  ***
+  !!=====================================================================
+  !!  ** Purpose : submit various script given as argument in parallel
   !!
-  !!  * Purpose : submit various script given as argument in parallel
+  !!  ** Method  : Use a call system for any process initialize by MPI
   !!
-  !!  * Method: 
-  !!
-  !! * history : Jean-Marc Molines November 2009
-  !!   
-  !!==================================================================
-
+  !! History : 1.0  : 11/2009  : J.M. Molines : Original code
+  !!           2.0  : 12/2012  : J.M. Molines : Licence and coding rules
+  !!----------------------------------------------------------------------
   IMPLICIT NONE
-  INTEGER :: iproc, ierror, nproc, ntask
-  INTEGER :: iargc, narg
+
+  INTEGER(KIND=4)   :: iproc, ierror, nproc, ntask
+  INTEGER(KIND=4)   :: iargc, narg
 
   CHARACTER(LEN=80) :: cdum
 
   INCLUDE 'mpif.h'
-
-  !! * Initialization
+  !!----------------------------------------------------------------------
+  !! DMONTOOLS_2.0 , MEOM 2012
+  !! $Id$
+  !! Copyright (c) 2012, J.-M. Molines
+  !! Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
+  !!----------------------------------------------------------------------
 
   ! Initialize MPI
   CALL mpi_init(ierror)
@@ -33,7 +37,6 @@ PROGRAM mpi_shell
      CALL mpi_finalize(ierror)
      STOP
   END IF
-
 
   ! Max number of tags per processors
 

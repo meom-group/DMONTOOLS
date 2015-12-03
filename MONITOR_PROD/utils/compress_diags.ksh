@@ -17,7 +17,7 @@ fi
 
 if  (( $# < 4 )) || (( $# > 5 )) ; then
     echo '*** USAGE: compress_diags.ksh CONFIG CASE FIRSTYEAR LASTYEAR (optional : REMOTE_MACHINE)'
-    echo '*** EXAMPLE : compress_diags.ksh NATL025 GRD81 1980 1990 gaya'
+    echo '*** EXAMPLE : compress_diags.ksh NATL025 GRD81 1980 1990 ergon'
     exit 0
 fi
 

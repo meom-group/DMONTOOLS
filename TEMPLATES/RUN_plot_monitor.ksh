@@ -1,6 +1,18 @@
 #!/bin/ksh
-# This is a wrapper for submitting plot_monitor from the CDF directory
-#
+## =====================================================================
+##     ***  script  RUN_plot_monitor.ksh  ***
+##  This is a wrapper for submitting  plot_monitor.sub
+## =====================================================================
+## History : 1.0  !  20O8     J.M. Molines      Original code
+## ----------------------------------------------------------------------
+
+## ----------------------------------------------------------------------
+##  DMONTOOLS_2.0 , MEOM 2012
+##  $Id: RUN_plot_monitor.ksh 623 2015-06-08 12:01:13Z molines $
+##  Copyright (c) 2012, J.-M. Molines
+##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
+## ----------------------------------------------------------------------
+
 if [ $#  = 0 ] ; then
    echo USAGE: RUN_plot_monitor.ksh year-init year-end
    echo "     or "
@@ -65,12 +77,14 @@ fi
 
 
   # submit the monitoring mpi 
- cat $PLOTTOOLS/plot_monitor.skel.sub | sed -e "s@<P_MONITOR>@$P_MONITOR@" \
+ cat $PLOTTOOLS/plot_monitor.skel.sub | sed  -e "s/#$MACHINE/#PBS/" \
+     -e "s@<P_MONITOR>@$P_MONITOR@" \
      -e "s/<year1>/$year1/" -e "s/<year2>/$year2/" \
      -e "s/<NB_NODES>/$NB_NODES/" -e "s/<MAIL>/$MAIL/" \
-     -e "s/<NB_NPROC>/$NB_NPROC/" \
-     -e "s/<JOBTYPE>/$JOBTYPE/" -e "s/<MPIPROC>/$MPIPROC/g" \
+     -e "s/<NB_NPROC>/$NB_NPROC/" -e "s/<PLOT_WALLTIME>/$PLOT_WALLTIME/" \
+     -e "s/<JOBTYPE>/$JOBTYPE/"   -e "s/<MPIPROC>/$MPIPROC/g" \
+     -e "s/<ACCOUNT>/$ACCOUNT/"   -e "s/<QUEUE>/$QUEUE/g" \
      -e "s/ifloadlev#/$TASKTRICK/g" -e "s/<RNDTMPDIR>/$RNDTMPDIR/" >  plot_monitor.sub
  chmod +x plot_monitor.sub
- $SUB ./plot_monitor.sub
+ submit  ./plot_monitor.sub
  \rm plot_monitor.sub

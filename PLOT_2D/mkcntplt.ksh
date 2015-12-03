@@ -199,7 +199,7 @@ done
 
 # Convert cgm file with all contours in a gif file
 
-mkgif() { ctrans -d sun -res 1024x1024 $1 > tmp.sun ; convert tmp.sun $2 ;
+mkgif() { ctrans -device sun -res 1024x1024 $1 > tmp.sun ; convert tmp.sun $2 ;
           \rm $1 tmp.sun ; }
 
 giffile=${listconfcase}_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_${AREA}.gif

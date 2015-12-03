@@ -1,0 +1,38 @@
+#!/bin/ksh
+#PBS -N zmoy_<year>
+#PBS -l select=2:ncpus=8:mpiprocs=6
+#PBS -l walltime=1:30:00
+#PBS -l cluster=hpt
+##PBS -mb -me
+#PBS -v NB_NODES=2,NB_NPROC=12
+
+#$ -N zmoy_<year>
+#$ -cwd
+#$ -j y
+#$ -S /bin/bash
+#$ -pe one 12
+#$ -v NB_NODES=2,NB_NPROC=12
+
+set -x
+CONFIG=<CONFIG>
+CASE=<CASE>
+
+source $HOME/.bashrc
+
+CONFCASE=${CONFIG}-${CASE}
+CTL_DIR=${WORKDIR}/RUN_${CONFIG}/${CONFCASE}/CTL/CDF
+
+cd $CTL_DIR
+. ./config_moy.ksh
+
+liste=''
+for m in $(seq 1 12 ) ; do
+   mm=$(printf "%02d" $m )
+   liste="$liste zz_calmoy_${mm}_<year>.ksh"
+done
+
+#
+#module load netcdf
+
+mpirun -mca btl_tcp_if_include eth0  -np  $NB_NPROC $WORKDIR/bin/mpi_shell $liste
+

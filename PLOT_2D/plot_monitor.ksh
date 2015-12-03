@@ -12,8 +12,18 @@ if [ $# = 0 ] ; then
    exit 1
 fi
 
+# define some config dependent variable
+. ./config_def.ksh
+
+#  Define some functions to get/put file from/to ergon (can be easily customized)
+. ./function_def.ksh
+#-----------------------------------------------------------------------------
 # take YEAR as the argument to this script
+# YEAR can then be used as directory name for files YEARDIR=${XIOS}/$YEAR e.g.: 5d/2000
+# YEAR can also be used as a date and for annual mean YEARDAT=$YEAR${xiosid} e.g. 1967.5d
+#                                     for monthly mean ${YEAR}m03${xiosid}
 YEAR=$1
+YEARDAT=$YEAR${xiosid}
 
 # check if computing plots for a climatology or for a sequence of years
 single=$( echo $YEAR | awk '{ print index($1,"-") }' )
@@ -24,11 +34,6 @@ else
 fi
 
 #-----------------------------------------------------------------------------
-# define some config dependent variable
-. ./config_def.ksh
-
-#  Define some functions to get/put file from/to gaya (can be easily customized)
-. ./function_def.ksh
 
 # PALDIR hold color palettes for these plots
 # it is distributed with PLOT_2D scripts, and copied there by the main script
@@ -71,16 +76,16 @@ mklim() {
 # if $gif='' then for f in $gif is an empty loop !
 if [ $create_gif == 1 ] ; then   gif='gif' ; else gif=''; fi
 
-    # puttogaya : used to dispose the plots in $listplt on PLOTDIR/specific
-    puttogaya() {
+    # puttoarch : used to dispose the plots in $listplt on PLOTDIR/specific
+    puttoarch() {
        chkdirg  $PLOTDIR ; chkdirg  $PLOTDIR/$1 ; chkdirg  $PLOTDIR/$1/GIFS
        for f in  $listplt  ; do
             for ftyp in cgm  ; do expatrie $f.$ftyp $PLOTDIR/$1  $f.$ftyp  ; done
             for ftyp in $gif  ; do expatrie $f.$ftyp $PLOTDIR/$1/GIFS  $f.$ftyp  ; done
        done ;
                 }
-    # puttogayatrc : used to dispose the plots in $listplt on PLOTDIR/TRACER/specific
-    puttogayatrc() {
+    # puttoarchtrc : used to dispose the plots in $listplt on PLOTDIR/TRACER/specific
+    puttoarchtrc() {
        chkdirg  $PLOTDIR ; chkdirg  $PLOTDIR/$1 ; chkdirg  $PLOTDIR/$1/$2 ; chkdirg  $PLOTDIR/$1/$2/GIFS
        for f in  $listplt  ; do
             for ftyp in cgm  ; do expatrie $f.$ftyp $PLOTDIR/$1/$2  $f.$ftyp  ; done
@@ -92,7 +97,7 @@ if [ $create_gif == 1 ] ; then   gif='gif' ; else gif=''; fi
     #         convert gmeta ( created by chart/coupe) into filout.cgm and hold the list
     mkplt() { mv gmeta $1.cgm  ; listplt="$listplt $1 " ; 
               for ftyp in $gif ; do
-               ctrans -d sun -res 1024x1024 $1.cgm > $1.sun ;
+               ctrans -device sun -res 1024x1024 $1.cgm > $1.sun ;
                convert $1.sun $1.$gif ; \rm -f $1.sun 
               done ; }
 
@@ -126,6 +131,33 @@ mkformat () { q=0 ; ntick=$3 ; low=$1 ; high=$2
 # function to compare config name: return 0 if ref is not within CONFIG
 chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
 
+# function to decode zoom flag: key letters are D (Drake) K (Kerguelen) C (Campbell) A (Atlantic) or 0 
+#            zoom flag is for instance zoomEKE='Dr' or zoomEKE=Ke.Dr or ...
+getlist() {
+
+    zoom=$1
+    typeset -A zbas
+    zbas[Dr]='DRAKE'
+    zbas[Ke]='KERGUELEN'
+    zbas[Cb]='CAMPBELL'
+    zbas[At]='ATLANTIC'
+    zbas[Na]='ATLN'
+    zbas[Sa]='ATLS'
+    list_bas=''
+
+    nz=${#zoom}
+    if [ $nz = 0 ] ; then
+      echo nothing to do 
+    else
+      for i in $(seq 0 3 $((nz-1)) ) ; do
+        zchk=${zoom:$i:2}
+        list_bas="$list_bas ${zbas[$zchk]}"
+      done
+    fi
+    echo  $list_bas
+            }
+
+
 #-------------------------------------------------------------------------------
 # LIST OF PALETTES (available in PALDIR
 #-------------------------------------------------------------------------------
@@ -142,8 +174,8 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
 #------------------------------------------------------------------------------
 # DIRECTORY NAMES FREQUENTLY USED
 #------------------------------------------------------------------------------
- MEANY=$CONFIG/${CONFCASE}-MEAN/$YEAR
- SDIRY=$CONFIG/${CONFCASE}-S/$YEAR
+ MEANY=$CONFIG/${CONFCASE}-MEAN/$XIOS/$YEAR
+ SDIRY=$CONFIG/${CONFCASE}-S/$XIOS/$YEAR
  DIAGS=${CONFIG}/${CONFCASE}-DIAGS
  IDIR=$CONFIG/${CONFIG}-I
  if [ $clim == 0 ] ; then
@@ -174,7 +206,7 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
              $PTS $STRING ;}
 
   # get files
-  mocf=${CONFCASE}_y${YEAR}_MOC.nc
+  mocf=${CONFCASE}_y${YEARDAT}_MOC.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
@@ -210,7 +242,7 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
     fi
   done
 
-  puttogaya  OVT 
+  puttoarch  OVT 
                        fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 2. GLOBAL (on the web site)
@@ -234,8 +266,8 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
  fi
 
  # get files  gridT, icemod
- t=${CONFCASE}_y${YEAR}_gridT.nc
- ice=${CONFCASE}_y${YEAR}_icemod.nc
+ t=${CONFCASE}_y${YEARDAT}_gridT.nc
+ ice=${CONFCASE}_y${YEARDAT}_icemod.nc
 
  # reset the list of plots that are produced ( list is updated in mkplt )
  listplt=' '
@@ -300,7 +332,7 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
    done
  done
 
- puttogaya  GLOBAL
+ puttoarch  GLOBAL
                        fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 3. Difference between model and Levitus at different levels ( In GLOBAL)
@@ -310,8 +342,10 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
   mkdiff() { \rm -f $5
             ncks  -F -O -v $3,nav_lon,nav_lat -d deptht,$4,$4 $2  zz2.nc
             ncks  -F -O -v $3,nav_lon,nav_lat -d deptht,$4,$4 $1  zz1.nc
-            ncatted -O -a missing_value,,d,, zz2.nc
-            ncatted -O -a missing_value,,d,, zz1.nc
+#           ncatted -O -a missing_value,,d,, zz2.nc
+            ncatted -O -a _FillValue,,c,f,0. zz2.nc
+#           ncatted -O -a missing_value,,d,, zz1.nc
+            ncatted -O -a _FillValue,,c,f,0. zz1.nc
             ncbo --op_typ=- -v $3 zz1.nc zz2.nc $5
             ncks  -F -A -v nav_lon,nav_lat,deptht,time_counter -d deptht,$4,$4 $1 $5 ;}
 
@@ -320,8 +354,9 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
   mkdiffrey() { \rm -f $4
             ncks  -F -O -v $3,nav_lon,nav_lat  $2  zz2.nc
             ncks  -F -O -v $3,nav_lon,nav_lat -d deptht,1,1 $1  zz1.nc
-            ncatted -O -a missing_value,,d,, zz2.nc
+            ncatted -O -a missing_value,,d,, zz2.nc  
             ncatted -O -a missing_value,,d,, zz1.nc
+            ncatted -O -a _FillValue,,c,f,0. zz1.nc
             ncbo --op_typ=- -v $3 zz1.nc zz2.nc $4 
             ncks  -F -A -v nav_lon,nav_lat,deptht,time_counter -d deptht,1,1 $1 $4 ;}
 
@@ -341,7 +376,7 @@ chconf() { echo $CONFIG | awk '{print index($1,ref)}' ref=$1 ; }
  fi
 
   # get files  gridT, icemod  T-Levitus, S-Levitus , SST reynolds
-  t=${CONFCASE}_y${YEAR}_gridT.nc
+  t=${CONFCASE}_y${YEARDAT}_gridT.nc
   tlev=${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$(echo $CONFIG | tr '[A-Z]' '[a-z]' ).nc
   slev=${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$(echo $CONFIG | tr '[A-Z]' '[a-z]' ).nc
   sstr=sst_REYNOLDS-${CONFIG}_${YEAR}.nc
@@ -431,8 +466,8 @@ eof
     \rm -f dt.nc ds.nc
   done
 
-    # dispose to gaya all plots in the listplt
-  puttogaya  GLOBAL 
+    # dispose to archive all plots in the listplt
+  puttoarch  GLOBAL 
                        fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 4. Surface heat fluxes( W/m2) and freshwater flux (mm/days)
@@ -451,14 +486,19 @@ eof
  fi
 
   # get files  gridT
-  t=${CONFCASE}_y${YEAR}_gridT.nc
+  if [ $XIOS ] ; then
+    t=${CONFCASE}_y${YEARDAT}_flxT.nc
+  else
+    t=${CONFCASE}_y${YEARDAT}_gridT.nc
+  fi
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
 
   # plot the heat flux (w/m2) and fresh water flux (mm/day) (scaled by 86400 from kg/m2/s)
   MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED3" ; CNTICE="" ; FORMAT='-format PALETTE I4'
-    for var in HeatFlx WaterFlx WaterDmp ; do
+#   for var in HeatFlx WaterFlx WaterDmp CDWaterFlx  ; do
+    for var in HeatFlx WaterFlx WaterDmp   ; do
       STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${YEAR}_DEPTH=@CLR_DEPTH@"
       filout=${CONFIG}_${var}_${YEAR}-${CASE}
       if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
@@ -467,20 +507,62 @@ eof
            HeatFlx) clrvar=sohefldo ; CLRDATA=" -clrdata $t"; min=-140 ; max=140  ; pas=15 ;;
            WaterFlx) clrvar=sowaflup ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
            WaterDmp) clrvar=sowafldp ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+           CDWaterFlx) clrvar=sowaflcd ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
          esac
          CLRLIM="-clrmin $min -clrmax $max -clrmet 1"
          gloplt  ; mkplt $filout
       fi
     done
 
-    # dispose to gaya all plots in the listplt
-    puttogaya  GLOBAL 
+    # dispose to archive all plots in the listplt
+    puttoarch  GLOBAL 
+                         fi
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# 4.2 Hallberg Salinity Damping : HSD (flx (mm/day) and trend ??)
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+                if [ $hsd == 1 ] ; then
+
+ # particular plotting distorsion for non ORCA plots
+ XYPLOT=''   # Default ORCA model
+ CLRXYPAL='' # Defaut ORCA model
+ xstring=0.5 ; ystring=0.95
+
+ if [ $(chconf PERIANT) != 0 ] ; then
+  XYPLOT="-xyplot 0.1 0.95 0.4 0.8"
+  CLRXYPAL="-clrxypal 0.1 0.95 0.2 0.3"
+  xstring=0.52 ; ystring=0.9
+ fi
+
+  # get files  gridT
+  t=${CONFCASE}_y${YEARDAT}_gridT.nc
+  # reset the list of plots that are produced ( list is updated in mkplt )
+  listplt=' '
+
+  # plot the corrective Hallberg flux (scaled by 86400 from kg/m2/S) and SSS Damping trends (PSU/day) (scaled by 86400 from PSU/s)
+  MEAN="" ; DEP="" ; LEV="" ; PAL="-p $PALBLUE2RED3" ; CNTICE="" ; FORMAT='-format PALETTE I4'
+    for var in HsdFlx HsdTrd ; do
+      STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${YEAR}_DEPTH=@CLR_DEPTH@"
+      filout=${CONFIG}_${var}_${YEAR}-${CASE}
+      if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
+         rapatrie $t    $MEANY $t
+         case $var in
+           HsdFlx) clrvar=sohsdflxc ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+           HsdTrd) clrvar=sohsdtrdc ; CLRDATA=" -clrdata $t -scale 345600."; min=-7 ; max=7  ; pas=2 ;
+         esac
+         CLRLIM="-clrmin $min -clrmax $max -clrmet 1"
+         gloplt  ; mkplt $filout
+      fi
+    done
+
+    # dispose to archive all plots in the listplt
+    puttoarch  GLOBAL
                          fi
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 5. Local details of the TS fields
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   # Generic function for Basin plot
-  basplt() { $CHART $CLRDATA -forcexy $zoom $OPTIONS  \
+  basplt() { $CHART $CLRDATA -forcexy $ZOOM $OPTIONS  \
              -clrvar $clrvar   -english \
               $LEV $DEP $PAL $STRING $CLRLIM $CNTICE  $MEAN $FORMAT; }
 #---
@@ -489,118 +571,19 @@ eof
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # 5.1.1 ; Temperature and Salinity
 #---------------------------------
-			 if [ $atlTS == 1 ] ; then 
+#  now done with zoomTS=Na.Sa
 
-  # get files  gridT, icemod 
-  t=${CONFCASE}_y${YEAR}_gridT.nc
-  ice=${CONFCASE}_y${YEAR}_icemod.nc
-
- 
-  for BASIN in  ATLN ATLS ; do
-      case $BASIN in
-         ATLN) zoom='-zoom -100 10 -5 70 -proj ME -xstep 10 -ystep 5' ; bas=ATLN ;;
-         ATLS) zoom='-zoom -70 30 -70 5 -proj ME -xstep 10 -ystep 10' ; bas=ATLS ;;
-      esac
-
-    listplt=' '
-  # Common values for this group of plots
-  OPTIONS=""
-  CLRDATA="-clrdata $t"
-  PAL="-p $PAL1"
-  CLRLIM="-clrmark zclrmark"
-  CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;
-
-  # SSH  mean value set to 0
-  clrvar=sossheig
- if [ $( chkvar $clrvar $t) == 0  ] ; then
-  var=SSHp ;  STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${YEAR}_DEPTH=@CLR_DEPTH@" ;
-  MEAN="-mean 0" ; DEP="" ; LEV="-lev 1" ; dep=0  ;
-  min=-1.5 ; max=.75  ; pas=.25 ; mklim $min $max $pas > zclrmark  
-  filout=${CONFIG}_${var}_${bas}_${dep}_${YEAR}-${CASE}
-  if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then 
-    rapatrie $t $MEANY $t
-    rapatrie $ice $MEANY $ice
-    basplt  ; mkplt $filout
-  fi
- fi
-
- # T and S at various depth
- for var in T S ; do 
-  MEAN=""
-  for dep in 0 200 1000 2000 3000 4000 5000 ; do
-     DEP="-dep $dep" ; LEV="" ; CNTICE="" 
-     filout=${CONFIG}_${var}_${bas}_${dep}_${YEAR}-${CASE}
-     if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
-        rapatrie $t $MEANY $t
-        rapatrie $ice $MEANY $ice
-        case $var in
-        T) clrvar=votemper
-          case $dep in
-              0)  min=-2. ; max=26  ; pas=4 ; LEV="-lev 1" ; DEP=""
-                  CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
-            200)  min=-2. ; max=22  ; pas=4  ;;
-           1000) min=0   ; max=12  ; pas=2  ;;
-           2000) min=0   ; max=5   ; pas=.5 ;;
-           3000) min=0   ; max=4   ; pas=.5 ;;
-           4000) min=-1 ; max=5  ; pas=.5 ;;
-           5000) min=-1 ; max=5  ; pas=.5 ;;
-         esac ;;
-        S) clrvar=vosaline
-         case $dep in
-             0)  min=30 ; max=36  ; pas=2 ; LEV="-lev 1" ; DEP="" ;
-                 CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
-           200)  min=34   ; max=37.5 ; pas=.5 ;;
-           1000) min=34   ; max=36   ; pas=.5 ;;
-           2000) min=34.6 ; max=35.4 ; pas=.1 ;;
-           3000) min=34.6 ; max=35   ; pas=.05 ;;
-           4000) min=34.6 ; max=35  ; pas=.05 ;;
-           5000) min=34.6 ; max=35  ; pas=.05 ;;
-         esac ;;
-        esac
-        mklim $min $max $pas > zclrmark
-        STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${YEAR}_DEPTH=@CLR_DEPTH@"
-        basplt  ; mkplt $filout
-     fi
-  done
- done
-
- puttogaya  $BASIN 
- done
-
-             	 	fi	
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 5.1.2 : Barotropic Stream Function
 #------------------------------------
-                        if [ $atlUV == 1 ] ; then
+#  now done with zoomUV=Na.Sa
 
-  # get files  for PSI
-  psi=${CONFCASE}_y${YEAR}_PSI.nc
 
-  for BASIN in  ATLN ATLS ; do
-    case $BASIN in
-       ATLN) zoom='-zoom -100 10 -5 70 -proj ME -xstep 10 -ystep 5 -cntint 10e6' ; bas=ATLN ;;
-       ATLS) zoom='-zoom -70 30 -70 5 -proj ME -xstep 10 -ystep 10 -cntint 20e6' ; bas=ATLS ;;
-    esac
-
-    listplt=' '
-
-    var=PSI ;STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${YEAR}"
-    filout=${CONFIG}_${var}_${bas}_${YEAR}-${CASE}
-    if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent  ] ; then
-       rapatrie $psi $MEANY $psi
-       $CHART -forcexy  -english $zoom $STRING -cntdata $psi -cntvar sobarstf -cntmin -300e6 \
-             -cntmax 220e6 -cntexp 6 -clrvar sobarstf -cntshade -cntlis 5 -cntlw 1:2
-       mkplt $filout
-    fi
-
-    puttogaya  $BASIN 
-  done
-                        fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 5.1.3 : Bottom sigma-4
 #------------------------------------
                         if [ $botsig4atl == 1 ] ; then
-    t=${CONFCASE}_y${YEAR}_gridT.nc
+    t=${CONFCASE}_y${YEARDAT}_gridT.nc
     listplt=' '
 
     var=botsigma4 ;STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${YEAR}"
@@ -627,25 +610,30 @@ eof
        mkplt $filout
     fi
 
-    puttogaya  ATLN
+    puttoarch  ATLN
                         fi
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
-# 5.2 : Some details focused on Drake, Kerguelen and Campbell Plateau regions
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
+# 5.2 : Some details focused on some regions ( Drake, Kerguelen, Campbell, 
+#        North-Atlantic, South-Atlantic
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # 5.2.1 : Temperature and Salinity
 #---------------------------------
-                        if [ $zoomTS == 1 ] ; then
+                        if [ $zoomTS != 0 ] ; then
+  list_bas=$( getlist $zoomTS )
 
   # get files  gridT, icemod
-  t=${CONFCASE}_y${YEAR}_gridT.nc
-  ice=${CONFCASE}_y${YEAR}_icemod.nc
+  t=${CONFCASE}_y${YEARDAT}_gridT.nc
+  ice=${CONFCASE}_y${YEARDAT}_icemod.nc
 
-  for BASIN in DRAKE KERGUELEN CAMPBELL ; do
+  for BASIN in $list_bas ; do
     case $BASIN in
-          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
-      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
-       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+#                      Regional limit            basin ID       Limit for SSHp plot
+          DRAKE) ZOOM='-zoom -100 -20 -70 -30' ; bas=DRAK ; min=-1.2 ; max=1.2  ; pas=.2  ;;
+      KERGUELEN) ZOOM='-zoom   30 110 -70 -30' ; bas=KERG ; min=-1.2 ; max=1.2  ; pas=.2  ;;
+       CAMPBELL) ZOOM='-zoom  100 180 -70 -30' ; bas=CAMP ; min=-1.2 ; max=1.2  ; pas=.2  ;;
+           ATLN) ZOOM='-zoom -100  20  -5  70' ; bas=ATLN ; min=-1.5 ; max=.75  ; pas=.25 ;;
+           ATLS) ZOOM='-zoom  -70  30 -70   5' ; bas=ATLS ; min=-1.5 ; max=.75  ; pas=.25 ;;
     esac
 
   listplt=' '
@@ -661,7 +649,7 @@ eof
  if [ $( chkvar $clrvar $t) == 0  ] ; then
   var=SSHp ;  STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${YEAR}_DEPTH=@CLR_DEPTH@" ;
   MEAN="-mean 0" ; DEP="" ; LEV="-lev 1" ; dep=0  ;
-  min=-1.2 ; max=1.2  ; pas=.2 ; mklim $min $max $pas > zclrmark
+  mklim $min $max $pas > zclrmark
   filout=${CONFIG}_${var}_${bas}_${dep}_${YEAR}-${CASE}
   if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
     rapatrie $t $MEANY $t
@@ -679,9 +667,36 @@ eof
      if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
         rapatrie $t $MEANY $t
         rapatrie $ice $MEANY $ice
-        case $var in
-          T) clrvar=votemper
-             case $dep in
+            case $BASIN in 
+     ATLN | ATLS )
+            case $var in
+             T) clrvar=votemper
+                case $dep in
+                  0)  min=-2. ; max=26  ; pas=4 ; LEV="-lev 1" ; DEP=""
+                      CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
+                200)  min=-2. ; max=22  ; pas=4  ;;
+               1000) min=0   ; max=12  ; pas=2  ;;
+               2000) min=0   ; max=5   ; pas=.5 ;;
+               3000) min=0   ; max=4   ; pas=.5 ;;
+               4000) min=-1 ; max=5  ; pas=.5 ;;
+               5000) min=-1 ; max=5  ; pas=.5 ;;
+                esac ;;
+             S) clrvar=vosaline
+                case $dep in
+                  0)  min=30 ; max=36  ; pas=2 ; LEV="-lev 1" ; DEP="" ;
+                      CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
+                200)  min=34   ; max=37.5 ; pas=.5 ;;
+                1000) min=34   ; max=36   ; pas=.5 ;;
+                2000) min=34.6 ; max=35.4 ; pas=.1 ;;
+                3000) min=34.6 ; max=35   ; pas=.05 ;;
+                4000) min=34.6 ; max=35  ; pas=.05 ;;
+                5000) min=34.6 ; max=35  ; pas=.05 ;;
+                 esac ;;
+            esac ;;
+     * ) 
+            case $var in
+             T) clrvar=votemper
+                case $dep in
                   0)  min=-2. ; max=20  ; pas=2 ; LEV="-lev 1" ; DEP=""
                       CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
                 200)  min=-2. ; max=16  ; pas=2  ;;
@@ -690,9 +705,9 @@ eof
                3000)  min=-0.5   ; max=2.5   ; pas=0.5 ;;
                4000)  min=-1 ; max=1.5  ; pas=.5 ;;
                5000)  min=-1 ; max=1.5  ; pas=.5 ;;
-             esac ;;
-          S) clrvar=vosaline
-             case $dep in
+                esac ;;
+             S) clrvar=vosaline
+                case $dep in
                   0) min=32 ; max=35  ; pas=1 ; LEV="-lev 1" ; DEP="" ;
                      CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
                 200) min=34   ; max=35.6 ; pas=.2 ;;
@@ -701,6 +716,7 @@ eof
                3000) min=34.6 ; max=34.8   ; pas=.05 ;;
                4000) min=34.6 ; max=34.8  ; pas=.05 ;;
                5000) min=34.6 ; max=34.75  ; pas=.05 ;;
+                esac ;;
              esac ;;
         esac
         mklim $min $max $pas > zclrmark
@@ -710,41 +726,54 @@ eof
    done
  done
 
-  puttogaya  $BASIN 
+  puttoarch  $BASIN 
  done
 
                 fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 5.2.2 : Barotropic Stream Function
 #------------------------------------
-                        if [ $zoomUV == 1 ] ; then
+                        if [ $zoomUV != 0 ] ; then
 
+  list_bas=$( getlist $zoomUV )
   # get files  for PSI
-  psi=${CONFCASE}_y${YEAR}_PSI.nc
+  psi=${CONFCASE}_y${YEARDAT}_PSI.nc
 
 
-  for BASIN in DRAKE KERGUELEN CAMPBELL ; do
+  for BASIN in $list_bas ; do
     case $BASIN in
-          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
-      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
-       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+          DRAKE) ZOOM='-zoom -100 -20 -70 -30' ; bas=DRAK ; CNTINT="-cntint 20.e+06" ;;
+      KERGUELEN) ZOOM='-zoom   30 110 -70 -30' ; bas=KERG ; CNTINT="-cntint 20.e+06" ;;
+       CAMPBELL) ZOOM='-zoom  100 179 -70 -30' ; bas=CAMP ; CNTINT="-cntint 20.e+06" ;;
+           ATLN) ZOOM='-zoom -100  10  -5  70' ; bas=ATLN ; CNTINT="-cntint 10.e+06" ;;
+           ATLS) ZOOM='-zoom  -70  30 -70   5' ; bas=ATLS ; CNTINT="-cntint 20.e+06" ;;
     esac
+    case $BASIN in
+       DRAKE | KERGUELEN | CAMPBELL ) 
+              CNTILOPT="-cntilxy 0.5 0.12 -cntils 0.015 -cntilp 0"
+              CNTLIM="-cntmin -300.e+06 -cntmax 300.e+06 $CNTINT"
+              CNTLAB="-cntlls 0.015 -cntrc2 0.4 -cntlis 3 -cntlw 1:2" ;;
+       ATLN | ATLS)
+              CNTILOPT=''
+              CNTLIM="-cntmin -300.e+06 -cntmax 220.e+06 $CNTINT"
+              CNTLAB="-cntlis 5 -cntlw 1:2" ;;
+    esac
+
 
     listplt=' '
 
     var=PSI ;STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${bas}_${YEAR}"
     filout=${CONFIG}_${var}_${bas}_${YEAR}-${CASE}
-    OPTIONS='-proj ME -xstep 10 -ystep 5'
-    CNTOPTION="-cntilxy 0.5 0.12 -cntils 0.015 -cntilp 0 -cntmin -300.e+06 -cntmax 300.e+06 \
-             -cntint 20.e+06 -cntdash -cntshade -cntlls 0.015 -cntexp 6 -cntrc2 0.4 -cntlis 3 -cntlw 1:2"
+    OPTIONS='-proj ME -xstep 10 -ystep 10'
+
     if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent  ] ; then
        rapatrie $psi $MEANY $psi
-       $CHART -forcexy $zoom $OPTIONS -clrvar sobarstf -cntdata $psi -cntvar sobarstf $CNTOPTION \
-              $STRING -english -cslab 1.1
+       $CHART -cntdata $psi -cntvar sobarstf -clrvar sobarstf -cntexp 6 -cntshade -forcexy -cslab 1.1 $ZOOM $OPTIONS  $CNTLAB \
+              $CNTILOPT $CNTLIM $STRING -english 
        mkplt $filout
     fi
 
-    puttogaya  $BASIN 
+    puttoarch  $BASIN 
   done
   rm *.cgm *.jpg
                         fi
@@ -753,20 +782,20 @@ eof
 # 5.2.3 : Atmospheric fluxes
 #------------------------------------
                        if [ $zoomFLX != 0 ] ; then
- if [ $zoomFLX == 1 ]; then list_bas='DRAKE KERGUELEN CAMPBELL'; fi
- if [ $zoomFLX == 2 ]; then list_bas='DRAKE'; fi
- if [ $zoomFLX == 3 ]; then list_bas='KERGUELEN'; fi
- if [ $zoomFLX == 4 ]; then list_bas='CAMPBELL'; fi
 
-
+  list_bas=$( getlist $zoomFLX )
   # get files  gridT
-  t=${CONFCASE}_y${YEAR}_gridT.nc
+  if [ $XIOS ] ; then
+     t=${CONFCASE}_y${YEARDAT}_flxT.nc
+  else
+     t=${CONFCASE}_y${YEARDAT}_gridT.nc
+  fi
 
   for BASIN in $list_bas ; do
     case $BASIN in
-          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
-      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
-       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+          DRAKE) ZOOM='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) ZOOM='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) ZOOM='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
     esac
 
   # reset the list of plots that are produced ( list is updated in mkplt )
@@ -778,7 +807,7 @@ eof
     for var in HeatFlx WaterFlx WaterDmp CDWaterFlx ; do
       STRING="-string 0.5 0.95 1.0 0 ${CONFCASE}_${var}_${YEAR}_DEPTH=@CLR_DEPTH@"
       filout=${CONFIG}_${var}_${YEAR}-${CASE}
-      if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
+      if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
          rapatrie $t    $MEANY $t
          case $var in
            HeatFlx)    clrvar=sohefldo ; CLRDATA=" -clrdata $t"              ; min=-140 ; max=140  ; pas=15 ;;
@@ -791,8 +820,8 @@ eof
       fi
     done
 
-    # dispose to gaya all plots in the listplt
-    puttogaya  $BASIN
+    # dispose to archive all plots in the listplt
+    puttoarch  $BASIN
 done
                          fi
 
@@ -800,19 +829,31 @@ done
 # 5.2.4 : MXL 
 #------------------------------------
                           if [ $zoomMXL != 0 ] ; then
-if [ $zoomMXL == 1 ]; then list_bas='DRAKE KERGUELEN CAMPBELL'; fi
-if [ $zoomMXL == 2 ]; then list_bas='DRAKE'; fi
-if [ $zoomMXL == 3 ]; then list_bas='KERGUELEN'; fi
-if [ $zoomMXL == 4 ]; then list_bas='CAMPBELL'; fi
 
- basmxlplt(){ $CHART $STRING $zoom -proj ME -xstep 10 -ystep 5 \
+  list_bas=$( getlist $zoomMXL )
+
+ basmxlplt(){ $CHART $STRING $ZOOM -proj ME -xstep 10 -ystep 5 \
               $CLRDATA -noint -p $PAL2 -english $clrvar -clrmark zclrmark -forcexy -xyplot $POS -o $1 $FORMAT ;}
 
 
   # get files  for MXL in m03 and m09
-  mxl3=${CONFCASE}_y${YEAR}m03_MXL.nc
-  mxl9=${CONFCASE}_y${YEAR}m09_MXL.nc
+  mxl3=${CONFCASE}_y${YEAR}m03${xiosid}_MXL.nc
+  mxl9=${CONFCASE}_y${YEAR}m09${xiosid}_MXL.nc
 
+  FORMAT="-format PALETTE I3"
+
+  # build limits file for clrmark
+cat << eof > zclrmark
+0
+100
+200
+300
+400
+500
+600
+700
+800
+eof
 
   # this plot have 2 frames on the panel up= march, down=september
   up='.1 .9 .57 .9'
@@ -820,9 +861,9 @@ if [ $zoomMXL == 4 ]; then list_bas='CAMPBELL'; fi
 
   for BASIN in $list_bas ; do
     case $BASIN in
-          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
-      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
-       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+          DRAKE) ZOOM='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) ZOOM='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) ZOOM='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
     esac
   listplt=' '
 
@@ -846,22 +887,19 @@ if [ $zoomMXL == 4 ]; then list_bas='CAMPBELL'; fi
         # merge frame
         \rm -f gmeta
         med -e 'r gm1' -e 'r gm2' -e '1,2 merge' -e '1 w gmeta'
-
+        \rm -f gm1 gm2
         mkplt $filout
       fi
     done
-    puttogaya  $BASIN
+    puttoarch  $BASIN
   done
-  rm gm* *.cgm *.jpg
+  rm gm* *.jpg
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 5.2.5 : Ice
 #------------------------------------
                         if [ $zoomICE != 0 ] ; then
-if [ $zoomICE == 1 ]; then list_bas='DRAKE KERGUELEN CAMPBELL'; fi
-if [ $zoomICE == 2 ]; then list_bas='DRAKE'; fi
-if [ $zoomICE == 3 ]; then list_bas='KERGUELEN'; fi
-if [ $zoomICE == 4 ]; then list_bas='CAMPBELL'; fi
+  list_bas=$( getlist $zoomICE )
 
   # plot ice thickness for march and september
     cat << eof > S_thick.lim
@@ -906,15 +944,37 @@ eof
 8.5
 9
 eof
+   cat << eof > ice_noaa.lim
+-0.001
+0.001
+0.05
+0.1
+0.15
+0.2
+0.25
+0.3
+0.35
+0.4
+0.45
+0.5
+0.55
+0.6
+0.65
+0.7
+0.75
+0.8
+0.85
+0.9
+0.95
+1.0
+eof
   for mm in 3 9 ; do
     m=$( printf "%02d" $mm )
-    ice=${CONFCASE}_y${YEAR}m${m}_icemod.nc
+    ice=${CONFCASE}_y${YEAR}m${m}${xiosid}_icemod.nc
 
-    tmp=${ice#${CONFCASE}_y} ; tag=${tmp%_*}
+    tmp=${ice#${CONFCASE}_y} ; tag=${tmp%${xiosid}_*}
     year=$( echo $tag | awk -Fm '{print $1}' )
     month=$( echo $tag | awk -Fm '{print $2}' )
-    icetxt=${CONFCASE}_y${YEAR}_icemonth.txt
-    rapatrie $icetxt $DIAGS/TXT $icetxt
     case $month in
       01 ) month_name=Jan ;;
       02 ) month_name=Feb ;;
@@ -932,51 +992,44 @@ eof
 
     for BASIN in $list_bas ; do
       case $BASIN in
-          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
-      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
-       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+          DRAKE) ZOOM='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) ZOOM='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) ZOOM='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
       esac
       listplt=' '
-      surf=$( grep -A 12 -e "$YEAR $m" $icetxt | grep SExtend  | awk '{printf "%5.1f",  $NF/1000}' )
-      volu=$( grep -A 12 -e "$YEAR $m" $icetxt | grep SVolume  | awk '{printf "%5.1f",  $NF/1000}' )
       filout=${CONFIG}_S_ithic_${bas}_${month}_${YEAR}-${CASE}
-      if [ $( chkfile $PLOTDIR/ICE/$filout.cgm ) == absent ] ; then
+      if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
         rapatrie $ice $MEANY $ice
         $CHART -forcexy -clrdata $ice -clrvar iicethic -clrlim S_thick.lim -p $PALBLUE2RED4 \
-        -proj ME -vertpal $zoom  -spval 0  -xstep 10 -xgrid -ystep 5 -ygrid \
+        -proj ME -vertpal $ZOOM  -spval 0  -xstep 10 -xgrid -ystep 5 -ygrid \
         -clrexp -2 -format PALETTE I3  \
         -clrxypal 0.9 1 0.1 0.9 \
         -xyplot 0.01 0.8 0.1 0.9 \
         -string 0 0.97 1.1 -1 " Sea Ice Thickness $bas " -font SIMPLEX_ROMAN -noteam \
         -string 0 0.94 1.1 -1 " $month_name $year " \
         -string 0.5 0.97 1.2 -1 " $CONFCASE "  \
-        -string 0.3 0.05 1.1 -1 " Total area = $surf million sq km" \
-        -string 0.3 0.02 1.1 -1 " Volume = $volu cubic km" \
         -string 0.93 0.07 1.1 1 " (cm)    "
          mkplt  $filout
       fi
       filout=${CONFIG}_S_iconc_${bas}_${month}_${YEAR}-${CASE}
-      if [ $( chkfile $PLOTDIR/ICE/$filout.cgm ) == absent ] ; then
+      if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
         rapatrie $ice $MEANY $ice
         $CHART -forcexy -clrdata $ice -clrvar ileadfra -clrlim ice_noaa.lim -p $PALNOAA \
-        -proj ME -vertpal $zoom  -spval -1 -xstep 10 -xgrid -ystep 5 -ygrid \
+        -proj ME -vertpal $ZOOM  -spval -1 -xstep 10 -xgrid -ystep 5 -ygrid \
         -clrexp -2 -format PALETTE I3  \
         -clrxypal 0.9 1 0.1 0.9 \
         -xyplot 0.01 0.8 0.1 0.9 \
         -string 0 0.97 1.1 -1 " Sea Ice Concentration $bas" -font SIMPLEX_ROMAN -noteam \
         -string 0 0.94 1.1 -1 " $month_name $year " \
         -string 0.5 0.97 1.2 -1 " $CONFCASE "  \
-        -string 0.3 0.03 1.1 -1 " Total area = $surf million sq km" \
         -string 0.93 0.07 1.1 1 " %    "
         mkplt  $filout
       fi
-      puttogaya  $BASIN
+      puttoarch  $BASIN
 
      done
 
    done
-
-
 
                         fi
 
@@ -984,42 +1037,71 @@ eof
 # 5.2.6 : EKE
 #------------------------------------
                         if [ $zoomEKE != 0 ] ; then
-if [ $zoomEKE == 1 ]; then list_bas='DRAKE KERGUELEN CAMPBELL'; fi
-if [ $zoomEKE == 2 ]; then list_bas='DRAKE'; fi
-if [ $zoomEKE == 3 ]; then list_bas='KERGUELEN'; fi
-if [ $zoomEKE == 4 ]; then list_bas='CAMPBELL'; fi
+  list_bas=$( getlist $zoomEKE )
 
 
   ekeplt() { $CHART $ZOOM -forcexy $STRING $CLRDATA $XYPLOT -p $PAL1 \
-             -clrvar voeke $dep $CLRXYPAL -clrmark zclrmark \
+             -clrvar voeke $dep $CLRXYPAL $CLRMARK \
              $OPTIONS -english -scale 1.e4 ; }
 #-----------
 
   # get files  EKE
-  eke=${CONFCASE}_y${YEAR}_EKE.nc
+  eke=${CONFCASE}_y${YEARDAT}_EKE.nc
+
+  echo $CASE | grep -q -i obs
+  if [ $? = 0 ] ; then
+     dep=''
+     ZCONF=''
+  else
+     dep='-dep 10'
+     ZCONF=$CONFIG
+  fi
+
+  zdep=$( echo $dep | awk '{print$2}')
 
   min=0 ; max=1000 ; pas=250
   mklim $min $max $pas > zclrmark
+  cat << eof > zclrmarklog   # log scale from 1 to 5000 ( 1 10 100 1000 5000)
+0.
+1.
+2.
+3.
+3.69897
+eof
+
   CLRDATA=" -clrdata $eke"
 
   for BASIN in $list_bas ; do
     listplt=' '
     case $BASIN in
-         DRAKE)  var=EKEdrak ; ZOOM='-zoom -100 -20 -70 -30' ;;
-     KERGUELEN)  var=EKEkerg ; ZOOM='-zoom 30 110 -70 -30' ;;
-      CAMPBELL)  var=EKEcamp ; ZOOM='-zoom 100 180 -70 -30' ;;
+         DRAKE)  var=EKEdrak ; ZOOM='-zoom -100 -20 -70 -30' ; OPTIONS='-proj ME -xstep 10 -ystep 10' ;;
+     KERGUELEN)  var=EKEkerg ; ZOOM='-zoom   30 110 -70 -30' ; OPTIONS='-proj ME -xstep 10 -ystep 10' ;;
+      CAMPBELL)  var=EKEcamp ; ZOOM='-zoom  100 180 -70 -30' ; OPTIONS='-proj ME -xstep 10 -ystep 10' ;;
+      ATLANTIC)  var=EKEatl  ; ZOOM='-zoom -100  20 -70  70' ; OPTIONS='-proj ME -xstep 15 -ystep 15' ;;
+          ATLN)  var=EKEnatl ; ZOOM='-zoom -100  20  -5  70' ; OPTIONS='-proj ME -xstep 10 -ystep 10' ;;
+          ATLS)  var=EKEsatl ; ZOOM='-zoom  -70  30 -70   5' ; OPTIONS='-proj ME -xstep 10 -ystep 10' ;;
+
     esac
-    OPTIONS='-proj ME -xstep 10 -ystep 5'
-    STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${YEAR}_${CASE}_DEPTH=@CLR_DEPTH@ "
-    filout=${CONFIG}_${var}_${YEAR}-${CASE}
     XYPLOT='-xyplot 0.1 0.95 0.2 0.9'
     CLRXYPAL='-clrxypal 0.1 0.95 0.05 0.15'
+    # linear view
+    CLRMARK='-clrmark zclrmark'
+    STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${YEAR}_${CASE}_DEPTH=@CLR_DEPTH@ "
+    filout=${CONFIG}_${var}_${zdep}_${YEAR}-${CASE}
+    if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
+     rapatrie $eke $MEANY $eke
+     ekeplt ; mkplt $filout
+    fi
+    # log view
+    OPTIONS="$OPTION -log10" ; CLRMARK='-clrmark zclrmarklog'
+    STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${YEAR}_${CASE}_DEPTH=@CLR_DEPTH@ "
+    filout=${CONFIG}_log${var}_${zdep}_${YEAR}-${CASE}
     if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
      rapatrie $eke $MEANY $eke
      ekeplt ; mkplt $filout
     fi
 
-    puttogaya  $BASIN
+    puttoarch  $BASIN
   done
                         fi
 
@@ -1038,9 +1120,9 @@ if [ $zoomEKE == 4 ]; then list_bas='CAMPBELL'; fi
                         if [ $coupes == 1 ] ; then
   listplt=' '
   # get files  gridT, gridU, gridV
-  t=${CONFCASE}_y${YEAR}_gridT.nc
-  u=${CONFCASE}_y${YEAR}_gridU.nc
-  v=${CONFCASE}_y${YEAR}_gridV.nc
+  t=${CONFCASE}_y${YEARDAT}_gridT.nc
+  u=${CONFCASE}_y${YEARDAT}_gridU.nc
+  v=${CONFCASE}_y${YEARDAT}_gridV.nc
 
   CLRLIM='-clrmark zclrmark'
   PAL="-p $PAL1"
@@ -1249,7 +1331,7 @@ equat_section_indian() {
             equat_section_indian  ; mkplt $filout
      fi
 
-  puttogaya  SECTIONS 
+  puttoarch  SECTIONS 
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 6.2 : AR7W section in the Labrador Sea, OVIDE section in the NATL (m03, m10)
@@ -1275,7 +1357,7 @@ equat_section_indian() {
 #  slev=${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$(echo $CONFIG | tr '[A-Z]' '[a-z]' ).nc
 
      tlev=Levitus_p2.1_${m}_TS_masked_$(echo $CONFIG | tr '[A-Z]' '[a-z]' ).nc
-     topa=${CONFCASE}_y${YEAR}${m}_gridT.nc
+     topa=${CONFCASE}_y${YEAR}${m}${xiosid}_gridT.nc
 
     for fld in tlev t slev s ; do
       skip=0
@@ -1318,7 +1400,7 @@ equat_section_indian() {
     done
     done
   done
-  puttogaya  SECTIONS1 
+  puttoarch  SECTIONS1 
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 6.3 : Sections in the Southern Ocean (designed from PERIANT runs)
@@ -1340,11 +1422,11 @@ equat_section_indian() {
                         if [ $coupes_aus == 1 ] ; then
   listplt=' '
   # get files  gridT, gridU, gridV LSPV in march and september
-  t=${CONFCASE}_y${YEAR}_gridT.nc
-  u=${CONFCASE}_y${YEAR}_gridU.nc
-  v=${CONFCASE}_y${YEAR}_gridV.nc
-  fich_pvm3=${CONFCASE}_y${YEAR}m03_LSPV.nc
-  fich_pvm9=${CONFCASE}_y${YEAR}m09_LSPV.nc
+  t=${CONFCASE}_y${YEARDAT}_gridT.nc
+  u=${CONFCASE}_y${YEARDAT}_gridU.nc
+  v=${CONFCASE}_y${YEARDAT}_gridV.nc
+  fich_pvm3=${CONFCASE}_y${YEAR}m03${xiosid}_LSPV.nc
+  fich_pvm9=${CONFCASE}_y${YEAR}m09${xiosid}_LSPV.nc
 
   PAL="-p $PAL2"
 
@@ -1475,7 +1557,7 @@ eof
      fi
     done
   done
-  puttogaya  SECTIONS
+  puttoarch  SECTIONS
                         fi
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 6.4 Coupes sigma as in the WOCE Atlas (in the Southern Ocean)
@@ -1503,6 +1585,11 @@ eof
 #--------------
                         if [ $coupes_aus_sigma = 1 ] ; then
   listplt=' '
+
+  t=${CONFCASE}_y${YEARDAT}_gridT.nc
+
+  PAL="-p $PAL2"
+
 cat << eof > sig0.lim
 27.3
 27.6
@@ -1582,7 +1669,7 @@ eof
   done
   rm sig*
 
-  puttogaya  SECTIONS
+  puttoarch  SECTIONS
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 6.5 : Sections in the ACC (designed from PERIANT runs)
@@ -1607,9 +1694,9 @@ eof
 
   listplt=' '
   # get files  gridT, gridU, gridV
-  t=${CONFCASE}_y${YEAR}_gridT.nc
-  fich_pvm3=${CONFCASE}_y${YEAR}m03_LSPV.nc
-  fich_pvm9=${CONFCASE}_y${YEAR}m09_LSPV.nc
+  t=${CONFCASE}_y${YEARDAT}_gridT.nc
+  fich_pvm3=${CONFCASE}_y${YEAR}m03${xiosid}_LSPV.nc
+  fich_pvm9=${CONFCASE}_y${YEAR}m09${xiosid}_LSPV.nc
 
   PAL="-p $PAL2"
 
@@ -1698,7 +1785,7 @@ eof
      fi
    done
   done
-  puttogaya  CIRCUM 
+  puttoarch  CIRCUM 
                         fi
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 6.6 :  Density sections in the ACC
@@ -1732,23 +1819,29 @@ eof
                   $COUPE -clrdata sig4.nc -pts $LON2 $LON3 $LATmin $LATmax -forcexy -pmin -3000 -pmax -5500 -clrvar vosigmai \
                   -cntdata sig4.nc -cntvar vosigmai $CNTLIM4 -cntrc1 0.06 -cntrc2 0.07 -cntlis 1 -cntlls 0.03 \
                   -xyplot 0.1 0.44 0.10 0.26 -o gmetabot13 $CLRMARK4 $PAL -nolon -ylon 0.08 -nolat \
-                  -clrnopal -ylat 0.10; \
-                  $COUPE -clrdata sig0.nc -pts $LON3 $LON4 $LATmin $LATmax -forcexy -pmax -1000 -clrvar vosigma0 \
+                  -clrnopal -ylat 0.10 ; \
+                  $COUPE -clrdata sig0.nc -pts $LON3spec $LON4 $LATmin $LATmax -forcexy -pmax -1000 -clrvar vosigma0 \
                   -cntdata sig0.nc -cntvar vosigma0 $CNTLIM0  -cntrc1 0.04 -cntrc2 0.07 -cntlis 1 -cntlls 0.02 \
                   -xyplot 0.44 0.95 0.42 0.50 -o gmetabot21 $CLRMARK0 $PAL -zstep 500 -ylon 0.08 -nolat -nozlab \
                   -clrnopal -ylat 0.10 ; \
-                  $COUPE -clrdata sig2.nc -pts $LON3 $LON4 $LATmin $LATmax -forcexy -pmin -1000 -pmax -3000 \
+                  $COUPE -clrdata sig2.nc -pts $LON3spec $LON4 $LATmin $LATmax -forcexy -pmin -1000 -pmax -3000 \
                   -clrvar vosigmai -cntdata sig2.nc -cntvar vosigmai $CNTLIM2  -cntrc1 0.04 -cntrc2 0.07 \
                   -cntlis 1 -cntlls 0.02 \
                   -xyplot 0.44 0.95 0.26 0.42 -o gmetabot22 $CLRMARK2 $PAL -ylon 0.08 -nolat -nozlab \
                   -clrnopal -ylat 0.10 ; \
-                  $COUPE -clrdata sig4.nc -pts $LON3 $LON4 $LATmin $LATmax -forcexy -pmin -3000 -pmax -5500 -clrvar vosigmai \
+                  $COUPE -clrdata sig4.nc -pts $LON3spec $LON4 $LATmin $LATmax -forcexy -pmin -3000 -pmax -5500 -clrvar vosigmai \
                   -cntdata sig4.nc -cntvar vosigmai $CNTLIM4 -cntrc1 0.06 -cntrc2 0.07 -cntlis 1 -cntlls 0.02 \
                   -xyplot 0.44 0.95 0.10 0.26 -o gmetabot23 $CLRMARK4 $PAL -ylon 0.08 -nolat -nozlab \
-                  -clrnopal -ylat 0.10; }
+                  -clrnopal -ylat 0.10 ; }
 #--------------------
                         if [ $circum_sigma = 1 ] ; then
   listplt=' '
+
+  # get files  gridT
+  t=${CONFCASE}_y${YEARDAT}_gridT.nc
+
+  PAL="-p $PAL2"
+
 cat << eof > sig0.lim
 27.3
 27.6
@@ -1795,15 +1888,15 @@ eof
     var=sigma
     LON1=-180 ; LON2=0 ; LON3=72.8 ; LON4=180
     case $sec in
-      CIRC70)  LATmin=-70; LATmax=-70 ; SECTION=070S ;;
-      CIRC60)  LATmin=-60; LATmax=-60 ; SECTION=060S ;;
-      CIRC48)  LATmin=-48; LATmax=-48 ; SECTION=048S ;;
-      CIRC40)  LATmin=-40; LATmax=-40 ; SECTION=040S ;;
+      CIRC70)  LATmin=-70; LATmax=-70 ; SECTION=070S ; LON3spec=72.9 ;;
+      CIRC60)  LATmin=-60; LATmax=-60 ; SECTION=060S ; LON3spec=72.9 ;;
+      CIRC48)  LATmin=-48; LATmax=-48 ; SECTION=048S ; LON3spec=72.9 ;;
+      CIRC40)  LATmin=-40; LATmax=-40 ; SECTION=040S ; LON3spec=73.0 ;;
           * )  skip=1 ;;
     esac
     if [ $skip != 1 ] ; then
       filout=${CONFIG}_sig${sec}_${YEAR}-${CASE}
-      if [ $( chkfile $PLOTDIR/SECTIONS/$filout.cgm ) == absent ] ; then
+      if [ $( chkfile $PLOTDIR/CIRCUM/$filout.cgm ) == absent ] ; then
         rapatrie $t $MEANY $t
         cdfsig0 $t
         cdfsigi $t 2000
@@ -1827,7 +1920,7 @@ eof
   rm sig*
 
 
-  puttogaya  CIRCUM 
+  puttoarch  CIRCUM 
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 7. Ice plots:
@@ -1904,13 +1997,15 @@ eof
 
   for mm in 3 9 ; do
     m=$( printf "%02d" $mm )
-    ice=${CONFCASE}_y${YEAR}m${m}_icemod.nc
+    ice=${CONFCASE}_y${YEAR}m${m}${xiosid}_icemod.nc
 
-    tmp=${ice#${CONFCASE}_y} ; tag=${tmp%_*}
+    tmp=${ice#${CONFCASE}_y} ; tag=${tmp%${xiosid}_*}
     year=$( echo $tag | awk -Fm '{print $1}' )
     month=$( echo $tag | awk -Fm '{print $2}' )
-    icetxt=${CONFCASE}_y${YEAR}_icemonth.txt
-    rapatrie $icetxt $DIAGS/TXT $icetxt
+#    icetxt=${CONFCASE}_y${YEAR}_icemonth.txt
+#    rapatrie $icetxt $DIAGS/TXT $icetxt
+    icenc=${CONFCASE}_y${YEARDAT}_1m_ICEMONTH.nc
+    rapatrie $icenc $DIAGS/NC $icenc
 
     case $month in
       01 ) month_name=Jan ;;
@@ -1930,13 +2025,16 @@ eof
     if [ $( chconf PERIANT) != 0 ] ; then listhemi="SOUTH" ; fi
     for hemi in $listhemi ; do
       case $hemi in
-      SOUTH ) surf=$( grep -A 12 -e "$YEAR $m" $icetxt | grep SExtend  | awk '{printf "%5.1f",  $NF/1000}' )
-              volu=$( grep -A 12 -e "$YEAR $m" $icetxt | grep SVolume  | awk '{printf "%5.1f",  $NF/1000}' )
+      SOUTH )
+         surf=$( ncks -F -H -v SExnsidc $icenc | fgrep "SExnsidc($mm)" | awk -F=  '{printf "%5.1f",  $NF/1000}' )
+         volu=$( ncks -F -H -v SVolume  $icenc | fgrep "SVolume($mm)"  | awk -F=  '{printf "%5.1f",  $NF/1000}' )
+         # surf=$( grep -A 12 -e "$YEAR $m" $icetxt | grep SExtend  | awk '{printf "%5.1f",  $NF/1000}' )
+         # volu=$( grep -A 12 -e "$YEAR $m" $icetxt | grep SVolume  | awk '{printf "%5.1f",  $NF/1000}' )
          filout=${CONFIG}_S_ithic_${month}_${YEAR}-${CASE}
         if [ $( chkfile $PLOTDIR/ICE/$filout.cgm ) == absent ] ; then
          rapatrie $ice $MEANY $ice
         $CHART -forcexy -clrdata $ice -clrvar iicethic -clrlim S_thick.lim -p $PALBLUE2RED4 \
-        -proj OR -vertpal -rlat -90 -zoom -180 180 -90 -50  -spval 0  -xstep 45 -xgrid -ystep 45 -ygrid \
+        -proj OR -vertpal -rlat -90 -zoom -179 179 -90 -50  -spval 0  -xstep 45 -xgrid -ystep 45 -ygrid \
         -clrexp -2 -format PALETTE I3 -noperim \
         -clrxypal 0.9 1 0.1 0.9 \
         -xyplot 0.01 0.8 0.1 0.9 \
@@ -1952,7 +2050,7 @@ eof
         if [ $( chkfile $PLOTDIR/ICE/$filout.cgm ) == absent ] ; then
          rapatrie $ice $MEANY $ice
         $CHART -forcexy -clrdata $ice -clrvar ileadfra -clrlim ice_noaa.lim -p $PALNOAA \
-        -proj OR -vertpal -rlat -90 -zoom -180 180 -90 -50  -spval -1 \
+        -proj OR -vertpal -rlat -90 -zoom -179 179 -90 -50  -spval -1 \
         -clrexp -2 -format PALETTE I3 -noperim \
         -clrxypal 0.9 1 0.1 0.9 \
         -xyplot 0.01 0.8 0.1 0.9 \
@@ -1964,13 +2062,16 @@ eof
          mkplt  $filout
         fi ;;
 
-       NORTH ) surf=$( grep -A 12 -e "$YEAR $m" $icetxt | grep NExtend  | awk '{printf "%5.1f",  $NF/1000}' )
-               volu=$( grep -A 12 -e "$YEAR $m" $icetxt | grep NVolume  | awk '{printf "%5.1f",  $NF/1000}' )
+       NORTH )
+         surf=$( ncks -F -H -v NExnsidc $icenc | fgrep "NExnsidc($mm)" | awk -F=  '{printf "%5.1f",  $NF/1000}' )
+         volu=$( ncks -F -H -v NVolume  $icenc | fgrep "NVolume($mm)"  | awk -F=  '{printf "%5.1f",  $NF/1000}' )
+         # surf=$( grep -A 12 -e "$YEAR $m" $icetxt | grep NExtend  | awk '{printf "%5.1f",  $NF/1000}' )
+         # volu=$( grep -A 12 -e "$YEAR $m" $icetxt | grep NVolume  | awk '{printf "%5.1f",  $NF/1000}' )
          filout=${CONFIG}_N_ithic_${month}_${YEAR}-${CASE}
         if [ $( chkfile $PLOTDIR/ICE/$filout.cgm ) == absent ] ; then
          rapatrie $ice $MEANY $ice
          $CHART -forcexy -clrdata $ice -clrvar iicethic -clrlim thick.lim -p $PALBLUE2RED4 \
-         -proj OR -vertpal -rlat 90 -rlon -45 -zoom -180 178.0 40 87  -spval 0 -xstep 45 -xgrid -ystep 45 -ygrid \
+         -proj OR -vertpal -rlat 90 -rlon -45 -zoom -177 177.0 40 87  -spval 0 -xstep 45 -xgrid -ystep 45 -ygrid \
          -clrexp -2 -format PALETTE I3 -noperim \
          -clrxypal 0.9 1 0.1 0.9 \
          -xyplot 0.01 0.8 0.1 0.9 \
@@ -1986,7 +2087,7 @@ eof
         if [ $( chkfile $PLOTDIR/ICE/$filout.cgm ) == absent ] ; then
          rapatrie $ice $MEANY $ice
          $CHART -forcexy -clrdata $ice -clrvar ileadfra -clrlim ice_noaa.lim -p $PALNOAA \
-         -proj OR -vertpal -rlat 90 -rlon -45 -zoom -180 178.0 40 87  -spval -1 \
+         -proj OR -vertpal -rlat 90 -rlon -45 -zoom -177 177.0 40 87  -spval -1 \
          -clrexp -2 -format PALETTE I3 -noperim \
          -clrxypal 0.9 1 0.1 0.9 \
          -xyplot 0.01 0.8 0.1 0.9 \
@@ -2003,7 +2104,7 @@ eof
 #    \rm $ice $tmp
    done
 
-    puttogaya  ICE 
+    puttoarch  ICE 
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 8. Deep western boundary current
@@ -2014,8 +2115,8 @@ eof
 
   listplt=' '
   # get files   gridU, gridV
-  u=${CONFCASE}_y${YEAR}_gridU.nc
-  v=${CONFCASE}_y${YEAR}_gridV.nc
+  u=${CONFCASE}_y${YEARDAT}_gridU.nc
+  v=${CONFCASE}_y${YEARDAT}_gridV.nc
 
   CLRLIM='-clrmark zclrmark'
   PAL="-p $PAL1"
@@ -2098,7 +2199,7 @@ eof
     done
   done
 
- puttogaya  DWBC 
+ puttoarch  DWBC 
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 8.2 Deep Western Boundary Current in the Southern Ocean
@@ -2107,7 +2208,7 @@ eof
 
   listplt=' '
   # get files   gridU, gridV
-  v=${CONFCASE}_y${YEAR}_gridV.nc
+  v=${CONFCASE}_y${YEARDAT}_gridV.nc
 
   PAL="-p $PAL2"
 
@@ -2142,7 +2243,7 @@ eof
      fi
   done
   rm *.mark
-  puttogaya  DWBC
+  puttoarch  DWBC
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 9. Eddy Kinetic Energy
@@ -2150,12 +2251,13 @@ eof
                         if [ $ekes == 1 ] ; then
 
   ekeplt() { $CHART $ZOOM -forcexy $XYPLOT $STRING $CLRDATA  -p $PAL1 \
-             -clrvar voeke $dep $CLRXYPAL -clrmark zclrmark \
+             -clrvar voeke $dep $CLRXYPAL $CLRMARK  \
              $OPTIONS -english $FORMAT -scale 1.e4 ; }
+
 #-----------
 
   # get files  EKE
-  eke=${CONFCASE}_y${YEAR}_EKE.nc
+  eke=${CONFCASE}_y${YEARDAT}_EKE.nc
   # check if input file is observation ( obs in CASE )
   # if observation, surface EKE and no CONFIG in the header of the plot
   echo $CASE | grep -q -i obs 
@@ -2171,6 +2273,13 @@ eof
 
   FORMAT=""
   min=0 ; max=2500 ; pas=250   # ORCA CONFIG default
+  cat << eof > zclrmarklog   # log scale from 1 to 5000 ( 1 10 100 1000 5000)
+0.
+1.
+2.
+3.
+3.69897
+eof
   XYPLOT='' ; CLRXYPAL=''
 
   if [ $(chconf PERIANT) != 0 ] ; then
@@ -2184,51 +2293,49 @@ eof
 
   #Global plot
   listplt=' '
-  var=EKEgl  ; ZOOM='-ijgrid -noproj -noint' ; OPTIONS='' 
+  #linear view
+  var=EKEgl  ; ZOOM='-ijgrid -noproj -noint' ; OPTIONS='' ; CLRMARK="-clrmark zclrmark"
   STRING="-string 0.5 0.95 1.0 0  ${ZCONF}_${var}_${YEAR}_${CASE}_DEPTH=@CLR_DEPTH@ "
+  filout=${CONFIG}_${var}_${zdep}_${YEAR}-${CASE}
+  if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
+     rapatrie $eke $MEANY $eke
+     if [ $filtering != 0 ] ; then 
+       cdfsmooth -f $eke -c $filtering  -k 1-4
+       mv $eke $eke.all
+       mv ${eke}L* $eke
+     fi
+     ekeplt ; mkplt $filout
+  fi
+  # log view
+  var=logEKEgl ; ZOOM='-pixel' ; OPTIONS='-log10' ; CLRMARK="-clrmark zclrmarklog"
   filout=${CONFIG}_${var}_${zdep}_${YEAR}-${CASE}
   if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
      rapatrie $eke $MEANY $eke
      ekeplt ; mkplt $filout
   fi
+
+  # Atlantic zoom 
   
   if [ $(chconf PERIANT) = 0 ] ; then  # EKE in the Atlantic
-    var=EKEatl ; ZOOM='-zoom -100 20 -70 70' ; OPTIONS='-proj ME -xstep 15 -ystep 15'
+    # linear view
+    var=EKEatl ; ZOOM='-zoom -100 20 -70 70' ; OPTIONS='-proj ME -xstep 15 -ystep 15' ; CLRMARK="-clrmark zclrmark"
     STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${YEAR}_${CASE}_DEPTH=@CLR_DEPTH@ "
     filout=${CONFIG}_${var}_${zdep}_${YEAR}-${CASE}
-
-
+    if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
+       rapatrie $eke $MEANY $eke
+       ekeplt ; mkplt $filout
+    fi
+    # logview
+    var=logEKEatl ; ZOOM='-zoom -100 20 -70 70' ; OPTIONS='-proj ME -xstep 15 -ystep 15 -log10 ' ; CLRMARK="-clrmark zclrmarklog"
+    STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${YEAR}_${CASE}_DEPTH=@CLR_DEPTH@ "
+    filout=${CONFIG}_${var}_${zdep}_${YEAR}-${CASE}
     if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
        rapatrie $eke $MEANY $eke
        ekeplt ; mkplt $filout
     fi
   fi
 
-  puttogaya  GLOBAL
-
-  #Zoom plots in the Austral area ,take PERIANT settings even for ORCA plots
-  min=0 ; max=1000 ; pas=250 
-  mklim $min $max $pas > zclrmark
-
-  for BASIN in DRAKE KERGUELEN CAMPBELL ; do
-    listplt=' '
-    case $BASIN in
-         DRAKE)  var=EKEdrak ; ZOOM='-zoom -100 -20 -70 -30' ;;
-     KERGUELEN)  var=EKEkerg ; ZOOM='-zoom 30 110 -70 -30' ;;
-      CAMPBELL)  var=EKEcamp ; ZOOM='-zoom 100 180 -70 -30' ;;
-    esac
-    OPTIONS='-proj ME -xstep 10 -ystep 5'
-    STRING="-string 0.5 0.95 1.0 0 ${ZCONF}_${var}_${YEAR}_${CASE}_DEPTH=@CLR_DEPTH@ "
-    filout=${CONFIG}_${var}_${zdep}_${YEAR}-${CASE}
-    XYPLOT='-xyplot 0.1 0.95 0.2 0.9'
-    CLRXYPAL='-clrxypal 0.1 0.95 0.05 0.15'
-    if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
-     rapatrie $eke $MEANY $eke
-     ekeplt ; mkplt $filout
-    fi
-    
-    puttogaya  $BASIN
-  done
+  puttoarch  GLOBAL
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 10. Mixed Layer depth in march and september NH and SH
@@ -2241,8 +2348,8 @@ eof
 
   listplt=' '
   # get files  MXL in m03 and m09
-  mxl3=${CONFCASE}_y${YEAR}m03_MXL.nc
-  mxl9=${CONFCASE}_y${YEAR}m09_MXL.nc
+  mxl3=${CONFCASE}_y${YEAR}m03${xiosid}_MXL.nc
+  mxl9=${CONFCASE}_y${YEAR}m09${xiosid}_MXL.nc
 
   # this plot have 2 frames on the panel up= march, down=september
   up='.1 .9 .55 .95'
@@ -2284,7 +2391,7 @@ eof
   done
   rm gm*
 
-  puttogaya  MXL
+  puttoarch  MXL
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
 # 11. Mixed Layer in the Atlantic
@@ -2296,7 +2403,7 @@ eof
 #------------
    listplt=' '
   # get files  MXL in m03
-  mxl3=${CONFCASE}_y${YEAR}m03_MXL.nc
+  mxl3=${CONFCASE}_y${YEAR}m03${xiosid}_MXL.nc
 
  # this plot have 2 frames on the panel up= march, down=september
 
@@ -2321,7 +2428,7 @@ eof
    fi
  done
 
- puttogaya  ATLN 
+ puttoarch  ATLN 
                         fi
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 12. Air-Sea Fluxes on the Atlantic
@@ -2333,9 +2440,7 @@ eof
 
    listplt=' '
   # get files gridT in m03
-  flx3=${CONFCASE}_y${YEAR}m03_gridT.nc
-
- # this plot have 2 frames on the panel up= march, down=september
+  flx3=${CONFCASE}_y${YEAR}m03${xiosid}_gridT.nc
 
  min=-500 ; max=400 ; pas=100 ;  mklim $min $max $pas > zclrmark
 
@@ -2359,7 +2464,7 @@ eof
    fi
  done
 
- puttogaya  ATLN 
+ puttoarch  ATLN 
                         fi
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 13. TRACER on the website : to be improved
@@ -2372,7 +2477,7 @@ eof
                -string 0.95 0.2 1 1 "x10|S|$exp" ; }
  
  # Generic function for basin tracer plots
- bastrcplt() { $CHART -forcexy $CLRDATA $zoom $OPTIONS  \
+ bastrcplt() { $CHART -forcexy $CLRDATA $ZOOM $OPTIONS  \
                -clrvar $clrvar -english -clrexp $exp -string 0.95 0.15 1 1 "x10|S|$exp" \
                -lev $lev $DEP $PAL $STRING $CLRLIM $CNTTRC -cntlis 1 -cntlls 0.01  $MEAN $FORMAT; }
 
@@ -2403,8 +2508,8 @@ eof
 
  for mm in 1 2 3 4 5 6 7 8 9 10 11 12 ; do
     m=$( printf "%02d" $mm )
-    trc=${CONFCASE}_y${YEAR}m${m}_ptrcT.nc
-    tmp=${trc#${CONFCASE}_y} ; tag=${tmp%_*}
+    trc=${CONFCASE}_y${YEAR}m${m}${xiosid}_ptrcT.nc
+    tmp=${trc#${CONFCASE}_y} ; tag=${tmp%${xiosid}_*}
     year=$( echo $tag | awk -Fm '{print $1}' )
     month=$( echo $tag | awk -Fm '{print $2}' )                   
 
@@ -2454,14 +2559,14 @@ eof
     done
  done
 
- puttogaya  GLOBAL
+ puttoarch  GLOBAL
 
  ######## Basin plots ############
  # reset the list of plots that are produced ( list is updated in mkplt )
  listplt=' '
 
  # get ptrcT
- trc=${CONFCASE}_y${YEAR}_ptrcT.nc
+ trc=${CONFCASE}_y${YEARDAT}_ptrcT.nc
 
  # Common values for this group of plots
   OPTIONS='-proj ME -xstep 10 -ystep 5'
@@ -2471,9 +2576,9 @@ eof
 
   for BASIN in DRAKE KERGUELEN CAMPBELL ; do
     case $BASIN in
-      DRAKE)     zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
-      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
-      CAMPBELL)  zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+      DRAKE)     ZOOM='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) ZOOM='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+      CAMPBELL)  ZOOM='-zoom 100 179 -70 -30'  ; bas=CAMP ;;
     esac
     # reset the list of plots
     listplt=' '
@@ -2541,7 +2646,7 @@ eof
    done
   done
 
-  puttogaya  $BASIN
+  puttoarch  $BASIN
 
  done
 
@@ -2550,7 +2655,7 @@ eof
  listplt='' 
 
  # get ptrcT
- trc=${CONFCASE}_y${YEAR}_ptrcT.nc
+ trc=${CONFCASE}_y${YEARDAT}_ptrcT.nc
 
  # Common values for this group of plots
  CLRDATA="-clrdata $trc"
@@ -2624,7 +2729,7 @@ eof
     done     
  done        
 
- puttogaya  SECTIONS 
+ puttoarch  SECTIONS 
 
                              fi
 
@@ -2647,7 +2752,7 @@ eof
                $PTS $STRING1 $STRING2 ;}
 
   # get files
-  mocf=${CONFCASE}_y${YEAR}_MOCSIG_${NREF}.nc
+  mocf=${CONFCASE}_y${YEARDAT}_MOCSIG_${NREF}.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
@@ -2674,7 +2779,7 @@ eof
     fi
   done
 
-  puttogaya  OVT
+  puttoarch  OVT
                        fi
 
 
@@ -2685,37 +2790,44 @@ eof
                              if [ $cfc == 1 ] ; then
 
   # generic function for moc plot
-  cfcgloplt() { $CHART -forcexy -clrdata $file -clrvar $vari -scale $scale -clrmark zclrmark  \
-                -clrmet 1 -clrmin $min -clrmax $max -p $PAL1 -format PALETTE I3 $OPTION $STRING -clrexp $clrexp ;
+#  cfcgloplt() { $CHART -forcexy -clrdata $file -clrvar $vari -scale $scale -clrmark zclrmark  \
+  cfcgloplt() { $CHART -pixel -clrdata $file -clrvar $vari -scale $scale -clrmark zclrmark  \
+                -clrmet 1  -p $PAL1 $FORMAT $OPTION $STRING -clrexp $clrexp ;
               }
 
   # get files
-  pendep=${CONFCASE}_y${YEAR}_pendep.nc
-  fracinv=${CONFCASE}_y${YEAR}_fracinv.nc
+  pendep=${CONFCASE}_y${YEARDAT}_pendep.nc
+  fracinv=${CONFCASE}_y${YEARDAT}_fracinv.nc
+  diadT=${CONFCASE}_y${YEARDAT}_diadT.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
 
   # Set options
-  for var in  PEN FRAC ; do
+  for var in  INV PEN FRAC ; do
     case $var in
+      INV) vari=INVCFC ; file=$diadT ; source=$MEANY
+           min=0 ; max=1.8 ; pas=0.2
+           scale=1.e6 ; clrexp=0 
+           STRING="-string 0.5 0.97 1.0 0 ${CONFIG}_${CASE}_${vari}_(10|S|-6|N|.mol/m2)_${YEAR}" ;;
       PEN) vari=pendep ; file=$pendep ; source=$MEANY
            min=0 ; max=1500 ; pas=200
-           scale=1 ; clrexp=0 ;;
+           scale=1 ; clrexp=0 
+           STRING="-string 0.5 0.97 1.0 0 ${CONFIG}_${CASE}_${vari}_(m)_${YEAR}" ;;
       FRAC) vari=fracinv ; file=$fracinv ; source=$MEANY
-           min=2 ; max=28 ; pas=2
-           scale=1.e+06 ; clrexp=0 ;;
+           min=0 ; max=1.8 ; pas=0.2
+           scale=1.e+06 ; clrexp=0 
+           STRING="-string 0.5 0.97 1.0 0 ${CONFIG}_${CASE}_${vari}_(x_10|S|-6|N|)_${YEAR}" ;;
     esac
     filout=${CONFIG}_${vari}_global_${YEAR}-${CASE}
     if [ $( chkfile $PLOTDIR/CFC/$filout.cgm) == absent ] ; then
      rapatrie $file $source $file
-     STRING="-string 0.5 0.97 1.0 0 ${CONFIG}_${CASE}_${vari}_(10_exp_${clrexp}_picomol)${YEAR}"
      mklim $min $max $pas > zclrmark
      cfcgloplt ; mkplt $filout
     fi
   done
 
-  puttogaya  CFC
+  puttoarch  CFC
 
                                fi
 
@@ -2740,7 +2852,7 @@ eof
                              if [ $pisces_global == 1 ] ; then
 
   # get files
-  t=${CONFCASE}_y${YEAR}_ptrcT.nc
+  t=${CONFCASE}_y${YEARDAT}_ptrcT.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
@@ -2880,7 +2992,7 @@ eof
     done
   done
 
-  puttogayatrc PISCES GLOBAL
+  puttoarchtrc PISCES GLOBAL
 
                              fi
 
@@ -2892,7 +3004,7 @@ eof
                              if [ $pisces_diags == 1 ] ; then
 
   # get files
-  t=${CONFCASE}_y${YEAR}_diadT.nc
+  t=${CONFCASE}_y${YEARDAT}_diadT.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
@@ -3007,7 +3119,7 @@ PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
       fi
   done
 
-  puttogayatrc PISCES GLOBAL
+  puttoarchtrc PISCES GLOBAL
 
                              fi
 #----------------------------------------------------------------------------
@@ -3017,7 +3129,7 @@ PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
                              if [ $pisces_global_int == 1 ] ; then
 
   # get files
-  t=${CONFCASE}_y${YEAR}_biovertmean.nc
+  t=${CONFCASE}_y${YEARDAT}_biovertmean.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
@@ -3067,7 +3179,7 @@ PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
         glopiplt  ; mkplt $filout
       fi
   done
-  puttogayatrc PISCES GLOBAL
+  puttoarchtrc PISCES GLOBAL
 
                              fi
 #----------------------------------------------------------------------------
@@ -3076,7 +3188,7 @@ PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";
 
                              if [ $pisces_diags_int == 1 ] ; then
   # get files
-  t=${CONFCASE}_y${YEAR}_biovertmean.nc
+  t=${CONFCASE}_y${YEARDAT}_biovertmean.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
@@ -3117,7 +3229,7 @@ PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  
       fi
   done
 
-  puttogayatrc PISCES GLOBAL
+  puttoarchtrc PISCES GLOBAL
 
                              fi
 
@@ -3134,7 +3246,7 @@ PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  
                  $LEV -p $PAL2 $STRING -clrmark zclrmark  -xyplot $POS -o $1 $MEAN $FORMAT; }
 
   # get files
-  filerun=${CONFCASE}_y${YEAR}_ptrcT.nc
+  filerun=${CONFCASE}_y${YEARDAT}_ptrcT.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
@@ -3181,7 +3293,7 @@ PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  
     fi
   done
 
-  puttogaya PISCES/CLIM
+  puttoarch PISCES/CLIM
 
                            fi
 
@@ -3191,7 +3303,7 @@ PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  
 #-------------------
 
   # generic function for PISCES zooms plot
-  baspiplt() { set -x ; $CHART -forcexy $zoom $CLRDATA -scale $scale   \
+  baspiplt() { set -x ; $CHART -forcexy $ZOOM $CLRDATA -scale $scale   \
                -clrvar $clrvar -english  \
                $LEV $DEP $PAL $STRING $CLRLIM  $MEAN $FORMAT; }
 
@@ -3203,7 +3315,7 @@ PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  
 
                             if [ $pisces_zooms == 1 ] ; then
   # get files
-  t=${CONFCASE}_y${YEAR}_ptrcT.nc
+  t=${CONFCASE}_y${YEARDAT}_ptrcT.nc
   # Common values for this group of plots
   PAL="-p $PAL1"
   CLRLIM="-clrmark zclrmark"
@@ -3212,9 +3324,9 @@ PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  
   # Set options
   for BASIN in KERGUELEN ; do
     case $BASIN in
-          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
-      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
-       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+          DRAKE) ZOOM='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) ZOOM='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) ZOOM='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
     esac
   listplt=' '
   for var in DIC TALK O2 PO4 Si NO3 Fer DOC CHL NCHL DCHL POC PHY PHYnano PHYdiatoms ZOO ZOOmeso ZOOmicro GOC SFe; do
@@ -3346,7 +3458,7 @@ PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  
     done
   done
 
-  puttogayatrc PISCES $BASIN
+  puttoarchtrc PISCES $BASIN
 
 done
 
@@ -3357,7 +3469,7 @@ done
 
                              if [ $pisces_diags_zooms == 1 ] ; then
   # get files
-  t=${CONFCASE}_y${YEAR}_diadT.nc
+  t=${CONFCASE}_y${YEARDAT}_diadT.nc
  # Common values for this group of plots
   PAL="-p $PAL1"
   CLRLIM="-clrmark zclrmark"
@@ -3366,9 +3478,9 @@ done
   # Set options
   for BASIN in KERGUELEN ; do
     case $BASIN in
-          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
-      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
-       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+          DRAKE) ZOOM='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) ZOOM='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) ZOOM='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
     esac
   listplt=' '
 
@@ -3457,7 +3569,7 @@ PNEWdiatoms) clrvar=PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $s";
     done
   done
 
-  puttogayatrc PISCES $BASIN
+  puttoarchtrc PISCES $BASIN
 
 done
 
@@ -3468,7 +3580,7 @@ done
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                               if [ $pisces_zooms_int == 1 ] ; then
   # get files
-  t=${CONFCASE}_y${YEAR}_biovertmean.nc
+  t=${CONFCASE}_y${YEARDAT}_biovertmean.nc
 
 
   # Common values for this group of plots
@@ -3479,9 +3591,9 @@ done
   # Set options
   for BASIN in KERGUELEN ; do
     case $BASIN in
-          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
-      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
-       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+          DRAKE) ZOOM='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) ZOOM='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) ZOOM='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
     esac
   listplt=' '
 
@@ -3526,7 +3638,7 @@ done
       fi
   done
 
-  puttogayatrc PISCES $BASIN
+  puttoarchtrc PISCES $BASIN
 
 done
 
@@ -3536,7 +3648,7 @@ done
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                               if [ $pisces_zooms_diags_int == 1 ] ; then
   # get files
-  t=${CONFCASE}_y${YEAR}_biovertmean.nc
+  t=${CONFCASE}_y${YEARDAT}_biovertmean.nc
 
 
   # Common values for this group of plots
@@ -3547,9 +3659,9 @@ done
   # Set options
   for BASIN in KERGUELEN ; do
     case $BASIN in
-          DRAKE) zoom='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
-      KERGUELEN) zoom='-zoom 30 110 -70 -30'   ; bas=KERG ;;
-       CAMPBELL) zoom='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
+          DRAKE) ZOOM='-zoom -100 -20 -70 -30' ; bas=DRAK ;;
+      KERGUELEN) ZOOM='-zoom 30 110 -70 -30'   ; bas=KERG ;;
+       CAMPBELL) ZOOM='-zoom 100 180 -70 -30'  ; bas=CAMP ;;
     esac
   listplt=' '
 
@@ -3586,7 +3698,7 @@ PNEWdiatoms) clrvar=vertmean_PPNEWD ; unit="molC/m3/s" ;CLRDATA="-clrdata $t";  
       fi
   done
 
-  puttogayatrc PISCES $BASIN
+  puttoarchtrc PISCES $BASIN
 
 done
 
@@ -3616,7 +3728,7 @@ done
 
 
   # get files
-  t=${CONFCASE}_y${YEAR}_ptrcT.nc
+  t=${CONFCASE}_y${YEARDAT}_ptrcT.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
@@ -3772,7 +3884,7 @@ eof
     done
   done
 
-  puttogaya PISCES/SECTIONS
+  puttoarch PISCES/SECTIONS
 
                              fi
 
@@ -3790,7 +3902,7 @@ eof
 
 
   # get files
-  filerun=${CONFCASE}_y${YEAR}_ptrcT.nc
+  filerun=${CONFCASE}_y${YEARDAT}_ptrcT.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
@@ -3925,12 +4037,12 @@ eof
     done
   done
    
-  puttogaya PISCES/CLIM
+  puttoarch PISCES/CLIM
 
                            fi
 
 #------------------------------------------------------------------------------
-# 21. PISCES fluxes on website
+# 16.4.1. PISCES fluxes on website
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
                              if [ $pisces_fluxes == 1 ] ; then
@@ -3941,7 +4053,7 @@ eof
             $LEV $DEP $PAL $STRING $CLRLIM $MEAN $FORMAT; }
 
   # get files
-  t=${CONFCASE}_y${YEAR}_diadT.nc
+  t=${CONFCASE}_y${YEARDAT}_diadT.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
@@ -3975,7 +4087,7 @@ eof
       fi
   done
 
-  puttogaya PISCES/GLOBAL
+  puttoarch PISCES/GLOBAL
 
                              fi
 #------------------------------------------------------------------------------
@@ -3999,7 +4111,7 @@ eof
 
   # Set options
   for mm in 03 09  ; do
-    mxl_run=${CONFCASE}_y${YEAR}m${mm}_MXL.nc
+    mxl_run=${CONFCASE}_y${YEAR}m${mm}${xiosid}_MXL.nc
     mxl_obs=somxlt02_BM-${CONFIG}_m${mm}_masked.nc
     var=MLDtem0.20
     filout=${CONFIG}_dif${var}_m${mm}_${YEAR}-${CASE}
@@ -4025,7 +4137,7 @@ eof
     fi
    done
 
-   puttogaya MXL
+   puttoarch MXL
 
                              fi
 #------------------------------------------------------------------------------
@@ -4056,10 +4168,10 @@ eof
              }
 
   # get files
-  t=${CONFCASE}_y${YEAR}_gridT.nc
-  u=${CONFCASE}_y${YEAR}_gridU.nc
-  v=${CONFCASE}_y${YEAR}_gridV.nc
-  stdt=${CONFCASE}_y${YEAR}_gridT_STD.nc
+  t=${CONFCASE}_y${YEARDAT}_gridT.nc
+  u=${CONFCASE}_y${YEARDAT}_gridU.nc
+  v=${CONFCASE}_y${YEARDAT}_gridV.nc
+  stdt=${CONFCASE}_y${YEARDAT}_gridT_STD.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=''
@@ -4165,9 +4277,40 @@ eof
 
   chkdirg $DIAGS/CONTOURS
   expatrie $fileout.txt $DIAGS/CONTOURS $fileout.txt
-  puttogaya CONTOURS
+  puttoarch CONTOURS
                   fi
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
+# 19. Surface circulation in the Alboran sea + salinity
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        if [ $alboran == 1 ] ; then
+  alboran() { $CHART -string 0.5 0.94 1.0 0 "${CONFCASE}_${var}_${YEAR} @CLR_DEPTH@ m "\
+        -proj ME -xstep 2 -ystep 2 -xgrid -ygrid -zoom -8 0 33 38  -p $PAL2 -english \
+       -clrdata $t -clrvar vosaline -clrmark zclrmark   $FORMAT  \
+       -vecdatax $u -vecdatay $v -vecvarx vozocrtx -vecvary vomecrty -Cgrid \
+       -vecvfr 0.3 -vecvrl 250 -lev 3 ;}
+#------------
+listplt=' '
+t=${CONFCASE}_y${YEARDAT}_gridT.nc
+u=${CONFCASE}_y${YEARDAT}_gridU.nc
+v=${CONFCASE}_y${YEARDAT}_gridV.nc
+
+
+min=35.8 ; max=36.4 ; pas=0.1 ;  mklim $min $max $pas > zclrmark
+var=ALBORAN
+filout=${CONFIG}_${var}_${YEAR}-${CASE}
+
+if [ $( chkfile $PLOTDIR/MEDSEA/$filout.cgm )  == absent ] ; then
+   rapatrie $u $MEANY $u
+   rapatrie $v $MEANY $v
+   rapatrie $t $MEANY $t
+   alboran 
+
+   mkplt $filout
+fi
+
+ puttoarch  MEDSEA
+                        fi
 #==============================================================================
 #==============================================================================
 #==============================================================================

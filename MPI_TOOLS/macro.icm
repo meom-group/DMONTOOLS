@@ -1,0 +1,5 @@
+# macro for jade (CINES)
+
+FC=mpif90
+FFLAGS=-O3 -ip -ftz  -fno-alias  -fpe3
+INSTALL=$(WORKDIR)/bin

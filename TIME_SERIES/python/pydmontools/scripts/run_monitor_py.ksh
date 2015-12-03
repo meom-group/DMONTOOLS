@@ -51,6 +51,10 @@ for freq_diags in $list_freq ; do
     if [ $ts_transports1 == 1 ] ; then transports1.py -f $freq_diags    ; fi
     if [ $ts_tsmean == 1 ]      ; then tsmean.py      -f $freq_diags    ; fi
     if [ $ts_tsmean_lev == 1 ]  ; then tsmean_lev.py  -f $freq_diags    ; fi
+    if [ $ts_tsmeanlat == 1 ]   ; then tsmeanlat.py   -f $freq_diags    ; fi
+    if [ $ts_tslatn == 1 ]      ; then tslatn.py      -f $freq_diags    ; fi
+    if [ $ts_tslats == 1 ]      ; then tslats.py      -f $freq_diags    ; fi
+    if [ $ts_tslateq == 1 ]     ; then tslateq.py     -f $freq_diags    ; fi
     if [ $ts_trpsig == 1 ]      ; then trpsig.py      -f $freq_diags    ; fi
 
 done
@@ -58,8 +62,6 @@ done
 
 ### copy to website
 cd $PLOTDIR/$CONFIG/PLOTS/${CONFIG}-${CASE}/TIME_SERIES
-for file in $( ls | grep .png ) ; do
-    copy_to_web $file
-done
+copy_to_web *.png
 
 # The end...

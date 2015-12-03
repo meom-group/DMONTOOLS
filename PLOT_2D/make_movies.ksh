@@ -6,7 +6,7 @@
 #PBS -l select=1:ncpus=8:mpiprocs=8
 #PBS -l walltime=20:00:00
 #PBS -l place=scatter:excl
-##PBS -M molines@hmg.inpg.fr
+##PBS -M molines@legi.grenoble-inp.fr
 #PBS -mb -me
 
 ### LoadLeveler on ULAM and VARGAS
@@ -18,7 +18,6 @@
 # @ job_type = serial
 # @ wall_clock_limit = 72000
 # @ as_limit = 2.0gb
-# @ data_limit = 3.2gb
 # @ queue
 
 #set -x
@@ -30,36 +29,24 @@
 #-------------------------------------------------------------------------------
 
 . ./config_def.ksh
-
-## for batch on ulam (RD : ugly will be fixed soon)
-if [ $MACHINE = 'ulam' ] ; then
-   SDIR=$HOMEGAYA
-   module load ncar/5.2.1
-fi
-
-
-. ./config_def.ksh
 . ./function_def.ksh
 
 copy() {
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
-         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE ; fi "
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
-         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/${dir} ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/${dir} ; fi "
-          scp $gifmov drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/${dir}/$gifmov ;}
+          ssh drakkar@meolipc.legi.grenoble-inp.fr -l drakkar \
+         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/${dir} ] ; then mkdir -p DRAKKAR/$CONFIG/$CONFCASE/${dir} ; fi "
+          scp $gifmov drakkar@meolipc.legi.grenoble-inp.fr:DRAKKAR/$CONFIG/${CONFCASE}/${dir}/$gifmov ;}
 
 mkgif() {
-            ctrans -d sun -res 1024x1024 $1 > p.sun
+            ctrans -device sun -res 1024x1024 $1 > p.sun
             convert p.sun p.gif 
             mv p.gif GIFS/$2
         }
          
 
 
-cd $PLOTDIR/$CONFIG/PLOTS/$CONFCASE                             # work on gaya directly
+cd $PLOTDIR/$CONFIG/PLOTS/$CONFCASE                             # work on ergon directly
 
- for dir in OVT GLOBAL DRAKE CAMPBELL KERGUELEN SECTIONS SECTIONS1 CIRCUM ICE DWBC MXL ATLN ATLS ; do
+ for dir in ATLANTIC OVT CFC GLOBAL DRAKE CAMPBELL KERGUELEN MEDSEA SECTIONS SECTIONS1 CIRCUM ICE DWBC MXL ATLN ATLS CONTOURS ; do
     if [ -d $dir ] ; then 
     cd $dir
     chkdir GIFS  # this directory should exist but who knows ...?
@@ -98,7 +85,7 @@ cd $PLOTDIR/$CONFIG/PLOTS/$CONFCASE                             # work on gaya d
            fi
 
            if [ $init == 1 ] ; then
-             mv GIFS/$gif  $gifmov
+             cp GIFS/$gif  $gifmov
              echo $year > ${type}-${CASE}.catalog
              init=0
            else
@@ -119,6 +106,11 @@ cd $PLOTDIR/$CONFIG/PLOTS/$CONFCASE                             # work on gaya d
         fi
         gifmov=
     done
+#  TO TOUCH : avoid specific machines and login in the core of the script JMM
+    # if dir=CONTOURS, copy also cnt.txt file
+    if [ $dir == CONTOURS ] ; then
+      scp $DIAGS/../$dir/${CONFCASE}*txt drakkar@meolipc.legi.grenoble-inp.fr:DRAKKAR/$CONFIG/${CONFCASE}/${dir}/$gifmov ;
+    fi
     cd ../
     else
         echo $dir does not exit, going my way forward

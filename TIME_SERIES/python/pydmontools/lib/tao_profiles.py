@@ -90,7 +90,8 @@ def _readnc(filenc=None,fileobs=None,argdict=myargs):
     for km in range(len(lon_moor)):
         moor_name.append(str(int(lon_moor[km])) + 'e') # default lon is towards east
 
-    for km in ind_swap_EW[0]:
+    #  for km in ind_swap_EW[0]:   (old version)
+    for km in list(ind_swap_EW[0].data):
         moor_name[km] = moor_name[km].replace('e','w') # correct for western moorings 
 
     outdict['coord'] = moor_name

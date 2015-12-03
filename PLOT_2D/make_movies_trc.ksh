@@ -12,7 +12,6 @@ export OMP_NUM_THREADS=1
 # @ job_type = serial
 # @ wall_clock_limit = 72000
 # @ as_limit = 2.0gb
-# @ data_limit = 3.2gb
 # @ queue
 
 #set -x
@@ -38,13 +37,13 @@ copy() {
           scp $gifmov drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/${dir}/$gifmov ;}
 
 mkgif() {
-            ctrans -d sun -res 1024x1024 $1 > p.sun
+            ctrans -device sun -res 1024x1024 $1 > p.sun
             convert p.sun p.gif
             mv p.gif GIFS/$2
         }
 
 
-cd $PLOTDIR/$CONFIG/PLOTS/$CONFCASE                             # work on gaya directly
+cd $PLOTDIR/$CONFIG/PLOTS/$CONFCASE                             # work on ergon directly
 
  for dir in GLOBAL ; do # DRAKE CAMPBELL KERGUELEN SECTIONS OVT CIRCUM ICE DWBC MXL ; do
     if [ -d $dir ] ; then 

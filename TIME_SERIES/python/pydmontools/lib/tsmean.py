@@ -133,7 +133,7 @@ def plot(argdict=myargs,figure=None,color='r',tmean=None,smean=None,sshmean=None
 
     if not(compare):
        ax2 = figure.add_subplot(3,nb3Dmean,nb3Dmean+2)
-       plt.contourf(date, levels, npy.transpose(tmodel[:,:]-tmodel[0,:]),contours_temper)
+       plt.contourf(date, levels, npy.transpose(tmodel[:,:]-tmodel[0,:]),contours_temper,extend='both')
        plt.colorbar(ticks=ticks_temper)
        ax2.grid(True)
        plt.yscale('log')
@@ -142,7 +142,7 @@ def plot(argdict=myargs,figure=None,color='r',tmean=None,smean=None,sshmean=None
        ps.set_dateticks(ax2)
 
        ax3 = figure.add_subplot(3,nb3Dmean,2*nb3Dmean+2)
-       plt.contourf(date, levels, npy.transpose(smodel[:,:]-smodel[0,:]),contours_salin)
+       plt.contourf(date, levels, npy.transpose(smodel[:,:]-smodel[0,:]),contours_salin, extend='both')
        plt.colorbar(ticks=ticks_salin)
        ax3.grid(True)
        plt.yscale('log')

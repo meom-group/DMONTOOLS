@@ -12,3 +12,8 @@
     -monthlymean.ksh        : compute a single monthly mean
 
     -annualmean.ksh         : compute a single annual mean
+
+    -dmon_cortime.f90       : fortran program used for correction of time in mean field of old-fashoned runs. 
+                              set correct value to time_counter, adjust time_counter attributes and set global attribute.
+                              After this processing, -MEAN files can be processed by monitoring, and results will be compatible
+                              with recent runs.  It is advisable to save the processed file in place of old-fashoned ones.

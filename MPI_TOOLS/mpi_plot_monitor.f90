@@ -1,26 +1,30 @@
 PROGRAM mpi_plot_monitor
-  !!=================================================================
-  !!         ***  PROGRAM mpi_plot_monitor  ***
+  !!======================================================================
+  !!                     ***  PROGRAM   mpi_plot_monitor  ***
+  !!=====================================================================
+  !!  ** Purpose : Submit plot monitor for various year in parallel 
   !!
-  !!  * Purpose : submit plot_monitor for each years on one processor
+  !!  ** Method  :  use call sytem 
   !!
-  !!  * Method: 
-  !!
-  !! * history : Jean-Marc Molines June 2010
-  !!   
-  !!==================================================================
-
+  !! History : 1.0  : 11/2010  : J.M. Molines : Original code
+  !!           2.0  : 12/2012  : J.M. Molines : Licence and coding rules
+  !!----------------------------------------------------------------------
   IMPLICIT NONE
-  INTEGER :: iproc, ierror, nproc, ntask
-  INTEGER :: iargc, narg, jarg
+
+  INTEGER(KIND=4)                    :: iproc, ierror
+  INTEGER(KIND=4)                    :: nproc, ntask
+  INTEGER(KIND=4)                    :: iargc, narg, jarg
   INTEGER, DIMENSION(:), ALLOCATABLE :: iyears
 
   CHARACTER(LEN=80) :: cdum
 
   INCLUDE 'mpif.h'
-
-  !! * Initialization
-
+  !!----------------------------------------------------------------------
+  !! DMONTOOLS_2.0 , MEOM 2012
+  !! $Id$
+  !! Copyright (c) 2012, J.-M. Molines
+  !! Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
+  !!----------------------------------------------------------------------
   ! Initialize MPI
   CALL mpi_init(ierror)
   CALL mpi_comm_rank(mpi_comm_world,iproc,ierror)

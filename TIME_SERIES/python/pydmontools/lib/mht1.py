@@ -124,7 +124,7 @@ def plot(argdict=myargs, figure=None,color='r',compare=False, **kwargs):
     if compare:
         return figure
     #
-    variable      = ['Southward Accumulated Qnet', 'Advective MHT']
+    variable      = ['Advective MHT','Southward Accumulated Qnet']
     #
     # setup the color range
     limits_1 = [ -1.0, 1.0 ] ; step_1 = 0.05

@@ -27,8 +27,9 @@
 # 
 
 #- required plots
-plotnames = ['cable','gib','transports1','tsmean','tsmean_lev','icemonth','icenoaa','icetrd',\
-             'icetrd_min','maxmoc','maxmoc40','mht1','nino','tao_profiles','tao_undercurrent','trpsig']
+plotnames = ['cable','gib','transports1','tsmeanlat','tslatn','tslats','tslateq','tsmean','tsmean_lev',\
+             'icemonth','icenoaa','icetrd','icetrd_min','maxmoc','maxmoc40','mht1','nino','tao_profiles',\
+             'tao_undercurrent','trpsig']
 
 #- level of verbosity (so far only 0 or 1) 
 verbose = 1

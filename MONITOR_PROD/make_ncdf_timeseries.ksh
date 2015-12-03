@@ -59,15 +59,43 @@ look_for_config() {
 chkdir()          {
        if [ ! -d $1 ] ; then mkdir $1 ; fi
                   }
+
+# open tunnel through meolkerg for machine without direct acces to meolipc
+open_tunnel() {
+      case $MACHINE in
+      ( curie000 )
+      # obsolete ( ==> curie000 is a dummy  name ) meolipc is now directly accessible from curie
+      ssh_port="-p 3022"
+      scp_port="-P 3022" 
+      web_host=localhost 
+
+      # check if tunnel already open
+      pid=$(ps -edf | grep "ssh -f -N -L 3022:meolipc.legi.grenoble-inp.fr:22" | grep -v grep | head -1 | awk '{ print $2}')
+      if [  $pid ] ; then
+         exit
+      else
+         ssh -f -N -L 3022:meolipc.legi.grenoble-inp.fr:22 meolkerg.legi.grenoble-inp.fr
+      fi  ;;
+
+      ( * ) 
+      ssh_port=
+      scp_port=  
+      web_host=meolipc.legi.grenoble-inp.fr  ;;
+      esac
+              }
+
+# close tunnel
+close_tunnel() {
+    pid=$(ps -edf | grep "ssh -f -N -L 3022:meolipc.legi.grenoble-inp.fr:22" | grep -v grep | head -1 | awk '{ print $2}')
+    if [ $pid ] ; then  kill -9 $pid ; fi
+               }
+
 # copy_nc_to_web : copy the time series in netcdf to the DRAKKAR website
 # usage : copy_nc_to_web file
 copy_nc_to_web()  {
-          ssh meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
-          ssh meolipc.hmg.inpg.fr -l drakkar \
-         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE ; fi "
-          ssh meolipc.hmg.inpg.fr -l drakkar \
-         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/DATA ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/DATA ; fi "
-          scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/DATA/$1 
+          ssh $ssh_port $web_host -l drakkar \
+         " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/DATA ] ; then mkdir -p DRAKKAR/$CONFIG/$CONFCASE/DATA ; fi "
+          scp $scp_port $@ drakkar@${web_host}:DRAKKAR/$CONFIG/${CONFCASE}/DATA/ 
                   }
 
 #################################################
@@ -96,7 +124,7 @@ fi
       (c) calendar=${OPTARG}   ;;
       (M) MACHINE=${OPTARG} ;;
       (l) echo ' Defaults configuration exists for the following pre-defined machines:' ;
-          for m in  ulam jade meolkerg ; do 
+          for m in  ada jade occigen curie meolkerg ; do 
             echo '    - ' $m
           done ;
           exit 0 ;;
@@ -122,8 +150,10 @@ fi
 
 ierr=0  # reset error flag
 case $MACHINE in 
-  ( ulam     ) rootdir=$HOMEGAYA              ;;
   ( jade     ) rootdir=/scratch/$USER         ;;
+  ( occigen  ) rootdir=$WORKDIR               ;;
+  ( ada      ) rootdir=$WORKDIR               ;;
+  ( curie    ) rootdir=$DDIR                  ;;
   ( meolkerg ) rootdir=$ISLANDSPATH_MODEL_SET ;;
   ( *        ) echo " Machine $MACHINE is not pre-defined ";
                if [ $DIAGS ] ; then echo "using DIAGS from command line " ;
@@ -217,9 +247,14 @@ cd $DIAGS
 # list of all diags available in DIAGS dir : eg : 1y_MAXMOC.nc, 1m_MAXMOC.nc ...
 LIST_OF_DIAGS=$( ls -1 ${CONFCASE}*  | awk -F_ '{ printf "%s_%s\n",$3,$4 }' | sort -u )
 
+# look for xios format ?
+sample_file=$(ls -1 ${CONFCASE}*nc | head -1 )
+ztag=$( echo $sample_file | awk -F_ '{print $2}' )
+xios=${ztag#y????}
+
 ## 
 for diagtyp in $LIST_OF_DIAGS ; do
-    ncrcat -F -O -h ${CONFCASE}_y????_${diagtyp} -o $MONITOR/${CONFCASE}_${diagtyp}
+    ncrcat -F -O -h ${CONFCASE}_y????${xios}_${diagtyp} -o $MONITOR/${CONFCASE}_${diagtyp}
 done
 
 # Levitus are just ready !
@@ -252,6 +287,29 @@ for file in ${CONFCASE}*.nc ; do
      ncatted -a units,time_counter,m,c,"$time_units" $file
      ncatted -a time_origin,time_counter,m,c,"$time_origin" $file
   fi
+  if [ $xios ] ; then 
+  # Correct time_origin for python stuff [ with XIOS time_origin is like 1958-01-01 00-00-00 and python expects 1958-JAN-01 00-00-00 ]
+  to=$(ncdump -h  $file| grep time_origin| awk -F= '{print $2}'| sed -e 's/;//' )
+  mm=$(echo  $to | awk -F- '{print $2}')
+
+  case $mm in
+ (01)  mon=JAN ;;
+ (02)  mon=FEB ;;
+ (03)  mon=MAR ;;
+ (04)  mon=APR ;;
+ (05)  mon=MAY ;;
+ (06)  mon=JUN ;;
+ (07)  mon=JUL ;;
+ (08)  mon=AUG ;;
+ (09)  mon=SEP ;;
+ (10)  mon=OCT ;;
+ (11)  mon=NOV ;;
+ (12)  mon=DEC ;;
+  esac
+
+  new_to=$(echo $to |sed -e "s/\"//g" | sed -e "s/-${mm}-/-${mon}-/ " )
+  ncatted -h -a time_origin,time_counter,m,c,"$new_to" $file
+  fi
 done
 
 ### end of concat and merge of netcdf files
@@ -260,8 +318,9 @@ done
 
 cd $MONITOR
 
-for file in `ls | grep .nc ` ; do
-   copy_nc_to_web $file
-done
+open_tunnel
+copy_nc_to_web *.nc
+close_tunnel
+
 
 
