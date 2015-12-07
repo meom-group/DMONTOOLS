@@ -38,6 +38,9 @@ fbasinmask=new_maskglo.nc
 NC4=${NC4:=0}
 if [ $NC4 = 1 ] ; then NCOPT='-nc4' ; fi
 
+FULL=${FULL:=0}
+if [ $FULL != 0 ] ; then fullopt='-full' ; else fullopt='' ; fi
+
 # monitor_prod shoud be run in individual directory for each year to
 # allow parallel processing
 chkdir $YEAR
@@ -228,7 +231,7 @@ cd $YEAR
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc  $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
  
-   cdfpsi ${CONFCASE}_${TAG}_gridU.nc ${CONFCASE}_${TAG}_gridV.nc  $NCOPT
+   cdfpsi ${CONFCASE}_${TAG}_gridU.nc ${CONFCASE}_${TAG}_gridV.nc $fullopt $NCOPT
  
    # dispose and rename on the MEAN directory
    expatrie psi.nc  $MEANY ${CONFCASE}_${TAG}_PSI.nc
@@ -248,7 +251,7 @@ cd $YEAR
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
    if (( $orca != 0 )) ; then rapatrie  $fbasinmask $IDIR $fbasinmask ; fi
  
-   cdfmoc ${CONFCASE}_${TAG}_gridV.nc
+   cdfmoc ${CONFCASE}_${TAG}_gridV.nc $fullopt
  
    # dispose on ergon MEAN/YEAR directory
    expatrie moc.nc $MEANY ${CONFCASE}_${TAG}_MOC.nc
@@ -263,7 +266,7 @@ mkmocsig(){
      # get annual mean gridV and gridT files
      rapatrie ${CONFCASE}_${TAG}_gridV.nc $MEANY ${CONFCASE}_${TAG}_gridV.nc
      rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY ${CONFCASE}_${TAG}_gridT.nc
-     cdfmocsig ${CONFCASE}_${TAG}_gridV.nc ${CONFCASE}_${TAG}_gridT.nc $DREF
+     cdfmocsig ${CONFCASE}_${TAG}_gridV.nc ${CONFCASE}_${TAG}_gridT.nc $DREF $fullopt
      expatrie mocsig.nc $MEANY ${CONFCASE}_${TAG}_MOCSIG_${NREF}.nc
            }
 
@@ -274,7 +277,7 @@ mkmocsig5d(){
      for fileV in ${CONFCASE}_y${YEAR}m${MONTH}*d??${xiosid}_gridV.nc ; do
        fileT=$( echo $fileV | sed -e 's/gridV/gridT/'  )
        fileM=$( echo $fileV | sed -e 's/gridV/MOCSIG/'  )
-       cdfmocsig $fileV $fileT $DREF
+       cdfmocsig $fileV $fileT $DREF $fullopt
        mv mocsig.nc $fileM
      done
      cdfmoy ${CONFCASE}_y${YEAR}m${MONTH}*d??${xiosid}_MOCSIG.nc
@@ -351,7 +354,7 @@ mklspv(){
      g=$(echo $f | sed -e 's/gridT/LSPV/')
      rapatrie $f $MEANY $f
      # compute LSPV
-     cdfpvor  $f -lspv $NCOPT
+     cdfpvor  $f -lspv $NCOPT $fullopt
      # dispose on ergon, MEAN/YEAR directory
      mv lspv.nc $g
      expatrie $g $MEANY $g
@@ -393,8 +396,10 @@ if [   $TSMEAN != 0 ] ; then
     mv ${levitus}_masked_masked ${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
     levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
     #  
-    cdfmean $levitus votemper T > LEVITUS_y0000_1y_TMEAN.txt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TMEAN.nc
-    cdfmean $levitus vosaline T > LEVITUS_y0000_1y_SMEAN.txt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SMEAN.nc
+    cdfmean $levitus votemper T $fullopt > LEVITUS_y0000_1y_TMEAN.txt 
+           concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TMEAN.nc
+    cdfmean $levitus vosaline T $fullopt > LEVITUS_y0000_1y_SMEAN.txt 
+           concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SMEAN.nc
 
     #
     define_diags_dir LEVITUS_y0000_1y_TMEAN.txt
@@ -432,8 +437,10 @@ if [   $TSMEAN != 0 ] ; then
          tmlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
          smlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
          #  
-         cdfmean $tmlevitus votemper T >> LEVITUS_y0000_1m_TMEAN.txt ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TMEAN.nc
-         cdfmean $smlevitus vosaline T >> LEVITUS_y0000_1m_SMEAN.txt ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SMEAN.nc
+         cdfmean $tmlevitus votemper T $fullopt >> LEVITUS_y0000_1m_TMEAN.txt 
+              concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TMEAN.nc
+         cdfmean $smlevitus vosaline T $fullopt >> LEVITUS_y0000_1m_SMEAN.txt 
+              concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SMEAN.nc
       done
     
       define_diags_dir LEVITUS_y0000_1m_TMEAN.txt
@@ -473,9 +480,9 @@ if [   $TSMEAN != 0 ] ; then
    echo $YEAR $MONTH >>  $fsshmean ; echo $YEAR $MONTH >>  $ftmean ;  echo $YEAR $MONTH >>  $fsmean
 
    # 3D means
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T >> $fsshmean ; concat_file $TAG cdfmean.nc $fsshmean_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T >> $ftmean   ; concat_file $TAG cdfmean.nc $ftmean_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T >> $fsmean   ; concat_file $TAG cdfmean.nc $fsmean_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T $fullopt >> $fsshmean ; concat_file $TAG cdfmean.nc $fsshmean_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T $fullopt >> $ftmean   ; concat_file $TAG cdfmean.nc $ftmean_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T $fullopt >> $fsmean   ; concat_file $TAG cdfmean.nc $fsmean_nc
   done
 
   # dispose TXT file in the ad-hoc -DIAGS/xxx directory
@@ -528,12 +535,12 @@ if [   $TSLAT != 0 ] ; then
     mv ${levitus}_masked_masked ${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
     levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
     #  
-    cdfmean $levitus votemper T 0 0 $JN1 $JMAX 0 0 ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATN.nc
-    cdfmean $levitus votemper T 0 0 $JS0 $JN0 0 0  ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATEQ.nc
-    cdfmean $levitus votemper T 0 0 1 $JS1 0 0     ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATS.nc
-    cdfmean $levitus vosaline T 0 0 $JN1 $JMAX 0 0 ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATN.nc
-    cdfmean $levitus vosaline T 0 0 $JS0 $JN0 0 0  ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATEQ.nc
-    cdfmean $levitus vosaline T 0 0 1 $JS1 0 0     ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATS.nc
+    cdfmean $levitus votemper T 0 0 $JN1 $JMAX 0 0 $fullopt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATN.nc
+    cdfmean $levitus votemper T 0 0 $JS0 $JN0 0 0  $fullopt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATEQ.nc
+    cdfmean $levitus votemper T 0 0 1 $JS1 0 0     $fullopt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATS.nc
+    cdfmean $levitus vosaline T 0 0 $JN1 $JMAX 0 0 $fullopt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATN.nc
+    cdfmean $levitus vosaline T 0 0 $JS0 $JN0 0 0  $fullopt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATEQ.nc
+    cdfmean $levitus vosaline T 0 0 1 $JS1 0 0     $fullopt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATS.nc
 
     merge_files LEVITUS_y0000_1y_TSLATN.nc LEVITUS_y0000_1y_TLATN.nc LEVITUS_y0000_1y_SLATN.nc
     define_diags_dir LEVITUS_y0000_1y_TSLATN.nc
@@ -572,12 +579,18 @@ if [   $TSLAT != 0 ] ; then
          tmlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
          smlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
          #  
-         cdfmean $tmlevitus votemper T 0 0 $JN1 $JMAX 0 0 ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TLATN.nc
-         cdfmean $tmlevitus votemper T 0 0 $JS0 $JN0 0 0  ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TLATEQ.nc
-         cdfmean $tmlevitus votemper T 0 0 1 $JS1 0 0     ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TLATS.nc
-         cdfmean $smlevitus vosaline T 0 0 $JN1 $JMAX 0 0 ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SLATN.nc
-         cdfmean $smlevitus vosaline T 0 0 $JS0 $JN0 0 0  ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SLATEQ.nc
-         cdfmean $smlevitus vosaline T 0 0 1 $JS1 0 0     ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SLATS.nc
+         cdfmean $tmlevitus votemper T 0 0 $JN1 $JMAX 0 0 $fullopt 
+             concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TLATN.nc
+         cdfmean $tmlevitus votemper T 0 0 $JS0 $JN0 0 0  $fullopt 
+             concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TLATEQ.nc
+         cdfmean $tmlevitus votemper T 0 0 1 $JS1 0 0     $fullopt 
+             concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TLATS.nc
+         cdfmean $smlevitus vosaline T 0 0 $JN1 $JMAX 0 0 $fullopt 
+             concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SLATN.nc
+         cdfmean $smlevitus vosaline T 0 0 $JS0 $JN0 0 0  $fullopt 
+             concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SLATEQ.nc
+         cdfmean $smlevitus vosaline T 0 0 1 $JS1 0 0     $fullopt 
+             concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SLATS.nc
       done
 
       merge_files LEVITUS_y0000_1m_TSLATN.nc LEVITUS_y0000_1m_TLATN.nc LEVITUS_y0000_1m_SLATN.nc
@@ -656,15 +669,24 @@ if [   $TSLAT != 0 ] ; then
    file_lsts=$( filter_list $file_lsts $fsshlats_nc $ftlats_nc $fslats_nc )
 
    # 3D Latitude-bands means
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T 0 0 $JN1 $JMAX 0 0  ; concat_file $TAG cdfmean.nc $fsshlatn_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T 0 0 $JS0 $JN0 0 0 ; concat_file $TAG cdfmean.nc $fsshlateq_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T 0 0 1 $JS1 0 0  ; concat_file $TAG cdfmean.nc $fsshlats_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T 0 0 $JN1 $JMAX 0 0  ; concat_file $TAG cdfmean.nc $ftlatn_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T 0 0 $JS0 $JN0 0 0 ; concat_file $TAG cdfmean.nc $ftlateq_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T 0 0 1 $JS1 0 0  ; concat_file $TAG cdfmean.nc $ftlats_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T 0 0 $JN1 $JMAX 0 0  ; concat_file $TAG cdfmean.nc $fslatn_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T 0 0 $JS0 $JN0 0 0 ; concat_file $TAG cdfmean.nc $fslateq_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T 0 0 1 $JS1 0 0  ; concat_file $TAG cdfmean.nc $fslats_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T 0 0 $JN1 $JMAX 0 0  $fullopt
+        concat_file $TAG cdfmean.nc $fsshlatn_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T 0 0 $JS0 $JN0 0 0 $fullopt
+        concat_file $TAG cdfmean.nc $fsshlateq_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T 0 0 1 $JS1 0 0  $fullopt
+        concat_file $TAG cdfmean.nc $fsshlats_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T 0 0 $JN1 $JMAX 0 0  $fullopt
+        concat_file $TAG cdfmean.nc $ftlatn_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T 0 0 $JS0 $JN0 0 0 $fullopt
+        concat_file $TAG cdfmean.nc $ftlateq_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T 0 0 1 $JS1 0 0  $fullopt
+        concat_file $TAG cdfmean.nc $ftlats_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T 0 0 $JN1 $JMAX 0 0  $fullopt
+        concat_file $TAG cdfmean.nc $fslatn_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T 0 0 $JS0 $JN0 0 0 $fullopt
+        concat_file $TAG cdfmean.nc $fslateq_nc
+   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T 0 0 1 $JS1 0 0  $fullopt
+        concat_file $TAG cdfmean.nc $fslats_nc
   done
 
   # merge matching nc files
@@ -730,8 +752,10 @@ if [        $GIB  !=  0    ] ; then
      levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG
     fi
     #
-    cdfmean $levitus  votemper T $GIBWIN  0 0 > LEVITUS_y0000_1y_TGIB.txt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TGIB.nc
-    cdfmean $levitus  vosaline T $GIBWIN  0 0 > LEVITUS_y0000_1y_SGIB.txt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SGIB.nc
+    cdfmean $levitus  votemper T $GIBWIN  0 0 $fullopt > LEVITUS_y0000_1y_TGIB.txt 
+         concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TGIB.nc
+    cdfmean $levitus  vosaline T $GIBWIN  0 0 $fullopt > LEVITUS_y0000_1y_SGIB.txt 
+         concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SGIB.nc
 
     define_diags_dir LEVITUS_y0000_1y_TGIB.txt
     expatrie  LEVITUS_y0000_1y_TGIB.txt $DIAGSOUT  LEVITUS_y0000_1y_TGIB.txt
@@ -769,8 +793,10 @@ if [        $GIB  !=  0    ] ; then
            smlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
          fi  
          #
-         cdfmean $tmlevitus votemper T $GIBWIN 0 0 >> LEVITUS_y0000_1m_TGIB.txt ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TGIB.nc
-         cdfmean $smlevitus vosaline T $GIBWIN 0 0 >> LEVITUS_y0000_1m_SGIB.txt ; concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SGIB.nc
+         cdfmean $tmlevitus votemper T $GIBWIN 0 0 $fullopt >> LEVITUS_y0000_1m_TGIB.txt 
+               concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TGIB.nc
+         cdfmean $smlevitus vosaline T $GIBWIN 0 0 $fullopt >> LEVITUS_y0000_1m_SGIB.txt 
+               concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SGIB.nc
       done
 
       define_diags_dir LEVITUS_y0000_1m_TGIB.txt
@@ -811,8 +837,10 @@ if [        $GIB  !=  0    ] ; then
    MONTH=`echo ${TAG} | awk -Fm '{print $2}'`
    echo $YEAR $MONTH >> $ftgib ;  echo $YEAR $MONTH >> $fsgib
 
-   cdfmean ${CONFCASE}_${TAG}_gridT.nc votemper T $GIBWIN 0 0 >> $ftgib ; concat_file ${TAG} cdfmean.nc $ftgib_nc
-   cdfmean ${CONFCASE}_${TAG}_gridT.nc vosaline T $GIBWIN 0 0 >> $fsgib ; concat_file ${TAG} cdfmean.nc $fsgib_nc
+   cdfmean ${CONFCASE}_${TAG}_gridT.nc votemper T $GIBWIN 0 0 $fullopt >> $ftgib 
+        concat_file ${TAG} cdfmean.nc $ftgib_nc
+   cdfmean ${CONFCASE}_${TAG}_gridT.nc vosaline T $GIBWIN 0 0 $fullopt >> $fsgib 
+        concat_file ${TAG} cdfmean.nc $fsgib_nc
   done
 
   # dispose TXT file in the ad-hoc -DIAGS/xxx directory
@@ -897,7 +925,7 @@ if [        $KERG  !=  0    ] ; then
      rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
      rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
      rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
-     cdfmean ${file} ${var} T $KERGWIN 0 0
+     cdfmean ${file} ${var} T $KERGWIN 0 0 $fullopt
      ncrename -h -v mean_${var},mean_${var}_KERG$k cdfmean.nc
      ncrename -h -v mean_3D${var},mean_3D${var}_KERG$k cdfmean.nc
      concat_file ${TAG} cdfmean.nc $fkerg_nc;;
@@ -927,7 +955,7 @@ if [        $KERG  !=  0    ] ; then
          filez=${CONFCASE}_${TAG}_tmpZ.nc
          mv cdfclip.nc $filez
 
-         cdfmean $filez $var T
+         cdfmean $filez $var T $fullopt
          ncrename -h -v mean_$var,mean_${var}_KERG$k cdfmean.nc
          ncrename -h -v mean_3D$var,mean_3D${var}_KERG$k cdfmean.nc
          concat_file ${TAG} cdfmean.nc $fkerg_nc;;
@@ -937,7 +965,7 @@ if [        $KERG  !=  0    ] ; then
          rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
          rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
 
-         cdfmean ${file} $var T $KERGWIN 0 0
+         cdfmean ${file} $var T $KERGWIN 0 0 $fullopt
          ncrename -h -v mean_${var},mean_${var}_KERG$k cdfmean.nc
          ncrename -h -v mean_3D${var},mean_3D${var}_KERG$k cdfmean.nc
          concat_file ${TAG} cdfmean.nc $fkerg_nc;;
@@ -1012,7 +1040,7 @@ if [        $KERGb  !=  0    ] ; then
         rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
         rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
         rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
-        cdfmean ${file} $var T $KERGWIN 0 0
+        cdfmean ${file} $var T $KERGWIN 0 0 $fullopt
         ncrename -h -v mean_$var,mean_${var}_KERG$k cdfmean.nc
         ncrename -h -v mean_3D$var,mean_3D${var}_KERG$k cdfmean.nc
         concat_file ${TAG} cdfmean.nc $fkerg_nc ;;
@@ -1041,7 +1069,7 @@ if [        $KERGb  !=  0    ] ; then
            filez=${CONFCASE}_${TAG}_tmpZ.nc
            mv cdfclip.nc $filez
 
-           cdfmean $filez $var T
+           cdfmean $filez $var T $fullopt
            ncrename -h -v mean_$var,mean_${var}_KERG$k cdfmean.nc
            ncrename -h -v mean_3D$var,mean_3D${var}_KERG$k cdfmean.nc
            concat_file ${TAG} cdfmean.nc $fkerg_nc;;
@@ -1051,7 +1079,7 @@ if [        $KERGb  !=  0    ] ; then
            rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
            rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
 
-           cdfmean ${file} $var T $KERGWIN 0 0
+           cdfmean ${file} $var T $KERGWIN 0 0 $fullopt
            ncrename -h -v mean_${var},mean_${var}_KERG$k cdfmean.nc
            ncrename -h -v mean_3D${var},mean_3D${var}_KERG$k cdfmean.nc
            concat_file ${TAG} cdfmean.nc $fkerg_nc;;
@@ -1148,22 +1176,22 @@ if [    $ELNINO != 0    ] ; then  # always monthly diags
      printf "%04d %02d" $TAG $m >>   $fnino
  
     # nino 1+2   [ -90 W -- -80 W, -10 S -- 10 N ]
-    cdfmean  $f votemper T $NINO12 1 1 | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino 
+    cdfmean  $f votemper T $NINO12 1 1 $fullopt | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino 
     ncrename -h -v mean_votemper,mean_votemper_NINO12 cdfmean.nc
     concat_file ${TAG}m${mm}${xiosid} cdfmean.nc $fnino12_nc
 
     # nino 3     [ -150 W -- -90 W, -5 S -- 5 N ]
-    cdfmean  $f votemper T $NINO3 1 1  | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino 
+    cdfmean  $f votemper T $NINO3 1 1  $fullopt | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino 
     ncrename -h -v mean_votemper,mean_votemper_NINO3 cdfmean.nc
     concat_file ${TAG}m${mm}${xiosid} cdfmean.nc $fnino3_nc
 
     # nino 4     [ -200 W -- -150 W, -5 S -- 5 N ]
-    cdfmean  $f votemper T $NINO4 1 1 | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino  
+    cdfmean  $f votemper T $NINO4 1 1 $fullopt | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino  
     ncrename -h -v mean_votemper,mean_votemper_NINO4 cdfmean.nc
     concat_file ${TAG}m${mm}${xiosid} cdfmean.nc $fnino4_nc
 
     # nino 3.4   [ -170 W -- -120 W, -% S -- % N ]
-    cdfmean  $f votemper T $NINO34 1 1 | tail -1 | awk '{ printf " %8.5f 0.00\n", $6 }'  >> $fnino 
+    cdfmean  $f votemper T $NINO34 1 1 $fullopt | tail -1 | awk '{ printf " %8.5f 0.00\n", $6 }'  >> $fnino 
     ncrename -h -v mean_votemper,mean_votemper_NINO34 cdfmean.nc
     concat_file ${TAG}m${mm}${xiosid} cdfmean.nc $fnino34_nc
  
@@ -1208,7 +1236,7 @@ if [            $TRP != 0    ] ; then
 
    cdftransport   ${CONFCASE}_${TAG}_VT.nc \
                   ${CONFCASE}_${TAG}_gridU.nc \
-                  ${CONFCASE}_${TAG}_gridV.nc  < section.dat >> $fsection
+                  ${CONFCASE}_${TAG}_gridV.nc $fullopt < section.dat >> $fsection
  
    # eliminate garbage from txt file ...
    grep -v Give $fsection | grep -v level | grep -v IMAX | grep -v FROM > tmp
@@ -1296,7 +1324,7 @@ if [ $DCT != 0 ] ; then
 
     #echo $tag > ${CONFCASE}_y${tag}_trpsig_monitor.lst
 
-    cdfsigtrp $tfich $ufich $vfich 21 30 180 # -print  >>  ${CONFCASE}_y${tag}_trpsig_monitor.lst
+    cdfsigtrp $tfich $ufich $vfich 21 30 180 $fullopt # -print  >>  ${CONFCASE}_y${tag}_trpsig_monitor.lst
     # save netcdf files ( one per section )
     listfiles=$( ls | grep -e "^[0-9]" | grep trpsig.nc  )
 
@@ -1383,7 +1411,7 @@ if [            $MHT  !=  0   ] ; then
    fmhst=${fbase}_mhst.nc
    
    # Netcdf output files: (both head and salt in 2 separated variables)
-   cdfmhst  ${CONFCASE}_${TAG}_VT.nc MST   # Save Meridional salt transport as well
+   cdfmhst  ${CONFCASE}_${TAG}_VT.nc MST $fullopt  # Save Meridional salt transport as well
    concat_file $TAG mhst.nc $fmhst
 
    # save file list ( to be sorted later to eliminate duplicate entries )
@@ -1782,7 +1810,7 @@ if [ $TRACER != 0 ] ; then
  
    # CFC11
    \rm -f tmp1
-   cdfmean  ${CONFCASE}_${TAG}_diadT.nc  INVCFC T > tmp1
+   cdfmean  ${CONFCASE}_${TAG}_diadT.nc  INVCFC T $fullopt > tmp1
    area=$(cat tmp1 |  grep -e 'Mean value at level' | awk ' {print $12}')
    mean=$(cat tmp1 |  grep -e 'Mean value over the ocean' | awk ' {print $6}')
    total=$(echo $mean $area |  awk '{print $1 * $2 }' )
@@ -1793,7 +1821,7 @@ if [ $TRACER != 0 ] ; then
    if [ $TRACER_BC14 != 0 ] ; then
      # B-C14
      \rm -f tmp1
-     cdfmean  ${CONFCASE}_${TAG}_ptrcT.nc  invc14 T > tmp1
+     cdfmean  ${CONFCASE}_${TAG}_ptrcT.nc  invc14 T $fullopt > tmp1
      area=$(cat tmp1 |  grep -e 'Mean value at level' | awk ' {print $12}')
      mean=$(cat tmp1 |  grep -e 'Mean value over the ocean' | awk ' {print $6}')
      total=$(echo $mean $area |  awk '{print $1 * $2 }' )
@@ -1865,7 +1893,7 @@ if [ $BIO_PROFILE != 0 ] ; then
 
      jc=0
      for var in DIC Alkalini O2 PO4 Si NO3 Fer DOC ; do 
-       cdfmean ${CONFCASE}_${TAG}_ptrcT.nc $var T 0 180 1 $latmin 0 46 
+       cdfmean ${CONFCASE}_${TAG}_ptrcT.nc $var T 0 180 1 $latmin 0 46 $fullopt
        if [ $jc == 0 ] ; then
          ncks -h -A -v nav_lon,nav_lat,mean_$var cdfmean.nc tmpbioprofile.nc
        else
@@ -1907,7 +1935,7 @@ if [ $PISCES_INT != 0 ] ; then
      jc=0
      # compute vertically integrated mean
      for var in DIC Alkalini O2 PO4 Si NO3 Fer DOC NCHL DCHL POC PHY PHY2 ZOO ZOO2 GOC SFe CFC11; do
-       cdfvertmean ${CONFCASE}_${TAG}_ptrcT.nc $var T 0 150
+       cdfvertmean ${CONFCASE}_${TAG}_ptrcT.nc $var T 0 150 $fullopt
        ncrename -h -v sovertmean,vertmean_${var} vertmean.nc
        if [ $jc == 0 ] ; then
          ncks -h -A -v nav_lon,nav_lat,vertmean_$var vertmean.nc tmpvertmean.nc
@@ -1918,7 +1946,7 @@ if [ $PISCES_INT != 0 ] ; then
      done
 
      for var in PPPHY2 PPPHY PPNEWN PPNEWD PMO PMO2 PAR PH; do
-       cdfvertmean ${CONFCASE}_${TAG}_diadT.nc $var T 0 150
+       cdfvertmean ${CONFCASE}_${TAG}_diadT.nc $var T 0 150 $fullopt
        ncrename -h -v sovertmean,vertmean_${var} vertmean.nc
        ncks -A -v vertmean_$var vertmean.nc tmpvertmean.nc
      done
