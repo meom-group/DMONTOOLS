@@ -1422,7 +1422,7 @@ if [            $MHT  !=  0   ] ; then
    fhflx=${fbase}_hflx.nc
    rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY  ${CONFCASE}_${TAG}_gridT.nc
    # check if sohefldo in gridT file :
-   ncdump -h ORCA025.L75-GJM189_y1976_gridT.nc | grep -q sohefldo
+   ncdump -h ${CONFCASE}_${TAG}_gridT.nc | grep -q sohefldo
 
    if [ $? = 0 ] ; then
      zflxfil=${CONFCASE}_${TAG}_gridT.nc
@@ -1520,7 +1520,7 @@ rename_maxmoc()   {
    concat_file $TAG maxmoc.nc $fglominmoc
    file_lst=$( filter_list $file_lst $fglominmoc )  ;;
 
-        ORCA12 | ORCA12.L46 | ORCA12.L75 | ORCA025 | ORCA025.L75 | ORCA05 | ORCA2 | ORCA246 )
+        ORCA12 | ORCA12.L46 | ORCA12.L75 | ORCA025 | ORCA025.L75 | ORCA025.L300 | ORCA05 | ORCA2 | ORCA246 )
    # GLO
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo 20 60 500 2000 | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_maxmoc
