@@ -266,7 +266,7 @@ cp LEVITUS*nc $MONITOR
 cd $MONITOR
 
 for file in ${CONFCASE}*.nc ; do
-  ndate0=$(ncdump -h $file | grep -i start_date | awk '{print $3}')
+  ndate0=$(ncdump -h $file | grep -i start_date | tail -1 | awk '{print $3}')
   ndate0=${ndate0:=-1}  # if not set or set to -1, file requires treatment
   if [ $ndate0 == -1 ] ; then
      iask=0
