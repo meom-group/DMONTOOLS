@@ -1,0 +1,13 @@
+*~
+*.mod
+*.o
+*.so
+*.pyc
+*.pyf
+*.pdf
+*.log
+*.aux
+*.idx
+*.toc
+*.opod
+*.tmp

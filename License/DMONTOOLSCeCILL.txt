@@ -1,8 +1,9 @@
 The following licence information concerns ONLY the DMONTOOLS package
 =======================================================================
 
-Copyright © LGGE-MEOM (Jean-Marc.Molines@legi.grenoble-inp.fr )
-Contributors : A. Albert, C. Dufour, R. Dussin, A. Lecointre, J. Le Sommer
+Copyright IGE-MEOM (Jean-Marc.Molines@univ-grenoble-alpes.fr )
+Contributors ( alphabetic order) : 
+A. Albert, C. Dufour, R. Dussin, A. Lecointre, J. Le Sommer, G. Mainsant.
 
 This software is a set of computer program aiming at performing a 
 standard set of analysis of DRAKKAR model simulation output. It contains
