@@ -1,3 +1,0 @@
-This script is used to maintain a web page with the available comparison links.
-It should me disposed into the ~/bin directory of the web-account (eg apache account on meolipc).
-on ~/tmp of the same account, ther should be also the 2 files header ,coda and ice.html
