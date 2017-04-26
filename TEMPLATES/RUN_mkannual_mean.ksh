@@ -30,7 +30,8 @@ y2=$2
 y2=${y2:=$y1}
 
 # eventually set -nc4 option for cdftools 
-if [ $NC4 = 1 ] ; then NC4='-nc4' ; else NC4="" ; fi
+NC4=${NC4:=0}
+if [ $NC4 = 1 ] ; then NCOPT='-nc4' ; else NCOPT="" ; fi
 
 case $MACHINE in 
     ( curie )
@@ -91,24 +92,24 @@ for y in \$(seq $y1 $y2 ) ; do
      if [ ! -f ${CONFCASE}_y\${y}.${freq}_\${t}.nc ] ; then 
        # prepare mpirun command to compute 6 temporary means files corresponding to 6 pairs of input files, and run it
        cmd="mpirun "
-       cmd="\$cmd -np 1 cdfmoy ${CONFCASE}_y\${y}m0[12].${freq}_\${t}.nc -o tmpg12 : "
-       cmd="\$cmd -np 1 cdfmoy ${CONFCASE}_y\${y}m0[34].${freq}_\${t}.nc -o tmpg34 : "
-       cmd="\$cmd -np 1 cdfmoy ${CONFCASE}_y\${y}m0[56].${freq}_\${t}.nc -o tmpg56 : "
-       cmd="\$cmd -np 1 cdfmoy ${CONFCASE}_y\${y}m0[78].${freq}_\${t}.nc -o tmpg78 : "
-       cmd="\$cmd -np 1 cdfmoy ${CONFCASE}_y\${y}m09.${freq}_\${t}.nc ${CONFCASE}_y\${y}m10.${freq}_\${t}.nc -o tmpg910 : "
-       cmd="\$cmd -np 1 cdfmoy ${CONFCASE}_y\${y}m1[12].${freq}_\${t}.nc -o tmpg1112 "
+       cmd="\$cmd -np 1 cdfmoy -l ${CONFCASE}_y\${y}m0[12].${freq}_\${t}.nc -o tmpg12 : "
+       cmd="\$cmd -np 1 cdfmoy -l ${CONFCASE}_y\${y}m0[34].${freq}_\${t}.nc -o tmpg34 : "
+       cmd="\$cmd -np 1 cdfmoy -l ${CONFCASE}_y\${y}m0[56].${freq}_\${t}.nc -o tmpg56 : "
+       cmd="\$cmd -np 1 cdfmoy -l ${CONFCASE}_y\${y}m0[78].${freq}_\${t}.nc -o tmpg78 : "
+       cmd="\$cmd -np 1 cdfmoy -l ${CONFCASE}_y\${y}m09.${freq}_\${t}.nc ${CONFCASE}_y\${y}m10.${freq}_\${t}.nc -o tmpg910 : "
+       cmd="\$cmd -np 1 cdfmoy -l ${CONFCASE}_y\${y}m1[12].${freq}_\${t}.nc -o tmpg1112 "
        \$cmd
 
        # prepare mpirun command to compute 3 temporary means files corresponding to 3 pairs of temporary mean from previous step, as
        #  well of mean squared values from previous step
        cmd="mpirun "
-       cmd="\$cmd -np 1 cdfmoy tmpg12.nc tmpg34.nc -o tmpg_1 : -np 1 cdfmoy tmpg56.nc tmpg78.nc -o tmpg_2 : -np 1 cdfmoy tmpg910.nc tmpg1112.nc -o tmpg_3 :"
-       cmd="\$cmd -np 1 cdfmoy tmpg122.nc tmpg342.nc -o tmpg_12 : -np 1 cdfmoy tmpg562.nc tmpg782.nc -o tmpg_22 : -np 1 cdfmoy tmpg9102.nc tmpg11122.nc -o tmpg_32 "
+       cmd="\$cmd -np 1 cdfmoy -l tmpg12.nc tmpg34.nc -o tmpg_1 : -np 1 cdfmoy -l tmpg56.nc tmpg78.nc -o tmpg_2 : -np 1 cdfmoy -l tmpg910.nc tmpg1112.nc -o tmpg_3 :"
+       cmd="\$cmd -np 1 cdfmoy -l tmpg122.nc tmpg342.nc -o tmpg_12 : -np 1 cdfmoy -l tmpg562.nc tmpg782.nc -o tmpg_22 : -np 1 cdfmoy -l tmpg9102.nc tmpg11122.nc -o tmpg_32 "
        \$cmd
 
        # final mpirun command to comput annual mean from 3 temporary files from previous step, as well as mean squared 
        cmd="mpirun "
-       cmd="\$cmd -np 1 cdfmoy tmpg_1.nc tmpg_2.nc tmpg_3.nc $NC4 -o  ${CONFCASE}_y\${y}.${freq}_\${t}mpp : -np 1 cdfmoy tmpg_12.nc tmpg_22.nc tmpg_32.nc $NC4 -o  ${CONFCASE}_y\${y}.${freq}_\${t}2 "
+       cmd="\$cmd -np 1 cdfmoy -l tmpg_1.nc tmpg_2.nc tmpg_3.nc $NCOPT -o  ${CONFCASE}_y\${y}.${freq}_\${t}mpp : -np 1 cdfmoy -l tmpg_12.nc tmpg_22.nc tmpg_32.nc $NCOPT -o  ${CONFCASE}_y\${y}.${freq}_\${t}2 "
        \$cmd
      
        # keep only meansquared for some types

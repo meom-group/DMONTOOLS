@@ -33,7 +33,8 @@ y2=$2
 y2=${y2:=$y1}
 
 # eventually set -nc4 option for cdftools 
-if [ $NC4 = 1 ] ; then NC4='-nc4' ; else NC4="" ; fi
+NC4=${NC4:=0}
+if [ $NC4 = 1 ] ; then NCOPT='-nc4' ; else NCOPT="" ; fi
 
 case $MACHINE in
    ( curie )
@@ -75,7 +76,7 @@ for y in \$(seq $y1 $y2 ) ; do
   cmd=" mpirun  "
   for m in \$(seq -f "%02g" 1 12 ) ; do
      tag=y\${y}m\${m}.$freq
-     cmd="\$cmd -np 1 cdfvT $CONFCASE $NC4 -o ${CONFCASE}_\${tag}_VT.nc \$tag  :"
+     cmd="\$cmd -np 1 cdfvT -c $CONFCASE $NCOPT -o ${CONFCASE}_\${tag}_VT.nc  -l \$tag  :"
   done
   
   # launch mpirun command (skip trailing : )

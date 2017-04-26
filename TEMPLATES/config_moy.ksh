@@ -21,7 +21,8 @@ CONFCASE=${CONFIG}-${CASE}
 
 TYP_LIST='gridT gridU gridV gridW flxT dynT icemod trends' # list of grid type
 XIOS=5d      # compute mean values from 5d output . If XIOS not used, set XIOS=
-NC4=1        # if set to 1 use netcdf4 capabilities of the nesting tools
+NC4=1        # if set to 1 use netcdf4 capabilities of the cdftools 
+VVL=1        # if set to 1 use vvl capabilities of the  cdftools
 REMDIR=/ccc/scratch/cont003/gen0727/$USER/  # root directory for the -S dirs
                                             # allow the use of another user
 

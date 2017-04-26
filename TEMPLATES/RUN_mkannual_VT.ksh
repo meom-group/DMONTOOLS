@@ -38,7 +38,8 @@ y2=$2
 
 y2=${y2:=$y1}
 # eventually set -nc4 option for cdftools 
-if [ $NC4 = 1 ] ; then NC4='-nc4' ; else NC4="" ; fi
+NC4=${NC4:=0}
+if [ $NC4 = 1 ] ; then NCOPT='-nc4' ; else NCOPT="" ; fi
 
 case $MACHINE in
    ( curie ) 
@@ -74,21 +75,21 @@ for y in \$(seq $y1 $y2 ) ; do
     if [  -f VT_DONE ] ; then 
       # prepare mpirun command to compute 6 temporary means files corresponding to 6 pairs of input files, and run it
       cmd="mpirun "
-      cmd="\$cmd -np 1 cdfmoy ${CONFCASE}_y\${y}m0[12].${freq}_VT.nc -o tmpvt12 : "
-      cmd="\$cmd -np 1 cdfmoy ${CONFCASE}_y\${y}m0[34].${freq}_VT.nc -o tmpvt34 : "
-      cmd="\$cmd -np 1 cdfmoy ${CONFCASE}_y\${y}m0[56].${freq}_VT.nc -o tmpvt56 : " 
-      cmd="\$cmd -np 1 cdfmoy ${CONFCASE}_y\${y}m0[78].${freq}_VT.nc -o tmpvt78 : " 
-      cmd="\$cmd -np 1 cdfmoy ${CONFCASE}_y\${y}m09.${freq}_VT.nc ${CONFCASE}_y\${y}m10.${freq}_VT.nc -o tmpvt910 : " 
-      cmd="\$cmd -np 1 cdfmoy ${CONFCASE}_y\${y}m1[12].${freq}_VT.nc -o tmpvt1112 " 
+      cmd="\$cmd -np 1 cdfmoy -l ${CONFCASE}_y\${y}m0[12].${freq}_VT.nc -o tmpvt12 : "
+      cmd="\$cmd -np 1 cdfmoy -l ${CONFCASE}_y\${y}m0[34].${freq}_VT.nc -o tmpvt34 : "
+      cmd="\$cmd -np 1 cdfmoy -l ${CONFCASE}_y\${y}m0[56].${freq}_VT.nc -o tmpvt56 : " 
+      cmd="\$cmd -np 1 cdfmoy -l ${CONFCASE}_y\${y}m0[78].${freq}_VT.nc -o tmpvt78 : " 
+      cmd="\$cmd -np 1 cdfmoy -l ${CONFCASE}_y\${y}m09.${freq}_VT.nc ${CONFCASE}_y\${y}m10.${freq}_VT.nc -o tmpvt910 : " 
+      cmd="\$cmd -np 1 cdfmoy -l ${CONFCASE}_y\${y}m1[12].${freq}_VT.nc -o tmpvt1112 " 
       \$cmd
 
       # prepare mpirun command to compute 3 temporary means files corresponding to 3 pairs of temporary mean from previous step
       cmd="mpirun "
-      cmd="\$cmd -np 1 cdfmoy tmpvt12.nc tmpvt34.nc -o tmpvt_1 : -np 1 cdfmoy tmpvt56.nc tmpvt78.nc -o tmpvt_2 : -np 1 cdfmoy tmpvt910.nc tmpvt1112.nc -o tmpvt_3 "
+      cmd="\$cmd -np 1 cdfmoy -l tmpvt12.nc tmpvt34.nc -o tmpvt_1 : -np 1 cdfmoy -l tmpvt56.nc tmpvt78.nc -o tmpvt_2 : -np 1 cdfmoy -l tmpvt910.nc tmpvt1112.nc -o tmpvt_3 "
       \$cmd
 
       # compute mean values of the 3  temporary files obtained at last step
-      cdfmoy tmpvt_1.nc tmpvt_2.nc tmpvt_3.nc $NC4 -o  ${CONFCASE}_y\${y}.${freq}_VT
+      cdfmoy -l tmpvt_1.nc tmpvt_2.nc tmpvt_3.nc $NCOPT -o  ${CONFCASE}_y\${y}.${freq}_VT
 
       # clean useless files
       rm -f tmpvt* ${CONFCASE}_y\${y}.${freq}_VT2.nc  cdfmoy2.nc VT_DONE *22.nc
