@@ -38,8 +38,11 @@ fbasinmask=new_maskglo.nc
 NC4=${NC4:=0}
 if [ $NC4 = 1 ] ; then NCOPT='-nc4' ; fi
 
+VVL=${VVL:=0}
+if [ $VVL = 1 ] ; then VVLOPT='-vvl' ; fi
+
 FULL=${FULL:=0}
-if [ $FULL != 0 ] ; then fullopt='-full' ; else fullopt='' ; fi
+if [ $FULL != 0 ] ; then FULLOPT='-full' ; else FULLOPT='' ; fi
 
 # monitor_prod shoud be run in individual directory for each year to
 # allow parallel processing
@@ -181,15 +184,15 @@ cd $YEAR
    # retrieve a T file needed for headers only (EKE is computed on the T-point)
      rapatrie  ${CONFCASE}_${TAG}_gridT2.nc $MEANY  ${CONFCASE}_${TAG}_gridT2.nc
 
-   cdfeke ${CONFCASE}_${TAG}_gridU.nc \
-     ${CONFCASE}_${TAG}_gridU2.nc \
-     ${CONFCASE}_${TAG}_gridV.nc \
-     ${CONFCASE}_${TAG}_gridV2.nc \
-     ${CONFCASE}_${TAG}_gridT2.nc $NCOPT
+   cdfeke -u ${CONFCASE}_${TAG}_gridU.nc \
+     -u2 ${CONFCASE}_${TAG}_gridU2.nc \
+     -v  ${CONFCASE}_${TAG}_gridV.nc \
+     -v2 ${CONFCASE}_${TAG}_gridV2.nc \
+     -t ${CONFCASE}_${TAG}_gridT2.nc $NCOPT -o ${CONFCASE}_${TAG}_EKE.nc 
 
    # dispose file on the MEAN directory
-   expatrie eke.nc $MEANY  ${CONFCASE}_${TAG}_EKE.nc
-   \rm eke.nc
+   expatrie ${CONFCASE}_${TAG}_EKE.nc $MEANY  ${CONFCASE}_${TAG}_EKE.nc
+   \rm ${CONFCASE}_${TAG}_EKE.nc
   done 
 
 # RMS SSH and StdDev W : Input files : gridT, gridT2  gridW, gridW2
@@ -200,21 +203,23 @@ cd $YEAR
    # RMSSSH :get gridT gridT2
    rapatrie  ${CONFCASE}_${TAG}_gridT.nc $MEANY  ${CONFCASE}_${TAG}_gridT.nc
    rapatrie  ${CONFCASE}_${TAG}_gridT2.nc $MEANY  ${CONFCASE}_${TAG}_gridT2.nc
-   cdfrmsssh  ${CONFCASE}_${TAG}_gridT.nc ${CONFCASE}_${TAG}_gridT2.nc $NCOPT
+   cdfrmsssh  -t ${CONFCASE}_${TAG}_gridT.nc -t2 ${CONFCASE}_${TAG}_gridT2.nc $NCOPT \
+              -o ${CONFCASE}_${TAG}_RMSSSH.nc
 
    # dispose file on the MEAN directory
-   expatrie rms.nc $MEANY  ${CONFCASE}_${TAG}_RMSSSH.nc
-   \rm rms.nc
+   expatrie ${CONFCASE}_${TAG}_RMSSSH.nc  $MEANY  ${CONFCASE}_${TAG}_RMSSSH.nc
+   \rm ${CONFCASE}_${TAG}_RMSSSH.nc
 
    # StdDev W :get gridW and gridW2 files
    rapatrie ${CONFCASE}_${TAG}_gridW.nc $MEANY ${CONFCASE}_${TAG}_gridW.nc
    rapatrie ${CONFCASE}_${TAG}_gridW2.nc $MEANY ${CONFCASE}_${TAG}_gridW2.nc
 
-   cdfstdevw  ${CONFCASE}_${TAG}_gridW.nc ${CONFCASE}_${TAG}_gridW2.nc $NCOPT
+   cdfstdevw  -w ${CONFCASE}_${TAG}_gridW.nc -w2 ${CONFCASE}_${TAG}_gridW2.nc $NCOPT \
+              -o ${CONFCASE}_${TAG}_STDEVW.nc
 
    # dispose file on the MEAN directory
-   expatrie rmsw.nc $MEANY ${CONFCASE}_${TAG}_STDEVW.nc
-   \rm rmsw.nc
+   expatrie ${CONFCASE}_${TAG}_STDEVW.nc $MEANY ${CONFCASE}_${TAG}_STDEVW.nc
+   \rm ${CONFCASE}_${TAG}_STDEVW.nc
   done
 
 # Barotropic Transport: Input file: gridU, gridV mesh mask
@@ -231,11 +236,12 @@ cd $YEAR
    rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc  $IDIR mesh_hgr.nc
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
  
-   cdfpsi ${CONFCASE}_${TAG}_gridU.nc ${CONFCASE}_${TAG}_gridV.nc $fullopt $NCOPT
+   cdfpsi -u ${CONFCASE}_${TAG}_gridU.nc -v ${CONFCASE}_${TAG}_gridV.nc $FULLOPT $NCOPT \
+          -o ${CONFCASE}_${TAG}_PSI.nc
  
    # dispose and rename on the MEAN directory
-   expatrie psi.nc  $MEANY ${CONFCASE}_${TAG}_PSI.nc
-   \rm psi.nc
+   expatrie ${CONFCASE}_${TAG}_PSI.nc  $MEANY ${CONFCASE}_${TAG}_PSI.nc
+   \rm ${CONFCASE}_${TAG}_PSI.nc
   done
 
 # MOC Meridional Overturning Circulation:  Input file: gridV, mesh mask, mask_glo
@@ -251,11 +257,11 @@ cd $YEAR
    rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc  $IDIR mesh_zgr.nc
    if (( $orca != 0 )) ; then rapatrie  $fbasinmask $IDIR $fbasinmask ; fi
  
-   cdfmoc ${CONFCASE}_${TAG}_gridV.nc $fullopt
+   cdfmoc -v ${CONFCASE}_${TAG}_gridV.nc $FULLOPT -o ${CONFCASE}_${TAG}_MOC.nc
  
    # dispose on ergon MEAN/YEAR directory
-   expatrie moc.nc $MEANY ${CONFCASE}_${TAG}_MOC.nc
-   \rm moc.nc
+   expatrie ${CONFCASE}_${TAG}_MOC.nc $MEANY ${CONFCASE}_${TAG}_MOC.nc
+   \rm ${CONFCASE}_${TAG}_MOC.nc
   done
 
 # MOCSIG Meridional Overturning Circulation on sigma coordinates:  Input file: gridV, gridT, mesh mask, mask_glo
@@ -266,8 +272,9 @@ mkmocsig(){
      # get annual mean gridV and gridT files
      rapatrie ${CONFCASE}_${TAG}_gridV.nc $MEANY ${CONFCASE}_${TAG}_gridV.nc
      rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY ${CONFCASE}_${TAG}_gridT.nc
-     cdfmocsig ${CONFCASE}_${TAG}_gridV.nc ${CONFCASE}_${TAG}_gridT.nc $DREF $fullopt
-     expatrie mocsig.nc $MEANY ${CONFCASE}_${TAG}_MOCSIG_${NREF}.nc
+     cdfmocsig -v ${CONFCASE}_${TAG}_gridV.nc -t ${CONFCASE}_${TAG}_gridT.nc -r $DREF $FULLOPT \
+               -o ${CONFCASE}_${TAG}_MOCSIG_${NREF}.nc
+     expatrie ${CONFCASE}_${TAG}_MOCSIG_${NREF}.nc $MEANY ${CONFCASE}_${TAG}_MOCSIG_${NREF}.nc
            }
 
 mkmocsig5d(){
@@ -277,12 +284,10 @@ mkmocsig5d(){
      for fileV in ${CONFCASE}_y${YEAR}m${MONTH}*d??${xiosid}_gridV.nc ; do
        fileT=$( echo $fileV | sed -e 's/gridV/gridT/'  )
        fileM=$( echo $fileV | sed -e 's/gridV/MOCSIG/'  )
-       cdfmocsig $fileV $fileT $DREF $fullopt
-       mv mocsig.nc $fileM
+       cdfmocsig -v $fileV -t $fileT -r $DREF $FULLOPT -o $fileM
      done
-     cdfmoy ${CONFCASE}_y${YEAR}m${MONTH}*d??${xiosid}_MOCSIG.nc
-     mv cdfmoy.nc mocsig.nc
-     expatrie mocsig.nc $MEANY ${CONFCASE}_${TAG}_MOCSIG_5d_${NREF}.nc
+     cdfmoy -l ${CONFCASE}_y${YEAR}m${MONTH}*d??${xiosid}_MOCSIG.nc -o  ${CONFCASE}_${TAG}_MOCSIG_5d_${NREF}
+     expatrie ${CONFCASE}_${TAG}_MOCSIG_5d_${NREF}.nc $MEANY ${CONFCASE}_${TAG}_MOCSIG_5d_${NREF}.nc
              }
 
   for TAG in $(mktaglist $MOCSIG) ; do
@@ -321,9 +326,8 @@ mkmxl(){
      f=${CONFCASE}_y${YEAR}m${mm}${xiosid}_gridT.nc
      g=$(echo $f | sed -e 's/gridT/MXL/')
      rapatrie $f $MEANY $f
-     cdfmxl  $f $NCOPT
+     cdfmxl  -t $f $NCOPT -o $g
      # dispose on ergon, MEAN/YEAR directory
-     mv mxl.nc $g
      expatrie $g $MEANY $g
      listfiles="$listfiles $g"
    done
@@ -333,9 +337,9 @@ mkmxl(){
      1) taglist="3 9" ; mkmxl $taglist ;;
      2) taglist=$(seq 1 12) ; mkmxl $taglist ;;
      3) taglist=$(seq 1 12) ; mkmxl $taglist
-        cdfmoy_weighted $listfiles
         h=${CONFCASE}_y${YEAR}${xiosid}_MXL.nc
-        expatrie cdfmoy_weighted.nc $MEANY $h ;;
+        cdfmoy_weighted -l $listfiles -o $h
+        expatrie $h $MEANY $h ;;
   esac
 
 # Large scale potential vorticity: input file : gridT, and mesh_mask
@@ -354,9 +358,15 @@ mklspv(){
      g=$(echo $f | sed -e 's/gridT/LSPV/')
      rapatrie $f $MEANY $f
      # compute LSPV
-     cdfpvor  $f -lspv $NCOPT $fullopt
+     if [ $VVL = 1 ] ; then
+        w=${CONFCASE}_y${YEAR}m${mm}${xiosid}_gridW.nc
+        rapatrie $w $MEANY $w
+        zVVLOPT="$VVLOPT $w"
+     else
+        zVVLOPT=""
+     fi
+     cdfpvor  -t $f -lspv $NCOPT $FULLOPT -o $g $zVVLOPT
      # dispose on ergon, MEAN/YEAR directory
-     mv lspv.nc $g
      expatrie $g $MEANY $g
      listfiles="$listfiles $g"
    done
@@ -366,9 +376,9 @@ mklspv(){
      1) taglist="3 9"       ; mklspv $taglist ;;
      2) taglist=$(seq 1 12) ; mklspv $taglist ;;
      3) taglist=$(seq 1 12) ; mklspv $taglist
-        cdfmoy_weighted $listfiles
         h=${CONFCASE}_y${YEAR}${xiosid}_LSPV.nc
-        expatrie cdfmoy_weighted.nc $MEANY $h ;;
+        cdfmoy_weighted -l $listfiles -o $h $NCOPT
+        expatrie $h $MEANY $h ;;
    esac
 
 
@@ -391,14 +401,13 @@ if [   $TSMEAN != 0 ] ; then
     # get non-masked levitus then mask it with the same mask as the model
     levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
     rapatrie $levitus $IDIR $levitus
-    cdfmltmask $levitus  mask.nc votemper T             # votemper --> $levitus_masked
-    cdfmltmask ${levitus}_masked  mask.nc vosaline T    # vosaline --> $levitus_masked_masked
+    cdfmltmask -f $levitus  -m mask.nc -v votemper,vosaline  -p T  -o ${levitus}_masked_masked    
     mv ${levitus}_masked_masked ${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
     levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
     #  
-    cdfmean $levitus votemper T $fullopt > LEVITUS_y0000_1y_TMEAN.txt 
+    cdfmean -f $levitus -v votemper -p T $FULLOPT  > LEVITUS_y0000_1y_TMEAN.txt 
            concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TMEAN.nc
-    cdfmean $levitus vosaline T $fullopt > LEVITUS_y0000_1y_SMEAN.txt 
+    cdfmean -f $levitus -v vosaline -p T $FULLOPT  > LEVITUS_y0000_1y_SMEAN.txt 
            concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SMEAN.nc
 
     #
@@ -430,16 +439,16 @@ if [   $TSMEAN != 0 ] ; then
 
          ncks -h -F -d time_counter,${MONTH},${MONTH} $tlevitus $tmlevitus
          ncks -h -F -d time_counter,${MONTH},${MONTH} $slevitus $smlevitus
-         cdfmltmask $tmlevitus  mask.nc votemper T      # votemper --> $levitus_masked
-         cdfmltmask $smlevitus  mask.nc vosaline T      # vosaline --> $levitus_masked
+         cdfmltmask -f $tmlevitus  -m mask.nc -v votemper -p T      # votemper --> $levitus_masked
+         cdfmltmask -f $smlevitus  -m mask.nc -v vosaline -p T      # vosaline --> $levitus_masked
          mv ${tmlevitus}_masked ${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
          mv ${smlevitus}_masked ${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
          tmlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
          smlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
          #  
-         cdfmean $tmlevitus votemper T $fullopt >> LEVITUS_y0000_1m_TMEAN.txt 
+         cdfmean -f $tmlevitus -v votemper -p T $FULLOPT  >> LEVITUS_y0000_1m_TMEAN.txt 
               concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TMEAN.nc
-         cdfmean $smlevitus vosaline T $fullopt >> LEVITUS_y0000_1m_SMEAN.txt 
+         cdfmean -f $smlevitus -v vosaline -p T $FULLOPT  >> LEVITUS_y0000_1m_SMEAN.txt 
               concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SMEAN.nc
       done
     
@@ -480,9 +489,9 @@ if [   $TSMEAN != 0 ] ; then
    echo $YEAR $MONTH >>  $fsshmean ; echo $YEAR $MONTH >>  $ftmean ;  echo $YEAR $MONTH >>  $fsmean
 
    # 3D means
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T $fullopt >> $fsshmean ; concat_file $TAG cdfmean.nc $fsshmean_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T $fullopt >> $ftmean   ; concat_file $TAG cdfmean.nc $ftmean_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T $fullopt >> $fsmean   ; concat_file $TAG cdfmean.nc $fsmean_nc
+   cdfmean  -f ${CONFCASE}_${TAG}_gridT.nc -v sossheig -p T $FULLOPT $VVLOPT >> $fsshmean ; concat_file $TAG cdfmean.nc $fsshmean_nc
+   cdfmean  -f ${CONFCASE}_${TAG}_gridT.nc -v votemper -p T $FULLOPT $VVLOPT >> $ftmean   ; concat_file $TAG cdfmean.nc $ftmean_nc
+   cdfmean  -f ${CONFCASE}_${TAG}_gridT.nc -v vosaline -p T $FULLOPT $VVLOPT >> $fsmean   ; concat_file $TAG cdfmean.nc $fsmean_nc
   done
 
   # dispose TXT file in the ad-hoc -DIAGS/xxx directory
@@ -530,17 +539,16 @@ if [   $TSLAT != 0 ] ; then
     # get non-masked levitus then mask it with the same mask as the model
     levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
     rapatrie $levitus $IDIR $levitus
-    cdfmltmask $levitus  mask.nc votemper T             # votemper --> $levitus_masked
-    cdfmltmask ${levitus}_masked  mask.nc vosaline T    # vosaline --> $levitus_masked_masked
+    cdfmltmask -f $levitus  -m mask.nc -v votemper,vosaline -p T -o ${levitus}_masked_masked  
     mv ${levitus}_masked_masked ${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
     levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
     #  
-    cdfmean $levitus votemper T 0 0 $JN1 $JMAX 0 0 $fullopt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATN.nc
-    cdfmean $levitus votemper T 0 0 $JS0 $JN0 0 0  $fullopt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATEQ.nc
-    cdfmean $levitus votemper T 0 0 1 $JS1 0 0     $fullopt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATS.nc
-    cdfmean $levitus vosaline T 0 0 $JN1 $JMAX 0 0 $fullopt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATN.nc
-    cdfmean $levitus vosaline T 0 0 $JS0 $JN0 0 0  $fullopt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATEQ.nc
-    cdfmean $levitus vosaline T 0 0 1 $JS1 0 0     $fullopt ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATS.nc
+    cdfmean -f $levitus votemper -v -p T -w 0 0 $JN1 $JMAX 0 0 $FULLOPT  ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATN.nc
+    cdfmean -f $levitus votemper -v -p T -w 0 0 $JS0 $JN0 0 0  $FULLOPT  ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATEQ.nc
+    cdfmean -f $levitus votemper -v -p T -w 0 0 1 $JS1 0 0     $FULLOPT  ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TLATS.nc
+    cdfmean -f $levitus vosaline -v -p T -w 0 0 $JN1 $JMAX 0 0 $FULLOPT  ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATN.nc
+    cdfmean -f $levitus vosaline -v -p T -w 0 0 $JS0 $JN0 0 0  $FULLOPT  ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATEQ.nc
+    cdfmean -f $levitus vosaline -v -p T -w 0 0 1 $JS1 0 0     $FULLOPT  ; concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SLATS.nc
 
     merge_files LEVITUS_y0000_1y_TSLATN.nc LEVITUS_y0000_1y_TLATN.nc LEVITUS_y0000_1y_SLATN.nc
     define_diags_dir LEVITUS_y0000_1y_TSLATN.nc
@@ -572,24 +580,24 @@ if [   $TSLAT != 0 ] ; then
 
          ncks -h -F -d time_counter,${MONTH},${MONTH} $tlevitus $tmlevitus
          ncks -h -F -d time_counter,${MONTH},${MONTH} $slevitus $smlevitus
-         cdfmltmask $tmlevitus  mask.nc votemper T      # votemper --> $levitus_masked
-         cdfmltmask $smlevitus  mask.nc vosaline T      # vosaline --> $levitus_masked
+         cdfmltmask -f $tmlevitus  -m mask.nc -v votemper -p T   # votemper --> $levitus_masked
+         cdfmltmask -f $smlevitus  -m mask.nc -v vosaline -p T   # vosaline --> $levitus_masked
          mv ${tmlevitus}_masked ${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
          mv ${smlevitus}_masked ${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
          tmlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
          smlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
          #  
-         cdfmean $tmlevitus votemper T 0 0 $JN1 $JMAX 0 0 $fullopt 
+         cdfmean -f $tmlevitus -v votemper -p T -w 0 0 $JN1 $JMAX 0 0 $FULLOPT 
              concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TLATN.nc
-         cdfmean $tmlevitus votemper T 0 0 $JS0 $JN0 0 0  $fullopt 
+         cdfmean -f $tmlevitus -v votemper -p T -w 0 0 $JS0 $JN0 0 0  $FULLOPT 
              concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TLATEQ.nc
-         cdfmean $tmlevitus votemper T 0 0 1 $JS1 0 0     $fullopt 
+         cdfmean -f $tmlevitus -v votemper -p T -w 0 0 1 $JS1 0 0     $FULLOPT
              concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TLATS.nc
-         cdfmean $smlevitus vosaline T 0 0 $JN1 $JMAX 0 0 $fullopt 
+         cdfmean -f $smlevitus -v vosaline -p T -w 0 0 $JN1 $JMAX 0 0 $FULLOPT
              concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SLATN.nc
-         cdfmean $smlevitus vosaline T 0 0 $JS0 $JN0 0 0  $fullopt 
+         cdfmean -f $smlevitus -v vosaline -p T -w 0 0 $JS0 $JN0 0 0  $FULLOPT
              concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SLATEQ.nc
-         cdfmean $smlevitus vosaline T 0 0 1 $JS1 0 0     $fullopt 
+         cdfmean -f $smlevitus -v vosaline -p T -w 0 0 1 $JS1 0 0     $FULLOPT
              concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SLATS.nc
       done
 
@@ -621,26 +629,26 @@ if [   $TSLAT != 0 ] ; then
   # JS1
 
   # Find JN0 JN1 as J-index around latitude LATN
-  tmp=`cdffindij 0 0 $LATN $LATN -p T -c mesh_hgr.nc | tail -1 | awk '{print $3}'`
+  tmp=`cdffindij -w 0 0 $LATN $LATN -p T -c mesh_hgr.nc | tail -1 | awk '{print $3}'`
   result=$(echo "$tmp $LATN" | awk '{print $1 - $2}' );
   if [[ $result > 0 ]] ; then
-   JN1=`cdffindij 0 0 $LATN $LATN -p T -c mesh_hgr.nc | tail -2 | head -1 | awk '{print $3}'`
+   JN1=`cdffindij -w 0 0 $LATN $LATN -p T -c mesh_hgr.nc | tail -2 | head -1 | awk '{print $3}'`
    JN0=$((JN1-1))
   else
-   JN0=`cdffindij 0 0 $LATN $LATN -p T -c mesh_hgr.nc | tail -2 | head -1 | awk '{print $3}'`
+   JN0=`cdffindij -w 0 0 $LATN $LATN -p T -c mesh_hgr.nc | tail -2 | head -1 | awk '{print $3}'`
    JN1=$((JN0+1))
   fi
   # Same fpr JS0 JS1, with LATS
-  tmp=`cdffindij 0 0 $LATS $LATS -p T -c mesh_hgr.nc | tail -1 | awk '{print $3}'`
+  tmp=`cdffindij -w 0 0 $LATS $LATS -p T -c mesh_hgr.nc | tail -1 | awk '{print $3}'`
   result=$(echo "$tmp $LATS" | awk '{print $1 - $2}' );
   if [[ $result > 0 ]] ; then
-   JS0=`cdffindij 0 0 $LATS $LATS -p T -c mesh_hgr.nc | tail -2 | head -1 | awk '{print $3}'`
+   JS0=`cdffindij -w 0 0 $LATS $LATS -p T -c mesh_hgr.nc | tail -2 | head -1 | awk '{print $3}'`
    JS1=$((JS0-1))
   else
-   JS1=`cdffindij 0 0 $LATS $LATS -p T -c mesh_hgr.nc | tail -2 | head -1 | awk '{print $3}'`
+   JS1=`cdffindij -w 0 0 $LATS $LATS -p T -c mesh_hgr.nc | tail -2 | head -1 | awk '{print $3}'`
    JS0=$((JS1+1))
   fi
-  JMAX=`cdfinfo mesh_hgr.nc | grep npjglo | awk '{print $3}'`
+  JMAX=`cdfinfo -f mesh_hgr.nc | grep npjglo | awk '{print $3}'`
 
   file_lstn=''
   file_lsteq=''
@@ -669,23 +677,23 @@ if [   $TSLAT != 0 ] ; then
    file_lsts=$( filter_list $file_lsts $fsshlats_nc $ftlats_nc $fslats_nc )
 
    # 3D Latitude-bands means
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T 0 0 $JN1 $JMAX 0 0  $fullopt
+   cdfmean -f ${CONFCASE}_${TAG}_gridT.nc -v sossheig -p T -w 0 0 $JN1 $JMAX 0 0  $FULLOPT $VVLOPT
         concat_file $TAG cdfmean.nc $fsshlatn_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T 0 0 $JS0 $JN0 0 0 $fullopt
+   cdfmean -f ${CONFCASE}_${TAG}_gridT.nc -v sossheig -p T -w 0 0 $JS0 $JN0 0 0 $FULLOPT $VVLOPT
         concat_file $TAG cdfmean.nc $fsshlateq_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc sossheig T 0 0 1 $JS1 0 0  $fullopt
+   cdfmean -f ${CONFCASE}_${TAG}_gridT.nc -v sossheig -p T -w 0 0 1 $JS1 0 0  $FULLOPT $VVLOPT
         concat_file $TAG cdfmean.nc $fsshlats_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T 0 0 $JN1 $JMAX 0 0  $fullopt
+   cdfmean -f ${CONFCASE}_${TAG}_gridT.nc -v votemper -p T -w 0 0 $JN1 $JMAX 0 0  $FULLOPT $VVLOPT
         concat_file $TAG cdfmean.nc $ftlatn_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T 0 0 $JS0 $JN0 0 0 $fullopt
+   cdfmean -f ${CONFCASE}_${TAG}_gridT.nc -v votemper -p T -w 0 0 $JS0 $JN0 0 0 $FULLOPT $VVLOPT
         concat_file $TAG cdfmean.nc $ftlateq_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc votemper T 0 0 1 $JS1 0 0  $fullopt
+   cdfmean -f ${CONFCASE}_${TAG}_gridT.nc -v votemper -p T -w 0 0 1 $JS1 0 0  $FULLOPT $VVLOPT
         concat_file $TAG cdfmean.nc $ftlats_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T 0 0 $JN1 $JMAX 0 0  $fullopt
+   cdfmean -f ${CONFCASE}_${TAG}_gridT.nc -v vosaline -p T -w 0 0 $JN1 $JMAX 0 0  $FULLOPT $VVLOPT
         concat_file $TAG cdfmean.nc $fslatn_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T 0 0 $JS0 $JN0 0 0 $fullopt
+   cdfmean -f ${CONFCASE}_${TAG}_gridT.nc -v vosaline -p T -w 0 0 $JS0 $JN0 0 0 $FULLOPT $VVLOPT
         concat_file $TAG cdfmean.nc $fslateq_nc
-   cdfmean  ${CONFCASE}_${TAG}_gridT.nc vosaline T 0 0 1 $JS1 0 0  $fullopt
+   cdfmean -f ${CONFCASE}_${TAG}_gridT.nc -v vosaline -p T -w 0 0 1 $JS1 0 0  $FULLOPT $VVLOPT
         concat_file $TAG cdfmean.nc $fslats_nc
   done
 
@@ -746,15 +754,14 @@ if [        $GIB  !=  0    ] ; then
      # need to build a masked LEvitus with proper mask
      levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
      rapatrie $levitus $IDIR $levitus
-     cdfmltmask $levitus  mask.nc votemper T             # votemper --> $levitus_masked
-     cdfmltmask ${levitus}_masked  mask.nc vosaline T    # vosaline --> $levitus_masked_masked
+     cdfmltmask -f $levitus  -m mask.nc -v votemper,vosaline  -p T -o ${levitus}_masked_masked
      mv ${levitus}_masked_masked ${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
      levitus=${TSCLIM:=Levitus_p2.1}_1y_TS_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG
     fi
     #
-    cdfmean $levitus  votemper T $GIBWIN  0 0 $fullopt > LEVITUS_y0000_1y_TGIB.txt 
+    cdfmean -f $levitus  -v votemper -p T -w $GIBWIN  0 0 $FULLOPT  > LEVITUS_y0000_1y_TGIB.txt 
          concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_TGIB.nc
-    cdfmean $levitus  vosaline T $GIBWIN  0 0 $fullopt > LEVITUS_y0000_1y_SGIB.txt 
+    cdfmean -f $levitus  -v vosaline -p T -w $GIBWIN  0 0 $FULLOPT  > LEVITUS_y0000_1y_SGIB.txt 
          concat_file y0000 cdfmean.nc LEVITUS_y0000_1y_SGIB.nc
 
     define_diags_dir LEVITUS_y0000_1y_TGIB.txt
@@ -785,17 +792,17 @@ if [        $GIB  !=  0    ] ; then
            smlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_$( echo $CONFIG | tr 'A-Z' 'a-z').nc
            ncks -h -F -d time_counter,${MONTH},${MONTH} $tlevitus $tmlevitus
            ncks -h -F -d time_counter,${MONTH},${MONTH} $slevitus $smlevitus
-           cdfmltmask $tmlevitus  mask.nc votemper T      # votemper --> $levitus_masked
-           cdfmltmask $smlevitus  mask.nc vosaline T      # vosaline --> $levitus_masked
+           cdfmltmask -f $tmlevitus  -m mask.nc -v votemper -p T      # votemper --> $levitus_masked
+           cdfmltmask -f $smlevitus  -m mask.nc -v vosaline -p T      # vosaline --> $levitus_masked
            mv ${tmlevitus}_masked ${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
            mv ${smlevitus}_masked ${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc  # simplify name
            tmlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_T_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
            smlevitus=${TSCLIM:=Levitus_p2.1}_1m_${MONTH}_S_masked_$( echo $CONFIG | tr 'A-Z' 'a-z').nc # will be ready for GIB DIAG 
          fi  
          #
-         cdfmean $tmlevitus votemper T $GIBWIN 0 0 $fullopt >> LEVITUS_y0000_1m_TGIB.txt 
+         cdfmean -f $tmlevitus -v votemper -p T -w $GIBWIN 0 0 $FULLOPT  >> LEVITUS_y0000_1m_TGIB.txt 
                concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_TGIB.nc
-         cdfmean $smlevitus vosaline T $GIBWIN 0 0 $fullopt >> LEVITUS_y0000_1m_SGIB.txt 
+         cdfmean -f $smlevitus -v vosaline -p T -w $GIBWIN 0 0 $FULLOPT  >> LEVITUS_y0000_1m_SGIB.txt 
                concat_file y0000m${MONTH} cdfmean.nc LEVITUS_y0000_1m_SGIB.nc
       done
 
@@ -837,9 +844,9 @@ if [        $GIB  !=  0    ] ; then
    MONTH=`echo ${TAG} | awk -Fm '{print $2}'`
    echo $YEAR $MONTH >> $ftgib ;  echo $YEAR $MONTH >> $fsgib
 
-   cdfmean ${CONFCASE}_${TAG}_gridT.nc votemper T $GIBWIN 0 0 $fullopt >> $ftgib 
+   cdfmean -f ${CONFCASE}_${TAG}_gridT.nc -v votemper -p T -w $GIBWIN 0 0 $FULLOPT $VVLOPT >> $ftgib 
         concat_file ${TAG} cdfmean.nc $ftgib_nc
-   cdfmean ${CONFCASE}_${TAG}_gridT.nc vosaline T $GIBWIN 0 0 $fullopt >> $fsgib 
+   cdfmean -f ${CONFCASE}_${TAG}_gridT.nc -v vosaline -p T -w $GIBWIN 0 0 $FULLOPT $VVLOPT >> $fsgib 
         concat_file ${TAG} cdfmean.nc $fsgib_nc
   done
 
@@ -911,7 +918,7 @@ if [        $KERG  !=  0    ] ; then
        votemper|vosaline|soshfldo) file=${CONFCASE}_${TAG}_gridT.nc;;
        ileadfra|iicethic) file=${CONFCASE}_${TAG}_icemod.nc;;
        somxl010|somxl030|somxlt02) file=${CONFCASE}_${TAG}_MXL.nc;;
-       vosigma0) cdfsig0 ${CONFCASE}_${TAG}_gridT.nc
+       vosigma0) cdfsig0 -t ${CONFCASE}_${TAG}_gridT.nc
                  file=sig0.nc;;
      esac
 
@@ -925,7 +932,7 @@ if [        $KERG  !=  0    ] ; then
      rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
      rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
      rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
-     cdfmean ${file} ${var} T $KERGWIN 0 0 $fullopt
+     cdfmean -f ${file} -v ${var} -p T -w $KERGWIN 0 0 $FULLOPT $VVLOPT
      ncrename -h -v mean_${var},mean_${var}_KERG$k cdfmean.nc
      ncrename -h -v mean_3D${var},mean_3D${var}_KERG$k cdfmean.nc
      concat_file ${TAG} cdfmean.nc $fkerg_nc;;
@@ -955,7 +962,7 @@ if [        $KERG  !=  0    ] ; then
          filez=${CONFCASE}_${TAG}_tmpZ.nc
          mv cdfclip.nc $filez
 
-         cdfmean $filez $var T $fullopt
+         cdfmean -f $filez -v $var -p T $FULLOPT $VVLOPT
          ncrename -h -v mean_$var,mean_${var}_KERG$k cdfmean.nc
          ncrename -h -v mean_3D$var,mean_3D${var}_KERG$k cdfmean.nc
          concat_file ${TAG} cdfmean.nc $fkerg_nc;;
@@ -965,7 +972,7 @@ if [        $KERG  !=  0    ] ; then
          rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
          rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
 
-         cdfmean ${file} $var T $KERGWIN 0 0 $fullopt
+         cdfmean -f ${file} -v $var -p T -w $KERGWIN 0 0 $FULLOPT
          ncrename -h -v mean_${var},mean_${var}_KERG$k cdfmean.nc
          ncrename -h -v mean_3D${var},mean_3D${var}_KERG$k cdfmean.nc
          concat_file ${TAG} cdfmean.nc $fkerg_nc;;
@@ -1040,7 +1047,7 @@ if [        $KERGb  !=  0    ] ; then
         rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc
         rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
         rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
-        cdfmean ${file} $var T $KERGWIN 0 0 $fullopt
+        cdfmean -f ${file} -v $var -p T -w $KERGWIN 0 0 $FULLOPT $VVLOPT
         ncrename -h -v mean_$var,mean_${var}_KERG$k cdfmean.nc
         ncrename -h -v mean_3D$var,mean_3D${var}_KERG$k cdfmean.nc
         concat_file ${TAG} cdfmean.nc $fkerg_nc ;;
@@ -1069,7 +1076,7 @@ if [        $KERGb  !=  0    ] ; then
            filez=${CONFCASE}_${TAG}_tmpZ.nc
            mv cdfclip.nc $filez
 
-           cdfmean $filez $var T $fullopt
+           cdfmean -f $filez -v $var -p T $FULLOPT $VVLOPT
            ncrename -h -v mean_$var,mean_${var}_KERG$k cdfmean.nc
            ncrename -h -v mean_3D$var,mean_3D${var}_KERG$k cdfmean.nc
            concat_file ${TAG} cdfmean.nc $fkerg_nc;;
@@ -1079,7 +1086,7 @@ if [        $KERGb  !=  0    ] ; then
            rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc $IDIR mesh_hgr.nc
            rapatrie  ${MESH_MASK_ID}_mesh_zgr.nc $IDIR mesh_zgr.nc
 
-           cdfmean ${file} $var T $KERGWIN 0 0 $fullopt
+           cdfmean -f ${file} -v $var -p T -w $KERGWIN 0 0 $FULLOPT $VVLOPT
            ncrename -h -v mean_${var},mean_${var}_KERG$k cdfmean.nc
            ncrename -h -v mean_3D${var},mean_3D${var}_KERG$k cdfmean.nc
            concat_file ${TAG} cdfmean.nc $fkerg_nc;;
@@ -1176,22 +1183,22 @@ if [    $ELNINO != 0    ] ; then  # always monthly diags
      printf "%04d %02d" $TAG $m >>   $fnino
  
     # nino 1+2   [ -90 W -- -80 W, -10 S -- 10 N ]
-    cdfmean  $f votemper T $NINO12 1 1 $fullopt | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino 
+    cdfmean  -f $f -v votemper -p T -w $NINO12 1 1 $FULLOPT $VVLOPT | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino 
     ncrename -h -v mean_votemper,mean_votemper_NINO12 cdfmean.nc
     concat_file ${TAG}m${mm}${xiosid} cdfmean.nc $fnino12_nc
 
     # nino 3     [ -150 W -- -90 W, -5 S -- 5 N ]
-    cdfmean  $f votemper T $NINO3 1 1  $fullopt | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino 
+    cdfmean  -f $f -v votemper -p T -w $NINO3 1 1  $FULLOPT $VVLOPT | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino 
     ncrename -h -v mean_votemper,mean_votemper_NINO3 cdfmean.nc
     concat_file ${TAG}m${mm}${xiosid} cdfmean.nc $fnino3_nc
 
     # nino 4     [ -200 W -- -150 W, -5 S -- 5 N ]
-    cdfmean  $f votemper T $NINO4 1 1 $fullopt | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino  
+    cdfmean  -f $f -v votemper -p T -w $NINO4 1 1 $FULLOPT $VVLOPT | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino  
     ncrename -h -v mean_votemper,mean_votemper_NINO4 cdfmean.nc
     concat_file ${TAG}m${mm}${xiosid} cdfmean.nc $fnino4_nc
 
     # nino 3.4   [ -170 W -- -120 W, -% S -- % N ]
-    cdfmean  $f votemper T $NINO34 1 1 $fullopt | tail -1 | awk '{ printf " %8.5f 0.00\n", $6 }'  >> $fnino 
+    cdfmean  -f $f -v votemper -p T -w $NINO34 1 1 $FULLOPT $VVLOPT | tail -1 | awk '{ printf " %8.5f 0.00\n", $6 }'  >> $fnino 
     ncrename -h -v mean_votemper,mean_votemper_NINO34 cdfmean.nc
     concat_file ${TAG}m${mm}${xiosid} cdfmean.nc $fnino34_nc
  
@@ -1234,9 +1241,9 @@ if [            $TRP != 0    ] ; then
    MONTH=`echo ${TAG} | awk -Fm '{print $2}'`
    echo $YEAR $MONTH >> $fsection
 
-   cdftransport   ${CONFCASE}_${TAG}_VT.nc \
-                  ${CONFCASE}_${TAG}_gridU.nc \
-                  ${CONFCASE}_${TAG}_gridV.nc $fullopt < section.dat >> $fsection
+   cdftransport   -vt ${CONFCASE}_${TAG}_VT.nc \
+                  -u ${CONFCASE}_${TAG}_gridU.nc \
+                  -v ${CONFCASE}_${TAG}_gridV.nc $FULLOPT < section.dat >> $fsection
  
    # eliminate garbage from txt file ...
    grep -v Give $fsection | grep -v level | grep -v IMAX | grep -v FROM > tmp
@@ -1323,8 +1330,15 @@ if [ $DCT != 0 ] ; then
     tag=$(echo $tfich | sed -e "s/${CONFCASE}_//" -e 's/_gridT.nc//')
 
     #echo $tag > ${CONFCASE}_y${tag}_trpsig_monitor.lst
+    if [ $VVL = 1 ] ; then
+       wfich=$(echo  $tfich | sed -e 's/gridT/gridW/' )
+       rapatrie  $wfich $MEANY  $wfich
+       zVVLOPT="$VVLOPT $wfich"
+    else
+      zVVLOPT=""
+    fi
 
-    cdfsigtrp $tfich $ufich $vfich 21 30 180 $fullopt # -print  >>  ${CONFCASE}_y${tag}_trpsig_monitor.lst
+    cdfsigtrp -t $tfich -u $ufich -v $vfich -smin 21 -smax 30 -nbins 180 $FULLOPT $zVVLOPT# -print  >>  ${CONFCASE}_y${tag}_trpsig_monitor.lst
     # save netcdf files ( one per section )
     listfiles=$( ls | grep -e "^[0-9]" | grep trpsig.nc  )
 
@@ -1362,7 +1376,7 @@ if [ $DCT != 0 ] ; then
   done
 
   for section in $section_list ; do
-   cdfmoy_weighted ${CONFCASE}_${TAG}m??${xiosid}_${section}_trpsig.nc 
+   cdfmoy_weighted -l ${CONFCASE}_${TAG}m??${xiosid}_${section}_trpsig.nc 
    froot=${CONFCASE}_${TAG}${xiosid}_1y_${section}_trpsig
    concat_file ${TAG} cdfmoy_weighted.nc  $froot.nc
    file_lst=$( filter_list $file_lst $froot.nc )
@@ -1411,7 +1425,7 @@ if [            $MHT  !=  0   ] ; then
    fmhst=${fbase}_mhst.nc
    
    # Netcdf output files: (both head and salt in 2 separated variables)
-   cdfmhst  ${CONFCASE}_${TAG}_VT.nc MST $fullopt  # Save Meridional salt transport as well
+   cdfmhst  -vt ${CONFCASE}_${TAG}_VT.nc -MST $FULLOPT  # Save Meridional salt transport as well
    concat_file $TAG mhst.nc $fmhst
 
    # save file list ( to be sorted later to eliminate duplicate entries )
@@ -1431,7 +1445,7 @@ if [            $MHT  !=  0   ] ; then
      zflxfil=${CONFCASE}_${TAG}_flxT.nc
    fi
 
-   cdfhflx  $zflxfil
+   cdfhflx  -f $zflxfil
    concat_file $TAG cdfhflx.nc $fhflx
    file_lst=$( filter_list $file_lst $fhflx )
  
@@ -1510,98 +1524,98 @@ rename_maxmoc()   {
         PERIANT05 | PERIANT025 | PERIANT8 )
 
    #AUS
-   printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 0 2000   | grep Maximum >> $fmaxmoc
+   printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b glo -w -70 0 0 2000   | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_maxmoc
    concat_file $TAG maxmoc.nc $fglomaxmoc
    file_lst=$( filter_list $file_lst $fglomaxmoc )
 
-   printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 2000 5500  | grep Minimum >> $fmaxmoc
+   printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b glo -w -70 0 2000 5500  | grep Minimum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_minmoc
    concat_file $TAG maxmoc.nc $fglominmoc
    file_lst=$( filter_list $file_lst $fglominmoc )  ;;
 
         ORCA12 | ORCA12.L46 | ORCA12.L75 | ORCA025 | ORCA025.L75 | ORCA025.L300 | ORCA05 | ORCA2 | ORCA246 )
    # GLO
-   printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo 20 60 500 2000 | grep Maximum >> $fmaxmoc
+   printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b glo -w 20 60 500 2000 | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_maxmoc
    concat_file $TAG maxmoc.nc $fglomaxmoc
    file_lst=$( filter_list $file_lst $fglomaxmoc )
 
-   printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo -40 30 2000 5500 | grep Minimum >> $fmaxmoc
+   printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b glo -w -40 30 2000 5500 | grep Minimum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_minmoc
    concat_file $TAG maxmoc.nc $fglominmoc
    file_lst=$( filter_list $file_lst $fglominmoc )
 
 
    # ATL
-   printf "%s" 'Atl ' >>  $fmaxmoc ; cdfmaxmoc $f atl 0 60 500 2000 | grep Maximum >> $fmaxmoc
+   printf "%s" 'Atl ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b atl -w 0 60 500 2000 | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Atl_maxmoc
    concat_file $TAG maxmoc.nc $fatlmaxmoc
    file_lst=$( filter_list $file_lst $fatlmaxmoc )
 
-   printf "%s" 'Atl ' >>  $fmaxmoc ; cdfmaxmoc $f atl -20 40 2000 5500 | grep Minimum  >> $fmaxmoc
+   printf "%s" 'Atl ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b atl -w -20 40 2000 5500 | grep Minimum  >> $fmaxmoc
    rename_maxmoc maxmoc.nc Atl_minmoc
    concat_file $TAG maxmoc.nc $fatlminmoc
    file_lst=$( filter_list $file_lst $fatlminmoc )
 
 
    #INP
-   printf "%s" 'Inp ' >>  $fmaxmoc ; cdfmaxmoc $f inp 15 50 100 1000 | grep Minimum >> $fmaxmoc
+   printf "%s" 'Inp ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b inp -w 15 50 100 1000 | grep Minimum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Inp_minmoc
    concat_file $TAG maxmoc.nc $finpminmoc
    file_lst=$( filter_list $file_lst $finpminmoc )
 
-   printf "%s" 'Inp ' >>  $fmaxmoc ; cdfmaxmoc $f inp -30 20 1000 5500  | grep Minimum >> $fmaxmoc
+   printf "%s" 'Inp ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b inp -w -30 20 1000 5500  | grep Minimum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Inp_minmoc2
    concat_file $TAG maxmoc.nc $finpminmoc2
    file_lst=$( filter_list $file_lst $finpminmoc2 )
 
 
    #AUS
-   printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 0 2000   | grep Maximum >> $fmaxmoc
+   printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b glo -w -70 0 0 2000   | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Aus_maxmoc
    concat_file $TAG maxmoc.nc $fausmaxmoc
    file_lst=$( filter_list $file_lst $fausmaxmoc )
 
-   printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc $f glo -70 0 2000 5500  | grep Minimum >> $fmaxmoc
+   printf "%s" 'Aus ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b glo -w -70 0 2000 5500  | grep Minimum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Aus_minmoc
    concat_file $TAG maxmoc.nc $fausminmoc
    file_lst=$( filter_list $file_lst $fausminmoc )
 
    # Max and Min of MOC at some specific latitudes
    # GLO  MAX at 40 N and 30S
-   printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo 40 40 500 2000 | grep Maximum >> $fmaxmoc40
+   printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc -f $f -b glo -w 40 40 500 2000 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Glo_maxmoc40N
    concat_file $TAG maxmoc.nc $fglomaxmoc40n
    file_lst=$( filter_list $file_lst $fglomaxmoc40n )
 
-   printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo -30 -30 500  5500 | grep Maximum >> $fmaxmoc40
+   printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc -f $f -b glo -w -30 -30 500  5500 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Glo_maxmoc30S
    concat_file $TAG maxmoc.nc $fglomaxmoc30s
    file_lst=$( filter_list $file_lst $fglomaxmoc30s )
 
 
    # ATL  MAX at 40N and 30S
-   printf "%s" 'Atl ' >>  $fmaxmoc40 ; cdfmaxmoc $f atl 40 40 500 2000 | grep Maximum >> $fmaxmoc40
+   printf "%s" 'Atl ' >>  $fmaxmoc40 ; cdfmaxmoc -f $f -b atl -w 40 40 500 2000 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Atl_maxmoc40N
    concat_file $TAG maxmoc.nc $fatlmaxmoc40n
    file_lst=$( filter_list $file_lst $fatlmaxmoc40n )
 
-   printf "%s" 'Atl ' >>  $fmaxmoc40 ; cdfmaxmoc $f atl -30 -30  500 5000 | grep Maximum >> $fmaxmoc40
+   printf "%s" 'Atl ' >>  $fmaxmoc40 ; cdfmaxmoc -f $f -b atl -w -30 -30  500 5000 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Atl_maxmoc30S
    concat_file $TAG maxmoc.nc $fatlmaxmoc30s
    file_lst=$( filter_list $file_lst $fatlmaxmoc30s )
 
 
    #INP  Min at 30 S
-   printf "%s" 'Inp ' >>  $fmaxmoc40 ; cdfmaxmoc $f inp -30 -30 1000 5500  | grep Minimum >> $fmaxmoc40
+   printf "%s" 'Inp ' >>  $fmaxmoc40 ; cdfmaxmoc -f $f -b inp -w -30 -30 1000 5500  | grep Minimum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Inp_minmoc30S
    concat_file $TAG maxmoc.nc $finpminmoc30s
    file_lst=$( filter_list $file_lst $finpminmoc30s )
 
 
    #AUS  MAX at 50 S
-   printf "%s" 'Aus ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo -50 -50 0 2000   | grep Maximum >> $fmaxmoc40
+   printf "%s" 'Aus ' >>  $fmaxmoc40 ; cdfmaxmoc -f $f -b glo -w -50 -50 0 2000   | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Aus_maxmoc50S
    concat_file $TAG maxmoc.nc $fausmaxmoc50s
    file_lst=$( filter_list $file_lst $fausmaxmoc50s ) ;;
@@ -1609,12 +1623,12 @@ rename_maxmoc()   {
        # NATL configuration
         NATL025 | NATL4 | NATL12 )
    # GLO
-   printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo 20 60 500 2000 | grep Maximum >> $fmaxmoc
+   printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b glo -w 20 60 500 2000 | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_maxmoc
    concat_file $TAG maxmoc.nc $fglomaxmoc
    file_lst=$( filter_list $file_lst $fglomaxmoc )
 
-   printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc $f glo -40 30 2000 5500 | grep Minimum >> $fmaxmoc
+   printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b glo -w -40 30 2000 5500 | grep Minimum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_minmoc
    concat_file $TAG maxmoc.nc $fglominmoc
    file_lst=$( filter_list $file_lst $fglominmoc )
@@ -1622,12 +1636,12 @@ rename_maxmoc()   {
 
    # Max and Min of MOC at some specific latitudes
    # GLO  MAX at 40 N and 30S
-   printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo 40 40 500 2000 | grep Maximum >> $fmaxmoc40
+   printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc -f $f -b glo -w 40 40 500 2000 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Glo_maxmoc40N
    concat_file $TAG maxmoc.nc $fglomaxmoc40n
    file_lst=$( filter_list $file_lst $fglomaxmoc40n )
 
-   printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc $f glo -15 -15 500  5500 | grep Maximum >> $fmaxmoc40
+   printf "%s" 'Glo ' >>  $fmaxmoc40 ; cdfmaxmoc -f $f -b glo -w -15 -15 500  5500 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Glo_maxmoc15S
    concat_file $TAG maxmoc.nc $fglomaxmoc15s
    file_lst=$( filter_list $file_lst $fglomaxmoc15s ) ;;
@@ -1683,13 +1697,12 @@ if [             $TAO !=  0   ] ; then
 
      rapatrie  ${MESH_MASK_ID}_mesh_hgr.nc  $IDIR mesh_hgr.nc
 
-     cdfvita $u $v $t2
-     \mv vita.nc ${CONFCASE}_${TAG}_vita.nc
+     cdfvita -u $u -v $v -t $t2 -o ${CONFCASE}_${TAG}_vita.nc $NCOPT
 
      for LON in 156 165 -110 -140 -170 ; do
 
-        I=$( cdffindij $LON $LON $LAT $LAT -c mesh_hgr.nc -p T | tail -2 | head -1  | awk '{print $1 }' )
-        J=$( cdffindij $LON $LON $LAT $LAT -c mesh_hgr.nc -p T | tail -2 | head -1  | awk '{print $3 }' )
+        I=$( cdffindij -w $LON $LON $LAT $LAT -c mesh_hgr.nc -p T | tail -2 | head -1  | awk '{print $1 }' )
+        J=$( cdffindij -w $LON $LON $LAT $LAT -c mesh_hgr.nc -p T | tail -2 | head -1  | awk '{print $3 }' )
         LONG=${LON}e
         LATI=${LAT}n
         if (( $LON < 0 )) ; then LONG=${LON}w ; fi
@@ -1699,7 +1712,7 @@ if [             $TAO !=  0   ] ; then
         file=${CONFCASE}_${TAG}_vita.nc
         fvel=${fbase}_${LATI}${LONG}.nc
         varu=sovitua
-        cdfprofile $I $J $file $varu  # extract profile at given position for given variable
+        cdfprofile -IJ $I $J -f $file -v $varu  # extract profile at given position for given variable
         ncrename -h -O -v sovitua,u_$LONG profile.nc
 
         concat_file $TAG profile.nc $fvel
@@ -1714,35 +1727,35 @@ if [             $TAO !=  0   ] ; then
      if [ -f ${fbase}_0n110w.nc ] ; then  # assume that if the 1rst file exist for this suffix, all exist
        # 110W  depth = 80 m
        fvel=${fbase}_0n110w ; dep=80
-       cdfprofile 1 1 $fvel.nc u_110w -dep $dep
+       cdfprofile -IJ 1 1 -f $fvel.nc -v u_110w -dep $dep
        mv profile.nc ${fvel}_UC.nc
        ncrename -h -O -v u_110w,u_110w_UC ${fvel}_UC.nc 
        file_lst_uc=$( filter_list $file_lst_uc ${fvel}_UC.nc )
 
      # 140W  depth = 120m
        fvel=${fbase}_0n140w  ; dep=120
-       cdfprofile 1 1 $fvel.nc u_140w -dep $dep
+       cdfprofile -IJ 1 1 -f $fvel.nc -v u_140w -dep $dep
        mv profile.nc ${fvel}_UC.nc
        ncrename -h -O -v u_140w,u_140w_UC ${fvel}_UC.nc 
        file_lst_uc=$( filter_list $file_lst_uc ${fvel}_UC.nc )
 
      # 170W  depth = 150m
        fvel=${fbase}_0n170w  ; dep=150
-       cdfprofile 1 1 $fvel.nc u_170w -dep $dep
+       cdfprofile -IJ 1 1 -f $fvel.nc -v u_170w -dep $dep
        mv profile.nc ${fvel}_UC.nc
        ncrename -h -O -v u_170w,u_170w_UC ${fvel}_UC.nc
        file_lst_uc=$( filter_list $file_lst_uc ${fvel}_UC.nc )
 
      # 156E  depth = 200m
        fvel=${fbase}_0n156e  ; dep=200
-       cdfprofile 1 1 $fvel.nc u_156e -dep $dep
+       cdfprofile -IJ 1 1 -f $fvel.nc -v u_156e -dep $dep
        mv profile.nc ${fvel}_UC.nc
        ncrename -h -O -v u_156e,u_156e_UC ${fvel}_UC.nc
        file_lst_uc=$( filter_list $file_lst_uc ${fvel}_UC.nc )
 
      # 165E  depth = 200m
        fvel=${fbase}_0n165e  ; dep=200
-       cdfprofile 1 1 $fvel.nc u_165e -dep $dep
+       cdfprofile -IJ 1 1 -f $fvel.nc -v u_165e -dep $dep
        mv profile.nc ${fvel}_UC.nc
        ncrename -h -O -v u_165e,u_165e_UC ${fvel}_UC.nc
        file_lst_uc=$( filter_list $file_lst_uc ${fvel}_UC.nc )
@@ -1810,7 +1823,7 @@ if [ $TRACER != 0 ] ; then
  
    # CFC11
    \rm -f tmp1
-   cdfmean  ${CONFCASE}_${TAG}_diadT.nc  INVCFC T $fullopt > tmp1
+   cdfmean  -f ${CONFCASE}_${TAG}_diadT.nc  -v INVCFC -p T $FULLOPT > tmp1
    area=$(cat tmp1 |  grep -e 'Mean value at level' | awk ' {print $12}')
    mean=$(cat tmp1 |  grep -e 'Mean value over the ocean' | awk ' {print $6}')
    total=$(echo $mean $area |  awk '{print $1 * $2 }' )
@@ -1821,7 +1834,7 @@ if [ $TRACER != 0 ] ; then
    if [ $TRACER_BC14 != 0 ] ; then
      # B-C14
      \rm -f tmp1
-     cdfmean  ${CONFCASE}_${TAG}_ptrcT.nc  invc14 T $fullopt > tmp1
+     cdfmean  -f ${CONFCASE}_${TAG}_ptrcT.nc  -v invc14 -p T $FULLOPT > tmp1
      area=$(cat tmp1 |  grep -e 'Mean value at level' | awk ' {print $12}')
      mean=$(cat tmp1 |  grep -e 'Mean value over the ocean' | awk ' {print $6}')
      total=$(echo $mean $area |  awk '{print $1 * $2 }' )
@@ -1832,15 +1845,15 @@ if [ $TRACER != 0 ] ; then
    fi
  
    # zonal integral of inventories
-   cdfzonalsum  ${CONFCASE}_${TAG}_ptrcT.nc  T
+   cdfzonalsum  -f ${CONFCASE}_${TAG}_ptrcT.nc  -p T
    expatrie zonalsum.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalsum_conc.nc  # in MEANDIR, not a time-series
-   cdfzonalsum  ${CONFCASE}_${TAG}_diadT.nc  T
+   cdfzonalsum  -f ${CONFCASE}_${TAG}_diadT.nc  -p T
    expatrie zonalsum.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalsum_flx.nc
  
    # zonal means
-   cdfzonalmean  ${CONFCASE}_${TAG}_ptrcT.nc  T
+   cdfzonalmean  -f ${CONFCASE}_${TAG}_ptrcT.nc  -p T
    expatrie zonalmean.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalmean_conc.nc
-   cdfzonalmean  ${CONFCASE}_${TAG}_diadT.nc  T
+   cdfzonalmean  -f ${CONFCASE}_${TAG}_diadT.nc  -p T
    expatrie zonalmean.nc $MEANY ${CONFCASE}_${TAG}_TRCzonalmean_flx.nc
  
    # it is used to take only the interesting variables from the results
@@ -1848,17 +1861,18 @@ if [ $TRACER != 0 ] ; then
    ncks -h -F -d deptht,1,1 -v zoVCFC_glo,zoRCFC_glo,zoNTCFC_glo,nav_lon,nav_lat zonalmean.nc zonalsurf.nc
  
    # put in ascii format the 1D profiles
-   cdfzonalout zonalmean.nc >> $ftrc_zomean
-   cdfzonalout zonalsum.nc >>  $ftrc_zosum
-   cdfzonalout zonalsurf.nc >>  $ftrc_zosurf
+   cdfzonalout -f zonalmean.nc >> $ftrc_zomean
+   cdfzonalout -f zonalsum.nc >>  $ftrc_zosum
+   cdfzonalout -f zonalsurf.nc >>  $ftrc_zosurf
    file_lst=$( filter_list $file_lst $ftrc_zomean $ftrc_zosum $ftrc_zosurf )
  
    # penetration depth
-   cdfpendep ${CONFCASE}_${TAG}_ptrcT.nc ${CONFCASE}_${TAG}_diadT.nc -inv INVCFC -trc CFC11
+   cdfpendep -trc ${CONFCASE}_${TAG}_ptrcT.nc ${CONFCASE}_${TAG}_diadT.nc \
+            -i {CONFCASE}_${TAG}_ptrcT.nc ${CONFCASE}_${TAG}_diadT.nc  -vinv INVCFC -vtrc CFC11
    expatrie pendep.nc $MEANY ${CONFCASE}_${TAG}_pendep.nc
 
    # Fraction of inventory
-   cdffracinv ${CONFCASE}_${TAG}_diadT.nc -inv INVCFC
+   cdffracinv -trc ${CONFCASE}_${TAG}_diadT.nc -inv INVCFC
    expatrie fracinv.nc $MEANY ${CONFCASE}_${TAG}_fracinv.nc
  done
 
@@ -1885,7 +1899,7 @@ if [ $BIO_PROFILE != 0 ] ; then
      rapatrie ${CONFCASE}_${TAG}_ptrcT.nc $MEANY ${CONFCASE}_${TAG}_ptrcT.nc
 
      # Parameters for integration
-     latmin=$( cdffindij -180 180 -75 -45 -c mesh_hgr.nc -p T | tail -2 | head -1 | awk '{ print $4 }' )
+     latmin=$( cdffindij -w -180 180 -75 -45 -c mesh_hgr.nc -p T | tail -2 | head -1 | awk '{ print $4 }' )
    
      # compute vertical profiles
      suf=$(getsuffix $TAG )
@@ -1893,7 +1907,7 @@ if [ $BIO_PROFILE != 0 ] ; then
 
      jc=0
      for var in DIC Alkalini O2 PO4 Si NO3 Fer DOC ; do 
-       cdfmean ${CONFCASE}_${TAG}_ptrcT.nc $var T 0 180 1 $latmin 0 46 $fullopt
+       cdfmean -f ${CONFCASE}_${TAG}_ptrcT.nc -v $var -p T -w 0 180 1 $latmin 0 46 $FULLOPT
        if [ $jc == 0 ] ; then
          ncks -h -A -v nav_lon,nav_lat,mean_$var cdfmean.nc tmpbioprofile.nc
        else
@@ -1935,7 +1949,7 @@ if [ $PISCES_INT != 0 ] ; then
      jc=0
      # compute vertically integrated mean
      for var in DIC Alkalini O2 PO4 Si NO3 Fer DOC NCHL DCHL POC PHY PHY2 ZOO ZOO2 GOC SFe CFC11; do
-       cdfvertmean ${CONFCASE}_${TAG}_ptrcT.nc $var T 0 150 $fullopt
+       cdfvertmean -f ${CONFCASE}_${TAG}_ptrcT.nc -l $var -p T -zlim 0 150 $FULLOPT
        ncrename -h -v sovertmean,vertmean_${var} vertmean.nc
        if [ $jc == 0 ] ; then
          ncks -h -A -v nav_lon,nav_lat,vertmean_$var vertmean.nc tmpvertmean.nc
@@ -1946,7 +1960,7 @@ if [ $PISCES_INT != 0 ] ; then
      done
 
      for var in PPPHY2 PPPHY PPNEWN PPNEWD PMO PMO2 PAR PH; do
-       cdfvertmean ${CONFCASE}_${TAG}_diadT.nc $var T 0 150 $fullopt
+       cdfvertmean -f ${CONFCASE}_${TAG}_diadT.nc -l $var -p T -zlim 0 150 $FULLOPT
        ncrename -h -v sovertmean,vertmean_${var} vertmean.nc
        ncks -A -v vertmean_$var vertmean.nc tmpvertmean.nc
      done

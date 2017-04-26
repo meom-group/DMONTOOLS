@@ -15,6 +15,10 @@
 ##          supported machine : jade, ada, ulam, meolkerg, vargas, desktop
 ## generic script functions : valid on any unix system
 ##
+# set general options after config_def sourced
+NC4=${NC4:=0}
+if [ $NC4 = 1 ] ; then NCOPT='-nc4' ; fi
+
 ##########################################################################
 # (1) Machine dependent functions
 
@@ -227,7 +231,7 @@ esac
 # check if a variable is available within a cdf file :chkvar var file
 #  return 0 if available, 1 if not available
 chkvar()   {
-   cdfinfo $2 | grep -q $1
+   cdfinfo -f $2 | grep -q $1
    echo $?
            }
 ######################################################################################

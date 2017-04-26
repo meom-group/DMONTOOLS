@@ -27,7 +27,8 @@ useMPI=1
 
 # XIOS output from model ? (set XIOS=   if not used
 XIOS=5d
-NC4=1        # if set to 1 use netcdf4 capabilities of the nesting tools
+NC4=1        # if set to 1 use netcdf4 capabilities of the cdftools
+VVL=1        # if set to 1 use vvl capabilities of the cdftools
 FULL=0       # if set to other thing than 0, means you are using z-steps, no partial-steps.
 
 if [ $XIOS ] ; then
