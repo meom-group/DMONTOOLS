@@ -591,7 +591,7 @@ eof
     ZOOM="-zoom -65 20 45 75"
     if [ $( chkfile $PLOTDIR/ATLN/$filout.cgm ) == absent  ] ; then
        rapatrie $t $MEANY $t
-       cdfbottomsig $t 4000
+       cdfbottomsig -t $t -r 4000
        cat << eof > botsigma4.lim
 0
 44.8
@@ -1392,7 +1392,7 @@ equat_section_indian() {
          if [ $( chkfile $PLOTDIR/SECTIONS1/$filout.cgm ) == absent ] ; then
             rapatrie $topa $MEANY $topa
             rapatrie $tlev $IDIR $tlev
-            $CDFTOOLS/cdfsig0 $t
+            $CDFTOOLS/cdfsig0 -t $t
             mklim $min $max $pas > zclrmark
             coupar7w; mkplt $filout
          fi
@@ -1501,7 +1501,7 @@ cat << eof > PV.mark
 eof
             CLRMARK="-clrmark PV.mark" ;
             rapatrie $fich_pvm3 $MEANY $fich_pvm3 ;
-            nlev=$( cdfinfo $fich_pvm3 | grep npk | awk '{ print $3}' );
+            nlev=$( cdfinfo -f $fich_pvm3 | grep npk | awk '{ print $3}' );
          #   LEV="-lev 2-$nlev" ;
             LEV='' ;
             CNTLIM='' ; CNTDATA='' ;;
@@ -1519,7 +1519,7 @@ cat << eof > PV.mark
 eof
             CLRMARK="-clrmark PV.mark" ;
             rapatrie $fich_pvm9 $MEANY $fich_pvm9 ;
-            nlev=$( cdfinfo $fich_pvm9 | grep npk | awk '{ print $3}' );
+            nlev=$( cdfinfo -f $fich_pvm9 | grep npk | awk '{ print $3}' );
          #   LEV="-lev 2-$nlev" ;
             LEV='' ; 
             CNTLIM='' ; CNTDATA='' ;;
@@ -1653,11 +1653,9 @@ eof
       filout=${CONFIG}_${var}_${YEAR}-${CASE}
       if [ $( chkfile $PLOTDIR/SECTIONS/$filout.cgm ) == absent ] ; then
         rapatrie $t $MEANY $t
-        cdfsig0 $t
-        cdfsigi $t 2000
-        mv sigi.nc sig2.nc
-        cdfsigi $t 4000
-        mv sigi.nc sig4.nc
+        cdfsig0 -t $t
+        cdfsigi -t $t -r 2000 -o sig2.nc
+        cdfsigi -t $t -r 4000 -o sig4.nc
         coupsig
         med -e 'r gmetatop' -e 'r gmetabot1' -e '1,2 merge' -e '1 w gmeta1'
         med -e 'r gmeta1' -e 'r gmetabot2' -e '1,2 merge' -e '1 w gmeta2'
@@ -1732,14 +1730,14 @@ eof
             CLRMODIF='-clrmodif deptht=depthw';
             CNTDATA='' ; CNTLIM='' ;
             rapatrie $fich_pvm3 $MEANY $fich_pvm3 ; 
-            nlev=$( cdfinfo $fich_pvm3 | grep npk | awk '{ print $3}' );
+            nlev=$( cdfinfo -f $fich_pvm3 | grep npk | awk '{ print $3}' );
             LEV='' ; # LEV="-lev 2-$nlev" ;
             min=-1.0 ; max=6.0 ; pas=1.0 ;;
       pvm9) clrvar=volspv ; CLRDATA="-clrdata $fich_pvm9" ;
             CLRMODIF='-clrmodif deptht=depthw';
             CNTDATA='' ; CNTLIM='' ;
             rapatrie $fich_pvm9 $MEANY $fich_pvm9 ; 
-            nlev=$( cdfinfo $fich_pvm9 | grep npk | awk '{ print $3}' );
+            nlev=$( cdfinfo -f $fich_pvm9 | grep npk | awk '{ print $3}' );
             LEV='' ; # LEV="-lev 2-$nlev" ; 
             min=-1.0 ; max=6.0 ; pas=1.0 ;;
      esac
@@ -1898,11 +1896,9 @@ eof
       filout=${CONFIG}_sig${sec}_${YEAR}-${CASE}
       if [ $( chkfile $PLOTDIR/CIRCUM/$filout.cgm ) == absent ] ; then
         rapatrie $t $MEANY $t
-        cdfsig0 $t
-        cdfsigi $t 2000
-        mv sigi.nc sig2.nc
-        cdfsigi $t 4000
-        mv sigi.nc sig4.nc
+        cdfsig0 -t $t
+        cdfsigi -t $t -r 2000 -o sig2.nc
+        cdfsigi -t $t -r 4000 -o sig4.nc
         coupsigcirc
         med -e 'r gmetatop1' -e 'r gmetatop2' -e '1,2 merge' -e '1 w gmeta1'
         med -e 'r gmeta1' -e 'r gmetatop3' -e '1,2 merge' -e '1 w gmeta2'
@@ -2300,7 +2296,7 @@ eof
   if [ $( chkfile $PLOTDIR/GLOBAL/$filout.cgm ) == absent ] ; then
      rapatrie $eke $MEANY $eke
      if [ $filtering != 0 ] ; then 
-       cdfsmooth -f $eke -c $filtering  -k 1-4
+       cdfsmooth -f $eke -c $filtering  -k 1-4 
        mv $eke $eke.all
        mv ${eke}L* $eke
      fi
@@ -4250,7 +4246,7 @@ eof
     sshfilout=${CONFIG}_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_SSH_${AREA}_${YEAR}-${CASE}
     mkplt $sshfilout
 
-    cdfvita $u $v $t -lev $LAYER
+	cdfvita -u $u -v $v -t $t -lev $LAYER
     CLRDATA="-clrdata vita.nc"
     clrvar=sovitmod
     CLRMARK="-clrmark speedclrmark"
