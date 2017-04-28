@@ -26,7 +26,7 @@ case $MACHINE in
 
 ##########################################################################
 
-    ( jade | occigen | curie | meolkerg )
+    ( jade | occigen | occigen2 | curie | meolkerg )
 
 # jade version: all is supposed to be in WORKDIR
  

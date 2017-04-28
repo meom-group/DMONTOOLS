@@ -24,6 +24,7 @@
 #SBATCH -J zmetamon
 #SBATCH -e zmetamon.e%j
 #SBATCH -o zmetamon.o%j
+#SBATCH --constraint=<NODETYPE>
 #SBATCH --time=<WALLTIME>
 #SBATCH --exclusive
 
@@ -104,6 +105,9 @@ if [ $useMPI = 1 ] ; then
 if [ $MACHINE = 'jade' ] ; then
    mpiexec_mpt -n <NB_NPROC> ./mpi_metamon $YEARS
 elif [ $MACHINE = 'occigen' ] ; then
+   ulimit -s unlimited
+   srun --mpi=pmi2 -n <NB_NPROC>  ./mpi_metamon $YEARS
+elif [ $MACHINE = 'occigen2' ] ; then
    ulimit -s unlimited
    srun --mpi=pmi2 -n <NB_NPROC>  ./mpi_metamon $YEARS
 elif [ $MACHINE = 'curie' ] ; then

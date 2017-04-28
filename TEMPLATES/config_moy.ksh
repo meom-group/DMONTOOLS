@@ -23,8 +23,7 @@ TYP_LIST='gridT gridU gridV gridW flxT dynT icemod trends' # list of grid type
 XIOS=5d      # compute mean values from 5d output . If XIOS not used, set XIOS=
 NC4=1        # if set to 1 use netcdf4 capabilities of the cdftools 
 VVL=1        # if set to 1 use vvl capabilities of the  cdftools
-REMDIR=/ccc/scratch/cont003/gen0727/$USER/  # root directory for the -S dirs
-                                            # allow the use of another user
+REMDIR=$DDIR # root directory for the -S dirs
 
 MPDIR=$DMON_ROOTDIR/MOY_PROD
 # set xiosid according to XIOS FLAG
@@ -53,7 +52,7 @@ case $MACHINE in
     STEP=1
     BATCH=PBS ;;
 
-    ( occigen )
+    ( occigen | occigen2 )
 
     USER=`whoami`
     REMOTE_USER=`whoami`

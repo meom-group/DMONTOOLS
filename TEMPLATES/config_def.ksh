@@ -18,6 +18,7 @@
 CONFIG=<CONFIG>
 CASE=<CASE>
 MACHINE=<MACHINE>
+NODETYPE=BDW28
 ulimit -s unlimited  # needed for occigen 
 
 MAIL=<MAILTO>      ## to be edited ##
@@ -213,6 +214,14 @@ elif [ $CONFIG = 'ORCA025' -o  $CONFIG = 'ORCA025.L75' -o $CONFIG = 'ORCA025.L30
   NINO3='550 790 479 519 '
   NINO4='350 550 479 519 '
   NINO34='470 670 479 519 '
+elif [ $CONFIG = 'EORCA12' -o  $CONFIG = 'EORCA12.L46' -o $CONFIG = 'EORCA12.L75' ] ; then
+  # define the I-J window for GIB diags
+  GIBWIN='3282 3327 2046 2110'
+  # define the I-J windows for EL NINO diags
+  NINO12='2370 2490 1465 1585'
+  NINO3='1650  2370 1525 1645'
+  NINO4='1050  1650 1525 1645'
+  NINO34='1410 2010 1525 1645'
 elif [ $CONFIG = 'ORCA12' -o  $CONFIG = 'ORCA12.L46' -o $CONFIG = 'ORCA12.L75' ] ; then
   # define the I-J window for GIB diags
   GIBWIN='3282 3327 1959 2022 '
@@ -275,7 +284,7 @@ fi
     DDIR=${DDIR:=$WORKDIR}  # if DDIR not defined use WORKDIR instead
 
 case $MACHINE in
-    ( jade | occigen | curie | ada | vayu) 
+    ( jade | occigen | occigen2 | curie | ada | vayu) 
 
     ### 1. User informations
     USER=`whoami` ;   REMOTE_USER=`whoami` ; SDIR=$DDIR
@@ -310,6 +319,13 @@ case $MACHINE in
     WALLTIME=03:00:00
      if [ $MACHINE = 'jade'     ] ; then MPIPROC=8   ; fi 
      if [ $MACHINE = 'occigen'  ] ; then MPIPROC=24  ; fi 
+     if [ $MACHINE = 'occigen2' ] ; then 
+        if [ $NODETYPE = BDW28 ] ; then
+           MPIPROC=28  
+        else
+           MPIPROC=24  
+        fi 
+     fi
      if [ $MACHINE = 'ada'      ] ; then MPIPROC=32  ; fi 
      if [ $MACHINE = 'curie'    ] ; then MPIPROC=16  ; fi  ;;
 
