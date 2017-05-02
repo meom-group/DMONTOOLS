@@ -31,6 +31,8 @@ XIOS=5d
 NC4=1        # if set to 1 use netcdf4 capabilities of the cdftools
 VVL=1        # if set to 1 use vvl capabilities of the cdftools
 FULL=0       # if set to other thing than 0, means you are using z-steps, no partial-steps.
+LIM3=0       # if set to 1 use LIM3 ice model and its std output in icemod3. If set to 0 use LIM2 (icemod)
+FLXT=0       # if set to 1 means that fluxes are in a separate fllxT file ( not in gridT)
 
 if [ $XIOS ] ; then
    xiosid="."$XIOS
@@ -45,6 +47,8 @@ MESH_MASK_ID=$CONFIG     # root part of the mesh-mask files (likely  to be edite
                          #                          ${MESH_MASK_ID}_mesh_hgr.nc
                          #                          ${MESH_MASK_ID}_mesh_zgr.nc
 #TSCLIM=Gouretski        # if TSCLIM is not defined here it takes Levitus_p2.1 as default
+#TSCLIM=WOA2009          # if TSCLIM is not defined here it takes Levitus_p2.1 as default
+
 
 ######################################################################
 ### modules
