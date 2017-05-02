@@ -32,6 +32,25 @@ if [ $single == 0 ] ; then
 else
   clim=1
 fi
+#----------------------------------------------------------------------------
+# set some default values according to particular setting
+LIM3=${LIM3:=0}    # use LI:3 instead of LIM2
+if [ $LIM3 = 1 ] ; then
+   icemod=icemod3
+   ileadfra=siconc
+   iicethic=sithic
+else
+   icemod=icemod
+   ileadfra=ileadfra
+   iicethic=iicethic
+fi
+# --------------------
+FLXT=${FLXT:=0}   # use separate files for atmospheric fluxes
+if [ $FLXT = 1 ] ; then
+   flxT=flxT
+else
+   flxT=gridT
+fi
 
 #-----------------------------------------------------------------------------
 
@@ -267,7 +286,7 @@ getlist() {
 
  # get files  gridT, icemod
  t=${CONFCASE}_y${YEARDAT}_gridT.nc
- ice=${CONFCASE}_y${YEARDAT}_icemod.nc
+ ice=${CONFCASE}_y${YEARDAT}_$icemod.nc
 
  # reset the list of plots that are produced ( list is updated in mkplt )
  listplt=' '
@@ -276,7 +295,7 @@ getlist() {
  CLRDATA="-clrdata $t"
  PAL="-p $PAL1"
  CLRLIM="-clrmark zclrmark"
- CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;
+ CNTICE=" -cntdata $ice -cntvar $ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;
 
  # SSH GLobal  mean value set to 0
  rapatrie $t $MEANY $t
@@ -311,7 +330,7 @@ getlist() {
                 0)  min=-2 ; max=26  ; pas=4 
                      if [ $(chconf PERIANT) != 0 ] ; then min=-2 ; max=22  ; pas=2  ; fi
                      LEV="-lev 1" ; DEP="" ;
-                    CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
+                    CNTICE=" -cntdata $ice -cntvar $ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
               150)  min=-2 ; max=28  ; pas=4
                     if [ $(chconf PERIANT) != 0 ] ; then min=-2 ; max=20  ; pas=2  ; fi ;;
             esac ;;
@@ -320,7 +339,7 @@ getlist() {
                 0)  min=30 ; max=38  ; pas=2 
                      if [ $(chconf PERIANT) != 0 ] ; then min=32 ; max=35  ; pas=1  ; fi
                      LEV="-lev 1" ; DEP="" ;
-                    CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
+                    CNTICE=" -cntdata $ice -cntvar $ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
               150)  min=30 ; max=38  ; pas=2 
                      if [ $(chconf PERIANT) != 0 ] ; then min=33 ; max=35  ; pas=1  ; fi ;;
             esac ;;
@@ -485,12 +504,8 @@ eof
   xstring=0.52 ; ystring=0.9
  fi
 
-  # get files  gridT
-  if [ $XIOS ] ; then
-    t=${CONFCASE}_y${YEARDAT}_flxT.nc
-  else
-    t=${CONFCASE}_y${YEARDAT}_gridT.nc
-  fi
+  # get files  flxT
+    t=${CONFCASE}_y${YEARDAT}_$flxT.nc
 
   # reset the list of plots that are produced ( list is updated in mkplt )
   listplt=' '
@@ -506,7 +521,8 @@ eof
          case $var in
            HeatFlx) clrvar=sohefldo ; CLRDATA=" -clrdata $t"; min=-140 ; max=140  ; pas=15 ;;
            WaterFlx) clrvar=sowaflup ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
-           WaterDmp) clrvar=sowafldp ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+#           WaterDmp) clrvar=sowafldp ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+           WaterDmp) clrvar=sowafld ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
            CDWaterFlx) clrvar=sowaflcd ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
          esac
          CLRLIM="-clrmin $min -clrmax $max -clrmet 1"
@@ -624,7 +640,7 @@ eof
 
   # get files  gridT, icemod
   t=${CONFCASE}_y${YEARDAT}_gridT.nc
-  ice=${CONFCASE}_y${YEARDAT}_icemod.nc
+  ice=${CONFCASE}_y${YEARDAT}_$icemod.nc
 
   for BASIN in $list_bas ; do
     case $BASIN in
@@ -642,7 +658,7 @@ eof
   CLRDATA="-clrdata $t"
   PAL="-p $PAL1"
   CLRLIM="-clrmark zclrmark"
-  CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;
+  CNTICE=" -cntdata $ice -cntvar $ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;
 
   # SSH  mean value set to 0
   clrvar=sossheig
@@ -673,7 +689,7 @@ eof
              T) clrvar=votemper
                 case $dep in
                   0)  min=-2. ; max=26  ; pas=4 ; LEV="-lev 1" ; DEP=""
-                      CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
+                      CNTICE=" -cntdata $ice -cntvar $ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
                 200)  min=-2. ; max=22  ; pas=4  ;;
                1000) min=0   ; max=12  ; pas=2  ;;
                2000) min=0   ; max=5   ; pas=.5 ;;
@@ -684,7 +700,7 @@ eof
              S) clrvar=vosaline
                 case $dep in
                   0)  min=30 ; max=36  ; pas=2 ; LEV="-lev 1" ; DEP="" ;
-                      CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
+                      CNTICE=" -cntdata $ice -cntvar $ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
                 200)  min=34   ; max=37.5 ; pas=.5 ;;
                 1000) min=34   ; max=36   ; pas=.5 ;;
                 2000) min=34.6 ; max=35.4 ; pas=.1 ;;
@@ -698,7 +714,7 @@ eof
              T) clrvar=votemper
                 case $dep in
                   0)  min=-2. ; max=20  ; pas=2 ; LEV="-lev 1" ; DEP=""
-                      CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
+                      CNTICE=" -cntdata $ice -cntvar $ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
                 200)  min=-2. ; max=16  ; pas=2  ;;
                1000)  min=0   ; max=5  ; pas=1  ;;
                2000)  min=-0.5   ; max=3   ; pas=0.5 ;;
@@ -709,7 +725,7 @@ eof
              S) clrvar=vosaline
                 case $dep in
                   0) min=32 ; max=35  ; pas=1 ; LEV="-lev 1" ; DEP="" ;
-                     CNTICE=" -cntdata $ice -cntvar ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
+                     CNTICE=" -cntdata $ice -cntvar $ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
                 200) min=34   ; max=35.6 ; pas=.2 ;;
                1000) min=34.2 ; max=34.7 ; pas=.1 ;;
                2000) min=34.6 ; max=34.8 ; pas=0.05 ;;
@@ -785,11 +801,7 @@ eof
 
   list_bas=$( getlist $zoomFLX )
   # get files  gridT
-  if [ $XIOS ] ; then
-     t=${CONFCASE}_y${YEARDAT}_flxT.nc
-  else
-     t=${CONFCASE}_y${YEARDAT}_gridT.nc
-  fi
+     t=${CONFCASE}_y${YEARDAT}_$flxT.nc
 
   for BASIN in $list_bas ; do
     case $BASIN in
@@ -812,7 +824,8 @@ eof
          case $var in
            HeatFlx)    clrvar=sohefldo ; CLRDATA=" -clrdata $t"              ; min=-140 ; max=140  ; pas=15 ;;
            WaterFlx)   clrvar=sowaflup ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
-           WaterDmp)   clrvar=sowafldp ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+#           WaterDmp)   clrvar=sowafldp ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
+           WaterDmp)   clrvar=sowafld  ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
            CDWaterFlx) clrvar=sowaflcd ; CLRDATA=" -clrdata $t -scale 86400."; min=-7 ; max=7  ; pas=2 ;;
          esac
          CLRLIM="-clrmin $min -clrmax $max -clrmet 1"
@@ -970,7 +983,7 @@ eof
 eof
   for mm in 3 9 ; do
     m=$( printf "%02d" $mm )
-    ice=${CONFCASE}_y${YEAR}m${m}${xiosid}_icemod.nc
+    ice=${CONFCASE}_y${YEAR}m${m}${xiosid}_$icemod.nc
 
     tmp=${ice#${CONFCASE}_y} ; tag=${tmp%${xiosid}_*}
     year=$( echo $tag | awk -Fm '{print $1}' )
@@ -1000,7 +1013,7 @@ eof
       filout=${CONFIG}_S_ithic_${bas}_${month}_${YEAR}-${CASE}
       if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
         rapatrie $ice $MEANY $ice
-        $CHART -forcexy -clrdata $ice -clrvar iicethic -clrlim S_thick.lim -p $PALBLUE2RED4 \
+        $CHART -forcexy -clrdata $ice -clrvar $iicethic -clrlim S_thick.lim -p $PALBLUE2RED4 \
         -proj ME -vertpal $ZOOM  -spval 0  -xstep 10 -xgrid -ystep 5 -ygrid \
         -clrexp -2 -format PALETTE I3  \
         -clrxypal 0.9 1 0.1 0.9 \
@@ -1014,7 +1027,7 @@ eof
       filout=${CONFIG}_S_iconc_${bas}_${month}_${YEAR}-${CASE}
       if [ $( chkfile $PLOTDIR/$BASIN/$filout.cgm ) == absent ] ; then
         rapatrie $ice $MEANY $ice
-        $CHART -forcexy -clrdata $ice -clrvar ileadfra -clrlim ice_noaa.lim -p $PALNOAA \
+        $CHART -forcexy -clrdata $ice -clrvar $ileadfra -clrlim ice_noaa.lim -p $PALNOAA \
         -proj ME -vertpal $ZOOM  -spval -1 -xstep 10 -xgrid -ystep 5 -ygrid \
         -clrexp -2 -format PALETTE I3  \
         -clrxypal 0.9 1 0.1 0.9 \
@@ -1993,7 +2006,7 @@ eof
 
   for mm in 3 9 ; do
     m=$( printf "%02d" $mm )
-    ice=${CONFCASE}_y${YEAR}m${m}${xiosid}_icemod.nc
+    ice=${CONFCASE}_y${YEAR}m${m}${xiosid}_$icemod.nc
 
     tmp=${ice#${CONFCASE}_y} ; tag=${tmp%${xiosid}_*}
     year=$( echo $tag | awk -Fm '{print $1}' )
@@ -2029,7 +2042,7 @@ eof
          filout=${CONFIG}_S_ithic_${month}_${YEAR}-${CASE}
         if [ $( chkfile $PLOTDIR/ICE/$filout.cgm ) == absent ] ; then
          rapatrie $ice $MEANY $ice
-        $CHART -forcexy -clrdata $ice -clrvar iicethic -clrlim S_thick.lim -p $PALBLUE2RED4 \
+        $CHART -forcexy -clrdata $ice -clrvar $iicethic -clrlim S_thick.lim -p $PALBLUE2RED4 \
         -proj OR -vertpal -rlat -90 -zoom -179 179 -90 -50  -spval 0  -xstep 45 -xgrid -ystep 45 -ygrid \
         -clrexp -2 -format PALETTE I3 -noperim \
         -clrxypal 0.9 1 0.1 0.9 \
@@ -2045,7 +2058,7 @@ eof
          filout=${CONFIG}_S_iconc_${month}_${YEAR}-${CASE}
         if [ $( chkfile $PLOTDIR/ICE/$filout.cgm ) == absent ] ; then
          rapatrie $ice $MEANY $ice
-        $CHART -forcexy -clrdata $ice -clrvar ileadfra -clrlim ice_noaa.lim -p $PALNOAA \
+        $CHART -forcexy -clrdata $ice -clrvar $ileadfra -clrlim ice_noaa.lim -p $PALNOAA \
         -proj OR -vertpal -rlat -90 -zoom -179 179 -90 -50  -spval -1 \
         -clrexp -2 -format PALETTE I3 -noperim \
         -clrxypal 0.9 1 0.1 0.9 \
@@ -2066,7 +2079,7 @@ eof
          filout=${CONFIG}_N_ithic_${month}_${YEAR}-${CASE}
         if [ $( chkfile $PLOTDIR/ICE/$filout.cgm ) == absent ] ; then
          rapatrie $ice $MEANY $ice
-         $CHART -forcexy -clrdata $ice -clrvar iicethic -clrlim thick.lim -p $PALBLUE2RED4 \
+         $CHART -forcexy -clrdata $ice -clrvar $iicethic -clrlim thick.lim -p $PALBLUE2RED4 \
          -proj OR -vertpal -rlat 90 -rlon -45 -zoom -177 177.0 40 87  -spval 0 -xstep 45 -xgrid -ystep 45 -ygrid \
          -clrexp -2 -format PALETTE I3 -noperim \
          -clrxypal 0.9 1 0.1 0.9 \
@@ -2082,7 +2095,7 @@ eof
          filout=${CONFIG}_N_iconc_${month}_${YEAR}-${CASE}
         if [ $( chkfile $PLOTDIR/ICE/$filout.cgm ) == absent ] ; then
          rapatrie $ice $MEANY $ice
-         $CHART -forcexy -clrdata $ice -clrvar ileadfra -clrlim ice_noaa.lim -p $PALNOAA \
+         $CHART -forcexy -clrdata $ice -clrvar $ileadfra -clrlim ice_noaa.lim -p $PALNOAA \
          -proj OR -vertpal -rlat 90 -rlon -45 -zoom -177 177.0 40 87  -spval -1 \
          -clrexp -2 -format PALETTE I3 -noperim \
          -clrxypal 0.9 1 0.1 0.9 \
@@ -2436,7 +2449,7 @@ eof
 
    listplt=' '
   # get files gridT in m03
-  flx3=${CONFCASE}_y${YEAR}m03${xiosid}_gridT.nc
+  flx3=${CONFCASE}_y${YEAR}m03${xiosid}_$flxT.nc
 
  min=-500 ; max=400 ; pas=100 ;  mklim $min $max $pas > zclrmark
 
