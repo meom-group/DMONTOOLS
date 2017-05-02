@@ -23,6 +23,7 @@
 #SBATCH -J zplotmonitor
 #SBATCH -e zplotmonitor.e%j
 #SBATCH -o zplotmonitor.o%j
+#SBATCH --constraint=<NODETYPE>
 #SBATCH --time=<PLOT_WALLTIME>
 #SBATCH --exclusive
 
@@ -106,7 +107,7 @@ if [ $useMPI = 1 ] ; then
       ./plot_monitor.ksh $YEARS
     fi   ;;
 
-  ( occigen )
+  ( occigen | occigen2 )
     # mpi_plot_monitor $YEARS 
     #  Then each proc is expecting a command such as plot_monitor.ksh  $year
     if [ $single = 0 ] ; then
