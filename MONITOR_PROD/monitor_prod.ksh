@@ -1,4 +1,4 @@
-#!/bin/ksh
+!/bin/ksh
 set -x
 # This script is intended to be sourced from a main script. Not Stand Alone
 # Basically it runs on the production machine, once the MEAN fields 
@@ -1338,7 +1338,7 @@ if [ $DCT != 0 ] ; then
       zVVLOPT=""
     fi
 
-    cdfsigtrp -t $tfich -u $ufich -v $vfich -smin 21 -smax 30 -nbins 180 $FULLOPT $zVVLOPT# -print  >>  ${CONFCASE}_y${tag}_trpsig_monitor.lst
+    cdfsigtrp -t $tfich -u $ufich -v $vfich -smin 21 -smax 30 -nbins 180 $FULLOPT $zVVLOPT # -print  >>  ${CONFCASE}_y${tag}_trpsig_monitor.lst
     # save netcdf files ( one per section )
     listfiles=$( ls | grep -e "^[0-9]" | grep trpsig.nc  )
 
@@ -1534,7 +1534,7 @@ rename_maxmoc()   {
    concat_file $TAG maxmoc.nc $fglominmoc
    file_lst=$( filter_list $file_lst $fglominmoc )  ;;
 
-        ORCA12 | ORCA12.L46 | ORCA12.L75 | ORCA025 | ORCA025.L75 | ORCA025.L300 | ORCA05 | ORCA2 | ORCA246 )
+        EORCA12 | EORCA12.L46 | EORCA12.L75 | ORCA12 | ORCA12.L46 | ORCA12.L75 | ORCA025 | ORCA025.L75 | ORCA025.L300 | ORCA05 | ORCA2 | ORCA246 )
    # GLO
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b glo -w 20 60 500 2000 | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_maxmoc
