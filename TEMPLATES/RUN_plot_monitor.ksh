@@ -84,7 +84,7 @@ fi
      -e "s/<NB_NPROC>/$NB_NPROC/" -e "s/<PLOT_WALLTIME>/$PLOT_WALLTIME/" \
      -e "s/<JOBTYPE>/$JOBTYPE/"   -e "s/<MPIPROC>/$MPIPROC/g" \
      -e "s/<ACCOUNT>/$ACCOUNT/"   -e "s/<QUEUE>/$QUEUE/g" \
-     -e "s/ifloadlev#/$TASKTRICK/g" -e "s/<RNDTMPDIR>/$RNDTMPDIR/" >  plot_monitor.sub
+     -e "s/ifloadlev#/$TASKTRICK/g" -e "s/<RNDTMPDIR>/$RNDTMPDIR/"-e "s/<NODETYPE>/$NODETYPE/g"  >  plot_monitor.sub
  chmod +x plot_monitor.sub
  submit  ./plot_monitor.sub
  \rm plot_monitor.sub
