@@ -44,6 +44,24 @@ if [ $VVL = 1 ] ; then VVLOPT='-vvl' ; fi
 FULL=${FULL:=0}
 if [ $FULL != 0 ] ; then FULLOPT='-full' ; else FULLOPT='' ; fi
 
+LIM3=${LIM3:=0}    # use LI:3 instead of LIM2
+if [ $LIM3 = 1 ] ; then
+   icemod=icemod3
+   ileadfra=siconc
+   iicethic=sithic
+else
+   icemod=icemod
+   ileadfra=ileadfra
+   iicethic=iicethic
+fi
+
+FLXT=${FLXT:=0}   # use separate files for atmospheric fluxes
+if [ $FLXT = 1 ] ; then
+   flxT=flxT
+else
+   flxT=gridT
+fi
+
 # monitor_prod shoud be run in individual directory for each year to
 # allow parallel processing
 chkdir $YEAR
@@ -889,7 +907,7 @@ if [        $KERG  !=  0    ] ; then
   for TAG in $(mktaglist $KERG) ; do
    # get gridT file
    rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY ${CONFCASE}_${TAG}_gridT.nc
-   rapatrie ${CONFCASE}_${TAG}_icemod.nc $MEANY ${CONFCASE}_${TAG}_icemod.nc
+   rapatrie ${CONFCASE}_${TAG}_$icemod.nc $MEANY ${CONFCASE}_${TAG}_$icemod.nc
    rapatrie ${CONFCASE}_${TAG}_MXL.nc $MEANY ${CONFCASE}_${TAG}_MXL.nc
 
    # get mesh mask files
@@ -912,11 +930,11 @@ if [        $KERG  !=  0    ] ; then
      6) KERGWIN=$KERGBOX3 ;;
    esac
 
-   for var in votemper vosaline ileadfra iicethic somxl010 somxl030 somxlt02 soshfldo vosigma0; do
+   for var in votemper vosaline $ileadfra iicethic somxl010 somxl030 somxlt02 soshfldo vosigma0; do
 
      case $var in
        votemper|vosaline|soshfldo) file=${CONFCASE}_${TAG}_gridT.nc;;
-       ileadfra|iicethic) file=${CONFCASE}_${TAG}_icemod.nc;;
+       $ileadfra|$iicethic) file=${CONFCASE}_${TAG}_$icemod.nc;;
        somxl010|somxl030|somxlt02) file=${CONFCASE}_${TAG}_MXL.nc;;
        vosigma0) cdfsig0 -t ${CONFCASE}_${TAG}_gridT.nc
                  file=sig0.nc;;
@@ -1121,7 +1139,7 @@ if [    $ICEMONTH != 0    ] ; then
    file_lst=''
    for m in $(seq 1 12) ; do
     mm=$( printf "%02d" $m )
-    rapatrie  ${CONFCASE}_${TAG}m${mm}${xiosid}_icemod.nc $MEANY ${CONFCASE}_${TAG}m${mm}${xiosid}_icemod.nc
+    rapatrie  ${CONFCASE}_${TAG}m${mm}${xiosid}_$icemod.nc $MEANY ${CONFCASE}_${TAG}m${mm}${xiosid}_$icemod.nc
    done
  
    # get mesh mask files
@@ -1134,6 +1152,12 @@ if [    $ICEMONTH != 0    ] ; then
    fice=${fbase}_icemonth.txt
    fice_nc=${fbase}_ICEMONTH.nc
 
+   if [ $LIM3 = 1 ] ; then 
+     LIM3opt='-lim3'
+   else
+     LIM3opt=''
+   fi
+
    for m in $(seq 1 12) ; do 
     mm=$( printf "%02d" $m )
 
@@ -1142,7 +1166,7 @@ if [    $ICEMONTH != 0    ] ; then
     *)  echo '###' $YEAR $mm >> $fice ;;
     esac
 
-    cdficediags ${CONFCASE}_${TAG}m${mm}${xiosid}_icemod.nc  >> $fice 
+    cdficediags -i ${CONFCASE}_${TAG}m${mm}${xiosid}_$icemod.nc $LIM3opt >> $fice 
     concat_file ${TAG}m${mm}${xiosid} icediags.nc $fice_nc
 
    done
@@ -1434,16 +1458,8 @@ if [            $MHT  !=  0   ] ; then
 # (b) from Surface Heat fluxes
 #-----------------------------
    fhflx=${fbase}_hflx.nc
-   rapatrie ${CONFCASE}_${TAG}_gridT.nc $MEANY  ${CONFCASE}_${TAG}_gridT.nc
-   # check if sohefldo in gridT file :
-   ncdump -h ${CONFCASE}_${TAG}_gridT.nc | grep -q sohefldo
-
-   if [ $? = 0 ] ; then
-     zflxfil=${CONFCASE}_${TAG}_gridT.nc
-   else
-     rapatrie ${CONFCASE}_${TAG}_flxT.nc $MEANY  ${CONFCASE}_${TAG}_flxT.nc
-     zflxfil=${CONFCASE}_${TAG}_flxT.nc
-   fi
+   rapatrie ${CONFCASE}_${TAG}_$flxT.nc $MEANY  ${CONFCASE}_${TAG}_$flxT.nc
+   zflxfil=${CONFCASE}_${TAG}_$flxT.nc
 
    cdfhflx  -f $zflxfil
    concat_file $TAG cdfhflx.nc $fhflx
@@ -1991,6 +2007,6 @@ else
 
 fi
 
-\rm -f *gridT.nc *gridU.nc *gridV.nc *gridW.nc *icemod.nc *VT.nc
+\rm -f *gridT.nc *gridU.nc *gridV.nc *gridW.nc *$icemod.nc *VT.nc
 \rm -f mesh_hgr.nc mesh_zgr.nc mask.nc
 
