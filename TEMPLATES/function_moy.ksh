@@ -30,16 +30,17 @@ case $MACHINE in
 
 ##############################################################################
 
-    ( jade | ada | vayu | curie | occigen | occigen2)
+    ( jade | ada | vayu | curie | occigen | occigen2 )
 
     chkdir() {  mkdir -p $1 ;}
 
     submit() {
-       if [ $MACHINE = jade    ] ; then  qsub     $1 ; fi
-       if [ $MACHINE = vayu    ] ; then  qsub     $1 ; fi
-       if [ $MACHINE = ada     ] ; then  llsubmit $1 ; fi
-       if [ $MACHINE = curie   ] ; then  ccc_msub $@ ; fi
-       if [ $MACHINE = occigen ] ; then  sbatch   $@ ; fi
+       if [ $MACHINE = jade     ] ; then  qsub     $1 ; fi
+       if [ $MACHINE = vayu     ] ; then  qsub     $1 ; fi
+       if [ $MACHINE = ada      ] ; then  llsubmit $1 ; fi
+       if [ $MACHINE = curie    ] ; then  ccc_msub $@ ; fi
+       if [ $MACHINE = occigen  ] ; then  sbatch   $@ ; fi
+       if [ $MACHINE = occigen2 ] ; then  sbatch   $@ ; fi
              }
 
     monthly() { m=$1  ; mm=$(printf "%02d" $m )
