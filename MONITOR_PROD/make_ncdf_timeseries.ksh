@@ -124,7 +124,7 @@ fi
       (c) calendar=${OPTARG}   ;;
       (M) MACHINE=${OPTARG} ;;
       (l) echo ' Defaults configuration exists for the following pre-defined machines:' ;
-          for m in  ada jade occigen curie meolkerg ; do 
+          for m in  ada jade occigen occigen2 curie meolkerg ; do 
             echo '    - ' $m
           done ;
           exit 0 ;;
@@ -152,6 +152,7 @@ ierr=0  # reset error flag
 case $MACHINE in 
   ( jade     ) rootdir=/scratch/$USER         ;;
   ( occigen  ) rootdir=$WORKDIR               ;;
+  ( occigen2 ) rootdir=$WORKDIR               ;;
   ( ada      ) rootdir=$WORKDIR               ;;
   ( curie    ) rootdir=$DDIR                  ;;
   ( meolkerg ) rootdir=$ISLANDSPATH_MODEL_SET ;;
