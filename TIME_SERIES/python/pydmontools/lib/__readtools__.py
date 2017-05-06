@@ -69,7 +69,7 @@ def get_datetime(ncfile,tname='time_counter'):
     except:
        num_origin = 0 
        print 'time_origin attribute has not the expected format'
-    _dates = mdates.num2date(time_counter/mdates.SECONDS_PER_DAY + num_origin) # num are given in days
+    _dates = mdates.num2date(time_counter/mdates.SEC_PER_DAY + num_origin) # num are given in days
     cleandate = lambda d:d.replace(hour=0,minute=0,second=0,microsecond=0)
     dates = map(cleandate,_dates)
     # correct to gregorian calendar
