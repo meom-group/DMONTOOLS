@@ -76,10 +76,10 @@ def _readnc(filenc=None, argdict=myargs):
     #
     outdict = {} # creates the dictionnary which will contain the arrays 
     outdict['date_model'] = rs.get_datetime(filenc)
-    if argdict['config'].find('ORCA') == 0:
+    if argdict['config'].find('ORCA') == 0 or argdict['config'].find('EORCA') == 0 or argdict['config'].find('eORCA') == 0 :
         data_list = ['maxmoc_Glo_maxmoc40N' , 'maxmoc_Glo_maxmoc30S', 'maxmoc_Atl_maxmoc40N',
                      'maxmoc_Atl_maxmoc30S', 'minmoc_Inp_minmoc30S', 'maxmoc_Aus_maxmoc50S']
-    elif argdict['config'].find('NATL') == 0:
+    elif argdict['config'].find('NATL') == 0 or argdict['config'].find('NACHOS'):
         data_list = ['maxmoc_Glo_maxmoc40N' , 'maxmoc_Glo_maxmoc15S']
     else:
         print "config not supported"
@@ -102,12 +102,12 @@ def plot(argdict=myargs, figure=None, color='r', compare=False, **kwargs):
     #
     _date_model = ps.mdates.date2num(date_model) # now a numerical value
     #
-    if argdict['config'].find('ORCA') == 0:
+    if argdict['config'].find('ORCA') == 0 or argdict['config'].find('EORCA') == 0 or argdict['config'].find('eORCA') == 0:
         data_list = ['maxmoc_Glo_maxmoc40N' , 'maxmoc_Glo_maxmoc30S', 'maxmoc_Atl_maxmoc40N',
                      'maxmoc_Atl_maxmoc30S', 'minmoc_Inp_minmoc30S', 'maxmoc_Aus_maxmoc50S']
         titleplot = ['MOC at 40N', 'MOC at 30S', 'MOC at 40N',  'MOC at 30S','MOC at 30S','MOC at 50S']
         listylabel= ['Global', 'Atlantic', 'Indo-Pacific'] ; nbzone=3 ; nbfig=2
-    elif argdict['config'].find('NATL') == 0:
+    elif argdict['config'].find('NATL') == 0 or argdict['config'].find('NACHOS') == 0:
         data_list = ['maxmoc_Glo_maxmoc40N' , 'maxmoc_Glo_maxmoc15S']
         titleplot = ['MOC at 40N', 'MOC at 30S']
 	listylabel= ['Atlantic'] ; nbzone=1 ; nbfig=2

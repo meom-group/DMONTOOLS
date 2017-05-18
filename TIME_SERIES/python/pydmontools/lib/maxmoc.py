@@ -78,12 +78,12 @@ def _readnc(filenc=None, filenc2=None, argdict=myargs):
     outdict = {} # creates the dictionnary which will contain the arrays 
     outdict['date_model']      = rs.get_datetime(filenc)
     outdict['date_model_heat'] = rs.get_datetime(filenc2)
-    if argdict['config'].find('ORCA') == 0:
+    if argdict['config'].find('ORCA') == 0 or argdict['config'].find('EORCA') == 0 or argdict['config'].find('eORCA') == 0:
         data_list = ['maxmoc_Glo_maxmoc' , 'maxmoc_Atl_maxmoc', 'maxmoc_Aus_maxmoc',
                      'minmoc_Glo_minmoc' , 'minmoc_Atl_minmoc', 'minmoc_Inp_minmoc',
                      'minmoc_Inp_minmoc2', 'minmoc_Aus_minmoc'] 
         data_list_heat = ['zomht_glo', 'zomht_atl']
-    elif argdict['config'].find('NATL') == 0:
+    elif argdict['config'].find('NATL') == 0 or argdict['config'].find('NACHOS') == 0:
         data_list = ['maxmoc_Glo_maxmoc', 'minmoc_Glo_minmoc' ]
         data_list_heat = ['zomht_glo']
     elif 'PERIANT' in argdict['config']: # this should be checked. 
@@ -115,7 +115,7 @@ def plot(argdict=myargs, date_model=None, date_model_heat=None,figure=None, colo
     _date_model = ps.mdates.date2num(date_model) # now a numerical value
     _date_model_heat = ps.mdates.date2num(date_model_heat) # now a numerical value
 
-    if argdict['config'].find('ORCA') == 0:
+    if argdict['config'].find('ORCA') or argdict['config'].find('EORCA') or argdict['config'].find('eORCA') == 0:
         #
         data_list_plt = ['maxmoc_Glo_maxmoc', 'minmoc_Glo_minmoc' , 'zomht_glo',
                          'maxmoc_Atl_maxmoc', 'minmoc_Atl_minmoc' , 'zomht_atl',
@@ -130,7 +130,7 @@ def plot(argdict=myargs, date_model=None, date_model_heat=None,figure=None, colo
 
         listylabel=['Global', 'Atlantic', 'Indo-Pacific', 'Austral'] ; nbzone=4 ; nbfig=3
         #
-    elif argdict['config'].find('NATL') == 0:
+    elif argdict['config'].find('NATL') == 0 or argdict['config'].find('NACHOS') == 0:
         data_list_plt = ['maxmoc_Glo_maxmoc', 'minmoc_Glo_minmoc','zomht_glo']
         titleplot = ['Max Overturning (0N-60N 500m-2000m)', 'Min Overturning (-20S 40N 2000m-5500m)', 'MHT at 20N']
         listylabel=['Atlantic'] 
