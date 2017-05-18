@@ -74,7 +74,7 @@ esac
 #############################################################
 ### choose install or uninstall
 
-if [ $# != 1 ] ; then
+if [ $# = 0 ] ; then
    echo "USAGE: ./dmon_install -i for install"
    echo "       ./dmon_install -r for uninstall"
    echo "       ./dmon_install -u for update"
