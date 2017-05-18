@@ -11,3 +11,5 @@
 *.toc
 *.opod
 *.tmp
+make.macro
+build/
