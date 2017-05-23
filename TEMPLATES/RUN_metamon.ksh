@@ -74,7 +74,7 @@ fi
       -e "s@<R_MONITOR>@$R_MONITOR@" -e "s/<NB_NODES>/$NB_NODES/" -e "s/<MAIL>/$MAIL/" \
       -e "s@<QUEUE>@$QUEUE@" -e "s/<ACCOUNT>/$ACCOUNT/"  \
       -e "s/<JOBTYPE>/$JOBTYPE/" -e "s/<NB_NPROC>/$NB_NPROC/g" -e "s/<MPIPROC>/$MPIPROC/g" \
-      -e "s/ifloadlev#/$TASKTRICK/g" -e "s/<RNDTMPDIR>/$RNDTMPDIR/"-e "s/<NODETYPE>/$NODETYPE/g"  \
+      -e "s/ifloadlev#/$TASKTRICK/g" -e "s/<RNDTMPDIR>/$RNDTMPDIR/" -e "s/<NODETYPE>/$NODETYPE/g"  \
       -e "s/<WALLTIME>/$WALLTIME/" -e "s/<WALL_CLOCK_LIMIT>/$WALL_CLOCK_LIMIT/" > metamon.sub
   chmod +x metamon.sub
   submit  ./metamon.sub
