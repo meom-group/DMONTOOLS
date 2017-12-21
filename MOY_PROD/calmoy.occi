@@ -3,6 +3,7 @@
 #SBATCH --ntasks=12
 #SBATCH --ntasks-per-node=24
 #SBATCH --threads-per-core=1
+#SBATCH --constraint=HSW24
 #SBATCH -J zmoy_<year>
 #SBATCH -e zmoy_<year>.e%j
 #SBATCH -o zmoy_<year>.o%j

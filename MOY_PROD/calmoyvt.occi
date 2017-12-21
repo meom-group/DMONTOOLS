@@ -3,6 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=12
 #SBATCH --ntasks-per-node=24
+#SBATCH --constraint=HSW24
 #SBATCH --threads-per-core=1
 #SBATCH -J zmvt_<year>
 #SBATCH -e zmvt_<year>.e%j
