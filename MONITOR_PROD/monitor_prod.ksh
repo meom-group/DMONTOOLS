@@ -1,4 +1,4 @@
-!/bin/ksh
+#!/bin/ksh
 set -x
 # This script is intended to be sourced from a main script. Not Stand Alone
 # Basically it runs on the production machine, once the MEAN fields 
