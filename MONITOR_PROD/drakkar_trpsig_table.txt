@@ -13,6 +13,7 @@
 01_Denmark_strait           EORCA12                 3043 3162 2584 2584
 01_Denmark_strait           EORCA12.L46             3043 3162 2584 2584
 01_Denmark_strait           EORCA12.L75             3043 3162 2584 2584
+01_Denmark_strait           NNATL12.L75              446  565  331  331
 01_Denmark_strait           ORCA025                 1013 1056  832  832 
 01_Denmark_strait           ORCA025.L75             1013 1056  832  832 
 01_Denmark_strait           ORCA025.L300            1013 1056  832  832 
@@ -28,6 +29,7 @@
 02_Faoes_Bank_Channel      EORCA12                 3318 3318 2486 2508
 02_Faoes_Bank_Channel      EORCA12.L46             3318 3318 2486 2508
 02_Faoes_Bank_Channel      EORCA12.L75             3318 3318 2486 2508
+02_Faoes_Bank_Channel      NNATL12.L75              721  721  233  255
 02_Faoes_Bank_Channel      ORCA025                 1106 1106  800  808 
 02_Faoes_Bank_Channel      ORCA025.L75             1106 1106  800  808 
 02_Faoes_Bank_Channel      ORCA025.L300            1106 1106  800  808 
@@ -58,6 +60,7 @@
 04_Gibbs_FZ                 EORCA12                 3075 3075 2303 2323
 04_Gibbs_FZ                 EORCA12.L46             3075 3075 2303 2323
 04_Gibbs_FZ                 EORCA12.L75             3075 3075 2303 2323
+04_Gibbs_FZ                 NNATL12.L75              478  478   50   70
 04_Gibbs_FZ                 ORCA025                 1025 1025  739  745
 04_Gibbs_FZ                 ORCA025.L75             1025 1025  739  745
 04_Gibbs_FZ                 ORCA025.L300            1025 1025  739  745
