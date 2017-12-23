@@ -1637,7 +1637,7 @@ rename_maxmoc()   {
    file_lst=$( filter_list $file_lst $fausmaxmoc50s ) ;;
 
        # NATL configuration
-        NATL025 | NATL4 | NATL12 )
+        NATL025 | NATL4 | NATL12 | NNATL12 )
    # GLO
    printf "%s" 'Glo ' >>  $fmaxmoc ; cdfmaxmoc -f $f -b glo -w 20 60 500 2000 | grep Maximum >> $fmaxmoc
    rename_maxmoc maxmoc.nc Glo_maxmoc
