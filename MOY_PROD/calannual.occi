@@ -7,7 +7,7 @@
 #SBATCH -J zyrly_<year>
 #SBATCH -e zyrly_<year>.e%j
 #SBATCH -o zyrly_<year>.o%j
-#SBATCH --time=2:00:00
+#SBATCH --time=0:30:00
 #SBATCH --dependency=afterok:<JOBIDMOY>:<JOBIDVT>
 #SBATCH --exclusive
 

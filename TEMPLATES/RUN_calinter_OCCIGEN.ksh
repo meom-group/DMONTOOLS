@@ -31,7 +31,7 @@ cat << eof > zcalinter_${year1}-${year2}
 #SBATCH -J zint_${year1}-${year2}
 #SBATCH -e zint_${year1}-${year2}.e%j
 #SBATCH -o zint_${year1}-${year2}.o%j
-#SBATCH --time=5:00:00
+#SBATCH --time=0:30:00
 #SBATCH --exclusiv
 
 
