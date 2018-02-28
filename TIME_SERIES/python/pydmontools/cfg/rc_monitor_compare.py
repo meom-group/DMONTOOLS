@@ -47,7 +47,7 @@ plotdir    =  ''
 
 #- Remote configuration
 remote_send     = False
-remote_machine  =  'meolipc.hmg.inpg.fr'
+remote_machine  =  'ige-meom-drakkar.u-ga.fr'
 remote_username = 'drakkar'
 remote_basedir  = 'DRAKKAR/'
 

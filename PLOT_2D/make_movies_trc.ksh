@@ -29,12 +29,12 @@ nb_month=12
 first_month=1
 
 copy() {
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE ; fi "
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/${dir} ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/${dir} ; fi "
-          scp $gifmov drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/${dir}/$gifmov ;}
+          scp $gifmov drakkar@ige-meom-drakkar.u-ga.fr:DRAKKAR/$CONFIG/${CONFCASE}/${dir}/$gifmov ;}
 
 mkgif() {
             ctrans -device sun -res 1024x1024 $1 > p.sun

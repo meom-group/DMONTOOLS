@@ -16,9 +16,9 @@
 # copy_to_web : copy the time series figures to the DRAKKAR website
 # usage : copy_to_web file
 copy_to_web() {
-          ssh meolipc.legi.grenoble-inp.fr -l drakkar \
+          ssh ige-meom-drakkar.u-ga.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES ] ; then mkdir -p DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES ; fi "
-          scp $@ drakkar@meolipc.legi.grenoble-inp.fr:DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES/ ;}
+          scp $@ drakkar@ige-meom-drakkar.u-ga.fr:DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES/ ;}
 
 # CHKDIR  : check the existence of a directory. Create it if not present
 chkdir() { if [ ! -d $1 ] ; then mkdir $1 ; fi  ; }

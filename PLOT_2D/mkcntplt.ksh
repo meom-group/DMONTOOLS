@@ -33,7 +33,7 @@ copycntfile(){ if [ -f $WORKDIR/$CONFIG/${CONFCASE}-DIAGS/CONTOURS/$1 ] ; then
                  ln -sf $WORKDIR/$CONFIG/${CONFCASE}-DIAGS/CONTOURS/$1 $1
                else
                  echo "CONTOUR DATAFILE NOT FOUND IN THE $WORKDIR/$CONFIG/${CONFCASE}-DIAGS/CONTOURS directory, searching in DRAKKAR MONITORING WEBSITE ..."
-                 scp drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${YEAR}/CONTOURS/$1 .
+                 scp drakkar@ige-meom-drakkar.u-ga.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${YEAR}/CONTOURS/$1 .
                fi
                if [ ! -f $1 ] ; then
                  echo "CONTOUR DATAFILE NOT FOUND IN THE DRAKKAR MONITORING WEBSITE"
@@ -44,18 +44,18 @@ copygif() { if [ -f $WORKDIR/$CONFIG/CLIM_PLOTS/${CONFCASE}/CONTOURS/GIFS/$1 ] ;
             else
               echo "===> $WORKDIR/$CONFIG/CLIM_PLOTS/${CONFCASE}/CONTOURS/GIFS/$1 NOT FOUND"
               echo "     searching in DRAKKAR MONITORING WEBSITE ..."
-              scp drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${YEAR}/CONTOURS/$1 .
+              scp drakkar@ige-meom-drakkar.u-ga.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${YEAR}/CONTOURS/$1 .
             fi
             if [ ! -f $1 ] ; then
               echo "===> $1 NOT FOUND IN THE DRAKKAR MONITORING WEBSITE"
               echo "     Going my way forward..."
             fi ; }
 
-cp2web() { ssh drakkar@meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/COMPARE/${listconfcase} ] ; then mkdir DRAKKAR/COMPARE/${listconfcase} ; fi "
-           ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+cp2web() { ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar " if [ ! -d DRAKKAR/COMPARE/${listconfcase} ] ; then mkdir DRAKKAR/COMPARE/${listconfcase} ; fi "
+           ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \
           " if [ ! -d DRAKKAR/COMPARE/${listconfcase}/CONTOURS ] ; then mkdir DRAKKAR/COMPARE/${listconfcase}/CONTOURS ; fi "
-           scp $1 drakkar@meolipc.hmg.inpg.fr:DRAKKAR/COMPARE/${listconfcase}/CONTOURS/$1 ;
-           ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+           scp $1 drakkar@ige-meom-drakkar.u-ga.fr:DRAKKAR/COMPARE/${listconfcase}/CONTOURS/$1 ;
+           ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \
           " chmod a+r DRAKKAR/COMPARE/${listconfcase}/CONTOURS/$1 " ; }
 
 # Merge 2 frames: merge frame 2 in frame 1 and remove frame 2

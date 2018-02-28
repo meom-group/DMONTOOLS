@@ -60,33 +60,33 @@ chkdir()          {
        if [ ! -d $1 ] ; then mkdir $1 ; fi
                   }
 
-# open tunnel through meolkerg for machine without direct acces to meolipc
+# open tunnel through meolkerg for machine without direct acces to ige-meom-drakkar
 open_tunnel() {
       case $MACHINE in
       ( curie000 )
-      # obsolete ( ==> curie000 is a dummy  name ) meolipc is now directly accessible from curie
+      # obsolete ( ==> curie000 is a dummy  name ) ige-meom-drakkar is now directly accessible from curie
       ssh_port="-p 3022"
       scp_port="-P 3022" 
       web_host=localhost 
 
       # check if tunnel already open
-      pid=$(ps -edf | grep "ssh -f -N -L 3022:meolipc.legi.grenoble-inp.fr:22" | grep -v grep | head -1 | awk '{ print $2}')
+      pid=$(ps -edf | grep "ssh -f -N -L 3022:ige-meom-drakkar.u-ga.fr:22" | grep -v grep | head -1 | awk '{ print $2}')
       if [  $pid ] ; then
          exit
       else
-         ssh -f -N -L 3022:meolipc.legi.grenoble-inp.fr:22 meolkerg.legi.grenoble-inp.fr
+         ssh -f -N -L 3022:ige-meom-drakkar.u-ga.fr:22 ige-meom-cal1.u-ga.fr
       fi  ;;
 
       ( * ) 
       ssh_port=
       scp_port=  
-      web_host=meolipc.legi.grenoble-inp.fr  ;;
+      web_host=ige-meom-drakkar.u-ga.fr  ;;
       esac
               }
 
 # close tunnel
 close_tunnel() {
-    pid=$(ps -edf | grep "ssh -f -N -L 3022:meolipc.legi.grenoble-inp.fr:22" | grep -v grep | head -1 | awk '{ print $2}')
+    pid=$(ps -edf | grep "ssh -f -N -L 3022:ige-meom-drakkar.u-ga.fr:22" | grep -v grep | head -1 | awk '{ print $2}')
     if [ $pid ] ; then  kill -9 $pid ; fi
                }
 

@@ -15,15 +15,15 @@ CLIM=$1
 . ./function_def.ksh
 
 copy() {
-          ssh drakkar@meolipc.legi.grenoble-inp.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
-          ssh drakkar@meolipc.legi.grenoble-inp.fr -l drakkar \
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE ; fi "
-          ssh drakkar@meolipc.legi.grenoble-inp.fr -l drakkar \
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/CLIM_${CLIM} ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/CLIM_${CLIM} ; fi "
-          ssh drakkar@meolipc.legi.grenoble-inp.fr -l drakkar \
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/CLIM_${CLIM}/${dir} ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/CLIM_${CLIM}/${dir} ; fi "
-          scp $1 drakkar@meolipc.legi.grenoble-inp.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${CLIM}/${dir}/$(basename $1) ;
-          ssh drakkar@meolipc.legi.grenoble-inp.fr -l drakkar \
+          scp $1 drakkar@ige-meom-drakkar.u-ga.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${CLIM}/${dir}/$(basename $1) ;
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \
          " chmod a+r DRAKKAR/$CONFIG/${CONFCASE}/CLIM_${CLIM}/${dir}/$(basename $1) "
         }
 

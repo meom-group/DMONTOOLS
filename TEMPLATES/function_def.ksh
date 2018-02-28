@@ -56,7 +56,7 @@ expatrie() { cp $1 $DDIR/$2/$3 ; }
 
 
 # CHKDIRW : check the existence of a dir. on the web site. Create it if not present
-chkdirw() { ssh drakkar@meolipc.hmg.inpg.fr " if [ ! -d DRAKKAR/$1 ] ; \
+chkdirw() { ssh drakkar@ige-meom-drakkar.u-ga.fr " if [ ! -d DRAKKAR/$1 ] ; \
             then mkdir DRAKKAR/$1 ; fi " ; }
 
 submit() {
@@ -99,7 +99,7 @@ expatrie() { cp $1 $WORKDIR/$2/$3 ; }
 
 
 # CHKDIRW : check the existence of a dir. on the web site. Create it if not present
-chkdirw() { ssh drakkar@meolipc.hmg.inpg.fr " if [ ! -d DRAKKAR/$1 ] ; \
+chkdirw() { ssh drakkar@ige-meom-drakkar.u-ga.fr " if [ ! -d DRAKKAR/$1 ] ; \
             then mkdir DRAKKAR/$1 ; fi " ; }
 
 
@@ -140,7 +140,7 @@ rapatrie_5d() { for f  in $SDIR/$2/${CONFCASE}_$3*_$1.nc    ; do
 expatrie() { cp $1 $SDIR/$2/$3 ; }
 
 # CHKDIRW : check the existence of a dir. on the web site. Create it if not present
-chkdirw() { ssh drakkar@meolipc.hmg.inpg.fr " if [ ! -d DRAKKAR/$1 ] ; \
+chkdirw() { ssh drakkar@ige-meom-drakkar.u-ga.fr " if [ ! -d DRAKKAR/$1 ] ; \
             then mkdir DRAKKAR/$1 ; fi " ; }
 
 submit() {  ./$1 ;}
@@ -177,7 +177,7 @@ rapatrie_5d() { for f  in $( rsh ergon -l $REMOTE_USER ls $2/*_$1.nc ) ; do
 expatrie() { mfput -u $REMOTE_USER $1 $2/$3 ; }
 
 # CHKDIRW : check the existence of a dir. on the web site. Create it if not present
-chkdirw() { ssh drakkar@meolipc.hmg.inpg.fr " if [ ! -d DRAKKAR/$1 ] ; \
+chkdirw() { ssh drakkar@ige-meom-drakkar.u-ga.fr " if [ ! -d DRAKKAR/$1 ] ; \
             then mkdir DRAKKAR/$1 ; fi " ; }
 
 submit() {  llsubmit $1 ;}
@@ -214,7 +214,7 @@ rapatrie_5d() { for f  in $( rsh ergon -l $REMOTE_USER ls $2/${CONFCASE}_$3*_$1.
 expatrie() { mfput -u $REMOTE_USER $1 $2/$3 ; }
 
 # CHKDIRW : check the existence of a dir. on the web site. Create it if not present
-chkdirw() { ssh drakkar@meolipc.hmg.inpg.fr " if [ ! -d DRAKKAR/$1 ] ; \
+chkdirw() { ssh drakkar@ige-meom-drakkar.u-ga.fr " if [ ! -d DRAKKAR/$1 ] ; \
             then mkdir DRAKKAR/$1 ; fi " ; }
 
 submit() {  llsubmit $1 ;}
@@ -238,7 +238,7 @@ chkvar()   {
 # copy_to_web : copy the time series figures to the DRAKKAR website
 # usage : copy_to_web file
 copy_to_web() {
-          ssh meolipc.hmg.inpg.fr -l drakkar \
+          ssh ige-meom-drakkar.u-ga.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES ] ; then mkdir -p  DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES ; fi "
-          scp $@ drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES/ ;}
+          scp $@ drakkar@ige-meom-drakkar.u-ga.fr:DRAKKAR/$CONFIG/${CONFIG}-${CASE}/TIME_SERIES/ ;}
 

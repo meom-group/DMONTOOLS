@@ -32,9 +32,9 @@
 . ./function_def.ksh
 
 copy() {
-          ssh drakkar@meolipc.legi.grenoble-inp.fr -l drakkar \
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/${dir} ] ; then mkdir -p DRAKKAR/$CONFIG/$CONFCASE/${dir} ; fi "
-          scp $gifmov drakkar@meolipc.legi.grenoble-inp.fr:DRAKKAR/$CONFIG/${CONFCASE}/${dir}/$gifmov ;}
+          scp $gifmov drakkar@ige-meom-drakkar.u-ga.fr:DRAKKAR/$CONFIG/${CONFCASE}/${dir}/$gifmov ;}
 
 mkgif() {
             ctrans -device sun -res 1024x1024 $1 > p.sun
@@ -109,7 +109,7 @@ cd $PLOTDIR/$CONFIG/PLOTS/$CONFCASE                             # work on ergon 
 #  TO TOUCH : avoid specific machines and login in the core of the script JMM
     # if dir=CONTOURS, copy also cnt.txt file
     if [ $dir == CONTOURS ] ; then
-      scp $DIAGS/../$dir/${CONFCASE}*txt drakkar@meolipc.legi.grenoble-inp.fr:DRAKKAR/$CONFIG/${CONFCASE}/${dir}/$gifmov ;
+      scp $DIAGS/../$dir/${CONFCASE}*txt drakkar@ige-meom-drakkar.u-ga.fr:DRAKKAR/$CONFIG/${CONFCASE}/${dir}/$gifmov ;
     fi
     cd ../
     else

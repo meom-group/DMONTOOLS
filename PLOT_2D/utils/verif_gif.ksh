@@ -1,5 +1,5 @@
 #!/bin/ksh
-# This script is used on meolipc or on jade to check 
+# This script is used on ige-meom-drakkar or on jade to check 
 # if the movies (from PLOT_2D) are complete
 #------------------------------------------------------------
 
@@ -39,8 +39,8 @@ a=$?
 
 if [ $a = 0 ] ; then
   cd $WORKDIR/$CONFIG/PLOTS/$CONFCASE
-elif [ $HOSTNAME = meolipc ] ; then
-  cd /home/users/drakkar/DRAKKAR/$CONFIG/$CONFCASE
+elif [ $HOSTNAME = ige-meom-drakkar ] ; then
+  cd /home/drakkar/DRAKKAR/$CONFIG/$CONFCASE
 fi
 
 for dir in ATLN ATLS CAMPBELL CIRCUM DRAKE DWBC GLOBAL ICE KERGUELEN MXL OVT SECTIONS SECTIONS1 ; do

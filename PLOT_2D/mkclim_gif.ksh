@@ -19,14 +19,14 @@ chkdir() {
          }
 
 copy() {
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE ; fi "
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/CLIM_$INTER ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/CLIM_$INTER ; fi "
-          ssh drakkar@meolipc.hmg.inpg.fr -l drakkar \
+          ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \
          " if [ ! -d DRAKKAR/$CONFIG/$CONFCASE/CLIM_$INTER/${dir} ] ; then mkdir DRAKKAR/$CONFIG/$CONFCASE/CLIM_$INTER/${dir} ; fi "
-          scp $gif drakkar@meolipc.hmg.inpg.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_$INTER/${dir}/$(basename $gif)
+          scp $gif drakkar@ige-meom-drakkar.u-ga.fr:DRAKKAR/$CONFIG/${CONFCASE}/CLIM_$INTER/${dir}/$(basename $gif)
        }
 
 INTER=$1
