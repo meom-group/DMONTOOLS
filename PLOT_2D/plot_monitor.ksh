@@ -34,11 +34,11 @@ else
 fi
 #----------------------------------------------------------------------------
 # set some default values according to particular setting
-LIM3=${LIM3:=0}    # use LI:3 instead of LIM2
+LIM3=${LIM3:=0}    # use LIM3 instead of LIM2
 if [ $LIM3 = 1 ] ; then
    icemod=icemod3
    ileadfra=siconc
-   iicethic=sithic
+   iicethic=sivolu
 else
    icemod=icemod
    ileadfra=ileadfra
