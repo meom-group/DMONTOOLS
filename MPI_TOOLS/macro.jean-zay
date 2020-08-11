@@ -1,0 +1,8 @@
+# macro for vargas (IDRIS)
+
+NCDF= -lnetcdf -lnetcdff
+
+FC=mpiifort
+FFLAGS= -O4   $(NCDF) 
+
+INSTALL=./
