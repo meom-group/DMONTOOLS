@@ -11,6 +11,7 @@
 01_BERING                   berin                   Bering_Strait                  -1
 01_BERING                   ORCA12.L46              1356 1380 2502 2502
 01_BERING                   ORCA12.L75              1356 1380 2502 2502
+01_BERING                   eORCA12.L75             1356 1380 3049 3049
 01_BERING                   EORCA12                 1356 1380 2590 2590
 01_BERING                   EORCA12.L46             1356 1380 2590 2590
 01_BERING                   EORCA12.L75             1356 1380 2590 2590
@@ -24,6 +25,7 @@
 02_FRAM                     fram                    Fram_Strait                     1
 02_FRAM                     ORCA12.L46              3202 3317 2823 2823
 02_FRAM                     ORCA12.L75              3202 3317 2823 2823
+02_FRAM                     eORCA12.L75             3202 3317 3370 3370
 02_FRAM                     EORCA12                 3202 3317 2911 2911
 02_FRAM                     EORCA12.L46             3202 3317 2911 2911
 02_FRAM                     EORCA12.L75             3202 3317 2911 2911
@@ -39,7 +41,7 @@
 03_BAFFIN                   baffi                   Baffin_Strait                   1
 03_BAFFIN                   ORCA12.L46              2779 2939 2760 2760
 03_BAFFIN                   ORCA12.L75              2779 2939 2760 2760
-03_BAFFIN                   ORCA12.L75              2779 2939 2760 2760
+03_BAFFIN                   eORCA12.L75             2779 2939 3307 3307
 03_BAFFIN                   EORCA12                 2779 2939 2848 2848
 03_BAFFIN                   EORCA12.L46             2779 2939 2848 2848
 03_BAFFIN                   EORCA12.L75             2779 2939 2848 2848
@@ -55,6 +57,7 @@
 04_DENMARK_STRAIT           denma                   Denmark_Strait                  1
 04_DENMARK_STRAIT           ORCA12.L46              3079 3157 2532 2490
 04_DENMARK_STRAIT           ORCA12.L75              3079 3157 2532 2490
+04_DENMARK_STRAIT           eORCA12.L75             3079 3157 3079 3037
 04_DENMARK_STRAIT           EORCA12                 3079 3157 2620 2578
 04_DENMARK_STRAIT           EORCA12.L46             3079 3157 2620 2578
 04_DENMARK_STRAIT           EORCA12.L75             3079 3157 2620 2578
@@ -71,6 +74,7 @@
 05_ICELAND_SCOTLAND         icsco                   Iceland-Scotland_Section        1
 05_ICELAND_SCOTLAND         ORCA12.L46              3249 3361 2472 2354
 05_ICELAND_SCOTLAND         ORCA12.L75              3249 3361 2472 2354
+05_ICELAND_SCOTLAND         eORCA12.L75             3249 3361 3019 2901
 05_ICELAND_SCOTLAND         EORCA12                 3249 3361 2560 2442
 05_ICELAND_SCOTLAND         EORCA12.L46             3249 3361 2560 2442
 05_ICELAND_SCOTLAND         EORCA12.L75             3249 3361 2560 2442
@@ -87,6 +91,7 @@
 06_CUBA_FLORIDA             cubaf                   Cuba-Florida_Section            1
 06_CUBA_FLORIDA             ORCA12.L46              2480 2480 1776 1810
 06_CUBA_FLORIDA             ORCA12.L75              2480 2480 1776 1810
+06_CUBA_FLORIDA             eORCA12.L75             2480 2480 2323 2357
 06_CUBA_FLORIDA             EORCA12                 2480 2480 1864 1898
 06_CUBA_FLORIDA             EORCA12.L46             2480 2480 1864 1898
 06_CUBA_FLORIDA             EORCA12.L75             2480 2480 1864 1898
@@ -102,6 +107,7 @@
 07_FLORIDA_BAHAMAS          floba                   Florida-Bahamas_Section        -1
 07_FLORIDA_BAHAMAS          ORCA12.L46              2484 2501 1826 1826
 07_FLORIDA_BAHAMAS          ORCA12.L75              2484 2501 1826 1826
+07_FLORIDA_BAHAMAS          eORCA12.L75             2484 2501 2373 2373
 07_FLORIDA_BAHAMAS          EORCA12                 2484 2501 1914 1914
 07_FLORIDA_BAHAMAS          EORCA12.L46             2484 2501 1914 1914
 07_FLORIDA_BAHAMAS          EORCA12.L75             2484 2501 1914 1914
@@ -117,6 +123,7 @@
 08_DRAKE                    drake                   Drake_Passage                   1
 08_DRAKE                    ORCA12.L46              2640 2670  705  426    
 08_DRAKE                    ORCA12.L75              2640 2670  705  426    
+08_DRAKE                    eORCA12.L75             2640 2670 1252  973
 08_DRAKE                    EORCA12                 2640 2670  793  514
 08_DRAKE                    EORCA12.L46             2640 2670  793  514
 08_DRAKE                    EORCA12.L75             2640 2670  793  514
@@ -134,6 +141,7 @@
 09_AUS_AA                   ausaa                   Australia-Antarctic_Section     1
 09_AUS_AA                   ORCA12.L46               910  910 1007  352
 09_AUS_AA                   ORCA12.L75               910  910 1007  352
+09_AUS_AA                   eORCA12.L75              910  910 1554  899
 09_AUS_AA                   EORCA12                  910  910 1095  440
 09_AUS_AA                   EORCA12.L46              910  910 1095  440
 09_AUS_AA                   EORCA12.L75              910  910 1095  440
@@ -151,6 +159,7 @@
 10_ITF                      itflo                   Indonesian_Throughflow         -1
 10_ITF                      ORCA12.L46               510  510 1393 1228
 10_ITF                      ORCA12.L75               510  510 1393 1228
+10_ITF                      eORCA12.L75              510  510 1940 1775
 10_ITF                      EORCA12                  510  510 1481 1316
 10_ITF                      EORCA12.L46              510  510 1481 1316
 10_ITF                      EORCA12.L75              510  510 1481 1316
@@ -164,6 +173,7 @@
 11_MOZAMBIQUE_CHANNEL       mozam                   Mozambique_Channel              1
 11_MOZAMBIQUE_CHANNEL       ORCA12.L46              3923 3980 1296 1296  
 11_MOZAMBIQUE_CHANNEL       ORCA12.L75              3923 3980 1296 1296  
+11_MOZAMBIQUE_CHANNEL       eORCA12.L75             3923 3980 1843 1843
 11_MOZAMBIQUE_CHANNEL       EORCA12                 3923 3980 1384 1384
 11_MOZAMBIQUE_CHANNEL       EORCA12.L46             3923 3980 1384 1384
 11_MOZAMBIQUE_CHANNEL       EORCA12.L75             3923 3980 1384 1384
@@ -177,6 +187,7 @@
 12_SOUTH_AFR                soafr                   South-Africa                    1
 12_SOUTH_AFR                ORCA12.L46              3685 3685  300 1052
 12_SOUTH_AFR                ORCA12.L75              3685 3685  300 1052
+12_SOUTH_AFR                eORCA12.L75             3685 3685  847 1599
 12_SOUTH_AFR                EORCA12                 3685 3685  387 1140
 12_SOUTH_AFR                EORCA12.L46             3685 3685  387 1140
 12_SOUTH_AFR                EORCA12.L75             3685 3685  387 1140
@@ -192,6 +203,7 @@
 13_KERGUELEN                kergu                   Kerguelen                       1
 13_KERGUELEN                ORCA12.L46              4276 4276  373  811
 13_KERGUELEN                ORCA12.L75              4276 4276  373  811
+13_KERGUELEN                eORCA12.L75             4276 4276  920 1358
 13_KERGUELEN                EORCA12                 4276 4276  461  899
 13_KERGUELEN                EORCA12.L46             4276 4276  461  899
 13_KERGUELEN                EORCA12.L75             4276 4276  461  899
@@ -207,6 +219,7 @@
 14_CAMPBELL                 campb                   Campbell                        1
 14_CAMPBELL                 ORCA12.L46              1170 1170  237  875
 14_CAMPBELL                 ORCA12.L75              1170 1170  237  875
+14_CAMPBELL                 eORCA12.L75             1170 1170  784 1422
 14_CAMPBELL                 EORCA12                 1170 1170  323  963
 14_CAMPBELL                 EORCA12.L46             1170 1170  323  963
 14_CAMPBELL                 EORCA12.L75             1170 1170  323  963
@@ -222,6 +235,7 @@
 15_AFR_AUSTR                afaus                   Africa-Australia                1
 15_AFR_AUSTR                ORCA12.L46              3804  528 1194 1194
 15_AFR_AUSTR                ORCA12.L75              3804  528 1194 1194
+15_AFR_AUSTR                eORCA12.L75             3804  528 1741 1741
 15_AFR_AUSTR                EORCA12                 3804  528 1282 1282
 15_AFR_AUSTR                EORCA12.L46             3804  528 1282 1282
 15_AFR_AUSTR                EORCA12.L75             3804  528 1282 1282
@@ -237,6 +251,7 @@
 16_AUSTR_AM                 ausam                   Australia-America              -1
 16_AUSTR_AM                 ORCA12.L46               947 2601 1194 1194
 16_AUSTR_AM                 ORCA12.L75               947 2601 1194 1194
+16_AUSTR_AM                 eORCA12.L75              947 2601 1741 1741
 16_AUSTR_AM                 EORCA12                  947 2601 1282 1282
 16_AUSTR_AM                 EORCA12.L46              947 2601 1282 1282
 16_AUSTR_AM                 EORCA12.L75              947 2601 1282 1282
@@ -252,6 +267,7 @@
 17_AM_AFR                   ameaf                   America-Africa                 -1
 17_AM_AFR                   ORCA12.L46              2880 3622 1194 1194
 17_AM_AFR                   ORCA12.L75              2880 3622 1194 1194
+17_AM_AFR                   eORCA12.L75             2880 3622 1741 1741
 17_AM_AFR                   EORCA12                 2880 3622 1282 1282
 17_AM_AFR                   EORCA12.L46             2880 3622 1282 1282
 17_AM_AFR                   EORCA12.L75             2880 3622 1282 1282
@@ -306,6 +322,7 @@
 31_Gibraltar                gibra                   Gibraltar_Strait                      1
 31_Gibraltar                ORCA12.L46              3378 3378 1956 1961
 31_Gibraltar                ORCA12.L75              3378 3378 1956 1961
+31_Gibraltar                eORCA12.L75             3378 3378 2503 2508
 31_Gibraltar                EORCA12                 3378 3378 2044 2049
 31_Gibraltar                EORCA12.L46             3378 3378 2044 2049
 31_Gibraltar                EORCA12.L75             3378 3378 2044 2049

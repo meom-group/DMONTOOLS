@@ -10,6 +10,7 @@
 01_Denmark_strait           denma                   Denmark_Strait_transport_in_sigma_classes
 01_Denmark_strait           ORCA12.L46              3043 3162 2496 2496
 01_Denmark_strait           ORCA12.L75              3043 3162 2496 2496
+01_Denmark_strait           eORCA12.L75             3043 3162 3043 3043
 01_Denmark_strait           EORCA12                 3043 3162 2584 2584
 01_Denmark_strait           EORCA12.L46             3043 3162 2584 2584
 01_Denmark_strait           EORCA12.L75             3043 3162 2584 2584
@@ -26,6 +27,7 @@
 02_Faoes_Bank_Channel      faroe                   Faroes_Bank_Channel_transport_in_sigma_classes 
 02_Faoes_Bank_Channel      ORCA12.L46              3318 3318 2398 2420 
 02_Faoes_Bank_Channel      ORCA12.L75              3318 3318 2398 2420 
+02_Faoes_Bank_Channel      eORCA12.L75             3318 3318 2945 2945
 02_Faoes_Bank_Channel      EORCA12                 3318 3318 2486 2508
 02_Faoes_Bank_Channel      EORCA12.L46             3318 3318 2486 2508
 02_Faoes_Bank_Channel      EORCA12.L75             3318 3318 2486 2508
@@ -42,6 +44,7 @@
 03_Gibraltar                gibra                   Gibraltar_Strait_transport_in_sigma_classes
 03_Gibraltar                ORCA12.L46              3378 3378 1956 1961 
 03_Gibraltar                ORCA12.L75              3378 3378 1956 1961 
+03_Gibraltar                eORCA12.L75             3378 3378 2503 2508
 03_Gibraltar                EORCA12                 3378 3378 2044 2049
 03_Gibraltar                EORCA12.L46             3378 3378 2044 2049
 03_Gibraltar                EORCA12.L75             3378 3378 2044 2049
@@ -57,6 +60,7 @@
 04_Gibbs_FZ                 gibbs                   Gibbs_Fracture_Zone_transport_in_sigma_classes
 04_Gibbs_FZ                 ORCA12.L46              3075 3075 2215 2235
 04_Gibbs_FZ                 ORCA12.L75              3075 3075 2215 2235
+04_Gibbs_FZ                 eORCA12.L75             3075 3075 2762 2782
 04_Gibbs_FZ                 EORCA12                 3075 3075 2303 2323
 04_Gibbs_FZ                 EORCA12.L46             3075 3075 2303 2323
 04_Gibbs_FZ                 EORCA12.L75             3075 3075 2303 2323
@@ -71,6 +75,7 @@
 05_Romanche_FZ              roman                   Romanche_Fracture_Zone_transport_in_sigma_classes
 05_Romanche_FZ              ORCA12.L46              3252 3252 1495 1503
 05_Romanche_FZ              ORCA12.L75              3252 3252 1495 1503
+05_Romanche_FZ              eORCA12.L75             3252 3252 2042 2050
 05_Romanche_FZ              EORCA12                 3252 3252 1583 1591
 05_Romanche_FZ              EORCA12.L46             3252 3252 1583 1591
 05_Romanche_FZ              EORCA12.L75             3252 3252 1583 1591
@@ -83,6 +88,7 @@
 06_Vema_Channel             vema                    Vema_Channel_transport_in_sigma_classes
 06_Vema_Channel             ORCA12.L46              2970 2997 1116 1116
 06_Vema_Channel             ORCA12.L75              2970 2997 1116 1116
+06_Vema_Channel             eORCA12.L75             2970 2997 1663 1663
 06_Vema_Channel             EORCA12                 2970 2997 1204 1204
 06_Vema_Channel             EORCA12.L46             2970 2997 1204 1204
 06_Vema_Channel             EORCA12.L75             2970 2997 1204 1204
@@ -94,6 +100,7 @@
 07_Bab_el_Mandeb            babel                   Bab_El_Mandeb_transport_in_sigma_classes
 07_Bab_el_Mandeb            ORCA12.L46              3952 3966 1659 1659
 07_Bab_el_Mandeb            ORCA12.L75              3952 3966 1659 1659
+07_Bab_el_Mandeb            eORCA12.L75             3952 3966 2206 2206
 07_Bab_el_Mandeb            EORCA12                 3952 3966 1747 1747
 07_Bab_el_Mandeb            EORCA12.L46             3952 3966 1747 1747
 07_Bab_el_Mandeb            EORCA12.L75             3952 3966 1747 1747
@@ -105,6 +112,7 @@
 08_Lombok                   lombo                   Lombok_Strait_transport_in_sigma_classes
 08_Lombok                   ORCA12.L46               512  520 1392 1392
 08_Lombok                   ORCA12.L75               512  520 1392 1392
+08_Lombok                   eORCA12.L75              512  520 1939 1939
 08_Lombok                   EORCA12                  512  520 1480 1480
 08_Lombok                   EORCA12.L46              512  520 1480 1480
 08_Lombok                   EORCA12.L75              512  520 1480 1480
@@ -116,6 +124,7 @@
 09_Mona                     mona                    Mona_Passage_transport_in_sigma_classes
 09_Mona                     ORCA12.L46              2624 2642 1721 1721 
 09_Mona                     ORCA12.L75              2624 2642 1721 1721 
+09_Mona                     eORCA12.L75             2624 2642 2268 2268
 09_Mona                     EORCA12                 2624 2642 1809 1809
 09_Mona                     EORCA12.L46             2624 2642 1809 1809
 09_Mona                     EORCA12.L75             2624 2642 1809 1809
@@ -129,6 +138,7 @@
 10_Windward_passage         windw                   Windward_Passage_transport_in_sigma_classes
 10_Windward_passage         ORCA12.L46              2555 2571 1739 1739
 10_Windward_passage         ORCA12.L75              2555 2571 1739 1739
+10_Windward_passage         eORCA12.L75             2555 2571 2286 2286
 10_Windward_passage         EORCA12                 2555 2571 1827  1827
 10_Windward_passage         EORCA12.L46             2555 2571 1827  1827
 10_Windward_passage         EORCA12.L75             2555 2571 1827  1827
@@ -142,6 +152,7 @@
 11_Drake                    drake                   Drake_Passage_transport_in_sigma_classes
 11_Drake                    ORCA12.L46               2634 2634   27 1197
 11_Drake                    ORCA12.L75               2634 2634   27 1197
+11_Drake                    eORCA12.L75              2634 2634  574 1744
 11_Drake                    EORCA12                  2609 2609  365  859
 11_Drake                    EORCA12.L46              2609 2609  365  859
 11_Drake                    EORCA12.L75              2609 2609  365  859
@@ -157,6 +168,7 @@
 12_South_Africa             soafr                   South_Africa_transport_in_sigma_classes
 12_South_Africa             ORCA12.L46               3810 3810 27 1197
 12_South_Africa             ORCA12.L75               3810 3810 27 1197
+12_South_Africa             eORCA12.L75              3810 3810 574 1744
 12_South_Africa             EORCA12                  3809 3809 73 1285
 12_South_Africa             EORCA12.L46              3809 3809 73 1285
 12_South_Africa             EORCA12.L75              3809 3809 73 1285
@@ -172,6 +184,7 @@
 13_kerguelen                kergu                   Kerguelen_transport_in_sigma_classes
 13_kerguelen                ORCA12.L46               4276 4276  373  811
 13_kerguelen                ORCA12.L75               4276 4276  373  811
+13_kerguelen                eORCA12.L75              4276 4276  920 1358
 13_kerguelen                EORCA12                  4276 4276  461  899
 13_kerguelen                EORCA12.L46              4276 4276  461  899
 13_kerguelen                EORCA12.L75              4276 4276  461  899
@@ -187,6 +200,7 @@
 14_South_Australia          soaus                   South-Australia_transport_in_sigma_classes
 14_South_Australia          ORCA12.L46               804 804 27 1197
 14_South_Australia          ORCA12.L75               804 804 27 1197
+14_South_Australia          eORCA12.L75              804 804 574 1744
 14_South_Australia          EORCA12                  804 804 43 1285
 14_South_Australia          EORCA12.L46              804 804 43 1285
 14_South_Australia          EORCA12.L75              804 804 43 1285
@@ -202,6 +216,7 @@
 15_Campbell                 campb                   Campbell_transport_in_sigma_classes
 15_Campbell                 ORCA12.L46               1170 1170  237  875
 15_Campbell                 ORCA12.L75               1170 1170  237  875
+15_Campbell                 eORCA12.L75              1170 1170  784 1422
 15_Campbell                 EORCA12                  1170 1170  323  963
 15_Campbell                 EORCA12.L46              1170 1170  323  963
 15_Campbell                 EORCA12.L75              1170 1170  323  963

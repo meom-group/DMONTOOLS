@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 ### This script provides a section.dat (to use with cdftransportiz)
 ### from the drakkar_sections_table.txt file
@@ -10,7 +10,7 @@
 #--------------------------------------------------------------
 
 if [ $# == 0 ] ; then
-    echo ' USAGE: create_sections_list.ksh CONFIG '
+    echo ' USAGE: create_sections_list CONFIG '
     exit 0
 fi
 

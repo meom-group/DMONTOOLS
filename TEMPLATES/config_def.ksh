@@ -234,6 +234,14 @@ elif [ $CONFIG = 'ORCA12' -o  $CONFIG = 'ORCA12.L46' -o $CONFIG = 'ORCA12.L75' ]
   NINO3='1650 2370 1437 1557 '
   NINO4='1050 1650 1437 1557 '
   NINO34='1410 2010 1437 1557 '
+elif [  $CONFIG = 'eORCA12.L46' -o $CONFIG = 'eORCA12.L75' ] ; then
+  # define the I-J window for GIB diags
+  GIBWIN='3282 3327 2506 2569 '
+  # define the I-J windows for EL NINO diags
+  NINO12='2370 2490 1924 2044'
+  NINO3='1650 2370 1984 2104 '
+  NINO4='1050 1650 1984 2104 '
+  NINO34='1410 2010 1984 2104 '
 elif [ $CONFIG = 'ORCA2' -o $CONFIG = 'ORCA246' ] ; then
   # define the I-J window for GIB diags
   GIBWIN='135 137 101 104'
