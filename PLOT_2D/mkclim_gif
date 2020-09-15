@@ -1,6 +1,6 @@
-#!/bin/ksh
+#!/bin/bash
 if [ $# = 0 ] ; then
-  echo USAGE: mkclim_gif.ksh  year1-year2
+  echo USAGE: mkclim_gif  year1-year2
   echo "      create the gif file for climato year1-year2"
   echo "      assuming the corresponding cgm already exist."
   echo "      Migrate the obtained gif to the website under"

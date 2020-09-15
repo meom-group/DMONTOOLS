@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 ### PBS is valid on JADE
 #jade -N zplotmonitor
 #jade -l select=<NB_NODES>:ncpus=<MPIPROC>:mpiprocs=<MPIPROC>
@@ -56,16 +56,16 @@ RNDTMPDIR=<RNDTMPDIR>
 
 if [ $RNDTMPDIR == 1 ] ; then
 
-cp ./config_def.ksh         $TMPDIR
-cp ./function_def.ksh       $TMPDIR
+cp ./config_def         $TMPDIR
+cp ./function_def       $TMPDIR
 
 cd $TMPDIR
 
-. ./config_def.ksh
-. ./function_def.ksh
+. ./config_def
+. ./function_def
 
 cp -rf $PLOTTOOLS/PALDIR              $TMPDIR
-cp     $PLOTTOOLS/plot_monitor.ksh    $TMPDIR
+cp     $PLOTTOOLS/plot_monitor    $TMPDIR
 
 if [ $useMPI == 1 ] ; then cp $MPITOOLS/mpi_plot_monitor $TMPDIR ; fi
 
@@ -76,8 +76,8 @@ mkdir -p $TMPDIR
 
 cd <P_MONITOR>
 
-. ./config_def.ksh
-. ./function_def.ksh
+. ./config_def
+. ./function_def
 
 fi
 
@@ -100,26 +100,26 @@ if [ $useMPI = 1 ] ; then
   case $MACHINE in 
   ( jade )
     # mpi_plot_monitor $YEARS 
-    #  Then each proc is expecting a command such as plot_monitor.ksh  $year
+    #  Then each proc is expecting a command such as plot_monitor  $year
     if [ $single = 0 ] ; then
        mpiexec_mpt -n <NB_NPROC> ./mpi_plot_monitor $YEARS
     else
-      ./plot_monitor.ksh $YEARS
+      ./plot_monitor $YEARS
     fi   ;;
 
   ( occigen | occigen2 )
     # mpi_plot_monitor $YEARS 
-    #  Then each proc is expecting a command such as plot_monitor.ksh  $year
+    #  Then each proc is expecting a command such as plot_monitor  $year
     if [ $single = 0 ] ; then
        srun --mpi=pmi2  -n <NB_NPROC> ./mpi_plot_monitor $YEARS
     else
-      ./plot_monitor.ksh $YEARS
+      ./plot_monitor $YEARS
     fi   ;;
 
 
   ( vayu )
     # mpi_plot_monitor $YEARS
-    #  Then each proc is expecting a command such as plot_monitor.ksh  $year
+    #  Then each proc is expecting a command such as plot_monitor  $year
     if [ $single = 0 ] ; then
     mpirun  -n <NB_NPROC> ./mpi_plot_monitor $YEARS
     fi   ;;
@@ -128,7 +128,7 @@ if [ $useMPI = 1 ] ; then
     if [ $single = 0 ] ; then
        poe ./mpi_plot_monitor $YEARS 
     else
-      ./plot_monitor.ksh $YEARS
+      ./plot_monitor $YEARS
     fi   ;;
 
   ( ulam )
@@ -138,7 +138,7 @@ if [ $useMPI = 1 ] ; then
     if [ $single = 0 ] ; then
        ccc_mprun -E '-m cyclic ' -n <NB_NPROC>  ./mpi_plot_monitor $YEARS 
     else
-      ./plot_monitor.ksh $YEARS
+      ./plot_monitor $YEARS
     fi   ;;
 
 
@@ -151,14 +151,14 @@ else
 ### this allows to ensure compatibility for most of the tags
   if [ ${#yinit} -gt 4 ] ; then
      # interannual plot
-     ./plot_monitor.ksh $yinit
+     ./plot_monitor $yinit
   elif [ ${#yinit} -gt 4 ] ; then
      # standard modern year
-     ./plot_monitor.ksh $yinit
+     ./plot_monitor $yinit
   else
      # climato runs
      yinit=$( printf "%04d" $yinit ) 
-     ./plot_monitor.ksh $yinit
+     ./plot_monitor $yinit
   fi
 
 fi

@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 set -x
 #-------------------------------------------------------------------------------
 #  $Date$
@@ -8,15 +8,15 @@ set -x
 #-------------------------------------------------------------------------------
 
 if [ $# = 0 ] ; then
-   echo 'USAGE: plot_monitor.ksh year'
+   echo 'USAGE: plot_monitor year'
    exit 1
 fi
 
 # define some config dependent variable
-. ./config_def.ksh
+. ./config_def
 
 #  Define some functions to get/put file from/to ergon (can be easily customized)
-. ./function_def.ksh
+. ./function_def
 #-----------------------------------------------------------------------------
 # take YEAR as the argument to this script
 # YEAR can then be used as directory name for files YEARDIR=${XIOS}/$YEAR e.g.: 5d/2000

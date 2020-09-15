@@ -1,16 +1,16 @@
-#!/bin/ksh
+#!/bin/bash
 
 #set -x
 
 usage() {
       echo USAGE: $( basename $0 ) [-h ]
       echo "   -h : this help [xxx] indicate the default value "
-      echo "   mkcntplt.ksh allows to merge several contours"
+      echo "   mkcntplt allows to merge several contours"
       echo "   Contour datafile should be either:"
       echo "     - in WORKDIR/CONFIG/CONFCASE-DIAGS/CONTOURS/"
       echo "     - or in the DRAKKAR Website: DRAKKAR/CONFIG/CONFCASE/CLIM_YEAR/CONTOURS/"
       echo "   It will create a CONTOURS subsection in the COMPARE section in the MONITORING"
-      echo "   Before using this tool you must fill the contour definition file: contour_def.ksh"
+      echo "   Before using this tool you must fill the contour definition file: contour_def"
       exit 0
         }
 
@@ -78,24 +78,24 @@ done
 
 cd $WORKDIR/TMPDIR_PLT_CONTOURS
 
-if [ ! -f ./contour_def.ksh ] ; then
-  echo "contour_def.ksh must be present in the $WORKDIR/TMPDIR_PLT_CONTOURS directory"
+if [ ! -f ./contour_def ] ; then
+  echo "contour_def must be present in the $WORKDIR/TMPDIR_PLT_CONTOURS directory"
 fi
 
-. ./contour_def.ksh
+. ./contour_def
 
 CHART=chart
 listconfcase=''
 
-NBSIMUS=`cat contour_def.ksh | grep "#CNT_" | wc -l`
+NBSIMUS=`cat contour_def | grep "#CNT_" | wc -l`
 
 echo "##########################################################################"
 echo "Merging frames of $cntvar $ISOTHERM at $NEAREST_DEPTH m in $AREA region"
 echo "in the $NBSIMUS following configurations and periods:"
 for SIMU in $(seq 1 $NBSIMUS) ; do
-  CONFIG=`cat contour_def.ksh | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $2}'`
-  CASE=`cat contour_def.ksh | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $3}'`
-  YEAR=`cat contour_def.ksh | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $4}'`
+  CONFIG=`cat contour_def | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $2}'`
+  CASE=`cat contour_def | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $3}'`
+  YEAR=`cat contour_def | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $4}'`
   CONFCASE=${CONFIG}-${CASE}
   listconfcase="${listconfcase} ${CONFCASE}"
   echo "   - $( printf "%20s" $CONFCASE)  $( printf "%10s" $YEAR)" 
@@ -169,9 +169,9 @@ listsshgif=''
 liststdtgif=''
 # LIST OF SIMUS
 for SIMU in $(seq 1 $NBSIMUS) ; do
-  CONFIG=`cat contour_def.ksh | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $2}'`
-  CASE=`cat contour_def.ksh | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $3}'`
-  YEAR=`cat contour_def.ksh | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $4}'`
+  CONFIG=`cat contour_def | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $2}'`
+  CASE=`cat contour_def | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $3}'`
+  YEAR=`cat contour_def | grep "#CNT_" | head -${SIMU} | tail -1 | awk '{print $4}'`
   CONFCASE=${CONFIG}-${CASE}
   cntfile=${CONFCASE}_y${YEAR}_cnt_${cntvar}_${ISOTHERM}_D${NEAREST_DEPTH}_${AREA}.txt
   copycntfile $cntfile

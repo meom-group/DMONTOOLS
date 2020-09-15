@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #QSUB -eo
 #QSUB -lT 3600 -lM 1gb  -l mpp_p=4
 
@@ -28,8 +28,8 @@
 #            (04/2009) adapted to the new LEGI web host $
 #-------------------------------------------------------------------------------
 
-. ./config_def.ksh
-. ./function_def.ksh
+. ./config_def
+. ./function_def
 
 copy() {
           ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar \

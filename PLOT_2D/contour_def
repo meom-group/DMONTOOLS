@@ -1,6 +1,6 @@
-#/bin/ksh
+#/bin/bash
 
-# Definition file for mkcntplt.ksh script
+# Definition file for mkcntplt script
 
 cntvar=votemper
 ISOTHERM=17

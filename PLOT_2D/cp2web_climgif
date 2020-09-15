@@ -1,18 +1,18 @@
-#!/bin/ksh
+#!/bin/bash
 
 # This script allows to export the 2D plots of a climatology on the DRAKKAR website
 # It also exports the CONTOURS plots
 
 if [ $# = 0 ] ; then
-   echo 'USAGE : cp2web_climgif.ksh year1-year2'
+   echo 'USAGE : cp2web_climgif year1-year2'
    exit 1
 fi
 
 # take CLIM (YEAR1-YEAR2) as the argument to this script
 CLIM=$1
 
-. ./config_def.ksh
-. ./function_def.ksh
+. ./config_def
+. ./function_def
 
 copy() {
           ssh drakkar@ige-meom-drakkar.u-ga.fr -l drakkar " if [ ! -d DRAKKAR/$CONFIG ] ; then mkdir DRAKKAR/$CONFIG ; fi "
