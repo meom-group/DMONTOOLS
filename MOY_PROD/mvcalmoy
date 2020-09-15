@@ -1,13 +1,13 @@
-#!/bin/ksh
+#!/bin/bash
 
 if [ $# = 0 ] ; then 
-   echo USAGE:  mvcalmoy.ksh  year
+   echo USAGE:  mvcalmoy  year
    exit 1
 fi
 
 
-. ./config_moy.ksh
-. ./function_moy.ksh
+. ./config_moy
+. ./function_moy
 
 year=$1
 here=$(pwd)
@@ -38,6 +38,6 @@ if [ $err != 0 ] ; then
 fi
 
 cd $here
-./calannual.ksh $year
+./calannual $year
 
 

@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #jade -N zyrly_<year>
 #jade -l select=1:ncpus=8:mpiprocs=8
 #jade -l walltime=1:30:00
@@ -21,8 +21,8 @@ CTL_DIR=<WPDIR>
 
 #. $HOME/.profile
 cd $CTL_DIR
-. ./config_moy.ksh
+. ./config_moy
 #
-./mvcalmoy.ksh <year>
+./mvcalmoy <year>
 
 

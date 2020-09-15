@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 ## utility to link annual files CONFCASE_ANNUAL_grid?.nc 
 ## with the new nomenclature : CONFCASE_grid?.nc
@@ -19,8 +19,8 @@ fi
 ## Check for args
 
 if  (( $# < 2 )) || (( $# > 3 )) ; then
-    echo '*** USAGE: links_annual_files.ksh CONFIG CASE (optional : REMOTE_MACHINE)'
-    echo '*** EXAMPLE : links_annual_files.ksh NATL025 GRD81 ergon'
+    echo '*** USAGE: links_annual_files CONFIG CASE (optional : REMOTE_MACHINE)'
+    echo '*** EXAMPLE : links_annual_files NATL025 GRD81 ergon'
     exit 0
 fi
 

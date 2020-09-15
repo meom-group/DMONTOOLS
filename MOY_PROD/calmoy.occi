@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks=12
 #SBATCH --ntasks-per-node=24
@@ -21,12 +21,12 @@ CTL_DIR=<WPDIR>
 
 #. $HOME/.profile
 cd $CTL_DIR
-. ./config_moy.ksh
+. ./config_moy
 
 liste=''
 for m in $(seq 1 12 ) ; do
    mm=$(printf "%02d" $m )
-   liste="$liste ./zz_calmoy_${mm}_<year>.ksh"
+   liste="$liste ./zz_calmoy_${mm}_<year>"
 done
 
 #

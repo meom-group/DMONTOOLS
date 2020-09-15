@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #PBS -N zyrly_<year>
 #PBS -l select=1:ncpus=8:mpiprocs=8
 #PBS -l walltime=1:30:00
@@ -26,6 +26,6 @@ CONFCASE=${CONFIG}-${CASE}
 CTL_DIR=${WORKDIR}/RUN_${CONFIG}/${CONFCASE}/CTL/CDF
 
 cd $CTL_DIR
-. ./config_moy.ksh
+. ./config_moy
 #
-./mvcalmoy.ksh <year>
+./mvcalmoy <year>

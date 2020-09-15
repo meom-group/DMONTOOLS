@@ -2,7 +2,7 @@
 
 ### This script provides a section.dat (to use with cdftransportiz)
 ### from the drakkar_sections_table.txt file
-### Example : ./create_sections_list.ksh ORCA025
+### Example : ./create_sections_list ORCA025
 #--------------------------------------------------------------
 #   $Rev$
 #   $Date$

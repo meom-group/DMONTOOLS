@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #	dmon.copyconfig
 #
 # This script can be used to copy config files of a previous monitoring
@@ -50,8 +50,8 @@ case $files in
              
            if [ -d $PDIR ] ; then
              cd  $PDIR/RUN_${CONFIG}/${CONFIG}-${CASENEW}/CTL/CDF
-             cat $PDIR/RUN_${CONFIG}/${CONFIG}-${CASEREF}/CTL/CDF/config_moy.ksh | sed -e "s/${CASEREF}/${CASENEW}/g" \
-                 > ./config_moy.ksh
+             cat $PDIR/RUN_${CONFIG}/${CONFIG}-${CASEREF}/CTL/CDF/config_moy | sed -e "s/${CASEREF}/${CASENEW}/g" \
+                 > ./config_moy
            else
              echo 'Problem with PDIR, aborting...' ; exit 1 
            fi ;;
@@ -60,8 +60,8 @@ case $files in
 
            if [ -d $PDIR ] ; then
              cd  $PDIR/RUN_${CONFIG}/${CONFIG}-${CASENEW}/CTL/CDF
-             cat $PDIR/RUN_${CONFIG}/${CONFIG}-${CASEREF}/CTL/CDF/config_def.ksh | sed -e "s/${CASEREF}/${CASENEW}/g" \
-                 > ./config_def.ksh
+             cat $PDIR/RUN_${CONFIG}/${CONFIG}-${CASEREF}/CTL/CDF/config_def | sed -e "s/${CASEREF}/${CASENEW}/g" \
+                 > ./config_def
            else
              echo 'Problem with PDIR, aborting...' ; exit 1 
            fi ;;
@@ -71,10 +71,10 @@ case $files in
 
            if [ -d $PDIR ] ; then
              cd  $PDIR/RUN_${CONFIG}/${CONFIG}-${CASENEW}/CTL/CDF
-             cat $PDIR/RUN_${CONFIG}/${CONFIG}-${CASEREF}/CTL/CDF/config_moy.ksh | sed -e "s/${CASEREF}/${CASENEW}/g" \
-                 > ./config_moy.ksh
-             cat $PDIR/RUN_${CONFIG}/${CONFIG}-${CASEREF}/CTL/CDF/config_def.ksh | sed -e "s/${CASEREF}/${CASENEW}/g" \
-                 > ./config_def.ksh
+             cat $PDIR/RUN_${CONFIG}/${CONFIG}-${CASEREF}/CTL/CDF/config_moy | sed -e "s/${CASEREF}/${CASENEW}/g" \
+                 > ./config_moy
+             cat $PDIR/RUN_${CONFIG}/${CONFIG}-${CASEREF}/CTL/CDF/config_def | sed -e "s/${CASEREF}/${CASENEW}/g" \
+                 > ./config_def
            else
              echo 'Problem with PDIR, aborting...' ; exit 1 
            fi ;;

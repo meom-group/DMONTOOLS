@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #PBS -N zmvt_<year>
 #PBS -l select=2:ncpus=8:mpiprocs=6
 #PBS -l walltime=0:30:00
@@ -22,12 +22,12 @@ CONFCASE=${CONFIG}-${CASE}
 CTL_DIR=${WORKDIR}/RUN_${CONFIG}/${CONFCASE}/CTL/CDF
 
 cd $CTL_DIR
-. ./config_moy.ksh
+. ./config_moy
 
 liste=''
 for m in $(seq 1 12 ) ; do
    mm=$(printf "%02d" $m )
-   liste="$liste zz_calmoyvt_${mm}_<year>.ksh"
+   liste="$liste zz_calmoyvt_${mm}_<year>"
 done
 
 #

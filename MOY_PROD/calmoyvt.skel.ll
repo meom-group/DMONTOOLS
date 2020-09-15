@@ -1,14 +1,14 @@
-#!/bin/ksh
+#!/bin/bash
 
 year=<YYYY>
 
-. ./config_moy.ksh
-. ./function_moy.ksh
+. ./config_moy
+. ./function_moy
 
 set -x
 
-cp ./config_moy.ksh    $TMPDIR
-cp ./function_moy.ksh  $TMPDIR
+cp ./config_moy    $TMPDIR
+cp ./function_moy  $TMPDIR
 cp $MPITOOLS/mpi_shell $TMPDIR
 
 cd $TMPDIR
@@ -21,11 +21,11 @@ liste=''
 for m in $(seq 1 $STEP 12 ) ; do
 
    mm=$(printf "%02d" $m )
-   cat $MPDIR/calmoyvt_mm.ksh | sed -e "s/<year>/$year/g" -e "s/<mm>/$mm/g" \
+   cat $MPDIR/calmoyvt_mm | sed -e "s/<year>/$year/g" -e "s/<mm>/$mm/g" \
                                     -e "s/<m>/$m/g"                         \
-                                    -e "s/##LL##//g" > zz_calmoyvt_${mm}_$year.ksh
-   chmod 755 zz_calmoyvt_${mm}_$year.ksh
-   liste="$liste ./zz_calmoyvt_${mm}_$year.ksh"
+                                    -e "s/##LL##//g" > zz_calmoyvt_${mm}_$year
+   chmod 755 zz_calmoyvt_${mm}_$year
+   liste="$liste ./zz_calmoyvt_${mm}_$year"
 
 done
 

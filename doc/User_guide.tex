@@ -217,16 +217,16 @@ processors for VT.
 This command creates a RUN\_CONFIG/CONFIG\_CASE/CTL/CDF directory and copies the necessary
 scripts for the means and VT computation.
 
-\item \textbf{go to CDF directory and edit config\_moy.ksh :}
+\item \textbf{go to CDF directory and edit config\_moy :}
 
-The config\_moy.ksh is your configuration file for your CONFIG CASE. Some informations are
+The config\_moy is your configuration file for your CONFIG CASE. Some informations are
 filled automatically whereas some needs to be edited by hand. Pay attention to the
 TYP\_LIST which must contains the file types you want to proceed.
 
-\item \textbf{./RUN\_calmoy.ksh \textit{year}}
+\item \textbf{./RUN\_calmoy \textit{year}}
 
-According to the batch manager defined in config\_moy.ksh, this script executes
-RUN\_calmoy\_LoadLev.ksh or RUN\_calmoy\_PBS.ksh with the given year.
+According to the batch manager defined in config\_moy, this script executes
+RUN\_calmoy\_LoadLev or RUN\_calmoy\_PBS with the given year.
 
 \end{enumerate}
 
@@ -243,20 +243,20 @@ This time, each processor is dedicated to one particuliar year.
 This command creates a RUN\_CONFIG/CONFIG\_CASE/CTL/CDF directory and copies the necessary
 scripts for the monitoring.
 
-\item \textbf{go to CDF directory and edit config\_def.ksh :}
+\item \textbf{go to CDF directory and edit config\_def :}
 
-The config\_def.ksh is your configuration file for your CONFIG CASE. Some informations are
+The config\_def is your configuration file for your CONFIG CASE. Some informations are
 filled automatically whereas some needs to be edited by hand. It contains the menus for monitor prod,
 plot 2D et time series.
 
-\item \textbf{./RUN\_metamon.ksh \textit{year1 year2}}
+\item \textbf{./RUN\_metamon \textit{year1 year2}}
 
 This script will submit the MONITOR\_PROD part of the DMONTOOLS. It takes two years as arguments. When we are working in parallel
 (useMPI = 1) we can compute a set of several years (depending on the machine) at once. The arguments are then the first and last year
 of the set of years you want to compute in the job. In a serial job, only the first arguement is used (give anything as year2).
 This produces a set of small netcdf and text files stored in CONFCASE-DIAGS on the storage machine.
 
-\item \textbf{./make\_ncdf\_timeseries.ksh \textit{CONFIG CASE YEAR0} :}
+\item \textbf{./make\_ncdf\_timeseries \textit{CONFIG CASE YEAR0} :}
 
 This produces concatenated netcdf from those computed by MONITOR\_PROD and stores them in CONFCASE-MONITOR. 
 YEAR0 must be the starting year of the run, not the first year of the monitoring.
@@ -266,15 +266,15 @@ Those netcdf files are ready to be processed by the TIME\_SERIES subpackage.
 
 This script will plot the timeseries from the netcdf stored in CONFCASE-MONITOR. 
 
-\item \textbf{./RUN\_plot\_monitor.ksh \textit{year1 year2}}
+\item \textbf{./RUN\_plot\_monitor \textit{year1 year2}}
 
 This script will submit the PLOT\_2D part of the DMONTOOLS. Same remarks about arguments.
 It produces cgm files in the PLOTS directory.
 
-\item \textbf{./make\_movies.ksh :}
+\item \textbf{./make\_movies :}
 
 This script produces animated gif from the cgm files in the PLOTS directory. There is also a version for tracers
-(\textit{make\_movies\_trc.ksh}). Those jobs can be submitted to the batch manager.
+(\textit{make\_movies\_trc}). Those jobs can be submitted to the batch manager.
 
 \end{enumerate}
 
@@ -289,22 +289,22 @@ This script produces animated gif from the cgm files in the PLOTS directory. The
 
 To create new time-series, you have to modify files in \textbf{bin}, \textbf{MONITOR\_PROD} and \textbf{TIME\_SERIES}.
 
-In \textbf{bin}, add your new flags (which allows the other users to use your diag or not) in \textit{config\_def.ksh}. 
+In \textbf{bin}, add your new flags (which allows the other users to use your diag or not) in \textit{config\_def}. 
 If you have written advanced shell functions that could be used by other diags, you should add them in the "common functions" 
-section of \textit{function\_def.ksh}.
+section of \textit{function\_def}.
 
-In \textbf{MONITOR\_PROD}, the core of the production process is \textit{monitor\_prod.ksh}. This is where you add
+In \textbf{MONITOR\_PROD}, the core of the production process is \textit{monitor\_prod}. This is where you add
 the computation of your diags.
 The results must be saved in netcdf yearly files (use ncrcat to concatenate if needed). The filename has
 to give explicitely the config, case and year. Those files will be stored in the DIAGS/NC directory.
-Then, you have to modify \textit{make\_ncdf\_timeseries.ksh} to create a concatenated netcdf from all the yearly files.
+Then, you have to modify \textit{make\_ncdf\_timeseries} to create a concatenated netcdf from all the yearly files.
 In this step, you can also merge several netcdf files if you want to reduce the number of resulting files.
 The idea is to gather the information and reduce the number of input files for the plotting scripts.
 
 In \textbf{TIME\_SERIES}, add your python scripts for plotting the results in the lib directory. You are advised
 to copy one of the example.py script as a template. Your scripts have to contain read, plot and save functions.
-Finally, update \textit{run\_moni\-tor\_py.ksh} (in \textbf{TIME\_SERIES/scripts}) and 
-\textit{run\_moni\-tor\_py\_stand\-alone.ksh} (in \textbf{bin}) so that they read the new flags.
+Finally, update \textit{run\_moni\-tor\_py} (in \textbf{TIME\_SERIES/scripts}) and 
+\textit{run\_moni\-tor\_py\_stand\-alone} (in \textbf{bin}) so that they read the new flags.
 
 Hereafter is a summary of the different steps (white is for \textbf{bin}, red is for \textbf{MONITOR\_PROD} and blue for
 \textbf{TIME\_SERIES}).
@@ -314,13 +314,13 @@ Hereafter is a summary of the different steps (white is for \textbf{bin}, red is
 [node distance=.8cm,
   start chain=going below,]
 
-    \node [punktchain](flag){Add flag in \textit{config\_def.ksh}};
-	\node [punktchain, below of=flag, node distance = 1.2cm, fill=red!40 ](monprod){Add your diag computation in \textit{monitor\_prod.ksh}};
+    \node [punktchain](flag){Add flag in \textit{config\_def}};
+	\node [punktchain, below of=flag, node distance = 1.2cm, fill=red!40 ](monprod){Add your diag computation in \textit{monitor\_prod}};
 	\node [punktchain, below of=monprod, node distance = 1.2cm, fill=red!40](makenc){Concatenate your files in
-	                                                                                 \textit{make\_ncdf\_timeseries.ksh}};
+	                                                                                 \textit{make\_ncdf\_timeseries}};
 	\node [punktchain, below of=makenc, node distance = 1.2cm, fill=blue!40 ](createpy){Add your py file for plotting the timeserie};
-	\node [punktchain, below of=createpy, node distance = 1.2cm, fill=blue!40 ](monpy){Update \textit{run\_moni\-tor\_py.ksh} and 
-	                                                                   \textit{run\_moni\-tor\_py\_stand\-alone.ksh}};
+	\node [punktchain, below of=createpy, node distance = 1.2cm, fill=blue!40 ](monpy){Update \textit{run\_moni\-tor\_py} and 
+	                                                                   \textit{run\_moni\-tor\_py\_stand\-alone}};
 	\draw[|-,-|,->, thick,] (flag.south) |-+(0,-1em)-| (monprod.north);
 	\draw[|-,-|,->, thick,] (monprod.south) |-+(0,-1em)-| (makenc.north);
 	\draw[|-,-|,->, thick,] (makenc.south) |-+(0,-1em)-| (createpy.north);
@@ -336,13 +336,13 @@ Hereafter is a summary of the different steps (white is for \textbf{bin}, red is
 
 To create a new time-serie, you have to modify files in \textbf{bin} and \textbf{PLOT\_2D}.
 
-In \textbf{bin}, add your new flags (which allows the other users to use your diag or not) in \textit{config\_def.ksh}. 
+In \textbf{bin}, add your new flags (which allows the other users to use your diag or not) in \textit{config\_def}. 
 
-In \textbf{PLOT\_2D}, the core of the production process is \textit{plot\_monitor.ksh}. This is where you add
+In \textbf{PLOT\_2D}, the core of the production process is \textit{plot\_monitor}. This is where you add
 the computation of your new maps or sections (using chart and coupe). The results are stored in cgm files. 
 You can choose to send them to an existing storage subdirectory such as GLOBAL, OVT,... or in a new one.
-If you choose to create a new subdirectory, you will also have to modify \textit{make\_movies.ksh} 
-(or \textit{make\_movies\_trc.ksh} for tracers) to include this new directory to the list. 
+If you choose to create a new subdirectory, you will also have to modify \textit{make\_movies} 
+(or \textit{make\_movies\_trc} for tracers) to include this new directory to the list. 
 
 Hereafter is a summary of the different steps (white is for \textbf{bin}, yellow is for
 \textbf{PLOT\_2D}).
@@ -352,11 +352,11 @@ Hereafter is a summary of the different steps (white is for \textbf{bin}, yellow
 [node distance=.8cm,
   start chain=going below,]
 
-    \node [punktchain](flag){Add flag in \textit{config\_def.ksh}};
+    \node [punktchain](flag){Add flag in \textit{config\_def}};
 	\node [punktchain, below of=flag, node distance = 1.2cm, fill=yellow!80 ](plotmon)
-	                                                        {Add your map or section plot in \textit{plot\_monitor.ksh}};
+	                                                        {Add your map or section plot in \textit{plot\_monitor}};
 	\node [punktchain, below of=plotmon, node distance = 1.2cm, fill=yellow!80](makets){Update
-	                                                                                 \textit{make\_movies.ksh}};
+	                                                                                 \textit{make\_movies}};
 	\draw[|-,-|,->, thick,] (flag.south) |-+(0,-1em)-| (plotmon.north);
 	\draw[|-,-|,->, thick,] (plotmon.south) |-+(0,-1em)-| (makets.north);
 
@@ -378,7 +378,7 @@ Yes ! Be sure you have your Drakkar environement variables (SDIR, PDIR,...) set,
 
 \item \textbf{I have got ANNUAL in my annual means, will it work ?}
 
-No ! But in MONITOR\_PROD/utils you have \textit{links\_annual\_files.ksh} which will fix this.
+No ! But in MONITOR\_PROD/utils you have \textit{links\_annual\_files} which will fix this.
 
 \item \textbf{What is the nomenclature for Levitus climatologies ?}
 
@@ -389,7 +389,7 @@ Levitus\_p2.1\_1y\_TS\_config.nc (for example : Levitus\_p2.1\_1y\_TS\_orca246.n
 Yes ! but only if your are on a machine with a batch manager that can create a volatile TMPDIR for the job
 (example : ulam). Then set RNDTMPDIR = 1 and launch as many jobs as needed. 
 
-\item \textbf{What is run\_monitor\_py\_standalone.ksh ?}
+\item \textbf{What is run\_monitor\_py\_standalone ?}
 
 This is script is for those who already have all their netcdf files computed on machine A and only want to
 perform the python part of the monitoring on machine B (generally because python is not installed on machine A).
@@ -398,18 +398,18 @@ perform the python part of the monitoring on machine B (generally because python
 
 The correct way to run the scripts is :
 
-\textbf{./RUN\_meta\-mon.ksh 1 4} 
+\textbf{./RUN\_meta\-mon 1 4} 
 
-\textbf{./RUN\_plot\_moni\-tor.ksh 1 4}.
+\textbf{./RUN\_plot\_moni\-tor 1 4}.
 
-DO NOT put zeros before (e.g. \textbf{./RUN\_metamon.ksh 0001 0004} is the WRONG way to do it).
+DO NOT put zeros before (e.g. \textbf{./RUN\_metamon 0001 0004} is the WRONG way to do it).
 
 \item \textbf{What if I have interannual means ?}
 
 The PLOT\_2D part is compatible with interannual means (for example 2000-2005) provided
-you run it with useMPI=0 and do not run the \textit{make\_movies.ksh} (likely not to work).
+you run it with useMPI=0 and do not run the \textit{make\_movies} (likely not to work).
 It is also advised to put $create\_gif = 1$ to convert cgm files to gif.
-The correct call is \textit{./RUN\_plot\_monitor.ksh 1997-2007 1} (second argument is unused but must be given)
+The correct call is \textit{./RUN\_plot\_monitor 1997-2007 1} (second argument is unused but must be given)
 The MONITOR\_PROD has not been tested.
 
 

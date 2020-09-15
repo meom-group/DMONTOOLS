@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #MSUB -r zmvt_<year>
 #MSUB -n  12
 #MSUB -T 3600
@@ -18,12 +18,12 @@ CTL_DIR=<WPDIR>
 
 #. $HOME/.profile
 cd $CTL_DIR
-. ./config_moy.ksh
+. ./config_moy
 
 liste=''
 for m in $(seq 1 12 ) ; do
    mm=$(printf "%02d" $m )
-   liste="$liste ./zz_calmoyvt_${mm}_<year>.ksh"
+   liste="$liste ./zz_calmoyvt_${mm}_<year>
 done
 
 #

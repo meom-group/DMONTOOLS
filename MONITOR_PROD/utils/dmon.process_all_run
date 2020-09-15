@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #	dmon.process_all_run
 #
 # This script can be used to launch a serie of means/monitoring scripts
@@ -21,7 +21,7 @@ usage ()          {
           echo '   '
           echo '  OPTIONS: '
           echo '   -h             : print this message.'
-          echo '   -n             : number of cores available (MPIPROC of machine as in config_def.ksh) '
+          echo '   -n             : number of cores available (MPIPROC of machine as in config_def) '
           echo '                    useful for monitor/plot2d only, default=1.'
           echo '   '
                   }
@@ -53,7 +53,7 @@ case $compute in
              echo Computing means from $yearstart to $yearend ;
              
              for year in $(seq $yearstart $yearend ) ; do
-                 ./RUN_calmoy.ksh $year
+                 ./RUN_calmoy $year
              done ;;
 
      monitor )
@@ -64,7 +64,7 @@ case $compute in
              while [ $n -lt $yearend ] ; do
 
                 npm=$(( $n + $MPIPROC -1 ))
-                ./RUN_metamon.ksh $n $npm
+                ./RUN_metamon $n $npm
                 n=$(( $n + $MPIPROC ))
 
              done ;;
@@ -77,7 +77,7 @@ case $compute in
              while [ $n -lt $yearend ] ; do
 
                 npm=$(( $n + $MPIPROC -1 ))
-                ./RUN_plot_monitor.ksh $n $npm
+                ./RUN_plot_monitor $n $npm
                 n=$(( $n + $MPIPROC ))
 
              done ;;

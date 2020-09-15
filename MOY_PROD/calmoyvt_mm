@@ -1,13 +1,13 @@
-#!/bin/ksh
+#!/bin/bash
 
 year=<year>          # year to use
 mm=<mm>              # month
 m=<m>                # month
 
 # get variables
-. ./config_moy.ksh
+. ./config_moy
 # functions to  used here
-. ./function_moy.ksh
+. ./function_moy
 
 # main program
 

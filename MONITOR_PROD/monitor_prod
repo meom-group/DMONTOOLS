@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 set -x
 # This script is intended to be sourced from a main script. Not Stand Alone
 # Basically it runs on the production machine, once the MEAN fields 
@@ -19,7 +19,7 @@ set -x
 #--------------------------------------------------------------
 
 if [ $# = 0 ] ; then
-   echo 'USAGE : monitor_prod.ksh year'
+   echo 'USAGE : monitor_prod year'
    exit 1
 fi
 
@@ -30,10 +30,10 @@ YEAR=$( printf "%04d" $1)
 fbasinmask=new_maskglo.nc
 
 # define some config dependent variable 
-. ./config_def.ksh    # can be a link
+. ./config_def    # can be a link
 
 #  Define some functions to get/put file from/to ergon (can be easily customized)
-. ./function_def.ksh  # can be a link
+. ./function_def  # can be a link
 
 NC4=${NC4:=0}
 if [ $NC4 = 1 ] ; then NCOPT='-nc4' ; fi
@@ -1242,8 +1242,8 @@ if [            $TRP != 0    ] ; then
   # clean eventually old x_transport.nc files in this current directory
   \rm -f *transports.nc
    # section.dat describes the position (I,J) of the sections to monitor
-   # ./create_sections_list.ksh ${CONFIG%.*}   # to skip .Lxx part of the config name
-   ../create_sections_list.ksh ${CONFIG} 
+   # ./create_sections_list ${CONFIG%.*}   # to skip .Lxx part of the config name
+   ../create_sections_list ${CONFIG} 
 
   for TAG in $(mktaglist $TRP) ; do
  
@@ -1314,8 +1314,8 @@ if [ $DCT != 0 ] ; then
    TAG=y${YEAR}
   # dens_section.dat describe the sections (either zonal or meridional) 
   # where the DCT is computed: it is buildt by a  DMONTOOLS script
-  #./create_sections_list.ksh ${CONFIG%.*}   # to skip .Lxx part of the config name
-  ../create_sections_list.ksh ${CONFIG}   
+  #./create_sections_list ${CONFIG%.*}   # to skip .Lxx part of the config name
+  ../create_sections_list ${CONFIG}   
 
   # get mesh mask files
   rapatrie  ${MESH_MASK_ID}_byte_mask.nc $IDIR mask.nc

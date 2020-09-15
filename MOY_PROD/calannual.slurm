@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #MSUB -r zyrly_<year>
 #MSUB -n  1
 #MSUB -T 3600
@@ -20,8 +20,8 @@ CTL_DIR=<WPDIR>
 
 #. $HOME/.profile
 cd $CTL_DIR
-. ./config_moy.ksh
+. ./config_moy
 #
-./mvcalmoy.ksh <year>
+./mvcalmoy <year>
 
 

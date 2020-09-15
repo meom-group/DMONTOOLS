@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #key_jade -N zmetamon
 #key_jade -l select=<NB_NODES>:ncpus=<MPIPROC>:mpiprocs=<MPIPROC>
 #key_jade -l walltime=<WALLTIME>
@@ -16,6 +16,17 @@
 #key_vayu -P x77
 #key_vayu -q normal
 #key_vayu -v NB_NODES=<NB_NODES>
+
+#key_jean-zay --nodes=<NB_NODES>
+#key_jean-zay --ntasks=<NB_NPROC>
+#key_jean-zay --ntasks-per-node=<MPIPROC>
+#key_jean-zay --threads-per-core=1
+#key_jean-zay -A <ACCOUNT>
+#key_jean-zay -J zmetamon
+#key_jean-zay -e zmetamon.e%j
+#key_jean-zay -o zmetamon.o%j
+#key_jean-zay --time=<WALLTIME>
+#key_jean-zay --exclusive
 
 #SBATCH --nodes=<NB_NODES>
 #SBATCH --ntasks=<NB_NPROC>
@@ -60,25 +71,25 @@
 # @ queue
 
 ## If R_MONITOR is a TMPDIR created by the job manager :
-## the scripts copied by RUN_metamon.ksh are lost in the haze of a forgotten no man's land
+## the scripts copied by RUN_metamon are lost in the haze of a forgotten no man's land
 ## so we copy another time. If they are already there, it could do no harm
 
 RNDTMPDIR=<RNDTMPDIR>
 
 if [ $RNDTMPDIR == 1 ] ; then
 
-cp ./config_def.ksh         $TMPDIR
-cp ./function_def.ksh       $TMPDIR
+cp ./config_def         $TMPDIR
+cp ./function_def       $TMPDIR
 
 cd $TMPDIR
 
-. ./config_def.ksh
-. ./function_def.ksh
+. ./config_def
+. ./function_def
 
-cp $PRODTOOLS/create_sections_list.ksh    $TMPDIR
+cp $PRODTOOLS/create_sections_list    $TMPDIR
 cp $PRODTOOLS/drakkar_sections_table.txt  $TMPDIR
 cp $PRODTOOLS/drakkar_trpsig_table.txt    $TMPDIR
-cp $PRODTOOLS/monitor_prod.ksh            $TMPDIR
+cp $PRODTOOLS/monitor_prod            $TMPDIR
 
 if [ $useMPI == 1 ] ; then cp $MPITOOLS/mpi_metamon $TMPDIR ; fi
 
@@ -86,8 +97,8 @@ else
 
 cd <R_MONITOR>
 
-. ./config_def.ksh
-. ./function_def.ksh
+. ./config_def
+. ./function_def
 
 fi
 
@@ -131,17 +142,17 @@ else
 ### this allows to ensure compatibility for most of the tags
   if [ ${#yinit} -gt 4 ] ; then
      # interannual plot
-     chmod +x monitor_prod.ksh
-     ./monitor_prod.ksh $yinit
+     chmod +x monitor_prod
+     ./monitor_prod $yinit
   elif [ ${#yinit} -gt 4 ] ; then
      # standard modern year
-     chmod +x monitor_prod.ksh
-     ./monitor_prod.ksh $yinit
+     chmod +x monitor_prod
+     ./monitor_prod $yinit
   else
      # climato runs
      yinit=$( printf "%04d" $yinit ) 
-     chmod +x monitor_prod.ksh
-     ./monitor_prod.ksh $yinit
+     chmod +x monitor_prod
+     ./monitor_prod $yinit
   fi
 
 

@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #   This script can be used to check the position of sections  in
 # the drakkar_sections_table.txt and drakkar_trpsig_table.txt.
 # It provides all.cgm file, containing plots of the bathymetry nearby the
