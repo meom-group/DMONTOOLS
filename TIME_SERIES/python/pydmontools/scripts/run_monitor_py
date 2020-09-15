@@ -1,11 +1,11 @@
-#!/bin/ksh
+#!/bin/bash
 
 ## Important :
 ## To do this step, you must have completed monitor_prod and make_ncdf_timeseries
 
 # We source the config_def and export them so that python can read them :
-. ./config_def.ksh
-. ./function_def.ksh
+. ./config_def
+. ./function_def
 
 export MONPY_CONFIG=$CONFIG
 export MONPY_CASE=$CASE

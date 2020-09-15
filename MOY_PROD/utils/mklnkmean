@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 usage() {
    echo USAGE :  $(basename $0)  YEAR 
@@ -48,8 +48,8 @@ set_color() {
             }
 mkmoy() {
 set -x
-cat << eof > $PDIR/RUN_${CONFIG}/${CONFCASE}/CTL/CDF/zmkmoy.$yyyy.ksh
-#!/bin/ksh
+cat << eof > $PDIR/RUN_${CONFIG}/${CONFCASE}/CTL/CDF/zmkmoy.$yyyy
+#!/bin
 # @ job_name         = zmoy.$yyyy
 # @ output           = \$(job_name).o\$(jobid)
 # @ error            = \$(job_name).e\$(jobid)
@@ -90,13 +90,13 @@ done
 eof
 
 cd  $PDIR/RUN_${CONFIG}/${CONFCASE}/CTL/CDF/
-llsubmit ./zmkmoy.$yyyy.ksh
+llsubmit ./zmkmoy.$yyyy
         }
 
 mkvt()  {
 set -x
-cat << eof > $PDIR/RUN_${CONFIG}/${CONFCASE}/CTL/CDF/zmkvt.$yyyy.ksh
-#!/bin/ksh
+cat << eof > $PDIR/RUN_${CONFIG}/${CONFCASE}/CTL/CDF/zmkvt.$yyyy
+#!/bin/bash
 # @ job_name         = zmkvt.$yyyy
 # @ output           = \$(job_name).o\$(jobid)
 # @ error            = \$(job_name).e\$(jobid)
@@ -134,7 +134,7 @@ if [ ! -f \${CONFCASE}_y\${year}_VT.nc ] ; then
 fi
 eof
 cd  $PDIR/RUN_${CONFIG}/${CONFCASE}/CTL/CDF/
-llsubmit ./zmkvt.$yyyy.ksh
+llsubmit ./zmkvt.$yyyy
         }
 
 # --- main script start here ---

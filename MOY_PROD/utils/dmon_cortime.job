@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # @ job_type = serial
 # @ requirements = (Feature == "prepost")
 # @ wall_clock_limit=10:30:00

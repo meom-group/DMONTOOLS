@@ -1,7 +1,7 @@
-#!/bin/ksh
+#!/bin/bash
 
 ## A script to verify the presence of outputs in the S directory
-## Usage : verif_snap.ksh CONFIG CASE YEAR
+## Usage : verif_snap CONFIG CASE YEAR
 
 CONFIG=$1
 CASE=$2

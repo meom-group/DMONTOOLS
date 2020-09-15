@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 ## utility to compress the CONFCASE-DIAGS directory
 ## 

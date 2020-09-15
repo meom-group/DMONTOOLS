@@ -3,7 +3,7 @@
 #                        General Documentation
 
 """__readtools__.py : A set of utilities for reading and manipulating 
-                      netcdf and mtl files created by monitor_prod.ksh
+                      netcdf and mtl files created by monitor_prod
 """
 #-----------------------------------------------------------------------
 #                       Additional Documentation

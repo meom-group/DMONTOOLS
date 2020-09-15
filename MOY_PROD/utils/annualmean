@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 CONFIG=$1
 CASE=$2
@@ -6,7 +6,7 @@ YEAR=$3
 TYP=$4
 
 if [ $# != 4 ] ; then 
-   echo 'USAGE : annualmean.ksh CONFIG CASE YEAR TYP '
+   echo 'USAGE : annualmean CONFIG CASE YEAR TYP '
    exit
 fi
 

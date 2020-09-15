@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 CONFIG=$1
 CASE=$2
@@ -7,7 +7,7 @@ MM=$4
 TYP=$5
 
 if [ $# != 5 ] ; then 
-   echo 'USAGE : monthlymeans.ksh CONFIG CASE YEAR MM TYP '
+   echo 'USAGE : monthlymeans CONFIG CASE YEAR MM TYP '
    exit
 fi
 

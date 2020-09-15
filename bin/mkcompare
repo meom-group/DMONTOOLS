@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 ## =====================================================================
 ##     ***  script  mkcompare  ***
 ##  This script is used to create the WORKDIR/TMPDIR_PLT_CONTOURS 
@@ -15,7 +15,7 @@
 ### The path to this script must be in your directory
 usage() {   echo 'usage : mkcompare'
             echo '        it creates the directory WORKDIR/TMPDIR_PLT_CONTOURS with the link'
-            echo '        for mkcntplt.ksh and the contour_def.ksh definition file'
+            echo '        for mkcntplt and the contour_def definition file'
   exit 1   ; }
 
      
@@ -45,13 +45,13 @@ chkdir TMPDIR_PLT_CONTOURS
 # Copy files for contour tool
 ###############################
 
-# save existing config_def.ksh for reference
-if [ -f $P_CNT_DIR/contour_def.ksh ] ; then
-  mv $P_CNT_DIR/contour_def.ksh $P_CNT_DIR/contour_def.ksh.$$
-  echo Existing contour_def.ksh renamed $P_CNT_DIR/contour_def.ksh.$$
+# save existing config_def for reference
+if [ -f $P_CNT_DIR/contour_def ] ; then
+  mv $P_CNT_DIR/contour_def $P_CNT_DIR/contour_def.$$
+  echo Existing contour_def renamed $P_CNT_DIR/contour_def.$$
 fi
-ln -sf $DMONTOOLS/PLOT_2D/mkcntplt.ksh $P_CNT_DIR/.
-cp $DMONTOOLS/PLOT_2D/contour_def.ksh $P_CNT_DIR/.
+ln -sf $DMONTOOLS/PLOT_2D/mkcntplt $P_CNT_DIR/.
+cp $DMONTOOLS/PLOT_2D/contour_def $P_CNT_DIR/.
 
 echo "Install for contour tool done: working directory is $WORKDIR/TMPDIR_PLT_CONTOURS "
-echo "Please fill the contour_def.ksh definition file before executing the mkcntplt.ksh script"
+echo "Please fill the contour_def definition file before executing the mkcntplt script"

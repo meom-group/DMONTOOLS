@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 ## =====================================================================
 ##     ***  script  mkmonitor  ***
 ##  Install MONITOR_PROD tools in a DRAKKAR CONFIG-CASE CTL/CDF directory
@@ -22,7 +22,7 @@ usage() {   echo 'usage : mkmonitor CONFIG CASE'
             echo '      CONFIG-CASE DRAKKAR configuration. Create missing directory '
             echo '      if necessary.'
             echo '         After installation, some scripts requires customization for'
-            echo '      choice, sub dir path etc... ( config_def.ksh )'
+            echo '      choice, sub dir path etc... ( config_def )'
   exit 1   ; }
 
      
@@ -88,24 +88,24 @@ P_CDF_DIR=$PDIR/RUN_${CONFIG}/${CONFIG}-${CASE}/CTL/CDF
 # find the DMONTOOLS directory 
 SRCDIR=$DMON_ROOTDIR/TEMPLATES
 
-cp $SRCDIR/function_def.ksh       $P_CDF_DIR/.
-cp $SRCDIR/RUN_metamon.ksh        $P_CDF_DIR/.
-cp $SRCDIR/RUN_plot_monitor.ksh   $P_CDF_DIR/.
+cp $SRCDIR/function_def       $P_CDF_DIR/.
+cp $SRCDIR/RUN_metamon        $P_CDF_DIR/.
+cp $SRCDIR/RUN_plot_monitor   $P_CDF_DIR/.
 
 HOSTNAME=`hostname`
 
-# save existing config_def.ksh for reference
-if [ -f $P_CDF_DIR/config_def.ksh ] ; then 
-  mv $P_CDF_DIR/config_def.ksh $P_CDF_DIR/config_def.ksh.$$ 
-  echo Existing config_def.ksh renamed $P_CDF_DIR/config_def.ksh.$$
+# save existing config_def for reference
+if [ -f $P_CDF_DIR/config_def ] ; then 
+  mv $P_CDF_DIR/config_def $P_CDF_DIR/config_def.$$ 
+  echo Existing config_def renamed $P_CDF_DIR/config_def.$$
 fi
 
-cat $SRCDIR/config_def.ksh | sed -e "s/<CONFIG>/${CONFIG}/" -e "s/<CASE>/${CASE}/" \
-    -e "s/<MACHINE>/$HOSTNAME/"  -e "s/<MAILTO>/$MAILTO/" > $P_CDF_DIR/config_def.ksh
+cat $SRCDIR/config_def | sed -e "s/<CONFIG>/${CONFIG}/" -e "s/<CASE>/${CASE}/" \
+    -e "s/<MACHINE>/$HOSTNAME/"  -e "s/<MAILTO>/$MAILTO/" > $P_CDF_DIR/config_def
 
-cat $SRCDIR/run_monitor_py_standalone.ksh | sed -e "s/<CONFIG>/${CONFIG}/g" -e "s/<CASE>/${CASE}/g" \
-    > $P_CDF_DIR/run_monitor_py_standalone.ksh
+cat $SRCDIR/run_monitor_py_standalone | sed -e "s/<CONFIG>/${CONFIG}/g" -e "s/<CASE>/${CASE}/g" \
+    > $P_CDF_DIR/run_monitor_py_standalone
 
-chmod +x $P_CDF_DIR/run_monitor_py_standalone.ksh
+chmod +x $P_CDF_DIR/run_monitor_py_standalone
 
 echo "install for ${CONFIG}-${CASE} done "

@@ -8,7 +8,7 @@
   This python script can be used in three distinct modes : 
  
   - in 'production' mode : the script is called without any argument. The 
-    arguments are defined as shell variables (see e.g. run_monitor_py.ksh)
+    arguments are defined as shell variables (see e.g. run_monitor_py)
 
   - in 'testing' mode : any default argument handled by the standard_pydmt_script_parser  
     can be overriden by passing argument to the script (./example.py --datadir mydatadir)
