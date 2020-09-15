@@ -1,6 +1,6 @@
-#!/bin/ksh
+#!/bin/bash
 if [ $# = 0 ] ; then
-   echo USAGE: RUN_calmoy.ksh year
+   echo USAGE: RUN_calmoy year
    exit 1
 fi
 
@@ -9,8 +9,8 @@ year=$1
 
 #####################################################
 # get configuration settings
-. ./config_moy.ksh
-. ./function_moy.ksh
+. ./config_moy
+. ./function_moy
 
 NPROC=$(( 12 / $STEP ))
 

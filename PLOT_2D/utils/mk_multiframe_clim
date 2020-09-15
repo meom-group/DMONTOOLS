@@ -62,7 +62,7 @@ esac
 i=0
 for confcase in ${alist[@]} ; do
   conf[$i]=${confcase%-*}
-  kase[$i]=${confcase#*-}   # kase because case is reserved word in ksh ;)
+  kase[$i]=${confcase#*-}   # kase because case is reserved word in bash ;)
  
   P_DIR[$i]=${ROOT_DIR}/${conf[$i]}/$confcase/CLIM_${clim}
   

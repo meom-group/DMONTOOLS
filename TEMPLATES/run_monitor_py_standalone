@@ -1,14 +1,14 @@
-#!/bin/ksh
+#!/bin/bash
 ## =====================================================================
-##     ***  script run_monitor_py_standalone.ksh   ***
+##     ***  script run_monitor_py_standalone   ***
 ##  perform monitor.py in a standalone way ( local definition inside this
-##  script). Do not use config_def.ksh settings.
+##  script). Do not use config_def settings.
 ##  Important :
 ## To do this step, you must have completed monitor_prod and make_ncdf_timeseries
 ## =====================================================================
 ## History : 1.0  !  2010     R. Dussin, J. Le Sommer   Original code
 ##  DMONTOOLS_2.0 , MEOM 2012
-##  $Id: run_monitor_py_standalone.ksh 618 2015-03-22 08:13:01Z molines $
+##  $Id: run_monitor_py_standalone 618 2015-03-22 08:13:01Z molines $
 ##  Copyright (c) 2012, J.-M. Molines
 ##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
 ## ----------------------------------------------------------------------

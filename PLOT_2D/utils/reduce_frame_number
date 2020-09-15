@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 ###############################
 CONFIG=ORCA025.L75
 CASE=OCCITSPIN

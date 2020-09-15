@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 mkgif() {
       ctrans -device sun -res 1024x1024 $1 > toto.sun

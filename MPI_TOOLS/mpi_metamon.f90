@@ -49,7 +49,7 @@ PROGRAM mpi_metamon
 
   !! * Dispatch the work ..
   IF ( nproc >= narg ) THEN
-    WRITE(cdum,'("./monitor_prod.ksh ",i4," > log_monitor_prod_",i4.4," 2>&1 ")')  iyears(iproc+1), iyears(iproc+1)
+    WRITE(cdum,'("./monitor_prod ",i4," > log_monitor_prod_",i4.4," 2>&1 ")')  iyears(iproc+1), iyears(iproc+1)
     PRINT *, TRIM(cdum)
     CALL system( cdum )
   ENDIF

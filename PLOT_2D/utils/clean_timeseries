@@ -1,7 +1,7 @@
-#!/bin/ksh
+#!/bin/bash
 
 if [ ! $# == 2 ] ; then
-   echo "USAGE : clean_timeseries.ksh CONFIG CASE "
+   echo "USAGE : clean_timeseries CONFIG CASE "
    echo "       This will erase all .catalog, .gif .sun, and .rgb files for this config "
    echo "       USE WITH CARE ! " ; exit 1
 fi

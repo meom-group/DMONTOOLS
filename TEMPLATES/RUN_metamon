@@ -1,18 +1,18 @@
-#!/bin/ksh
+#!/bin/bash
 ## =====================================================================
-##     ***  script  RUN_metamon.ksh  ***
+##     ***  script  RUN_metamon  ***
 ## This is a wrapper for submitting metamon.sub from the CDF directory
 ## =====================================================================
 ## History : 1.0  !  2008     J.M. Molines      Original code
 ## ----------------------------------------------------------------------
 ##  DMONTOOLS_2.0 , MEOM 2012
-##  $Id: RUN_metamon.ksh 636 2015-08-19 08:50:48Z molines $
+##  $Id: RUN_metamon 636 2015-08-19 08:50:48Z molines $
 ##  Copyright (c) 2012, J.-M. Molines
 ##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
 ## ----------------------------------------------------------------------
 #
 if [ $# != 2 ] ; then
-   echo USAGE: RUN_metamon.ksh year-init year-end
+   echo USAGE: RUN_metamon year-init year-end
    exit 0
 fi
 
@@ -22,8 +22,8 @@ fi
  # if only one year ...
   year2=${year2:=$year1}
 
-  . ./config_def.ksh
-  . ./function_def.ksh
+  . ./config_def
+  . ./function_def
 
   set -x 
 
@@ -32,21 +32,21 @@ if [ $RNDTMPDIR == 0 ] ; then
   # move elementary scripts to the local TMPDIR
   chkdir $R_MONITOR
   XTMPDIR=$R_MONITOR
-  cp ./config_def.ksh   $XTMPDIR
-  cp ./function_def.ksh $XTMPDIR
+  cp ./config_def   $XTMPDIR
+  cp ./function_def $XTMPDIR
 
   # copy some DMONTOOLS utilities
-  cp $PRODTOOLS/create_sections_list.ksh   $XTMPDIR
+  cp $PRODTOOLS/create_sections_list   $XTMPDIR
   cp $PRODTOOLS/drakkar_sections_table.txt $XTMPDIR
   cp $PRODTOOLS/drakkar_trpsig_table.txt   $XTMPDIR
-  cp $PRODTOOLS/monitor_prod.ksh           $XTMPDIR
+  cp $PRODTOOLS/monitor_prod           $XTMPDIR
 
 fi
 
-  cp $PRODTOOLS/make_ncdf_timeseries.ksh   .
+  cp $PRODTOOLS/make_ncdf_timeseries   .
   cp $PRODTOOLS/drakkar_sections_table.txt .
   cp $PRODTOOLS/drakkar_trpsig_table.txt   .
-  cp $TIMESERIES/python/pydmontools/scripts/run_monitor_py.ksh        .
+  cp $TIMESERIES/python/pydmontools/scripts/run_monitor_py        .
 
   JOBTYPE=serial # this is the default (only for LoadLeveler)
   TASKTRICK='#'

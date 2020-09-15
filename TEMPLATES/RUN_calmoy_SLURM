@@ -1,14 +1,14 @@
-#!/bin/ksh
+#!/bin/bash
 # RUN_calmoy version for SLURM on CURIE
 if [ $# = 0 ] ; then
-   echo USAGE: RUN_calmoy.ksh  year
+   echo USAGE: RUN_calmoy  year
    exit 1
 fi
 set -x
 
 # get configuration settings
-. ./config_moy.ksh
-. ./function_moy.ksh
+. ./config_moy
+. ./function_moy
 
 pbsext=slurm
 
@@ -16,11 +16,11 @@ pbsext=slurm
 mkdir -p $WPDIR
 
 # copy required scripts there:
-cp -f config_moy.ksh $WPDIR
-cp -f function_moy.ksh $WPDIR
+cp -f config_moy $WPDIR
+cp -f function_moy $WPDIR
 
-cp -f $MPDIR/mvcalmoy.ksh $WPDIR
-cp -f $MPDIR/calannual.ksh $WPDIR
+cp -f $MPDIR/mvcalmoy $WPDIR
+cp -f $MPDIR/calannual $WPDIR
 
 # get year to work with
 year=$1
@@ -29,8 +29,8 @@ year=$1
 
 for m in $(seq 1 12 ) ; do
   mm=$(printf "%02d" $m )
-  cat $MPDIR/calmoy_mm.ksh | sed -e "s/<year>/$year/g" -e "s/<mm>/$mm/g" -e "s/<m>/$m/g" > $WPDIR/zz_calmoy_${mm}_$year.ksh
-  chmod 755 $WPDIR/zz_calmoy_${mm}_$year.ksh
+  cat $MPDIR/calmoy_mm | sed -e "s/<year>/$year/g" -e "s/<mm>/$mm/g" -e "s/<m>/$m/g" > $WPDIR/zz_calmoy_${mm}_$year
+  chmod 755 $WPDIR/zz_calmoy_${mm}_$year
 done
 
 # submit calmoy.$pbsext
@@ -47,8 +47,8 @@ jobidmoy=$(submit zcalmoy.$pbsext  | awk '{print $NF}' )
 
 for m in $(seq 1 12 ) ; do
   mm=$(printf "%02d" $m )
-  cat $MPDIR/calmoyvt_mm.ksh | sed -e "s/<year>/$year/g" -e "s/<mm>/$mm/g" -e "s/<m>/$m/g" > $WPDIR/zz_calmoyvt_${mm}_$year.ksh
-  chmod 755 $WPDIR/zz_calmoyvt_${mm}_$year.ksh
+  cat $MPDIR/calmoyvt_mm | sed -e "s/<year>/$year/g" -e "s/<mm>/$mm/g" -e "s/<m>/$m/g" > $WPDIR/zz_calmoyvt_${mm}_$year
+  chmod 755 $WPDIR/zz_calmoyvt_${mm}_$year
 done
 
 # submit calmoyvt.$pbsext

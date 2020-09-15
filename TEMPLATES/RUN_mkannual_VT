@@ -1,8 +1,8 @@
-#!/bin/ksh
+#!/bin/bash
 #----------------------------------------------------------
-# $Id: mkannual_VT.ksh 25 2015-05-23 00:06:34Z molines $  mkannual_VT.ksh : compute annual VT from monthly VT
+# $Id: mkannual_VT 25 2015-05-23 00:06:34Z molines $  mkannual_VT : compute annual VT from monthly VT
 #----------------------------------------------------------
-. ./config_moy.ksh
+. ./config_moy
 
 ################################################
 freq=1m
@@ -15,7 +15,7 @@ usage() {
     echo "  Purpose:"
     echo "      This script is a wrapper which computes "
     echo "      annual mean for VT files from monthly VT computed with "
-    echo "      mkmonthly_VT.ksh script."
+    echo "      mkmonthly_VT script."
     echo "      This script must be run from CTL/CDF dir"
     echo 
     echo " Arguments:"
@@ -44,8 +44,8 @@ if [ $NC4 = 1 ] ; then NCOPT='-nc4' ; else NCOPT="" ; fi
 case $MACHINE in
    ( curie ) 
 submit=ccc_msub
-cat << eof > zmkannualvt.ksh
-#!/bin/ksh
+cat << eof > zmkannualvt
+#!/bin/bash
 #MSUB -r anualVT
 #MSUB -n  6
 #MSUB -T 14600
@@ -62,7 +62,7 @@ echo " " ;;
   exit 1 ;;
 esac
 
-cat << eof >> zmkannualvt.ksh
+cat << eof >> zmkannualvt
 DTADIR=$REMDIR/${CONFIG}/${CONFCASE}-S/$freq
 #   goto the MEAN directory
 cd $DDIR/${CONFIG}/${CONFCASE}-MEAN/$freq/
@@ -97,7 +97,7 @@ for y in \$(seq $y1 $y2 ) ; do
       if [ ! -f ${CONFCASE}_y\${y}.${freq}_VT.nc ] ; then
         # monthly VT not available
         echo Monthly mean for VT files not computed yet for \$y
-        echo Use mk_monthlyVT.ksh script first 
+        echo Use mk_monthlyVT script first 
       else
         # Annual mean already done
         echo Annual VT file alreadt computed for \$y
@@ -112,4 +112,4 @@ done
 eof
 
 
-$submit  ./zmkannualvt.ksh
+$submit  ./zmkannualvt

@@ -1,17 +1,17 @@
-#!/bin/ksh
+#!/bin/bash
 
 # This script must be launched from the ../PLOTS/CONFIG-CASE directory.
 # This script is used to check whether all the cgm files are build  in the PLOTS/CONFIG-CASE/ subdirs.
 # It is used before make_time_series in order to avoid 'holes' in the resulting gif files.
 # However, if a kind of plot is missing at all (not even 1 plot of this kind done) the script skip this kind.
 # Finally the range of years to be looked for is determine from the directories available in CONFIG-CASE-MEAN
-# The path of this MEAN dir follows $SDIR as set in config_def.ksh 
+# The path of this MEAN dir follows $SDIR as set in config_def 
 #
 # By default it scans all the subdirectories. It is possible to specify a list of directories to be scanned as
 # arguments to this script.
 
 case "$1" in
-'-h' | '--help') echo 'USAGE: chk_missing_cgm.ksh [-h | --help ] [plot sub dirs]'
+'-h' | '--help') echo 'USAGE: chk_missing_cgm [-h | --help ] [plot sub dirs]'
                  echo '       -h | --help  : show this message '
                  echo '       If no plot subdirs are indicated, scan all subdirs' 
                  echo
@@ -25,7 +25,7 @@ CASE=${CONFCASE#*-}
 here=$(pwd)
 cd $PDIR/RUN_$CONFIG/$CONFCASE/CTL/CDF
 
-. ./config_def.ksh   # source the correct config_def.ksh dir
+. ./config_def   # source the correct config_def dir
 cd $SDIR/$CONFIG/${CONFCASE}-MEAN/$XIOS
 # look for the years to be looked for:
 tmp=$( ls -d  [0-9]??? )

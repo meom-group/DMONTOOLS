@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 # This script is used on ige-meom-drakkar or on jade to check 
 # if the movies (from PLOT_2D) are complete
 #------------------------------------------------------------
@@ -7,7 +7,7 @@ usage() {
      echo USAGE: $(basename $0 ) [-h] [-c confcase]
      echo "      -h : help "
      echo "      -c confcase : indicate the config and case to check "
-     echo '      This script can be used as following: verif_gif.ksh -c confcase | grep -v " $nb images"'
+     echo '      This script can be used as following: verif_gif -c confcase | grep -v " $nb images"'
      exit 0
         }
 

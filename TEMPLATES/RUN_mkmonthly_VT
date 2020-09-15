@@ -1,8 +1,8 @@
-#!/bin/ksh
+#!/bin/bash
 #-----------------------------------------------------------------------
-# $Id: mkmonthly_VT.ksh 20 2015-05-22 09:44:31Z molines $  mkmonthly_VT.ksh : compute monthly VT files from monthly U V T 
+# $Id: mkmonthly_VT 20 2015-05-22 09:44:31Z molines $  mkmonthly_VT : compute monthly VT files from monthly U V T 
 #-----------------------------------------------------------------------
-. ./config_moy.ksh
+. ./config_moy
 
 usage() {
     echo "  USAGE : $(basename $0 ) Y1 [Y2]"
@@ -39,8 +39,8 @@ if [ $NC4 = 1 ] ; then NCOPT='-nc4' ; else NCOPT="" ; fi
 case $MACHINE in
    ( curie )
 submit=ccc_msub
-cat << eof > zmkmontlyVT.ksh
-#!/bin/ksh
+cat << eof > zmkmontlyVT
+#!/bin/bash
 #MSUB -r monthlyVT
 #MSUB -n  12
 #MSUB -T 7200
@@ -58,7 +58,7 @@ echo " " ;;
 esac
 
 #
-cat << eof >> zmkmontlyVT.ksh
+cat << eof >> zmkmontlyVT
 DTADIR=$REMDIR/${CONFIG}/${CONFCASE}-S/$freq
 
 # goto MEAN directory
@@ -92,4 +92,4 @@ done
 eof
 
 
-$submit  ./zmkmontlyVT.ksh
+$submit  ./zmkmontlyVT

@@ -7,7 +7,7 @@ Resulting plots are intended to be automatically copied on the DRAKKAR monitorin
 
 ## Using DMONTOOLS
 
- DMONTOOLS is a collection of bash/ksh and python scripts which make use of CDFTOOLS (for computing the diagnostics), CHARTOOLS (for plotting maps and sections) and matplotlib python modules (for plotting the time-series).
+ DMONTOOLS is a collection of bash and python scripts which make use of CDFTOOLS (for computing the diagnostics), CHARTOOLS (for plotting maps and sections) and matplotlib python modules (for plotting the time-series).
 
  There are 3 steps in the monitoring process:
  1. Compute the annual (and monthly) mean fields.

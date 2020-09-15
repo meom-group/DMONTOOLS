@@ -1,12 +1,12 @@
-#!/bin/ksh
-##     ***  script  function_moy.ksh  ***
+#!/bin/bash
+##     ***  script  function_moy  ***
 ##  define functions for DMONTOOLS/MOY_PROD scripts
 ## =====================================================================
 ## History : 1.0  !  2008     J.M. Molines      Original  code
 ##           2.0  !  2012     all contrib       Rationalization
 ## ----------------------------------------------------------------------
 ##  DMONTOOLS_2.0 , MEOM 2012
-##  $Id: function_moy.ksh 540 2012-12-19 14:08:40Z molines $
+##  $Id: function_moy 540 2012-12-19 14:08:40Z molines $
 ##  Copyright (c) 2012, J.-M. Molines
 ##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
 ## ----------------------------------------------------------------------

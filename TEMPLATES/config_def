@@ -1,17 +1,17 @@
-#!/bin/ksh
-##     ***  script  config_def.ksh  ***
+#!/bin/bash
+##     ***  script  config_def  ***
 ##  Set environment variables for DMONTOOLS scripts
 ## =====================================================================
 ## History : 1.0  !  2008     J.M. Molines      Original  code
 ##           2.0  !  2012     all contrib       Rationalization
 ## ----------------------------------------------------------------------
 ##  DMONTOOLS_2.0 , MEOM 2012
-##  $Id: config_def.ksh 540 2012-12-19 14:08:40Z molines $
+##  $Id: config_def 540 2012-12-19 14:08:40Z molines $
 ##  Copyright (c) 2012, J.-M. Molines
 ##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
 ## ----------------------------------------------------------------------
 
-# this is the config_def.ksh file
+# this is the config_def file
 # it must be customized for each configuration
 # Name of CONFIG and CASE
 

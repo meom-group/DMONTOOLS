@@ -1,5 +1,5 @@
-#!/bin/ksh
-. ./config_moy.ksh
+#!/bin/bash
+. ./config_moy
 
 usage() {
     echo "  USAGE : $(basename $0 ) Y1 [Y2]"
@@ -37,8 +37,8 @@ case $MACHINE in
     ( curie )
 submit=ccc_msub
 # Only for curie for the moment
-cat << eof > zmkannualmean.ksh
-#!/bin/ksh
+cat << eof > zmkannualmean
+#!/bin/bash
 #MSUB -r anualmean
 #MSUB -n  6
 #MSUB -T 9200
@@ -56,7 +56,7 @@ echo " " ;;
 esac
 
 #
-cat << eof >> zmkannualmean.ksh
+cat << eof >> zmkannualmean
 DTADIR=$REMDIR/${CONFIG}/${CONFCASE}-S/$freq
 
 # functions 
@@ -131,4 +131,4 @@ done
 eof
 
 
-$submit ./zmkannualmean.ksh
+$submit ./zmkannualmean

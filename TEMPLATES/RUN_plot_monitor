@@ -1,6 +1,6 @@
-#!/bin/ksh
+#!/bin/bash
 ## =====================================================================
-##     ***  script  RUN_plot_monitor.ksh  ***
+##     ***  script  RUN_plot_monitor  ***
 ##  This is a wrapper for submitting  plot_monitor.sub
 ## =====================================================================
 ## History : 1.0  !  20O8     J.M. Molines      Original code
@@ -8,15 +8,15 @@
 
 ## ----------------------------------------------------------------------
 ##  DMONTOOLS_2.0 , MEOM 2012
-##  $Id: RUN_plot_monitor.ksh 623 2015-06-08 12:01:13Z molines $
+##  $Id: RUN_plot_monitor 623 2015-06-08 12:01:13Z molines $
 ##  Copyright (c) 2012, J.-M. Molines
 ##  Software governed by the CeCILL licence (Licence/DMONTOOLSCeCILL.txt)
 ## ----------------------------------------------------------------------
 
 if [ $#  = 0 ] ; then
-   echo USAGE: RUN_plot_monitor.ksh year-init year-end
+   echo USAGE: RUN_plot_monitor year-init year-end
    echo "     or "
-   echo "      RUN_plot_monitor.ksh year1-year2 "
+   echo "      RUN_plot_monitor year1-year2 "
    echo "       this last form makes plots for the climatology  year1-year2 (single plots)"
    exit 0
 fi
@@ -31,12 +31,12 @@ fi
     
 
 set -x 
-. ./config_def.ksh
-. ./function_def.ksh
+. ./config_def
+. ./function_def
 
-cp $PLOTTOOLS/make_movies.ksh     .
-cp $PLOTTOOLS/make_movies_trc.ksh .
-cp $PLOTTOOLS/cp2web_climgif.ksh .
+cp $PLOTTOOLS/make_movies     .
+cp $PLOTTOOLS/make_movies_trc .
+cp $PLOTTOOLS/cp2web_climgif .
 
 
 if [ $RNDTMPDIR == 0 ] ; then
@@ -44,12 +44,12 @@ if [ $RNDTMPDIR == 0 ] ; then
   # move elementary scripts to the local TMPDIR
   chkdir $P_MONITOR
   XTMPDIR=$P_MONITOR
-  cp ./config_def.ksh           $XTMPDIR
-  cp ./function_def.ksh         $XTMPDIR
+  cp ./config_def           $XTMPDIR
+  cp ./function_def         $XTMPDIR
 
   # copy  the Palette directory and the main plotting script
   cp -rf $PLOTTOOLS/PALDIR           $XTMPDIR
-  cp     $PLOTTOOLS/plot_monitor.ksh $XTMPDIR
+  cp     $PLOTTOOLS/plot_monitor $XTMPDIR
 
 fi
 

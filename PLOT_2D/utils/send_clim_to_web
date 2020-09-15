@@ -1,7 +1,7 @@
-#!/bin/ksh
+#!/bin/bash
 
 if [ ! $# == 3 ] ; then
-   echo "USAGE : send_clim_to_web.ksh CONFIG CASE YBEG-YEND "
+   echo "USAGE : send_clim_to_web CONFIG CASE YBEG-YEND "
    echo "       This will copy climatofiles to drakkar website "
    echo "       USE WITH CARE ! " ; exit 1
 fi
