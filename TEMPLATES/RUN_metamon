@@ -69,7 +69,7 @@ fi
   year2=$( printf "%04d" $year2)
 
   # submit the monitoring mpi
-  cat $PRODTOOLS/metamon.skel.sub | sed -e "s/key_vayu/PBS/" \
+  cat $PRODTOOLS/metamon.skel.sub | \
       -e "s/<year1>/$year1/" -e "s/<year2>/$year2/" \
       -e "s@<R_MONITOR>@$R_MONITOR@" -e "s/<NB_NODES>/$NB_NODES/" -e "s/<MAIL>/$MAIL/" \
       -e "s@<QUEUE>@$QUEUE@" -e "s/<ACCOUNT>/$ACCOUNT/"  \
@@ -80,6 +80,9 @@ fi
    # Erase std SBATCH statements (valid for occigen) 
    # Replace key_jean-zay by SBATCH afterward
    cat metamon.sub | sed -e '/SBATCH/d' -e 's/key_jean-zay/SBATCH/' > ztmp
+   mv ztmp metamon.sub
+ elif [ $MACHINE = 'vayu' ] ; then
+   cat metamon.sub | sed -e 's/key_vayu/PBS/' > ztmp
    mv ztmp metamon.sub
  fi
   chmod +x metamon.sub

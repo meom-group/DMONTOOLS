@@ -5,4 +5,4 @@ NCDF= -lnetcdf -lnetcdff
 FC=mpiifort
 FFLAGS= -O4   $(NCDF) 
 
-INSTALL=./
+INSTALL=$(WORK)/bin
