@@ -36,10 +36,10 @@ if [ $RNDTMPDIR == 0 ] ; then
   cp ./function_def $XTMPDIR
 
   # copy some DMONTOOLS utilities
-  cp $PRODTOOLS/create_sections_list   $XTMPDIR
+  cp $PRODTOOLS/create_sections_list       $XTMPDIR
   cp $PRODTOOLS/drakkar_sections_table.txt $XTMPDIR
   cp $PRODTOOLS/drakkar_trpsig_table.txt   $XTMPDIR
-  cp $PRODTOOLS/monitor_prod           $XTMPDIR
+  cp $PRODTOOLS/monitor_prod               $XTMPDIR
 
 fi
 
@@ -69,13 +69,19 @@ fi
   year2=$( printf "%04d" $year2)
 
   # submit the monitoring mpi
-  cat $PRODTOOLS/metamon.skel.sub | sed -e "s/key_$MACHINE/PBS/" \
+  cat $PRODTOOLS/metamon.skel.sub | sed -e "s/key_vayu/PBS/" \
       -e "s/<year1>/$year1/" -e "s/<year2>/$year2/" \
       -e "s@<R_MONITOR>@$R_MONITOR@" -e "s/<NB_NODES>/$NB_NODES/" -e "s/<MAIL>/$MAIL/" \
       -e "s@<QUEUE>@$QUEUE@" -e "s/<ACCOUNT>/$ACCOUNT/"  \
       -e "s/<JOBTYPE>/$JOBTYPE/" -e "s/<NB_NPROC>/$NB_NPROC/g" -e "s/<MPIPROC>/$MPIPROC/g" \
       -e "s/ifloadlev#/$TASKTRICK/g" -e "s/<RNDTMPDIR>/$RNDTMPDIR/" -e "s/<NODETYPE>/$NODETYPE/g"  \
       -e "s/<WALLTIME>/$WALLTIME/" -e "s/<WALL_CLOCK_LIMIT>/$WALL_CLOCK_LIMIT/" > metamon.sub
+ if [ $MACHINE = 'jean-zay' ] ; then
+   # Erase std SBATCH statements (valid for occigen) 
+   # Replace key_jean-zay by SBATCH afterward
+   cat metamon.sub | sed -e '/SBATCH/d' -e 's/key_jean-zay/SBATCH/' > ztmp
+   mv ztmp metamon.sub
+ fi
   chmod +x metamon.sub
   submit  ./metamon.sub
   \rm  metamon.sub

@@ -296,7 +296,7 @@ fi
     DDIR=${DDIR:=$WORKDIR}  # if DDIR not defined use WORKDIR instead
 
 case $MACHINE in
-    ( jade | occigen | occigen2 | curie | ada | vayu) 
+    ( jade | occigen | occigen2 | curie | ada | vayu | jean-zay) 
 
     ### 1. User informations
     USER=`whoami` ;   REMOTE_USER=`whoami` ; SDIR=$DDIR
@@ -339,6 +339,7 @@ case $MACHINE in
         fi 
      fi
      if [ $MACHINE = 'ada'      ] ; then MPIPROC=32  ; fi 
+     if [ $MACHINE = 'jean-zay' ] ; then MPIPROC=40  ; fi 
      if [ $MACHINE = 'curie'    ] ; then MPIPROC=16  ; fi  ;;
 
     'meolkerg') 
@@ -404,7 +405,7 @@ case $MACHINE in
     MPIPROC=1 ;;
 
     *) 
-    echo available machines are jade ada vargas ulam meolkerg desktop  ; exit 1 ;;
+    echo available machines are jade ada vargas jean-zay ulam meolkerg desktop  ; exit 1 ;;
 esac
 
 #
