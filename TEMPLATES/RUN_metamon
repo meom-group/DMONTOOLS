@@ -69,8 +69,7 @@ fi
   year2=$( printf "%04d" $year2)
 
   # submit the monitoring mpi
-  cat $PRODTOOLS/metamon.skel.sub | \
-      -e "s/<year1>/$year1/" -e "s/<year2>/$year2/" \
+  cat $PRODTOOLS/metamon.skel.sub | sed -e "s/<year1>/$year1/" -e "s/<year2>/$year2/" \
       -e "s@<R_MONITOR>@$R_MONITOR@" -e "s/<NB_NODES>/$NB_NODES/" -e "s/<MAIL>/$MAIL/" \
       -e "s@<QUEUE>@$QUEUE@" -e "s/<ACCOUNT>/$ACCOUNT/"  \
       -e "s/<JOBTYPE>/$JOBTYPE/" -e "s/<NB_NPROC>/$NB_NPROC/g" -e "s/<MPIPROC>/$MPIPROC/g" \
