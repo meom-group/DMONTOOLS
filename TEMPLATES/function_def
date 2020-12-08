@@ -26,7 +26,7 @@ case $MACHINE in
 
 ##########################################################################
 
-    ( jade | occigen | occigen2 | curie | meolkerg )
+    ( jade | occigen | occigen2 | curie | meolkerg | jean-zay)
 
 # jade version: all is supposed to be in WORKDIR
  
@@ -62,6 +62,7 @@ chkdirw() { ssh drakkar@ige-meom-drakkar.u-ga.fr " if [ ! -d DRAKKAR/$1 ] ; \
 submit() {
      if [ $MACHINE = jade      ] ; then  qsub     $1 ; fi
      if [ $MACHINE = occigen   ] ; then  sbatch   $1 ; fi
+     if [ $MACHINE = 'jean-zay' ] ; then  sbatch   $1 ; fi
      if [ $MACHINE = curie     ] ; then  ccc_msub $1 ; fi
      if [ $MACHINE = meolkerg  ] ; then  ./$1 ; fi
          }

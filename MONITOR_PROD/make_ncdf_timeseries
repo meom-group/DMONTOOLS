@@ -124,7 +124,7 @@ fi
       (c) calendar=${OPTARG}   ;;
       (M) MACHINE=${OPTARG} ;;
       (l) echo ' Defaults configuration exists for the following pre-defined machines:' ;
-          for m in  ada jade occigen occigen2 curie meolkerg ; do 
+          for m in  occigen occigen2 jean-zay irene meolkerg ; do 
             echo '    - ' $m
           done ;
           exit 0 ;;
@@ -150,11 +150,10 @@ fi
 
 ierr=0  # reset error flag
 case $MACHINE in 
-  ( jade     ) rootdir=/scratch/$USER         ;;
+  ( jean-zay ) rootdir=$WORKDIR               ;;
   ( occigen  ) rootdir=$WORKDIR               ;;
   ( occigen2 ) rootdir=$WORKDIR               ;;
-  ( ada      ) rootdir=$WORKDIR               ;;
-  ( curie    ) rootdir=$DDIR                  ;;
+  ( irene    ) rootdir=$DDIR                  ;;
   ( meolkerg ) rootdir=$ISLANDSPATH_MODEL_SET ;;
   ( *        ) echo " Machine $MACHINE is not pre-defined ";
                if [ $DIAGS ] ; then echo "using DIAGS from command line " ;
