@@ -85,6 +85,16 @@ fi
      -e "s/<JOBTYPE>/$JOBTYPE/"   -e "s/<MPIPROC>/$MPIPROC/g" \
      -e "s/<ACCOUNT>/$ACCOUNT/"   -e "s/<QUEUE>/$QUEUE/g" \
      -e "s/ifloadlev#/$TASKTRICK/g" -e "s/<RNDTMPDIR>/$RNDTMPDIR/" -e "s/<NODETYPE>/$NODETYPE/g"  >  plot_monitor.sub
+ if [ $MACHINE = 'jean-zay' ] ; then
+   # Erase std SBATCH statements (valid for occigen) 
+   # Replace key_jean-zay by SBATCH afterward
+   cat plot_monitor.sub | sed -e '/SBATCH/d' -e 's/key_jean-zay/SBATCH/' > ztmp
+   mv ztmp plot_monitor.sub
+ elif [ $MACHINE = 'vayu' ] ; then
+   cat plot_monitor.sub | sed -e 's/key_vayu/PBS/' > ztmp
+   mv ztmp plot_monitor.sub
+ fi
+
  chmod +x plot_monitor.sub
  submit  ./plot_monitor.sub
  \rm plot_monitor.sub

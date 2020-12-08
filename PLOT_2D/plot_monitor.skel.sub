@@ -16,6 +16,17 @@
 #vayu -mb -me
 #vayu -v NB_NODES=<NB_NODES>
 
+#key_jean-zay --nodes=<NB_NODES>
+#key_jean-zay --ntasks=<NB_NPROC>
+#key_jean-zay --ntasks-per-node=<MPIPROC>
+#key_jean-zay --threads-per-core=1
+#key_jean-zay -A <ACCOUNT>
+#key_jean-zay -J zmetamon
+#key_jean-zay -e zmetamon.e%j
+#key_jean-zay -o zmetamon.o%j
+#key_jean-zay --time=<PLOT_WALLTIME>
+#key_jean-zay --exclusive
+
 #SBATCH --nodes=<NB_NODES>
 #SBATCH --ntasks=<NB_NPROC>
 #SBATCH --ntasks-per-node=<MPIPROC>
@@ -107,7 +118,7 @@ if [ $useMPI = 1 ] ; then
       ./plot_monitor $YEARS
     fi   ;;
 
-  ( occigen | occigen2 )
+  ( occigen | occigen2 | jean-zay)
     # mpi_plot_monitor $YEARS 
     #  Then each proc is expecting a command such as plot_monitor  $year
     if [ $single = 0 ] ; then

@@ -32,7 +32,7 @@ import matplotlib.mlab as mlab
 
 
 params = {'axes.labelsize': 10,
-          'text.fontsize': 10,
+          'font.size': 10,
           'legend.fontsize': 10,
           'xtick.labelsize': 8,
           'ytick.labelsize': 8,
