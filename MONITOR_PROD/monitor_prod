@@ -1204,7 +1204,7 @@ if [    $ELNINO != 0    ] ; then  # always monthly diags
      rapatrie $f $MEANY  $f
  
      #  header
-     printf "%04d %02d" $TAG $m >>   $fnino
+     printf "%04d %02d" ${TAG#y} $m >>   $fnino
  
     # nino 1+2   [ -90 W -- -80 W, -10 S -- 10 N ]
     cdfmean  -f $f -v votemper -p T -w $NINO12 1 1 $FULLOPT $VVLOPT | tail -1 | awk '{ printf " %8.5f 0.00", $6 }'  >> $fnino 

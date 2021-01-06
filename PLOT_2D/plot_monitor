@@ -111,10 +111,19 @@ if [ $create_gif == 1 ] ; then   gif='gif' ; else gif=''; fi
             for ftyp in $gif  ; do expatrie $f.$ftyp $PLOTDIR/$1/$2/GIFS  $f.$ftyp  ; done
        done ;
                 }
+    # convcgm : usage convcgm cgm_file 
+    #          This function implement a fix for jean-zay, swapping the bytes of cgm files produced by ncl
+    convcgm()   {
+           hexdump -v -e '1/4 "%08x"' -e '"\n"' $1 | xxd -r -p > $1.sw
+           mv $1.sw $1
+                }
 
     # mkplt : Usage mkplt  filout
     #         convert gmeta ( created by chart/coupe) into filout.cgm and hold the list
-    mkplt() { mv gmeta $1.cgm  ; listplt="$listplt $1 " ; 
+    mkplt() { if [ $MACHINE = 'jean-zay' ] ; then
+                convcgm gmeta
+              fi
+              mv gmeta $1.cgm  ; listplt="$listplt $1 " ; 
               for ftyp in $gif ; do
                ctrans -device sun -res 1024x1024 $1.cgm > $1.sun ;
                convert $1.sun $1.$gif ; \rm -f $1.sun 
