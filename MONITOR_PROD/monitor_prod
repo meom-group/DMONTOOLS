@@ -44,9 +44,14 @@ if [ $VVL = 1 ] ; then VVLOPT='-vvl' ; fi
 FULL=${FULL:=0}
 if [ $FULL != 0 ] ; then FULLOPT='-full' ; else FULLOPT='' ; fi
 
-LIM3=${LIM3:=0}    # use LI:3 instead of LIM2
+LIM3=${LIM3:=0}    # use LIM3 instead of LIM2  
+                   # if LIM3=2 then icemodel is SI3
 if [ $LIM3 = 1 ] ; then
    icemod=icemod3
+   ileadfra=siconc
+   iicethic=sithic
+elif [ $LIM3 = 2 ] ; then
+   icemod=icemod
    ileadfra=siconc
    iicethic=sithic
 else
