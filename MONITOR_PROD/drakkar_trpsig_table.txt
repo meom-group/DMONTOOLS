@@ -17,6 +17,7 @@
 01_Denmark_strait           NNATL12                  446  565  331  331
 01_Denmark_strait           ORCA025                 1013 1056  832  832 
 01_Denmark_strait           ORCA025.L75             1013 1056  832  832 
+01_Denmark_strait           eORCA025.L75            1013 1056 1018 1018
 01_Denmark_strait           ORCA025.L300            1013 1056  832  832 
 01_Denmark_strait           ORCA05                   507  528  416  416
 01_Denmark_strait           ORCA2                    123  131  123  123
@@ -34,6 +35,7 @@
 02_Faoes_Bank_Channel      NNATL12                  721  721  233  255
 02_Faoes_Bank_Channel      ORCA025                 1106 1106  800  808 
 02_Faoes_Bank_Channel      ORCA025.L75             1106 1106  800  808 
+02_Faoes_Bank_Channel      eORCA025.L75            1106 1106  986  994
 02_Faoes_Bank_Channel      ORCA025.L300            1106 1106  800  808 
 02_Faoes_Bank_Channel      ORCA05                   554  554  398  404
 02_Faoes_Bank_Channel      ORCA2                    137  137  117  121
@@ -50,6 +52,7 @@
 03_Gibraltar                EORCA12.L75             3378 3378 2044 2049
 03_Gibraltar                ORCA025                 1126 1126  651  655
 03_Gibraltar                ORCA025.L75             1126 1126  651  655
+03_Gibraltar                eORCA025.L75            1126 1126  837  841
 03_Gibraltar                ORCA025.L300            1126 1126  651  655
 03_Gibraltar                ORCA05                   563  563  326  327
 03_Gibraltar                ORCA2                    140  140   99  103
@@ -67,6 +70,7 @@
 04_Gibbs_FZ                 NNATL12                  478  478   50   70
 04_Gibbs_FZ                 ORCA025                 1025 1025  739  745
 04_Gibbs_FZ                 ORCA025.L75             1025 1025  739  745
+04_Gibbs_FZ                 eORCA025.L75            1025 1025  925  931
 04_Gibbs_FZ                 ORCA025.L300            1025 1025  739  745
 04_Gibbs_FZ                 ORCA05                   513  513  370  373
 04_Gibbs_FZ                 NATL025                  269  269  325  331
@@ -81,6 +85,7 @@
 05_Romanche_FZ              EORCA12.L75             3252 3252 1583 1591
 05_Romanche_FZ              ORCA025                 1084 1084  496  501
 05_Romanche_FZ              ORCA025.L75             1084 1084  496  501
+05_Romanche_FZ              eORCA025.L75            1084 1084  632  687
 05_Romanche_FZ              ORCA025.L300            1084 1084  496  501
 05_Romanche_FZ              ORCA05                   542  542  248  251
 05_Romanche_FZ              NATL12                   982  982  245  260
@@ -94,6 +99,7 @@
 06_Vema_Channel             EORCA12.L75             2970 2997 1204 1204
 06_Vema_Channel             ORCA025                  990  999  372  372
 06_Vema_Channel             ORCA025.L75              990  999  372  372
+06_Vema_Channel             eORCA025.L75             990  999  558  558
 06_Vema_Channel             ORCA025.L300             990  999  372  372
 06_Vema_Channel             ORCA05                   495  500  186  186
 #
@@ -106,6 +112,7 @@
 07_Bab_el_Mandeb            EORCA12.L75             3952 3966 1747 1747
 07_Bab_el_Mandeb            ORCA025                 1318 1324  553  553
 07_Bab_el_Mandeb            ORCA025.L75             1318 1324  553  553
+07_Bab_el_Mandeb            eORCA025.L75            1318 1324  739  739
 07_Bab_el_Mandeb            ORCA025.L300            1318 1324  553  553
 07_Bab_el_Mandeb            ORCA05                   659  662  277  277
 #
@@ -118,6 +125,7 @@
 08_Lombok                   EORCA12.L75              512  520 1480 1480
 08_Lombok                   ORCA025                  173  175  464  464
 08_Lombok                   ORCA025.L75              173  175  464  464
+08_Lombok                   eORCA025.L75             173  175  650  650
 08_Lombok                   ORCA025.L300             173  175  464  464
 08_Lombok                   ORCA05                    86   87  232  232
 #
@@ -130,6 +138,7 @@
 09_Mona                     EORCA12.L75             2624 2642 1809 1809
 09_Mona                     ORCA025                  876  881  574  574
 09_Mona                     ORCA025.L75              876  881  574  574
+09_Mona                     eORCA025.L75             876  881  760  760
 09_Mona                     ORCA025.L300             876  881  574  574
 09_Mona                     ORCA05                   438  441  287  287
 09_Mona                     NATL025                  120  125  160  160
@@ -144,6 +153,7 @@
 10_Windward_passage         EORCA12.L75             2555 2571 1827  1827
 10_Windward_passage         ORCA025                  853  857  580  580
 10_Windward_passage         ORCA025.L75              853  857  580  580
+10_Windward_passage         eORCA025.L75             853  857  766  766
 10_Windward_passage         ORCA025.L300             853  857  580  580
 10_Windward_passage         ORCA05                   426  428  290  290
 10_Windward_passage         NATL025                   97  101  166  166
@@ -158,6 +168,7 @@
 11_Drake                    EORCA12.L75              2609 2609  365  859
 11_Drake                    ORCA025                   878  878    9  399
 11_Drake                    ORCA025.L75               878  878    9  399
+11_Drake                    eORCA025.L75              879  879  193  585
 11_Drake                    ORCA025.L300              878  878    9  399
 11_Drake                    PERIANT8                 1754 1754   16  796
 11_Drake                    PERIANT05                 439  439    5  200
@@ -174,6 +185,7 @@
 12_South_Africa             EORCA12.L75              3809 3809 73 1285
 12_South_Africa             ORCA025                  1270 1270    9  399
 12_South_Africa             ORCA025.L75              1270 1270    9  399
+12_South_Africa             eORCA025.L75             1270 1270  181  585
 12_South_Africa             ORCA025.L300             1270 1270    9  399
 12_South_Africa             PERIANT8                 2538 2538 16 796
 12_South_Africa             PERIANT05                 635  635  5 200
@@ -190,6 +202,7 @@
 13_kerguelen                EORCA12.L75              4276 4276  461  899
 13_kerguelen                ORCA025                  1425 1425  124  270
 13_kerguelen                ORCA025.L75              1425 1425  124  270
+13_kerguelen                eORCA025.L75             1425 1425  310  456
 13_kerguelen                ORCA025.L300             1425 1425  124  270
 13_kerguelen                PERIANT8                 2858 2858 16 796
 13_kerguelen                PERIANT05                 715  715  5 200
@@ -206,6 +219,7 @@
 14_South_Australia          EORCA12.L75              804 804 43 1285
 14_South_Australia          ORCA025                  268  268    9  399
 14_South_Australia          ORCA025.L75              268  268    9  399
+14_South_Australia          eORCA025.L75             269  269  171  585
 14_South_Australia          ORCA025.L300             268  268    9  399
 14_South_Australia          PERIANT8                 534 534 16 796
 14_South_Australia          PERIANT05                134 134  5 200
@@ -222,6 +236,7 @@
 15_Campbell                 EORCA12.L75              1170 1170  323  963
 15_Campbell                 ORCA025                   390  390   79  291
 15_Campbell                 ORCA025.L75               390  390   79  291
+15_Campbell                 eORCA025.L75              390  390  264  477
 15_Campbell                 ORCA025.L300              390  390   79  291
 15_Campbell                 PERIANT05                195 195  5 200
 15_Campbell                 PERIANT025               390 390  9 399
