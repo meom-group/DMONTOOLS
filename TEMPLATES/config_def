@@ -50,6 +50,29 @@ MESH_MASK_ID=$CONFIG     # root part of the mesh-mask files (likely  to be edite
 #TSCLIM=Gouretski        # if TSCLIM is not defined here it takes Levitus_p2.1 as default
 #TSCLIM=WOA2009          # if TSCLIM is not defined here it takes Levitus_p2.1 as default
 
+# define type of file for variables
+sshtyp=gridTsurf
+sshtyp2=gridTsurf2
+temtyp=gridT
+temtyp=gridT
+saltyp=gridT
+uzotyp=gridU
+uzotyp2=gridU2
+vmetyp=gridV
+vmetyp2=gridV2
+wvetyp=gridW
+wvetyp2=gridW2
+flxtyp=flxT
+icetyp=icemod
+# Heat/salt transport
+vttyp=PRODV   # use to be VT in DRAKKAR
+uttyp=PRODU   # use to be VT in DRAKKAR
+  utvar=vout  # use to be cn_vozout etc>>>
+  usvar=vous
+  vtvar=vovt
+  vsvar=vovs
+####
+
 
 ######################################################################
 ### modules
@@ -219,6 +242,16 @@ elif [ $CONFIG = 'ORCA025' -o  $CONFIG = 'ORCA025.L75' -o $CONFIG = 'ORCA025.L30
   NINO3='550 790 479 519 '
   NINO4='350 550 479 519 '
   NINO34='470 670 479 519 '
+elif [ $CONFIG = 'eORCA025.L75' ] ; then
+  # define the I-J window for GIB diags
+  GIBWIN='1094 1109 839 860 '
+  # define the I-J windows for EL NINO diags
+  NINO12='790 830 645 685'
+  NINO3='550 790 665 705 '
+  NINO4='350 550 665 705 '
+  NINO34='470 670 665 705 '
+
+
 elif [ $CONFIG = 'EORCA12' -o  $CONFIG = 'EORCA12.L46' -o $CONFIG = 'EORCA12.L75' ] ; then
   # define the I-J window for GIB diags
   GIBWIN='3282 3327 2046 2110'
