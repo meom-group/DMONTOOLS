@@ -39,6 +39,10 @@ if [ $LIM3 = 1 ] ; then
    icemod=icemod3
    ileadfra=siconc
    iicethic=sivolu
+elif [ $LIM3 = 2 ] ; then
+   icemod=icemod
+   ileadfra=siconc
+   iicethic=sivolu
 else
    icemod=icemod
    ileadfra=ileadfra
@@ -340,7 +344,7 @@ getlist() {
                      if [ $(chconf PERIANT) != 0 ] ; then min=-2 ; max=22  ; pas=2  ; fi
                      LEV="-lev 1" ; DEP="" ;
                     CNTICE=" -cntdata $ice -cntvar $ileadfra -cntmin 0 -cntmax 1 -cntint .1" ;;
-              150)  min=-2 ; max=28  ; pas=4
+              150)  min=-2 ; max=26  ; pas=4
                     if [ $(chconf PERIANT) != 0 ] ; then min=-2 ; max=20  ; pas=2  ; fi ;;
             esac ;;
           Sgl) clrvar=vosaline
