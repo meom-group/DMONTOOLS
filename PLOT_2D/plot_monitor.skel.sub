@@ -21,9 +21,9 @@
 #key_jean-zay --ntasks-per-node=<MPIPROC>
 #key_jean-zay --threads-per-core=1
 #key_jean-zay -A <ACCOUNT>
-#key_jean-zay -J zmetamon
-#key_jean-zay -e zmetamon.e%j
-#key_jean-zay -o zmetamon.o%j
+#key_jean-zay -J zplotmonitor
+#key_jean-zay -e zplotmonitor.e%j
+#key_jean-zay -o zplotmonitor.o%j
 #key_jean-zay --time=<PLOT_WALLTIME>
 #key_jean-zay --exclusive
 
