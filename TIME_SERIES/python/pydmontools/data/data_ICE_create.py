@@ -37,18 +37,18 @@ def download_from_ftp():
 		ct = ct + 1
 		mm = str(ct).zfill(2)
 		ftpserv = 'sidads.colorado.edu/'
-		dirdata = 'pub/DATASETS/NOAA/G02135/'
-		fice_south='S_' + mm + '_area.txt'
-		fice_north='N_' + mm + '_area.txt'
-		urllib.urlretrieve('ftp://' + ftpserv + dirdata + month + '/' + fice_south,filename=fice_south)
-		urllib.urlretrieve('ftp://' + ftpserv + dirdata + month + '/' + fice_north,filename=fice_north)
+                dirdata = 'pub/DATASETS/NOAA/G02135/south/monthly/data/'
+		fice_south='S_' + mm + '_extent_v3.0.csv'
+		fice_north='N_' + mm + '_extent_v3.0.csv'
+		urllib.urlretrieve('ftp://' + ftpserv + dirdata  + '/' + fice_south,filename=fice_south)
+		urllib.urlretrieve('ftp://' + ftpserv + dirdata  + '/' + fice_north,filename=fice_north)
 	return None
 
 ################################################################################################
 ####################################### Sort the data ##########################################
 ################################################################################################
 
-def get_data_onemonth(filename,region,index=26):
+def get_data_onemonth(filename,region,index=29):
 	# region is 'N' or 'S'
 	# index is the position on the text line of characters N or S, used to pick data
 	# we should find something better like checking that the 4 first caracters are a year,...
@@ -62,7 +62,7 @@ def get_data_onepole(region):
 	linesorted = []
 	for month in npy.arange(1,13):
 		mm = str(month).zfill(2)
-		tmp = get_data_onemonth(region + '_' + mm + '_area.txt',region)
+		tmp = get_data_onemonth(region + '_' + mm + '_extent_v3.0.csv',region)
 		for line in tmp:
 			linesorted.append( line )
 	linesorted.sort()
@@ -74,12 +74,11 @@ def reshape_data_onepole(region):
 	lines = get_data_onepole(region)
 
 	for line in lines:
-		elts = line.split()
+		elts = line.split(",")
 		year.append(   int(  elts[0]))
 		month.append(  int(  elts[1]))
 		extent.append( float(elts[4]))
 		area.append(   float(elts[5]))
-
 	oyear = npy.array(year)
 	omonth = npy.array(month)
 	oextent = npy.array(extent)
@@ -141,27 +140,34 @@ def write_1d_timeserie(ncfile,time,Nextent,Narea,Sextent,Sarea):
 def main():
 
 	# 1. download files from server
-	download_from_ftp()
+        # JMM : next line commented out because does not work (for now!) I retrieve the csv file
+        # manually from the NOAA/NSDIC site and copy them in the current dir
+	#download_from_ftp()
 
 	# 2. read data in monthly txt files and reshape
 	yearN, monthN, extentN, areaN = reshape_data_onepole('N')
 	yearS, monthS, extentS, areaS = reshape_data_onepole('S')
+	# 3. correction of north extent (JMM update for years > 2008)
 
-	# 3. correction of north extent
+        # Note: The extent column in the monthly .csv data files includes the area near
+        # the pole not imaged by the sensor. It is assumed to be entirely ice covered with 
+        # at least 15% concentration. However, unlike ice extent, the Arctic values for 
+        # ice area do not include the area near the pole not imaged by the sensor, the 
+        # Arctic Pole Hole. This area is 1.19 million square kilometers for SMMR (from 
+        # the beginning of the series through 20 August 1987), 0.31 million square 
+        # kilometers for SSM/I (21 August 1987 through December 2007), and 0.029 million 
+        # square kilometers for SSMIS (January 2008 to present). Therefore, there is a 
+        # discontinuity in the area data values in this file at the August/September 1987 
+        # boundary and at the December 2007/January 2008 boundary. Because of this 
+        # discontinuity, the August 1987 area value has been removed from the time series 
+        # because of the large difference in the SMMR and SSM/I pole hole
 
-	# 1) The "extent" column includes the area near the pole not imaged by the
-	# sensor. It is assumed to be entirely ice covered with at least 15%
-	# concentration. However, the "area" column excludes the area not imaged by
-	# the sensor. This area is 1.19 million square kilometers for SMMR (from the
-	# beginning of the series through June 1987) and 0.31 million square
-	# kilometers for SSM/I (from July 1987 to present). Therefore, there is a
-	# discontinuity in the "area" data values in this file at the June/July 1987
-	# boundary.
+	ind_disc1 = (npy.abs(yearN - 1987)).argmin() + 6 # july 1987
+	areaN[:ind_disc1] = areaN[:ind_disc1] + 1.19
 
-	ind_disc = (npy.abs(yearN - 1987)).argmin() + 6 # july 1987
-
-	areaN[:ind_disc] = areaN[:ind_disc] + 1.19
-	areaN[ind_disc:] = areaN[ind_disc:] + 0.31
+	ind_disc2 = (npy.abs(yearN - 2008)).argmin()     # January 2008
+	areaN[ind_disc1:ind_disc2] = areaN[ind_disc1:ind_disc2] + 0.31
+	areaN[ind_disc2:] = areaN[ind_disc2:] + 0.029
 	
 	# correction change spval
 	areaN[npy.where(areaN < 0)] = -9999.
@@ -174,7 +180,7 @@ def main():
 	write_1d_timeserie('./NC/dmondata_ice_NOAA.nc',timeN,extentN,areaN,extentS,areaS)
 	
 	# 6. Clean the txt files
-	subprocess.call("rm *area.txt", shell=True)
+	#subprocess.call("rm *extent_v3.0.csv", shell=True)
 	return None
 
 if __name__ == '__main__':
