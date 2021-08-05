@@ -205,13 +205,13 @@ cd $YEAR
      rapatrie  ${CONFCASE}_${TAG}_$vmetyp2.nc $MEANY ${CONFCASE}_${TAG}_$vmetyp2.nc
    
    # retrieve a T file needed for headers only (EKE is computed on the T-point)
-     rapatrie  ${CONFCASE}_${TAG}_$sshtyp2.nc $MEANY  ${CONFCASE}_${TAG}_$sshtyp2.nc
+     rapatrie  ${CONFCASE}_${TAG}_$temtyp.nc $MEANY  ${CONFCASE}_${TAG}_$temtyp.nc
 
    cdfeke -u ${CONFCASE}_${TAG}_$uzotyp.nc \
      -u2 ${CONFCASE}_${TAG}_$uzotyp2.nc \
      -v  ${CONFCASE}_${TAG}_$vmetyp.nc \
      -v2 ${CONFCASE}_${TAG}_$vmetyp2.nc \
-     -t ${CONFCASE}_${TAG}_$sshtyp2.nc $NCOPT -o ${CONFCASE}_${TAG}_EKE.nc 
+     -t ${CONFCASE}_${TAG}_$temtyp.nc $NCOPT -o ${CONFCASE}_${TAG}_EKE.nc 
 
    # dispose file on the MEAN directory
    expatrie ${CONFCASE}_${TAG}_EKE.nc $MEANY  ${CONFCASE}_${TAG}_EKE.nc
