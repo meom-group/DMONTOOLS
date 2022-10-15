@@ -1549,6 +1549,7 @@ rename_maxmoc()   {
    fglomaxmoc15s=${fbase}_Glo_maxmoc15S.nc
    fatlmaxmoc40n=${fbase}_Atl_maxmoc40N.nc
    fatlmaxmoc30s=${fbase}_Atl_maxmoc30S.nc
+   fatlmaxmocrap=${fbase}_Atl_maxmocrap.nc
    finpminmoc30s=${fbase}_Inp_minmoc30S.nc
    fausmaxmoc50s=${fbase}_Aus_maxmoc50S.nc
 
@@ -1627,7 +1628,7 @@ rename_maxmoc()   {
    file_lst=$( filter_list $file_lst $fglomaxmoc30s )
 
 
-   # ATL  MAX at 40N and 30S
+   # ATL  MAX at 40N and 30S and RAPID
    printf "%s" 'Atl ' >>  $fmaxmoc40 ; cdfmaxmoc -f $f -b atl -w 40 40 500 2000 | grep Maximum >> $fmaxmoc40
    rename_maxmoc maxmoc.nc Atl_maxmoc40N
    concat_file $TAG maxmoc.nc $fatlmaxmoc40n
@@ -1638,6 +1639,10 @@ rename_maxmoc()   {
    concat_file $TAG maxmoc.nc $fatlmaxmoc30s
    file_lst=$( filter_list $file_lst $fatlmaxmoc30s )
 
+   printf "%s" 'Atl ' >>  $fmaxmoc40 ; cdmaxmoc -f $f -b atl -w 26.5 26.5  500 5000 | grep Maximum >> $fmaxmoc40
+   rename_maxmoc maxmoc.nc Atl_maxmocrap
+   concat_file $TAG maxmoc.nc $fatlmaxmocrap
+   file_lst=$( filter_list $file_lst $fatlmaxmocrap )
 
    #INP  Min at 30 S
    printf "%s" 'Inp ' >>  $fmaxmoc40 ; cdfmaxmoc -f $f -b inp -w -30 -30 1000 5500  | grep Minimum >> $fmaxmoc40
