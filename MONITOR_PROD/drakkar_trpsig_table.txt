@@ -24,6 +24,7 @@
 01_Denmark_strait           ORCA246                  123  131  123  123
 01_Denmark_strait           NATL025                  257  300  418  418 
 01_Denmark_strait           NATL12                   769  898 1253 1253 
+01_Denmark_strait           eORCA1                   254  265  285  285
 #
 02_Faoes_Bank_Channel      faroe                   Faroes_Bank_Channel_transport_in_sigma_classes 
 02_Faoes_Bank_Channel      ORCA12.L46              3318 3318 2398 2420 
@@ -42,6 +43,7 @@
 02_Faoes_Bank_Channel      ORCA246                  137  137  117  121
 02_Faoes_Bank_Channel      NATL025                  350  350  386  394
 02_Faoes_Bank_Channel      NATL12                  1048 1048 1157 1181 
+02_Faoes_Bank_Channel       eORCA1                   277  277  277  279
 #
 03_Gibraltar                gibra                   Gibraltar_Strait_transport_in_sigma_classes
 03_Gibraltar                ORCA12.L46              3378 3378 1956 1961 
@@ -59,6 +61,7 @@
 03_Gibraltar                ORCA246                  140  140   99  103
 03_Gibraltar                NATL025                  370  370  237  241
 03_Gibraltar                NATL12                  1108 1108  710  722
+03_Gibraltar                eORCA1                   282  282  240  241
 #
 04_Gibbs_FZ                 gibbs                   Gibbs_Fracture_Zone_transport_in_sigma_classes
 04_Gibbs_FZ                 ORCA12.L46              3075 3075 2215 2235
@@ -75,6 +78,7 @@
 04_Gibbs_FZ                 ORCA05                   513  513  370  373
 04_Gibbs_FZ                 NATL025                  269  269  325  331
 04_Gibbs_FZ                 NATL12                   805  805  974  992 
+04_Gibbs_FZ                 eORCA1                   257  257  262  263
 #
 05_Romanche_FZ              roman                   Romanche_Fracture_Zone_transport_in_sigma_classes
 05_Romanche_FZ              ORCA12.L46              3252 3252 1495 1503
@@ -89,6 +93,7 @@
 05_Romanche_FZ              ORCA025.L300            1084 1084  496  501
 05_Romanche_FZ              ORCA05                   542  542  248  251
 05_Romanche_FZ              NATL12                   982  982  245  260
+05_Romanche_FZ              eORCA1                   272  272  159  188
 #
 06_Vema_Channel             vema                    Vema_Channel_transport_in_sigma_classes
 06_Vema_Channel             ORCA12.L46              2970 2997 1116 1116
@@ -102,6 +107,7 @@
 06_Vema_Channel             eORCA025.L75             990  999  558  558
 06_Vema_Channel             ORCA025.L300             990  999  372  372
 06_Vema_Channel             ORCA05                   495  500  186  186
+06_Vema_Channel             eORCA1                   248  250  140  140
 #
 07_Bab_el_Mandeb            babel                   Bab_El_Mandeb_transport_in_sigma_classes
 07_Bab_el_Mandeb            ORCA12.L46              3952 3966 1659 1659
@@ -115,6 +121,7 @@
 07_Bab_el_Mandeb            eORCA025.L75            1318 1324  739  739
 07_Bab_el_Mandeb            ORCA025.L300            1318 1324  553  553
 07_Bab_el_Mandeb            ORCA05                   659  662  277  277
+07_Bab_el_Mandeb            eORCA1                   330  332  215  215
 #
 08_Lombok                   lombo                   Lombok_Strait_transport_in_sigma_classes
 08_Lombok                   ORCA12.L46               512  520 1392 1392
@@ -128,6 +135,7 @@
 08_Lombok                   eORCA025.L75             173  175  650  650
 08_Lombok                   ORCA025.L300             173  175  464  464
 08_Lombok                   ORCA05                    86   87  232  232
+08_Lombok                   eORCA1                    44   44  164  164
 #
 09_Mona                     mona                    Mona_Passage_transport_in_sigma_classes
 09_Mona                     ORCA12.L46              2624 2642 1721 1721 
@@ -143,6 +151,7 @@
 09_Mona                     ORCA05                   438  441  287  287
 09_Mona                     NATL025                  120  125  160  160
 09_Mona                     NATL12                   358  373  479  479
+09_Mona                     eORCA1                   220  221  220  220
 #
 10_Windward_passage         windw                   Windward_Passage_transport_in_sigma_classes
 10_Windward_passage         ORCA12.L46              2555 2571 1739 1739
@@ -158,6 +167,7 @@
 10_Windward_passage         ORCA05                   426  428  290  290
 10_Windward_passage         NATL025                   97  101  166  166
 10_Windward_passage         NATL12                   289  301  497  497
+10_Windward_passage         eORCA1                   214  215  222  222
 #
 11_Drake                    drake                   Drake_Passage_transport_in_sigma_classes
 11_Drake                    ORCA12.L46               2634 2634   27 1197
@@ -175,6 +185,7 @@
 11_Drake                    PERIANT025                878  878    9  399
 11_Drake                    BIOPERIANT05              439  439    5  200
 11_Drake                    ORCA05                    439  439   70  116 
+11_Drake                    eORCA1                   220  220   49  147
 #
 12_South_Africa             soafr                   South_Africa_transport_in_sigma_classes
 12_South_Africa             ORCA12.L46               3810 3810 27 1197
@@ -192,6 +203,7 @@
 12_South_Africa             PERIANT025               1270 1270  9 399
 12_South_Africa             BIOPERIANT05              635  635  5 200
 12_South_Africa             ORCA05                    615  615   51  175
+12_South_Africa             eORCA1                   318  318   46  147
 #
 13_kerguelen                kergu                   Kerguelen_transport_in_sigma_classes
 13_kerguelen                ORCA12.L46               4276 4276  373  811
@@ -209,6 +221,7 @@
 13_kerguelen                PERIANT025               1430 1430  9 399
 13_kerguelen                BIOPERIANT05              715  715  5 200
 13_kerguelen                ORCA05                    715  715   62  135
+13_kerguelen                eORCA1                   357  357   78  114
 #
 14_South_Australia          soaus                   South-Australia_transport_in_sigma_classes
 14_South_Australia          ORCA12.L46               804 804 27 1197
@@ -226,6 +239,7 @@
 14_South_Australia          PERIANT025               268 268  9 399
 14_South_Australia          BIOPERIANT05             134 134  5 200
 14_South_Australia          ORCA05                   142  142 65 168
+14_South_Australia          eORCA1                    68   68   43  147
 #
 15_Campbell                 campb                   Campbell_transport_in_sigma_classes
 15_Campbell                 ORCA12.L46               1170 1170  237  875
@@ -241,7 +255,8 @@
 15_Campbell                 PERIANT05                195 195  5 200
 15_Campbell                 PERIANT025               390 390  9 399
 15_Campbell                 BIOPERIANT05             195 195  5 200
-14_Campbell                 ORCA05                   195  195   62  134
+15_Campbell                 ORCA05                   195  195   62  134
+15_Campbell                 eORCA1                    98   98   66  120
 #
 18_SOSAL                    sosal                   South_Solomon        
 18_SOSAL                    SOSMOD                    43  90  58  58
