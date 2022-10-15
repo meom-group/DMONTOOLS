@@ -287,6 +287,14 @@ elif [ $CONFIG = 'ORCA2' -o $CONFIG = 'ORCA246' ] ; then
 elif [ $CONFIG = 'NATL12' ] ; then
   GIBWIN='1014 1059 717 780'
   ELNINO=0 ; ts_nino=0 # reset to suitable value
+elif [ $CONFIG = 'eORCA1' ] ; then
+  # define the I-J window for GIB diags
+  GIBWIN='274 278 240 245'
+  # define the I-J windows for EL NINO diags
+  NINO12='198 208 162 186'
+  NINO3='138 198 172 201'
+  NINO4='88 138 172 201'
+  NINO34='118 168 172 201'
 else
   echo GIBWIN and NINO boxes not defined for config $CONFIG
   GIB=0    ; ts_gib=0  # reset to suitable value
@@ -360,7 +368,7 @@ case $MACHINE in
 
     ### 4 : hardware/batch
     QUEUE='standard'
-    ACCOUNT='gen0727'
+    ACCOUNT='cli@cpu'
     PLOT_WALLTIME=05:00:00
     WALLTIME=03:00:00
      if [ $MACHINE = 'jade'     ] ; then MPIPROC=8   ; fi 
