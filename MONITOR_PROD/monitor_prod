@@ -1326,6 +1326,11 @@ fi
 #  keyword : DCT   file_id :  trpsig
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 if [ $DCT != 0 ] ; then
+   if [ $TEOS10 = 1 ] ; then
+      TEOS='-teos10'
+   else
+      TEOS=''
+   fi
    TAG=y${YEAR}
   # dens_section.dat describe the sections (either zonal or meridional) 
   # where the DCT is computed: it is buildt by a  DMONTOOLS script
@@ -1369,7 +1374,10 @@ if [ $DCT != 0 ] ; then
     tag=$(echo $tfich | sed -e "s/${CONFCASE}_//" -e 's/_gridT.nc//')
 
     #echo $tag > ${CONFCASE}_y${tag}_trpsig_monitor.lst
-    if [ $VVL = 1 ] ; then
+### JMM VVL is not working because there no e3w in gridW files
+### Think about a fix . in the mean time test for a dummy value
+#    if [ $VVL = 1 ] ; then
+    if [ $VVL = 1012 ] ; then
        wfich=$(echo  $tfich | sed -e 's/gridT/gridW/' )
        rapatrie  $wfich $MEANY  $wfich
        zVVLOPT="$VVLOPT $wfich"
@@ -1377,7 +1385,7 @@ if [ $DCT != 0 ] ; then
       zVVLOPT=""
     fi
 
-    cdfsigtrp -t $tfich -u $ufich -v $vfich -smin 21 -smax 30 -nbins 180 $FULLOPT $zVVLOPT # -print  >>  ${CONFCASE}_y${tag}_trpsig_monitor.lst
+    cdfsigtrp -t $tfich -u $ufich -v $vfich -smin 21 -smax 30 -nbins 180 $FULLOPT $zVVLOPT $TEOS # -print  >>  ${CONFCASE}_y${tag}_trpsig_monitor.lst
     # save netcdf files ( one per section )
     listfiles=$( ls | grep -e "^[0-9]" | grep trpsig.nc  )
 
